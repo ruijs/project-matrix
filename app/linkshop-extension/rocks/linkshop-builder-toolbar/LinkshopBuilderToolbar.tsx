@@ -197,7 +197,7 @@ export default {
           },
           {
             label: "下拉选择",
-            key: "sfDropdownSelect",
+            key: "sfSinglePicker",
             icon: <DownSquareOutlined />,
           },
           {

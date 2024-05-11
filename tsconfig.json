@@ -13,7 +13,8 @@
     "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
     "paths": {
-      "~/*": ["./app/*"]
+      "~/*": ["./app/*"],
+      "antd-mobile": ["node_modules/antd-mobile/bundle/antd-mobile.es.js"]
     },
 
     // Remix takes care of building everything in `remix build`.

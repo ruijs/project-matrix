@@ -43,7 +43,7 @@ export default {
         {
           $type: "jsonPropsSetter",
           label: "表单项",
-          propNames: ["$id", "items", "actions", "column"],
+          propNames: ["items", "actions", "column", "$exps", "$vars"],
           defaultValue: {
             items: [],
             actions: [],

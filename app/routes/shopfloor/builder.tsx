@@ -27,6 +27,7 @@ import linkshopBuilderStyles from "~/styles/linkshop-builder.css";
 import customizeStyles from "~/styles/customize.css";
 import flexStyles from "~/styles/flex.css";
 import rapidService from "~/rapidService";
+import sfComponentStyles from "~/shopfloor-extension/rocks/style";
 
 import { Avatar, Dropdown, PageHeader } from "antd";
 import type { MenuProps } from "antd";
@@ -41,6 +42,7 @@ export function links() {
     { rel: "stylesheet", href: linkshopBuilderStyles },
     { rel: "stylesheet", href: customizeStyles },
     { rel: "stylesheet", href: flexStyles },
+    ...sfComponentStyles.map((style) => ({ rel: "stylesheet", href: style })),
   ];
 }
 

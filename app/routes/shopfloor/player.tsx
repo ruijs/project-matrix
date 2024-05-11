@@ -25,12 +25,13 @@ import customizeStyles from "~/styles/customize.css";
 import flexStyles from "~/styles/flex.css";
 import linkshopBuilderStyles from "~/styles/linkshop-builder.css";
 import rapidService from "~/rapidService";
+import sfComponentStyles from "~/shopfloor-extension/rocks/style";
 
 import { ShopfloorApp } from "~/_definitions/meta/entity-types";
 import { RuiLoggerProvider } from "rui-logger";
 
 export function links() {
-  return [antdStyles, indexStyles, linkshopBuilderStyles, customizeStyles, flexStyles].map((styles) => {
+  return [antdStyles, indexStyles, linkshopBuilderStyles, customizeStyles, flexStyles, ...sfComponentStyles].map((styles) => {
     return { rel: "stylesheet", href: styles };
   });
 }

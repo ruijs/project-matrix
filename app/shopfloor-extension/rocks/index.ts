@@ -10,6 +10,9 @@ import SfEntityDetails from "./sf-entity-details/SfEntityDetails";
 import SfEntityTable from "./sf-entity-table/SfEntityTable";
 import SfEntityForm from "./sf-entity-form/SfEntityForm";
 
+// form items
+import SfSinglePicker from "./sf-single-picker/SfSinglePicker";
+
 export default [
   SfButton,
   SfIcon,
@@ -17,6 +20,9 @@ export default [
   SfText,
   SfQRCode,
   SfBarcode,
+
+  // form items
+  SfSinglePicker,
 
   // layout
   SfEntityDetails,
