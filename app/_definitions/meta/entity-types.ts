@@ -3487,11 +3487,19 @@ export interface MomInspectionCategory {
   /**
    * Code
    */
-  code?: string;
+  code: string;
   /**
    * 名称
    */
-  name?: string;
+  name: string;
+  /**
+   * 排序号
+   */
+  orderNum?: number;
+  /**
+   * 上级分类
+   */
+  parent?: Partial<MomInspectionCategory>;
   /**
    * 创建时间
    */
@@ -3739,7 +3747,7 @@ export interface MomInspectionDefectCategory {
   /**
    * 上级分类
    */
-  parent?: Partial<MomEquipmentCategory>;
+  parent?: Partial<MomInspectionDefectCategory>;
   /**
    * 状态
    */

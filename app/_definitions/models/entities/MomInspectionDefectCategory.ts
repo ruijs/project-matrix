@@ -21,8 +21,8 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
       code: "parent",
       name: "上级分类",
       type: "relation",
-      targetSingularCode: "mom_equipment_category",
-      targetIdColumnName: "category_id",
+      targetSingularCode: "mom_inspection_defect_category",
+      targetIdColumnName: "parent_id",
     },
     {
       code: "state",

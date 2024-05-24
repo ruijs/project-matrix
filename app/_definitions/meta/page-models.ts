@@ -25,6 +25,10 @@ import FinAccountListPage from '../models/pages/FinAccountListPage';
 import FinBusinessCategoryListPage from '../models/pages/FinBusinessCategoryListPage';
 import FinExpenseCategoryListPage from '../models/pages/FinExpenseCategoryListPage';
 import FinTransactionListPage from '../models/pages/FinTransactionListPage';
+import inspection$MomInspectionCategoryListPage from '../models/pages/inspection/MomInspectionCategoryListPage';
+import inspection$MomInspectionCharacteristicCategoryListPage from '../models/pages/inspection/MomInspectionCharacteristicCategoryListPage';
+import inspection$MomInspectionDefectCategoryListPage from '../models/pages/inspection/MomInspectionDefectCategoryListPage';
+import inspection$MomInspectionDefectListPage from '../models/pages/inspection/MomInspectionDefectListPage';
 import MetaModelDetailsPage from '../models/pages/MetaModelDetailsPage';
 import MetaModelListPage from '../models/pages/MetaModelListPage';
 import MetaRouteListPage from '../models/pages/MetaRouteListPage';
@@ -96,6 +100,10 @@ export default [
   FinBusinessCategoryListPage,
   FinExpenseCategoryListPage,
   FinTransactionListPage,
+  inspection$MomInspectionCategoryListPage,
+  inspection$MomInspectionCharacteristicCategoryListPage,
+  inspection$MomInspectionDefectCategoryListPage,
+  inspection$MomInspectionDefectListPage,
   MetaModelDetailsPage,
   MetaModelListPage,
   MetaRouteListPage,

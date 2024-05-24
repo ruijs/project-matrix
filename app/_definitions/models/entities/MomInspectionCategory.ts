@@ -12,11 +12,25 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
       code: "code",
       name: "Code",
       type: "text",
+      required: true,
     },
     {
       code: "name",
       name: "名称",
       type: "text",
+      required: true,
+    },
+    {
+      code: "orderNum",
+      name: "排序号",
+      type: "integer",
+    },
+    {
+      code: "parent",
+      name: "上级分类",
+      type: "relation",
+      targetSingularCode: "mom_inspection_category",
+      targetIdColumnName: "parent_id",
     },
   ],
 };
