@@ -96,7 +96,7 @@ export async function startServer() {
     dbPort: parseInt(env.get("DATABASE_PORT"), 10) || 5432,
     dbName: env.get("DATABASE_NAME", "project_matrix"),
     dbUser: env.get("DATABASE_USERNAME", "postgres"),
-    dbPassword: env.get("DATABASE_PASSWORD", "postgres"),
+    dbPassword: env.get("DATABASE_PASSWORD", "6593120z"),
     dbDefaultSchema: env.get("DATABASE_DEFAULT_SCHEMA") || "public",
     dbPoolMaxConnections: parseInt(env.get("DATABASE_POOL_MAX_CONNECTIONS"), 10) || 20,
     sessionCookieName: env.get("SESSION_COOKIE_NAME", "RAPID_SESSION"),
