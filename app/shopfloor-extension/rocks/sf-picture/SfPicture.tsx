@@ -7,7 +7,7 @@ export default {
   Renderer(context, props: SfPictureRockConfig) {
     const { fileObj = {} } = props;
 
-    const url = `/api/download/file?inline=true&fileKey=${fileObj.fileKey}&fileName=${fileObj.fileName}&open=${open}`;
+    const url = `/api/download/file?inline=true&fileKey=${fileObj.fileKey}&fileName=${fileObj.fileName}`;
 
     const styleNames = [...CommonProps.PositionStylePropNames, ...CommonProps.SizeStylePropNames, ...CommonProps.BorderStylePropNames];
     const wrapStyle: React.CSSProperties = pick(props, styleNames) as any;

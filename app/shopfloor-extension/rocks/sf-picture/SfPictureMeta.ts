@@ -62,9 +62,9 @@ export default {
         },
         {
           $type: "filePropSetter",
-          label: "地址",
+          label: "图片",
           propName: "fileObj",
-          accept: ".jpg",
+          accept: ".jpg,.jpeg,.png,.gif,.apng,.bmp,.svg,.webp,.tif",
         },
       ],
     },
