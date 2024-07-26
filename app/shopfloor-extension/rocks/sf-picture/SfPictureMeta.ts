@@ -66,51 +66,10 @@ export default {
           propName: "fileObj",
           accept: ".jpg",
         },
-        {
-          $type: "selectPropSetter",
-          label: "边框",
-          propName: "borderStyle",
-          options: [
-            {
-              label: "无",
-              value: "none",
-            },
-            {
-              label: "实线",
-              value: "solid",
-            },
-            {
-              label: "虚线",
-              value: "dashed",
-            },
-            {
-              label: "点线",
-              value: "dotted",
-            },
-            {
-              label: "双线",
-              value: "double",
-            },
-          ],
-        },
-        {
-          $type: "colorPropSetter",
-          label: "边框颜色",
-          propName: "borderColor",
-        },
-        {
-          $type: "numberPropSetter",
-          label: "边框粗细",
-          propName: "borderWidth",
-        },
-        {
-          $type: "numberPropSetter",
-          label: "边框圆角",
-          propName: "borderRadius",
-        },
       ],
     },
     { $type: "positionPropPanel" },
     { $type: "sizePropPanel" },
+    { $type: "borderPropPanel"}
   ],
 } as RockMeta;
