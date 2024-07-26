@@ -13,6 +13,21 @@ export default {
       defaultValue: 'none'
     },
 
+    borderColor: {
+      valueType: 'string',
+      defaultValue: 'none'
+    },
+
+    borderWidth: {
+      valueType: 'number',
+      defaultValue: 2
+    },
+
+    borderRaduis: {
+      valueType: 'number',
+      defaultValue: 0
+    },
+
     width: {
       valueType: "string",
       defaultValue: "100px",
@@ -46,9 +61,10 @@ export default {
           propName: "$name",
         },
         {
-          $type: "textPropSetter",
+          $type: "filePropSetter",
           label: "地址",
-          propName: "url",
+          propName: "fileObj",
+          accept: ".jpg",
         },
         {
           $type: "selectPropSetter",
@@ -76,6 +92,21 @@ export default {
               value: "double",
             },
           ],
+        },
+        {
+          $type: "colorPropSetter",
+          label: "边框颜色",
+          propName: "borderColor",
+        },
+        {
+          $type: "numberPropSetter",
+          label: "边框粗细",
+          propName: "borderWidth",
+        },
+        {
+          $type: "numberPropSetter",
+          label: "边框圆角",
+          propName: "borderRadius",
         },
       ],
     },
