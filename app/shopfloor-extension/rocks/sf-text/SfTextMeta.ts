@@ -89,12 +89,8 @@ export default {
   propertyPanels: [
     {
       $type: "componentPropPanel",
+      title: "常规",
       setters: [
-        {
-          $type: "textPropSetter",
-          label: "名称",
-          propName: "$name",
-        },
         {
           $type: "textPropSetter",
           label: "文本",

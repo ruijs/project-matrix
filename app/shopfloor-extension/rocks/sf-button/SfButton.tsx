@@ -7,7 +7,7 @@ import { convertToEventHandlers, renderRock } from "@ruiapp/react-renderer";
 
 export default {
   Renderer(context, props: SfButtonRockConfig) {
-    const { text, icon } = props;
+    const { text, icon, iconPosition } = props;
 
     const styleNames = [...CommonProps.PositionStylePropNames, ...CommonProps.SizeStylePropNames, ...CommonProps.BorderStylePropNames];
     const wrapStyle: React.CSSProperties = pick(props, styleNames) as any;

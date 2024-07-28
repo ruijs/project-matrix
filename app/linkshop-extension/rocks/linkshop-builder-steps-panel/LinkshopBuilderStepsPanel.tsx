@@ -99,23 +99,7 @@ export default {
     return (
       <>
         <div className="lsb-sidebar-panel">
-          <div
-            className="lsb-sidebar-panel--add_btn"
-            onClick={() => {
-              setState((draft) => {
-                return {
-                  ...draft,
-                  visible: true,
-                  stepConfig: undefined,
-                };
-              });
-            }}
-          >
-            <span>
-              <PlusOutlined style={{ marginRight: 4 }} />
-              添加
-            </span>
-          </div>
+          <h3>步骤</h3>
           {steps?.map((s) => {
             const selected = s.$id === designerStore.currentStep?.$id;
             return (
@@ -146,6 +130,21 @@ export default {
               </div>
             );
           })}
+          <div
+            className="lsb-sidebar-panel--add_btn"
+            onClick={() => {
+              setState((draft) => {
+                return {
+                  ...draft,
+                  visible: true,
+                  stepConfig: undefined,
+                };
+              });
+            }}
+          >
+            <PlusOutlined style={{ marginRight: 4 }} />
+            添加步骤
+          </div>
         </div>
         <StepSettingsFormModal
           steps={shopfloorApp.steps}

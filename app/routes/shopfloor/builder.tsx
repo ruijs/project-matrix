@@ -104,7 +104,7 @@ export type Params = {
 };
 
 type ViewModel = {
-  myProfile: any;
+  myProfile?: any;
   myAllowedActions: string[];
   pageAccessAllowed: boolean;
   appId: string;
@@ -244,6 +244,9 @@ export default function Index() {
                       label: "步骤",
                       children: [
                         {
+                          $type: "linkshopBuilderLayoutsPanel",
+                        },
+                        {
                           $type: "linkshopBuilderStepsPanel",
                         },
                       ],
@@ -317,7 +320,7 @@ export default function Index() {
                                 {
                                   $type: "text",
                                   $exps: {
-                                    text: "$stores.designerStore.currentStep?.$name || 'N/A'",
+                                    text: "$stores.designerStore.currentStep?.$name || $stores.designerStore.currentLayout?.$name || 'N/A'",
                                   },
                                 },
                               ],
@@ -409,8 +412,16 @@ export default function Index() {
                               label: "属性",
                               children: [
                                 {
+                                  $type: "linkshopBuilderStepPropertiesPanel",
+                                  $exps: {
+                                    designerStore: "$stores.designerStore",
+                                    _hidden: "$stores.designerStore.selectedComponentId",
+                                  },
+                                },
+                                {
                                   $type: "designerComponentPropertiesPanel",
                                   $exps: {
+                                    _hidden: "!$stores.designerStore.selectedComponentId",
                                     designingPage: "$stores.designerStore.page",
                                     selectedComponentId: "$stores.designerStore.selectedComponentId",
                                   },

@@ -1,7 +1,8 @@
 import type { IPage, PageCommand } from "@ruiapp/move-style";
 import type { LinkshopAppDesignerStore } from "../stores/LinkshopAppDesignerStore";
+import type { DesignerPageCommand } from "../linkshop-types";
 
-export function sendDesignerCommand(designerPage: IPage, designerStore: LinkshopAppDesignerStore, command: PageCommand) {
+export function sendDesignerCommand(designerPage: IPage, designerStore: LinkshopAppDesignerStore, command: DesignerPageCommand) {
   designerStore.processCommand(command);
 
   const targetWindow = (document.getElementById("previewIFrame") as HTMLIFrameElement).contentWindow!;

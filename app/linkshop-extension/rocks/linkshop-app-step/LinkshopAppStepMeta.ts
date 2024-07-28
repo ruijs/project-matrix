@@ -3,6 +3,8 @@ import type { RockMeta } from "@ruiapp/move-style";
 export default {
   $type: "linkshopAppStep",
 
+  name: "步骤",
+
   slots: {},
 
   propertyPanels: [
@@ -13,16 +15,17 @@ export default {
           $type: "textPropSetter",
           label: "名称",
           propName: "$name",
+          dynamicForbidden: true,
         },
         {
-          $type: "textPropSetter",
-          label: "backgroundColor",
+          $type: "colorPropSetter",
+          label: "背景色",
           propName: "backgroundColor",
         },
         {
-          $type: "linkshopBuilderTriggersPanel",
-          label: "Trigger",
-          propName: "triggers",
+          $type: "timePropSetter",
+          label: "节拍时间",
+          propName: "cycleTime",
         },
       ],
     },

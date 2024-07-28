@@ -1,10 +1,9 @@
 import { EventEmitter, Framework, IStore, Page, PageCommand, PageConfig, RockConfig, StoreConfigBase, StoreMeta } from "@ruiapp/move-style";
-import type { LinkshopAppRockConfig } from "../linkshop-types";
-import { cloneDeep, find, map } from "lodash";
-import { DesignStage } from "../designer-types";
-import { UpdateEntityByIdOptions } from "@ruiapp/rapid-core";
+import type { LinkshopAppLayoutRockConfig, LinkshopAppRockConfig, LinkshopAppStepRockConfig } from "../linkshop-types";
+import { cloneDeep, find, map, some } from "lodash";
+import type { DesignStage } from "../designer-types";
 import rapidApi from "~/rapidApi";
-import { EntityStoreConfig } from "@ruiapp/rapid-extension";
+import type { EntityStoreConfig } from "@ruiapp/rapid-extension";
 import { genRandomComponentId } from "../utilities/DesignerUtility";
 
 export interface LinkshopAppStoreConfig extends StoreConfigBase {
@@ -52,6 +51,7 @@ export class LinkshopAppDesignerStore implements IStore<LinkshopAppStoreConfig> 
       this.setAppConfig(
         storeConfig.appConfig || {
           $type: "linkshopApp",
+          layouts: [],
           steps: [],
         },
       );
@@ -89,10 +89,16 @@ export class LinkshopAppDesignerStore implements IStore<LinkshopAppStoreConfig> 
 
     if (currentStage) {
       if (currentStage.type === "step") {
-        const currentStep = this.currentStep!;
         const stagePageConfig = this.#page.getSerializableConfig();
+        const currentStep = this.currentStep;
         if (currentStep) {
           currentStep.children = stagePageConfig.view;
+        }
+      } else if (currentStage.type === "layout") {
+        const stagePageConfig = this.#page.getSerializableConfig();
+        const currentLayout = this.currentLayout;
+        if (currentLayout) {
+          currentLayout.children = stagePageConfig.view;
         }
       }
     }
@@ -110,6 +116,23 @@ export class LinkshopAppDesignerStore implements IStore<LinkshopAppStoreConfig> 
     this.#emitter.emit("dataChange", null);
   }
 
+  get currentLayout() {
+    if (!this.appConfig) {
+      return null;
+    }
+
+    const currentStage = this.#stage;
+    if (!currentStage) {
+      return null;
+    }
+
+    if (currentStage.type === "layout") {
+      return find(this.appConfig.layouts, { $id: currentStage.layoutId });
+    }
+
+    return null;
+  }
+
   get currentStep() {
     if (!this.appConfig) {
       return null;
@@ -121,8 +144,7 @@ export class LinkshopAppDesignerStore implements IStore<LinkshopAppStoreConfig> 
     }
 
     if (currentStage.type === "step") {
-      const step = find(this.appConfig.steps, { $id: currentStage.stepId });
-      return step;
+      return find(this.appConfig.steps, { $id: currentStage.stepId });
     }
 
     return null;
@@ -171,6 +193,7 @@ export class LinkshopAppDesignerStore implements IStore<LinkshopAppStoreConfig> 
     this.#stashCurrentStageToAppConfig();
 
     const appContent = {
+      layouts: this.appConfig?.layouts,
       steps: this.appConfig?.steps,
       stores: this.page.scope.config.stores || [],
     };
@@ -292,6 +315,104 @@ export class LinkshopAppDesignerStore implements IStore<LinkshopAppStoreConfig> 
         steps: existedSteps?.filter((s) => s.$id !== command.payload?.step?.$id),
       } as LinkshopAppRockConfig);
     }
+
+    // this.#emitter.emit("dataChange", null);
+  }
+
+  addStep(step: LinkshopAppStepRockConfig) {
+    const existedSteps = this.appConfig?.steps || [];
+    const isExistedStep = existedSteps.some((s) => s.$name === step?.$name);
+    if (isExistedStep) {
+      return;
+    }
+
+    this.setAppConfig({
+      ...(this.appConfig || {}),
+      steps: [...existedSteps, step],
+    } as LinkshopAppRockConfig);
+  }
+
+  updateStep(step: LinkshopAppStepRockConfig) {
+    const existedSteps = this.appConfig?.steps || [];
+    this.setAppConfig({
+      ...(this.appConfig || {}),
+      // TODO: store name editable?
+      steps: existedSteps?.map((s) => (s.$id === step?.$id ? { ...s, ...(step || {}) } : s)),
+    } as LinkshopAppRockConfig);
+  }
+
+  removeStep(step: LinkshopAppStepRockConfig) {
+    const existedSteps = this.appConfig?.steps || [];
+    this.setAppConfig({
+      ...(this.appConfig || {}),
+      steps: existedSteps?.filter((s) => s.$id !== step?.$id),
+    } as LinkshopAppRockConfig);
+  }
+
+  setStepPropertyExpression(stepId: string, propName: string, propExpression: string) {
+    const existedSteps = this.appConfig?.steps || [];
+    this.setAppConfig({
+      ...(this.appConfig || {}),
+      steps: existedSteps?.map((step) => {
+        if (step.$id !== stepId) {
+          return step;
+        }
+
+        const newExps = { ...step.$exps, [propName]: propExpression };
+        return {
+          ...step,
+          $exps: newExps,
+        };
+      }),
+    } as LinkshopAppRockConfig);
+  }
+
+  removeStepPropertyExpression(stepId: string, propName: string) {
+    const existedSteps = this.appConfig?.steps || [];
+    this.setAppConfig({
+      ...(this.appConfig || {}),
+      steps: existedSteps?.map((step) => {
+        if (step.$id !== stepId) {
+          return step;
+        }
+
+        if (!step.$exps) {
+          return step;
+        }
+
+        const newExps = { ...step.$exps };
+        delete newExps[propName];
+        return {
+          ...step,
+          $exps: newExps,
+        };
+      }),
+    } as LinkshopAppRockConfig);
+  }
+
+  addLayoutPage(layout: LinkshopAppLayoutRockConfig) {
+    if (some(this.appConfig?.layouts, { $name: layout.$name })) {
+      return;
+    }
+    this.setAppConfig({
+      ...this.appConfig,
+      layouts: [...(this.appConfig?.layouts || []), layout],
+    } as LinkshopAppRockConfig);
+  }
+
+  updateLayoutPage(layout: LinkshopAppLayoutRockConfig) {
+    const layouts = this.appConfig?.layouts || [];
+    this.setAppConfig({
+      ...this.appConfig,
+      layouts: layouts?.map((item) => (item.$id === layout.$id ? { ...item, ...layout } : item)),
+    } as LinkshopAppRockConfig);
+  }
+
+  removeLayoutPage(layout: LinkshopAppLayoutRockConfig) {
+    this.setAppConfig({
+      ...this.appConfig,
+      layouts: this.appConfig?.layouts?.filter((item) => item.$id !== layout.$id),
+    } as LinkshopAppRockConfig);
   }
 }
 

@@ -7,4 +7,6 @@ export interface SfButtonRockConfig extends LinkshopWidgetRockConfig {
 
   backgroundColor?: string;
   color?: string;
+
+  iconPosition?: "left" | "right" | "top";
 }

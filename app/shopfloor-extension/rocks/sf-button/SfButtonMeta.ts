@@ -61,6 +61,16 @@ export default {
           label: "背景颜色",
           propName: "backgroundColor",
         },
+        {
+          $type: "selectPropSetter",
+          label: "图标位置",
+          propName: "iconPosition",
+          options: [
+            { label: "左", value: "left" },
+            { label: "右", value: "right" },
+            { label: "上", value: "top" },
+          ],
+        },
       ],
     },
     { $type: "positionPropPanel" },

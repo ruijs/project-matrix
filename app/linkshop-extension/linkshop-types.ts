@@ -1,4 +1,4 @@
-import type { ContainerRockConfig, RockConfigBase, SimpleRockConfig, StoreConfig } from "@ruiapp/move-style";
+import type { ContainerRockConfig, PageCommand, RockConfigBase, SimpleRockConfig, StoreConfig } from "@ruiapp/move-style";
 import { EntityStoreConfig } from "@ruiapp/rapid-extension";
 
 export type LinkshopWidgetCommonConfig = {
@@ -20,7 +20,22 @@ export type LinkshopAppRockConfig = SimpleRockConfig &
     /**
      * 应用步骤
      */
+    layouts: LinkshopAppLayoutRockConfig[];
+
+    /**
+     * 应用步骤
+     */
     steps: LinkshopAppStepRockConfig[];
+  };
+
+export type LinkshopAppLayoutRockConfig = ContainerRockConfig &
+  LinkshopWidgetCommonConfig & {
+    $type: "linkshopAppLayout";
+
+    /**
+     * 背景颜色
+     */
+    backgroundColor?: string;
   };
 
 export type LinkshopAppStepRockConfig = ContainerRockConfig &
@@ -32,3 +47,26 @@ export type LinkshopAppStepRockConfig = ContainerRockConfig &
      */
     backgroundColor?: string;
   };
+
+export type DesignerPageCommand = PageCommand | DesignerCommandAddStep | DesignerCommandModifyStep | DesignerCommandRemoveStep;
+
+export type DesignerCommandAddStep = {
+  name: "addStep";
+  payload: {
+    step: Record<string, any>;
+  };
+};
+
+export type DesignerCommandModifyStep = {
+  name: "modifyStep";
+  payload: {
+    step: Record<string, any>;
+  };
+};
+
+export type DesignerCommandRemoveStep = {
+  name: "removeStep";
+  payload: {
+    step: Record<string, any>;
+  };
+};
