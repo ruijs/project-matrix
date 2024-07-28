@@ -32,6 +32,8 @@ export type LinkshopAppLayoutRockConfig = ContainerRockConfig &
   LinkshopWidgetCommonConfig & {
     $type: "linkshopAppLayout";
 
+    name: string;
+
     /**
      * 背景颜色
      */
@@ -41,6 +43,8 @@ export type LinkshopAppLayoutRockConfig = ContainerRockConfig &
 export type LinkshopAppStepRockConfig = ContainerRockConfig &
   LinkshopWidgetCommonConfig & {
     $type: "linkshopAppStep";
+
+    name: string;
 
     /**
      * 背景颜色

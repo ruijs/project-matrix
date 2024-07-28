@@ -412,10 +412,17 @@ export default function Index() {
                               label: "属性",
                               children: [
                                 {
+                                  $type: "linkshopBuilderLayoutPropertiesPanel",
+                                  $exps: {
+                                    designerStore: "$stores.designerStore",
+                                    _hidden: "!$stores.designerStore.currentLayout || $stores.designerStore.selectedComponentId",
+                                  },
+                                },
+                                {
                                   $type: "linkshopBuilderStepPropertiesPanel",
                                   $exps: {
                                     designerStore: "$stores.designerStore",
-                                    _hidden: "$stores.designerStore.selectedComponentId",
+                                    _hidden: "!$stores.designerStore.currentStep || $stores.designerStore.selectedComponentId",
                                   },
                                 },
                                 {

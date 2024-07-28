@@ -408,6 +408,47 @@ export class LinkshopAppDesignerStore implements IStore<LinkshopAppStoreConfig> 
     } as LinkshopAppRockConfig);
   }
 
+  setLayoutPagePropertyExpression(layoutId: string, propName: string, propExpression: string) {
+    const layouts = this.appConfig?.layouts || [];
+    this.setAppConfig({
+      ...this.appConfig,
+      layouts: layouts?.map((item) => {
+        if (item.$id !== layoutId) {
+          return item;
+        }
+
+        const newExps = { ...item.$exps, [propName]: propExpression };
+        return {
+          ...item,
+          $exps: newExps,
+        };
+      }),
+    } as LinkshopAppRockConfig);
+  }
+
+  removeLayoutPagePropertyExpression(layoutId: string, propName: string) {
+    const layouts = this.appConfig?.layouts || [];
+    this.setAppConfig({
+      ...this.appConfig,
+      layouts: layouts?.map((item) => {
+        if (item.$id !== layoutId) {
+          return item;
+        }
+
+        if (!item.$exps) {
+          return item;
+        }
+
+        const newExps = { ...item.$exps };
+        delete newExps[propName];
+        return {
+          ...item,
+          $exps: newExps,
+        };
+      }),
+    } as LinkshopAppRockConfig);
+  }
+
   removeLayoutPage(layout: LinkshopAppLayoutRockConfig) {
     this.setAppConfig({
       ...this.appConfig,

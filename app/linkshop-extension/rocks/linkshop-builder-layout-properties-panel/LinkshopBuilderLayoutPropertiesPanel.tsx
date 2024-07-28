@@ -1,0 +1,121 @@
+import type { Rock, RockConfig, RockEvent, RockInstanceContext, RockPropSetter } from "@ruiapp/move-style";
+import linkshopBuilderLayoutPropertiesPanel from "./LinkshopBuilderLayoutPropertiesPanelMeta";
+import type { LinkshopBuilderLayoutPropertiesPanelRockConfig } from "./linkshop-builder-layout-properties-panel-types";
+import { useMemo } from "react";
+import { renderRockChildren } from "@ruiapp/react-renderer";
+import type { LinkshopAppDesignerStore } from "~/linkshop-extension/stores/LinkshopAppDesignerStore";
+
+const layoutPropertyPanels = [
+  {
+    $type: "componentPropPanel",
+    title: "布局模板",
+    setters: [
+      {
+        $type: "textPropSetter",
+        label: "名称",
+        propName: "$name",
+        dynamicForbidden: true,
+      },
+      {
+        $type: "colorPropSetter",
+        label: "背景色",
+        propName: "backgroundColor",
+      },
+    ] as RockPropSetter[],
+  },
+];
+
+export default {
+  Renderer(context: RockInstanceContext, props: LinkshopBuilderLayoutPropertiesPanelRockConfig) {
+    const { framework } = context;
+    const { $id, designerStore } = props;
+    const currentLayout = designerStore.currentLayout;
+
+    const rockChildrenConfig = useMemo(() => {
+      if (!currentLayout) {
+        return null;
+      }
+
+      const propertyPanels = layoutPropertyPanels;
+      const panelRocks: RockConfig[] = [];
+      if (propertyPanels) {
+        for (const propertyPanel of propertyPanels) {
+          const panelRockType = propertyPanel.$type;
+
+          // TODO: remove this section
+          if (!framework.getComponent(panelRockType)) {
+            continue;
+          }
+
+          panelRocks.push({
+            ...propertyPanel,
+            $id: `${$id}-${panelRockType}`,
+            componentConfig: currentLayout,
+            onPropValueChange: [
+              {
+                $action: "script",
+                script: (event: RockEvent) => {
+                  const { page } = event;
+                  const store = page.getStore<LinkshopAppDesignerStore>("designerStore");
+                  const currentLayoutId = store.currentLayout?.$id;
+                  if (!currentLayoutId) {
+                    return;
+                  }
+                  const props = event.args[0];
+
+                  store.updateLayoutPage({
+                    ...props,
+                    $id: currentLayoutId,
+                  });
+                },
+              },
+            ],
+            onPropExpressionChange: [
+              {
+                $action: "script",
+                script: (event: RockEvent) => {
+                  const { page } = event;
+                  const store = page.getStore<LinkshopAppDesignerStore>("designerStore");
+                  const currentLayoutId = store.currentLayout?.$id;
+                  if (!currentLayoutId) {
+                    return;
+                  }
+                  const [propName, propExpression] = event.args;
+                  store.setLayoutPagePropertyExpression(currentLayoutId, propName, propExpression);
+                },
+              },
+            ],
+            onPropExpressionRemove: [
+              {
+                $action: "script",
+                script: (event: RockEvent) => {
+                  const { page } = event;
+                  const store = page.getStore<LinkshopAppDesignerStore>("designerStore");
+                  const currentLayoutId = store.currentLayout?.$id;
+                  if (!currentLayoutId) {
+                    return;
+                  }
+                  const [propName] = event.args;
+                  store.removeLayoutPagePropertyExpression(currentLayoutId, propName);
+                },
+              },
+            ],
+          } as RockConfig);
+        }
+      }
+      return panelRocks;
+    }, [framework, $id, currentLayout]);
+
+    if (!designerStore) {
+      return null;
+    }
+
+    if (!currentLayout) {
+      return null;
+    }
+
+    return <div>{renderRockChildren({ context, rockChildrenConfig })}</div>;
+  },
+
+  ...linkshopBuilderLayoutPropertiesPanel,
+} as Rock;
