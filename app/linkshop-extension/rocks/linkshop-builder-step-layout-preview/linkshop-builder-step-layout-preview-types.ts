@@ -1,6 +1,5 @@
-import type { SimpleRockConfig } from "@ruiapp/move-style";
-import type { LinkshopAppRockConfig } from "../../linkshop-types";
+import type { ContainerRockConfig } from "@ruiapp/move-style";
 
-export interface LinkshopBuilderStepLayoutPreviewRockConfig extends SimpleRockConfig {
-  shopfloorApp: LinkshopAppRockConfig;
+export interface LinkshopBuilderStepLayoutPreviewRockConfig extends ContainerRockConfig {
+  backgroundColor?: string;
 }

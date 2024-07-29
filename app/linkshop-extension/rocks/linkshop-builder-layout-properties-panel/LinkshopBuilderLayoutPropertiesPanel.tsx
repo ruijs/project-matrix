@@ -4,6 +4,7 @@ import type { LinkshopBuilderLayoutPropertiesPanelRockConfig } from "./linkshop-
 import { useMemo } from "react";
 import { renderRockChildren } from "@ruiapp/react-renderer";
 import type { LinkshopAppDesignerStore } from "~/linkshop-extension/stores/LinkshopAppDesignerStore";
+import { sendDesignerCommand } from "~/linkshop-extension/utilities/DesignerUtility";
 
 const layoutPropertyPanels = [
   {
@@ -20,6 +21,7 @@ const layoutPropertyPanels = [
         $type: "colorPropSetter",
         label: "背景色",
         propName: "backgroundColor",
+        dynamicForbidden: true,
       },
     ] as RockPropSetter[],
   },
@@ -56,17 +58,28 @@ export default {
                 $action: "script",
                 script: (event: RockEvent) => {
                   const { page } = event;
-                  const store = page.getStore<LinkshopAppDesignerStore>("designerStore");
-                  const currentLayoutId = store.currentLayout?.$id;
+                  const designerStore = page.getStore<LinkshopAppDesignerStore>("designerStore");
+                  const currentLayoutId = designerStore.currentLayout?.$id;
                   if (!currentLayoutId) {
                     return;
                   }
                   const props = event.args[0];
 
-                  store.updateLayoutPage({
+                  designerStore.updateLayoutPage({
                     ...props,
                     $id: currentLayoutId,
                   });
+
+                  if (props.hasOwnProperty("backgroundColor")) {
+                    sendDesignerCommand(context.page, designerStore, {
+                      name: "setComponentProperty",
+                      payload: {
+                        componentId: "stepLayout",
+                        propName: "backgroundColor",
+                        propValue: props.backgroundColor,
+                      },
+                    });
+                  }
                 },
               },
             ],

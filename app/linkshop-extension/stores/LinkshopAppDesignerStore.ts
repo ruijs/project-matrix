@@ -166,6 +166,10 @@ export class LinkshopAppDesignerStore implements IStore<LinkshopAppStoreConfig> 
     return null;
   }
 
+  getLayoutById(layoutId: string) {
+    return find(this.appConfig?.layouts, { $id: layoutId });
+  }
+
   setPageConfig(value: PageConfig) {
     this.#page.setConfig(value);
     this.#emitter.emit("dataChange", null);

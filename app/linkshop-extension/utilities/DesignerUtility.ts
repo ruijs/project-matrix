@@ -1,4 +1,4 @@
-import type { IPage, PageCommand } from "@ruiapp/move-style";
+import type { IPage } from "@ruiapp/move-style";
 import type { LinkshopAppDesignerStore } from "../stores/LinkshopAppDesignerStore";
 import type { DesignerPageCommand } from "../linkshop-types";
 

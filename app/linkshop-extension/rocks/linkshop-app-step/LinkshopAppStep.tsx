@@ -14,10 +14,10 @@ export default {
   },
 
   Renderer(context, props: LinkshopAppStepRockConfig) {
-    const { children } = props;
+    const { backgroundColor, children } = props;
 
     return (
-      <div style={{ position: "relative", width: "100%", height: "100%", backgroundColor: props.backgroundColor }}>
+      <div style={{ position: "relative", width: "100%", height: "100%", backgroundColor }}>
         {renderRockChildren({ context, rockChildrenConfig: children || [] })}
       </div>
     );

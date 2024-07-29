@@ -1,7 +1,7 @@
 import type { Rock, RockConfig, RockEvent, RockEventHandlerScript, RockInstanceContext } from "@ruiapp/move-style";
 import LinkshopBuilderStepsPanelMeta from "./LinkshopBuilderStepsPanelMeta";
 import type { LinkshopBuilderStepsPanelRockConfig } from "./linkshop-builder-steps-panel-types";
-import type { LinkshopAppRockConfig, LinkshopAppStepRockConfig } from "~/linkshop-extension/linkshop-types";
+import type { LinkshopAppLayoutRockConfig, LinkshopAppRockConfig, LinkshopAppStepRockConfig } from "~/linkshop-extension/linkshop-types";
 import { useCallback, useMemo, useState } from "react";
 import { find, forEach } from "lodash";
 import type { LinkshopAppDesignerStore } from "~/linkshop-extension/stores/LinkshopAppDesignerStore";
@@ -63,6 +63,11 @@ export default {
 
           const currentStep = designerStore.currentStep;
           if (currentStep) {
+            let layoutOfCurrentStep: LinkshopAppLayoutRockConfig | undefined;
+            if (currentStep.layoutId) {
+              layoutOfCurrentStep = designerStore.getLayoutById(currentStep.layoutId);
+            }
+            // TODO: 此处应该只更改view和layout配置。
             const stores = designerStore.page.scope.config.stores || [];
             sendDesignerCommand(context.page, designerStore, {
               name: "setPageConfig",
@@ -70,7 +75,17 @@ export default {
                 pageConfig: {
                   $id: "designPreviewPage",
                   stores,
-                  view: currentStep.children || [],
+                  layout: {
+                    view: [
+                      {
+                        $id: "stepLayout",
+                        $type: "linkshopBuilderStepLayoutPreview",
+                        backgroundColor: currentStep.backgroundColor || layoutOfCurrentStep?.backgroundColor,
+                        children: layoutOfCurrentStep?.children,
+                      },
+                    ],
+                  },
+                  view: (currentStep.children as RockConfig[]) || [],
                 },
               },
             });

@@ -50,6 +50,11 @@ export type LinkshopAppStepRockConfig = ContainerRockConfig &
      * 背景颜色
      */
     backgroundColor?: string;
+
+    /**
+     * 布局模板Id
+     */
+    layoutId?: string;
   };
 
 export type DesignerPageCommand = PageCommand | DesignerCommandAddStep | DesignerCommandModifyStep | DesignerCommandRemoveStep;

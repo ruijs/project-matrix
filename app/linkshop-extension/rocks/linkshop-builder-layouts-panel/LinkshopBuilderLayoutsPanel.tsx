@@ -50,14 +50,23 @@ export default {
           const currentLayout = designerStore.currentLayout;
           if (currentLayout) {
             const stores = designerStore.page.scope.config.stores || [];
-            designerStore.addLayoutPage(currentLayout);
+            // designerStore.addLayoutPage(currentLayout);
             sendDesignerCommand(context.page, designerStore, {
               name: "setPageConfig",
               payload: {
                 pageConfig: {
                   $id: "designPreviewPage",
                   stores,
-                  view: currentLayout.children || [],
+                  layout: {
+                    view: [
+                      {
+                        $id: "stepLayout",
+                        $type: "linkshopBuilderStepLayoutPreview",
+                        backgroundColor: currentLayout.backgroundColor,
+                      },
+                    ],
+                  },
+                  view: (currentLayout.children as RockConfig[]) || [],
                 },
               },
             });
