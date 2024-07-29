@@ -189,9 +189,10 @@ export default function Index() {
       return new Page(framework, ruiPageConfig);
     }
 
+    const shopfloorAppConfig = shopfloorApp.content;
     ruiPageConfig = {
       $id: "playerPage",
-      stores: get(shopfloorApp.content, "stores", []),
+      stores: get(shopfloorAppConfig, "stores", []),
       view: [
         {
           $id: "linkshopScannerProvider",
@@ -200,7 +201,8 @@ export default function Index() {
             {
               $id: "linkshopApp",
               $type: "linkshopApp",
-              steps: get(shopfloorApp.content, "steps", []),
+              layouts: get(shopfloorAppConfig, "layouts", []),
+              steps: get(shopfloorAppConfig, "steps", []),
             },
           ],
         },

@@ -6,27 +6,6 @@ import { renderRockChildren } from "@ruiapp/react-renderer";
 import type { LinkshopAppDesignerStore } from "~/linkshop-extension/stores/LinkshopAppDesignerStore";
 import { sendDesignerCommand } from "~/linkshop-extension/utilities/DesignerUtility";
 
-const layoutPropertyPanels = [
-  {
-    $type: "componentPropPanel",
-    title: "布局模板",
-    setters: [
-      {
-        $type: "textPropSetter",
-        label: "名称",
-        propName: "$name",
-        dynamicForbidden: true,
-      },
-      {
-        $type: "colorPropSetter",
-        label: "背景色",
-        propName: "backgroundColor",
-        dynamicForbidden: true,
-      },
-    ] as RockPropSetter[],
-  },
-];
-
 export default {
   Renderer(context: RockInstanceContext, props: LinkshopBuilderLayoutPropertiesPanelRockConfig) {
     const { framework } = context;
@@ -38,7 +17,12 @@ export default {
         return null;
       }
 
-      const propertyPanels = layoutPropertyPanels;
+      const rockMeta = framework.getComponent("linkshopAppLayout");
+      if (!rockMeta) {
+        return null;
+      }
+
+      const { propertyPanels } = rockMeta;
       const panelRocks: RockConfig[] = [];
       if (propertyPanels) {
         for (const propertyPanel of propertyPanels) {

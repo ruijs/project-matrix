@@ -6,7 +6,7 @@ import { renderRock } from "@ruiapp/react-renderer";
 
 export default {
   Renderer(context, props: LinkshopBuilderStepLayoutPreviewRockConfig) {
-    const { backgroundColor, children } = props;
+    const { $id, backgroundColor, children } = props;
 
     let childrenRocks: any;
     if (children) {
@@ -20,6 +20,7 @@ export default {
     }
 
     const rockConfig: RockConfig = {
+      $id: `${$id}-bg`,
       $type: "box",
       style: {
         width: "100%",
@@ -29,6 +30,7 @@ export default {
       children: [
         ...childrenRocks,
         {
+          $id: `${$id}-children-slot`,
           $type: "slot",
         },
       ],
