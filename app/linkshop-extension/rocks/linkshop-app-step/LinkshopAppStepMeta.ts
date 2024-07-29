@@ -18,6 +18,12 @@ export default {
           dynamicForbidden: true,
         },
         {
+          $type: "linkshoStepLayoutPropSetter",
+          label: "布局",
+          propName: "layoutId",
+          allowClear: true,
+        },
+        {
           $type: "colorPropSetter",
           label: "背景色",
           propName: "backgroundColor",

@@ -116,6 +116,22 @@ export class LinkshopAppDesignerStore implements IStore<LinkshopAppStoreConfig> 
     this.#emitter.emit("dataChange", null);
   }
 
+  get layouts() {
+    if (!this.appConfig) {
+      return null;
+    }
+
+    return this.appConfig.layouts;
+  }
+
+  get steps() {
+    if (!this.appConfig) {
+      return null;
+    }
+
+    return this.appConfig.steps;
+  }
+
   get currentLayout() {
     if (!this.appConfig) {
       return null;

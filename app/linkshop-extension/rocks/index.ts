@@ -12,14 +12,15 @@ import LinkshopBuilderToolbar from "./linkshop-builder-toolbar/LinkshopBuilderTo
 import LinkshopScannerProvider from "./linkshop-scanner-provider/LinkshopScannerProvider";
 
 // setters
-import DynamicArraySetterInput from "./prop-controls/DynamicArraySetterInput";
 import DynamicArrayPropSetter from "./prop-setters/DynamicArrayPropSetter";
-import StoreEntitySetterSelect from "./prop-controls/StoreEntitySetterSelect";
-import StoreEntityPropSetter from "./prop-setters/StoreEntityPropSetter";
-import TimePropSetter from "./prop-setters/TimePropSetter";
-import EntitySetterSelect from "./prop-controls/EntitySetterSelect";
+import DynamicArraySetterInput from "./prop-controls/DynamicArraySetterInput";
 import EntityPropSetter from "./prop-setters/EntityPropSetter";
+import EntitySetterSelect from "./prop-controls/EntitySetterSelect";
 import JsonPropsSetter from "./prop-setters/JsonPropsSetter";
+import LinkshopStepLayoutPropSetter from "./prop-setters/LinkshopStepLayoutPropSetter";
+import StoreEntityPropSetter from "./prop-setters/StoreEntityPropSetter";
+import StoreEntitySetterSelect from "./prop-controls/StoreEntitySetterSelect";
+import TimePropSetter from "./prop-setters/TimePropSetter";
 
 export default [
   LinkshopApp,
@@ -36,12 +37,13 @@ export default [
   LinkshopScannerProvider,
 
   // setters
-  DynamicArraySetterInput,
   DynamicArrayPropSetter,
-  StoreEntitySetterSelect,
-  StoreEntityPropSetter,
-  TimePropSetter,
-  EntitySetterSelect,
+  DynamicArraySetterInput,
   EntityPropSetter,
+  EntitySetterSelect,
   JsonPropsSetter,
+  LinkshopStepLayoutPropSetter,
+  StoreEntityPropSetter,
+  StoreEntitySetterSelect,
+  TimePropSetter,
 ];

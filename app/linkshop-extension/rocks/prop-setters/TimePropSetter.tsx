@@ -11,6 +11,9 @@ export default {
       ...props,
       control: {
         $type: "rapidTimePicker",
+        style: {
+          display: "block",
+        },
       },
     });
   },
