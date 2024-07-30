@@ -1,12 +1,12 @@
 import { CommonProps, type Rock } from "@ruiapp/move-style";
-import SfRectangularMeta from "./SfRectangularMeta";
-import type { SfRectangularRockConfig } from "./sf-rectangular-types";
+import SfRectangleMeta from "./SfRectangleMeta";
+import type { SfRectangleRockConfig } from "./sf-rectangle-types";
 import { pick } from "lodash";
 import { convertToEventHandlers } from "@ruiapp/react-renderer";
 import React from "react";
 
 export default {
-  Renderer(context, props: SfRectangularRockConfig) {
+  Renderer(context, props: SfRectangleRockConfig) {
     const { text } = props;
     const styleNames = [...CommonProps.PositionStylePropNames, ...CommonProps.SizeStylePropNames, ...CommonProps.BorderStylePropNames];
     const wrapStyle: React.CSSProperties = pick(props, styleNames) as any;
@@ -21,5 +21,5 @@ export default {
     );
   },
 
-  ...SfRectangularMeta,
+  ...SfRectangleMeta,
 } as Rock;

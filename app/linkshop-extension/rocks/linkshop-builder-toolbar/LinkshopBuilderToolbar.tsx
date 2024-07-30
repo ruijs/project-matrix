@@ -107,7 +107,7 @@ export default {
           },
           {
             label: "矩形",
-            key: "sfRectangular",
+            key: "sfRectangle",
             icon: <BorderOuterOutlined />,
           },
           {
