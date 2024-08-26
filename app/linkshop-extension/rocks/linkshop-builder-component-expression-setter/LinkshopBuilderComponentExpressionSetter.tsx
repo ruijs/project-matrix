@@ -25,9 +25,11 @@ export interface LinkshopBuilderComponentExpressionSetterState {
     getCodeContent(): string;
     setCodeContent(codeContent: string): void;
   };
+
+  setState?: any;
 }
 
-function refreshView(instance: RockInstance, props: LinkshopBuilderComponentExpressionSetterRockConfig) {
+function refreshView(props: LinkshopBuilderComponentExpressionSetterRockConfig, state: any) {
   const { designerStore, propName } = props;
   const selectedComponentId = designerStore.selectedComponentId;
   if (!selectedComponentId || !propName) {
@@ -40,12 +42,12 @@ function refreshView(instance: RockInstance, props: LinkshopBuilderComponentExpr
   const propExpression = get(componentConfig.$exps, propName);
 
   if (propDataBind || !propExpression) {
-    instance.setState({
+    state.setState({
       bindingMode: "dataBind",
       selectedBindableKey: propDataBind,
     } as Partial<LinkshopBuilderComponentExpressionSetterState>);
   } else {
-    instance.setState({
+    state.setState({
       bindingMode: "expression",
       selectedBindableKey: "",
     } as Partial<LinkshopBuilderComponentExpressionSetterState>);
@@ -66,8 +68,7 @@ export default {
 
   async onReceiveMessage(message, state: LinkshopBuilderComponentExpressionSetterState, props: LinkshopBuilderComponentExpressionSetterRockConfig) {
     if (message.name === "refreshView") {
-      const instance: RockInstance = props as any;
-      refreshView(instance, props);
+      refreshView(props, state);
     } else if (message.name === "commitChanges") {
       const { page } = message;
       const { designerStore, propName } = props;
@@ -106,12 +107,7 @@ export default {
     }
   },
 
-  Renderer(
-    context,
-    props: LinkshopBuilderComponentExpressionSetterRockConfig,
-    state: LinkshopBuilderComponentExpressionSetterState,
-    instance: ComponentInstance,
-  ) {
+  Renderer(context, props: LinkshopBuilderComponentExpressionSetterRockConfig, state: LinkshopBuilderComponentExpressionSetterState) {
     const { $id, designerStore, propName } = props;
     const { bindingMode } = state;
 
@@ -126,7 +122,7 @@ export default {
     const selectedComponentId = designerStore.selectedComponentId;
 
     useEffect(() => {
-      refreshView(instance, props);
+      refreshView(props, state);
     }, [selectedComponentId, propName, designingPage]);
 
     useEffect(() => {
@@ -155,7 +151,7 @@ export default {
 
     const onBindingModeChange = ({ target }: RadioChangeEvent) => {
       const bindingMode: LinkshopBuilderComponentExpressionSetterState["bindingMode"] = target.value;
-      instance.setState({ bindingMode });
+      state.setState({ bindingMode });
       if (bindingMode === "expression") {
         cmdsEditor?.setCodeContent(propExpression || "");
       }
@@ -182,7 +178,7 @@ export default {
         {
           $action: "script",
           script: (event: RockEvent) => {
-            instance.setState({
+            state.setState({
               selectedBindableKey: event.args[0],
             });
           },
@@ -192,7 +188,7 @@ export default {
         {
           $action: "script",
           script: (event: RockEvent) => {
-            instance.setState({
+            state.setState({
               expandedBindableKeys: event.args[0],
             });
           },
