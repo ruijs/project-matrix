@@ -3,7 +3,7 @@ import LinkshopBuilderStoresPanelMeta from "./LinkshopBuilderStoresPanelMeta";
 import type { LinkshopBuilderStoresPanelRockConfig } from "./linkshop-builder-stores-panel-types";
 import { PlusOutlined } from "@ant-design/icons";
 import { useState } from "react";
-import ModelSettingsFormModal from "./ModelSettingsFormModal";
+import StoreSettingsFormModal from "./StoreSettingsFormModal";
 import { LinkshopAppDesignerStore } from "~/linkshop-extension/stores/LinkshopAppDesignerStore";
 import { sendDesignerCommand } from "~/linkshop-extension/utilities/DesignerUtility";
 import { EllipsisOutlined } from "@ant-design/icons";
@@ -23,7 +23,7 @@ export default {
 
     const designerStore = page.getStore<LinkshopAppDesignerStore>(designerStoreName || "designerStore");
 
-    const stores = designerStore.page.scope.config.stores || [];
+    const stores = (designerStore.page.scope.config.stores || []).filter((item) => item.name !== "runtimeStore");
 
     const onStoreOperator = (key: StoreOperator, store: any) => {
       switch (key) {
@@ -46,6 +46,7 @@ export default {
     return (
       <>
         <div className="lsb-sidebar-panel">
+          <h3>数据查询</h3>
           <div
             className="lsb-sidebar-panel--add_btn"
             onClick={() => {
@@ -86,7 +87,7 @@ export default {
             );
           })}
         </div>
-        <ModelSettingsFormModal
+        <StoreSettingsFormModal
           context={context}
           visible={state.visible || false}
           storeConfigs={stores as any[]}

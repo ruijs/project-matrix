@@ -212,6 +212,7 @@ export default function Index() {
           type: "linkshopAppRuntimeStateStore",
           name: "runtimeStore",
           variables: shopfloorAppConfig.variables,
+          records: shopfloorAppConfig.records,
         } as LinkshopAppRuntimeStateStoreConfig,
         ...get(shopfloorAppConfig, "stores", []),
       ];

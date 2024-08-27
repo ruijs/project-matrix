@@ -1,12 +1,13 @@
 import type { Framework, IStore, StoreConfigBase, StoreMeta } from "@ruiapp/move-style";
 import { EventEmitter } from "@ruiapp/move-style";
-import type { LinkshopAppVariableConfig } from "../linkshop-types";
+import type { LinkshopAppRecordConfig, LinkshopAppVariableConfig } from "../linkshop-types";
 import { BindableManager } from "@ruiapp/data-binding-extension";
 import { LinkshopAppRuntimeState } from "../bindables/LinkshopAppRuntimeState";
 
 export interface LinkshopAppRuntimeStateStoreConfig extends StoreConfigBase {
   type: "linkshopAppRuntimeStateStore";
   variables?: LinkshopAppVariableConfig[];
+  records?: LinkshopAppRecordConfig[];
 }
 
 export class LinkshopAppRuntimeStateStore implements IStore<LinkshopAppRuntimeStateStoreConfig> {
@@ -25,6 +26,7 @@ export class LinkshopAppRuntimeStateStore implements IStore<LinkshopAppRuntimeSt
     this.#bindableManager = new BindableManager();
     this.#runtimeState = new LinkshopAppRuntimeState(this.#bindableManager, {
       variables: [],
+      records: [],
     });
     this.#bindableManager.subscribe(() => {
       this.#emitter.emit("dataChange");
@@ -40,6 +42,7 @@ export class LinkshopAppRuntimeStateStore implements IStore<LinkshopAppRuntimeSt
     this.#name = storeConfig.name;
     this.#config = storeConfig;
     this.#runtimeState.setVariables(storeConfig.variables || []);
+    this.#runtimeState.setRecords(storeConfig.records || []);
   }
 
   async loadData(input?: any): Promise<any> {}

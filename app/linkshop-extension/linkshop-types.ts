@@ -22,6 +22,11 @@ export type LinkshopAppRockConfig = SimpleRockConfig &
     variables: LinkshopAppVariableConfig[];
 
     /**
+     * 数据记录
+     */
+    records: LinkshopAppRecordConfig[];
+
+    /**
      * 应用步骤
      */
     layouts: LinkshopAppLayoutRockConfig[];
@@ -135,3 +140,8 @@ export type LinkshopAppVariableConfig = {
 };
 
 export type LinkshopAppVariableType = "string" | "integer" | "float" | "boolean";
+
+export type LinkshopAppRecordConfig = {
+  name: string;
+  entityCode: string;
+};

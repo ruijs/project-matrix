@@ -7,16 +7,7 @@ import { useEffect, useState } from "react";
 export default {
   Renderer(context, props: SfNumberInputRockConfig) {
     const { framework, page, scope } = context;
-    const {
-      value,
-      disabled,
-      color,
-      fontSize,
-      textDecorationLine,
-      textDecorationStyle,
-      textDecorationColor,
-      onChange,
-    } = props;
+    const { value = "", disabled, color, fontSize, textDecorationLine, textDecorationStyle, textDecorationColor, onChange } = props;
 
     const wrapStyle: React.CSSProperties = pick(props, [...CommonProps.PositionStylePropNames, ...CommonProps.SizeStylePropNames]) as any;
     wrapStyle.position = "absolute";
@@ -28,31 +19,31 @@ export default {
     wrapStyle.textDecorationStyle = textDecorationStyle;
     wrapStyle.textDecorationColor = textDecorationColor;
 
-    const [number, setNumber] = useState<string>(value)
+    const [number, setNumber] = useState<string>(value);
 
-    const onInputChange = (event:any) => {
+    const onInputChange = (event: any) => {
       const value = event.target?.value;
 
-      setNumber(value)
+      setNumber(value);
     };
 
     const onInputBlur = () => {
-      const value = parseFloat(number || '0')
+      const value = parseFloat(number || "0");
 
-      if(isNaN(value)) {
-        setNumber('0')
+      if (isNaN(value)) {
+        setNumber("0");
       } else {
-        setNumber(`${value}`)
+        setNumber(`${value}`);
       }
 
       if (onChange) {
         handleComponentEvent("onChange", framework, page, scope, props, onChange, [number]);
       }
-    }
+    };
 
     useEffect(() => {
-      setNumber(value)
-    }, [value])
+      setNumber(value);
+    }, [value]);
 
     return (
       <div data-component-id={props.$id} style={wrapStyle}>
