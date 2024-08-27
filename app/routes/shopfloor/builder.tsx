@@ -244,9 +244,11 @@ export default function Index() {
                       label: "步骤",
                       children: [
                         {
+                          $id: "linkshopBuilderLayoutsPanel",
                           $type: "linkshopBuilderLayoutsPanel",
                         },
                         {
+                          $id: "linkshopBuilderStepsPanel",
                           $type: "linkshopBuilderStepsPanel",
                         },
                       ],
@@ -256,6 +258,7 @@ export default function Index() {
                       label: "组件",
                       children: [
                         {
+                          $id: "linkshopBuilderComponentsPanel",
                           $type: "linkshopBuilderComponentsPanel",
                           style: {
                             overflow: "auto",
@@ -271,7 +274,12 @@ export default function Index() {
                       label: "数据",
                       children: [
                         {
+                          $id: "linkshopBuilderStoresPanel",
                           $type: "linkshopBuilderStoresPanel",
+                        },
+                        {
+                          $id: "linkshopBuilderRecordsPanel",
+                          $type: "linkshopBuilderRecordsPanel",
                         },
                       ],
                     },
@@ -280,6 +288,7 @@ export default function Index() {
                       label: "变量",
                       children: [
                         {
+                          $id: "linkshopBuilderVariablesPanel",
                           $type: "linkshopBuilderVariablesPanel",
                         },
                       ],
@@ -412,6 +421,7 @@ export default function Index() {
                               label: "属性",
                               children: [
                                 {
+                                  $id: "linkshopBuilderLayoutPropertiesPanel",
                                   $type: "linkshopBuilderLayoutPropertiesPanel",
                                   $exps: {
                                     designerStore: "$stores.designerStore",
@@ -419,6 +429,7 @@ export default function Index() {
                                   },
                                 },
                                 {
+                                  $id: "linkshopBuilderStepPropertiesPanel",
                                   $type: "linkshopBuilderStepPropertiesPanel",
                                   $exps: {
                                     designerStore: "$stores.designerStore",
@@ -426,6 +437,7 @@ export default function Index() {
                                   },
                                 },
                                 {
+                                  $id: "designerComponentPropertiesPanel",
                                   $type: "designerComponentPropertiesPanel",
                                   onSettingPropExpression: [
                                     {
@@ -503,6 +515,7 @@ export default function Index() {
                               label: "事件",
                               children: [
                                 {
+                                  $id: "designerComponentEventHandlersPanel",
                                   $type: "designerComponentEventHandlersPanel",
                                   $exps: {
                                     designingPage: "$stores.designerStore.page",

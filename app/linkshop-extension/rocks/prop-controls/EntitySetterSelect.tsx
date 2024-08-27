@@ -3,7 +3,7 @@ import { EntityStoreConfig } from "@ruiapp/rapid-extension";
 import { renderRock } from "@ruiapp/react-renderer";
 import { useCallback, useState } from "react";
 import { LinkshopAppDesignerStore } from "~/linkshop-extension/stores/LinkshopAppDesignerStore";
-import ModelSettingsFormModal from "../linkshop-builder-stores-panel/ModelSettingsFormModal";
+import StoreSettingsFormModal from "../linkshop-builder-stores-panel/StoreSettingsFormModal";
 
 export interface EntitySetterSelectProps extends RockConfigBase {
   $id: string;
@@ -42,7 +42,7 @@ export default {
             },
           },
         })}
-        <ModelSettingsFormModal
+        <StoreSettingsFormModal
           visible={visible}
           storeConfigs={[]}
           entityStoreConfig={value}

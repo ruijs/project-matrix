@@ -28,6 +28,7 @@ export default {
     const rockConfig: RockConfig = {
       $id: `${$id}-table`,
       $type: "rapidTable",
+      height: "500px",
       size: "small",
       rowKey: "id",
       showHeader: true,

@@ -7,6 +7,7 @@ import LinkshopBuilderComponentExpressionSetter from "./linkshop-builder-compone
 import LinkshopBuilderComponentsPanel from "./linkshop-builder-components-panel/LinkshopBuilderComponentsPanel";
 import LinkshopBuilderLayoutPropertiesPanel from "./linkshop-builder-layout-properties-panel/LinkshopBuilderLayoutPropertiesPanel";
 import LinkshopBuilderLayoutsPanel from "./linkshop-builder-layouts-panel/LinkshopBuilderLayoutsPanel";
+import LinkshopBuilderRecordsPanel from "./linkshop-builder-records-panel/LinkshopBuilderRecordsPanel";
 import LinkshopBuilderStepLayoutPreview from "./linkshop-builder-step-layout-preview/LinkshopBuilderStepLayoutPreview";
 import LinkshopBuilderStepPropertiesPanel from "./linkshop-builder-step-properties-panel/LinkshopBuilderStepPropertiesPanel";
 import LinkshopBuilderStepsPanel from "./linkshop-builder-steps-panel/LinkshopBuilderStepsPanel";
@@ -37,6 +38,7 @@ export default [
   LinkshopBuilderComponentsPanel,
   LinkshopBuilderLayoutPropertiesPanel,
   LinkshopBuilderLayoutsPanel,
+  LinkshopBuilderRecordsPanel,
   LinkshopBuilderStepLayoutPreview,
   LinkshopBuilderStepPropertiesPanel,
   LinkshopBuilderStepsPanel,

@@ -1,5 +1,5 @@
 import { Select } from "antd";
-import { camelCase, upperFirst } from "lodash";
+import { camelCase, orderBy, upperFirst } from "lodash";
 import { memo, PropsWithChildren, useEffect, useMemo, useState } from "react";
 import rapidApi from "~/rapidApi";
 
@@ -8,19 +8,24 @@ type IProps = PropsWithChildren<{
   onChange?(v: string): void;
 }>;
 
-const ModelSelector = memo<IProps>((props) => {
+function ModelSelector(props: IProps) {
   const { loadModels, loading, models } = useModels();
 
   useEffect(() => {
     loadModels();
   }, []);
 
-  const options = useMemo(() => (models || []).map((m) => ({ label: m.name, value: upperFirst(camelCase(m.singularCode)) })), [models]);
+  // TODO: should use singularCode, because code is not saved in database.
+  const options = useMemo(() => {
+    return (models || []).map((m) => ({ label: `${m.name} (${m.singularCode})`, value: upperFirst(camelCase(m.singularCode)) }));
+  }, [models]);
 
-  return <Select placeholder="请选择" loading={loading} options={options} value={props.value} onChange={props.onChange} />;
-});
+  return (
+    <Select placeholder="请选择" loading={loading} options={options} value={props.value} onChange={props.onChange} showSearch={true} optionFilterProp="label" />
+  );
+}
 
-export default ModelSelector;
+export default memo<IProps>(ModelSelector);
 
 function useModels() {
   const [loading, setLoading] = useState<boolean>(false);
@@ -34,10 +39,11 @@ function useModels() {
     setLoading(true);
     await rapidApi
       .post(`/meta/models/operations/find`, {
-        pagination: {
-          limit: 10000,
-          offset: 0,
-        },
+        orderBy: [
+          {
+            field: "name",
+          },
+        ],
       })
       .then((res) => {
         setModels(res.data?.list || []);

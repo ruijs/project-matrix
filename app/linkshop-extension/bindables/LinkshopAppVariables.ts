@@ -1,4 +1,4 @@
-import { Bindable, BindableBase, BindableManager, BindableMeta, BindableRecordFieldMeta } from "@ruiapp/data-binding-extension";
+import { Bindable, BindableBase, BindableManager, BindableMeta, BindableObjectFieldMeta } from "@ruiapp/data-binding-extension";
 import { LinkshopAppVariableConfig } from "../linkshop-types";
 import { LinkshopAppVariable } from "./LinkshopAppVariable";
 import { find } from "lodash";
@@ -8,7 +8,7 @@ export class LinkshopAppVariables extends BindableBase<BindableMeta, any> implem
   variables: LinkshopAppVariable[];
 
   static _bindableMeta: BindableMeta = {
-    type: "record",
+    type: "object",
     fields: [],
   };
 
@@ -25,7 +25,7 @@ export class LinkshopAppVariables extends BindableBase<BindableMeta, any> implem
   }
 
   get _bindableMeta() {
-    const fieldsMeta: BindableRecordFieldMeta[] = [];
+    const fieldsMeta: BindableObjectFieldMeta[] = [];
     for (const variable of this.variables) {
       const variableMeta = variable._bindableMeta;
       fieldsMeta.push({
@@ -35,7 +35,7 @@ export class LinkshopAppVariables extends BindableBase<BindableMeta, any> implem
     }
 
     const meta: BindableMeta = {
-      type: "record",
+      type: "object",
       fields: fieldsMeta,
     };
 

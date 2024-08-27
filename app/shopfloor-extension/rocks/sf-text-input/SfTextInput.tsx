@@ -7,7 +7,7 @@ export default {
   Renderer(context, props: SfTextInputRockConfig) {
     const { framework, page, scope } = context;
     const {
-      value,
+      value = "",
       disabled,
       color,
       verticalAlignment,
