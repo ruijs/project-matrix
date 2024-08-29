@@ -12,12 +12,13 @@ import SfCodeScanner from "./sf-code-scanner/SfCodeScanner";
 import SfInput from "./sf-input/SfInput";
 import SfPDFViewer from "./sf-pdf-viewer/SfPDFViewer";
 import SfRectangle from "./sf-rectangle/SfRectangle";
-import sfDropdownSelect from "./sf-dropdown-select/sfDropdownSelect";
+import SfDropdownSelect from "./sf-dropdown-select/sfDropdownSelect";
 
 // layout entity components
 import SfEntityDetails from "./sf-entity-details/SfEntityDetails";
 import SfEntityTable from "./sf-entity-table/SfEntityTable";
 import SfEntityForm from "./sf-entity-form/SfEntityForm";
+import SfDateSelect from "./sf-date-select/sfDateSelect";
 
 export default [
   SfButton,
@@ -34,7 +35,8 @@ export default [
   SfInput,
   SfPDFViewer,
   SfRectangle,
-  sfDropdownSelect,
+  SfDropdownSelect,
+  SfDateSelect,
   // layout
   SfEntityDetails,
   SfEntityTable,
