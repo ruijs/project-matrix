@@ -247,7 +247,7 @@ export default function Index() {
               </Link>
             )}
             <div style={{ width: "20px", height: "20px" }}></div>
-            <Dropdown menu={{ items: profileMenuItems }}>
+            <Dropdown menu={{ items: profileMenuItems }} trigger={["click"]}>
               <div className="rui-current-user-indicator">
                 <Avatar icon={<UserOutlined rev={undefined} onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />} />
                 {"" + myProfile?.name}
