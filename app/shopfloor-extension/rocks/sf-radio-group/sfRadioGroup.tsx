@@ -13,8 +13,6 @@ export default {
     const { framework, page, scope } = context;
     const { value, onChange, list = [], direction, fontSize } = props;
 
-    console.log()
-
     const wrapStyle: React.CSSProperties = pick(props, [...CommonProps.PositionStylePropNames, ...CommonProps.SizeStylePropNames]) as any;
     wrapStyle.position = "absolute";
     wrapStyle.display = "flex";
@@ -33,8 +31,8 @@ export default {
           <Space direction={direction}>
             {list.map((d) => {
               return (
-                <Radio value={d.key} key={d.key} style={{ fontSize }}>
-                  {d.value}
+                <Radio value={d.value} key={d.value} style={{ fontSize }}>
+                  {d.label}
                 </Radio>
               );
             })}

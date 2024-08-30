@@ -23,10 +23,6 @@ export default {
       $type: "antdSelect",
       options: list,
       value: selectKey,
-      fieldNames: {
-        label: "value",
-        value: "key",
-      },
       onChange: onSelectChange,
     };
 

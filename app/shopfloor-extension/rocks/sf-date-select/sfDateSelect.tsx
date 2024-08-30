@@ -28,7 +28,7 @@ export default {
     return (
       <div className="sf-date-select" data-component-id={props.$id} style={wrapStyle} >
         <ConfigProvider locale={zhCN}>
-          <DatePicker size="large" onChange={onDateChange} popupClassName="sf-date-select-popup"></DatePicker>
+          <DatePicker size="large" value={moment(value)} onChange={onDateChange} popupClassName="sf-date-select-popup"></DatePicker>
         </ConfigProvider>
       </div>
     );

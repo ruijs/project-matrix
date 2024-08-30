@@ -8,7 +8,7 @@ export interface SfIconRockConfig extends LinkshopWidgetRockConfig {
 
   size?: number;
 
-  list: { id: number; key: string; value: string };
+  list: { id: number; value: string; label: string };
 
   onChange?: RockEventHandlerConfig;
 

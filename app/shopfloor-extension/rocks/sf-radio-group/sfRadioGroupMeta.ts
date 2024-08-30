@@ -3,7 +3,7 @@ import type { RockMeta } from "@ruiapp/move-style";
 export default {
   $type: "sfRadioGroup",
 
-  name: "日期",
+  name: "单选框",
 
   voidComponent: true,
 

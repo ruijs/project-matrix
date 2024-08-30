@@ -6,5 +6,5 @@ export interface SfRadioGroupRockConfig extends LinkshopWidgetRockConfig {
   direction: "horizontal" | "vertical";
   fontSize: number;
   onChange?: RockEventHandlerConfig;
-  list: { id: number; key: string; value: string }[];
+  list: { id: number; value: string; label: string }[];
 }

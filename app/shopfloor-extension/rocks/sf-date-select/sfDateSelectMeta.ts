@@ -10,7 +10,7 @@ export default {
   props: {
     value: {
       valueType: "string",
-      defaultValue: '',
+      defaultValue: '2014/04/08',
       onChangeEventName: "onChange",
     },
     width: {
