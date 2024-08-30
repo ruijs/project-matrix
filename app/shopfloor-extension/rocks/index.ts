@@ -19,6 +19,7 @@ import SfEntityDetails from "./sf-entity-details/SfEntityDetails";
 import SfEntityTable from "./sf-entity-table/SfEntityTable";
 import SfEntityForm from "./sf-entity-form/SfEntityForm";
 import SfDateSelect from "./sf-date-select/sfDateSelect";
+import SfRadioGroup from "./sf-radio-group/sfRadioGroup";
 
 export default [
   SfButton,
@@ -37,6 +38,7 @@ export default [
   SfRectangle,
   SfDropdownSelect,
   SfDateSelect,
+  SfRadioGroup,
   // layout
   SfEntityDetails,
   SfEntityTable,
