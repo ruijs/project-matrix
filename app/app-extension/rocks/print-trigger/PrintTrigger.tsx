@@ -107,7 +107,8 @@ export default {
       },
     ];
 
-    const printTemplateStoreData = state.scope.getStore("printTemplateList")?.data?.list || [];
+    const { scope } = context;
+    const printTemplateStoreData = scope.getStore("printTemplateList")?.data?.list || [];
     const printTemplate = props.printTemplateCode && find(printTemplateStoreData, (item) => item.code === props.printTemplateCode);
     if (printTemplate) {
       formItems = formItems.filter((item) => item.code !== "content");
