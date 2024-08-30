@@ -1,5 +1,5 @@
 import { CommonProps, handleComponentEvent, type Rock } from "@ruiapp/move-style";
-import SfTextMeta from "./sfRadioGroupMeta";
+import SfRadioGroupMeta from "./sfRadioGroupMeta";
 import type { SfRadioGroupRockConfig } from "./sf-radio-group-types";
 import { pick } from "lodash";
 import { Radio, RadioChangeEvent, Space } from "antd";
@@ -29,10 +29,10 @@ export default {
       <div className="sf-date-select" data-component-id={props.$id} style={wrapStyle}>
         <Radio.Group onChange={onRadioChange} value={value}>
           <Space direction={direction}>
-            {list.map((d) => {
+            {list.map((item) => {
               return (
-                <Radio value={d.value} key={d.value} style={{ fontSize }}>
-                  {d.label}
+                <Radio value={item.value} key={item.value} style={{ fontSize }}>
+                  {item.label}
                 </Radio>
               );
             })}
@@ -42,5 +42,5 @@ export default {
     );
   },
 
-  ...SfTextMeta,
+  ...SfRadioGroupMeta,
 } as Rock;
