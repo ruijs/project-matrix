@@ -1,0 +1,41 @@
+.sf-date-select {
+  border: 1px solid red;
+}
+
+.sf-date-select .ant-picker {
+  height: 100%;
+}
+
+.sf-date-select-popup .ant-picker-panel-container {
+  width: 300px;
+}
+
+.sf-date-select-popup .ant-picker-cell-inner {
+  font-size: 18px;
+  height: 28px;
+  min-width: 32px;
+}
+
+.sf-date-select-popup .ant-picker-header-view {
+  font-size: 18px;
+}
+
+.sf-date-select-popup .ant-picker-header > button {
+  font-size: 18px;
+}
+
+.sf-date-select-popup .ant-picker-panel .ant-picker-footer {
+  font-size: 18px;
+}
+
+.sf-date-select-popup .ant-picker-date-panel .ant-picker-content th {
+  font-size: 18px;
+}
+
+.sf-date-select-popup .ant-picker-header {
+  padding: 0 16px;
+}
+
+.sf-date-select-popup .ant-picker-date-panel .ant-picker-body {
+  padding: 12px 24px;
+}
