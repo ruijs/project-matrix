@@ -357,6 +357,8 @@ export class LinkshopAppDesignerStore implements IStore<LinkshopAppDesignerStore
       this.#page.updateStore(command.payload.store);
     } else if (command.name === "removeStore") {
       this.#page.removeStore(command.payload?.store);
+    } else if (command.name === "setScopeVars") {
+      this.#page.setScopeVars(command.payload.scopeId || null, command.payload.vars, command.payload.silent);
     } else if (command.name === "addStep") {
       const existedSteps = this.appConfig?.steps || [];
       const isExistedStep = existedSteps.some((s) => s.$name === command.payload?.step?.$name);
@@ -641,6 +643,7 @@ export class LinkshopAppDesignerStore implements IStore<LinkshopAppDesignerStore
 }
 
 function updateAppConfigVar(designerPage: IPage, designerStore: LinkshopAppDesignerStore) {
+  const { appConfig } = designerStore;
   sendDesignerCommand(designerPage, designerStore, {
     name: "updateStore",
     payload: {
@@ -648,8 +651,19 @@ function updateAppConfigVar(designerPage: IPage, designerStore: LinkshopAppDesig
         type: "linkshopAppRuntimeStateStore",
         name: "runtimeStore",
         config: {
-          variables: designerStore.appConfig?.variables,
-          records: designerStore.appConfig?.records,
+          variables: appConfig.variables,
+          records: appConfig.records,
+        },
+      },
+    },
+  });
+
+  sendDesignerCommand(designerPage, designerStore, {
+    name: "setScopeVars",
+    payload: {
+      vars: {
+        linkshopAppConfig: {
+          stores: appConfig.stores,
         },
       },
     },

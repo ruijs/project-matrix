@@ -119,8 +119,6 @@ export default {
             const appConfig = designerStore.appConfig!;
             const initialVars = {
               linkshopAppConfig: {
-                variables: appConfig.variables,
-                records: appConfig.records,
                 stores: appConfig.stores,
               },
             };

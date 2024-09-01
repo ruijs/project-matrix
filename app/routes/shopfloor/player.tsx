@@ -220,6 +220,11 @@ export default function Index() {
 
       ruiPageConfig = {
         $id: "playerPage",
+        initialVars: {
+          linkshopAppConfig: {
+            stores: shopfloorAppConfig.stores,
+          },
+        },
         stores,
         view: [
           {
