@@ -1,4 +1,4 @@
-import type { Rock, RockConfig, RockEvent, RockInstanceContext } from "@ruiapp/move-style";
+import type { Rock, RockConfig, RockEvent, RockInstanceContext, StoreConfig } from "@ruiapp/move-style";
 import LinkshopBuilderStepPropertiesPanelMeta from "./LinkshopBuilderStepPropertiesPanelMeta";
 import type { LinkshopBuilderStepPropertiesPanelRockConfig } from "./linkshop-builder-step-properties-panel-types";
 import { useMemo } from "react";
@@ -6,6 +6,7 @@ import { renderRockChildren } from "@ruiapp/react-renderer";
 import { LinkshopAppDesignerStore } from "~/linkshop-extension/stores/LinkshopAppDesignerStore";
 import { sendDesignerCommand } from "~/linkshop-extension/utilities/DesignerUtility";
 import { LinkshopAppLayoutRockConfig } from "~/linkshop-extension/linkshop-types";
+import { LinkshopAppRuntimeStateStoreConfig } from "~/linkshop-extension/stores/LinkshopAppRuntimeStateStore";
 
 export default {
   Renderer(context: RockInstanceContext, props: LinkshopBuilderStepPropertiesPanelRockConfig) {
@@ -75,12 +76,31 @@ export default {
                     if (currentLayoutId) {
                       layoutOfCurrentStep = designerStore.getLayoutById(currentLayoutId);
                     }
-                    const stores = designerStore.page.scope.config.stores || [];
+
+                    const appConfig = designerStore.appConfig!;
+                    const initialVars = {
+                      linkshopAppConfig: {
+                        variables: appConfig.variables,
+                        records: appConfig.records,
+                        stores: appConfig.stores,
+                      },
+                    };
+                    const stores: StoreConfig[] = [
+                      {
+                        type: "linkshopAppRuntimeStateStore",
+                        name: "runtimeStore",
+                        variables: appConfig.variables,
+                        records: appConfig.records,
+                      } as LinkshopAppRuntimeStateStoreConfig,
+                      //TODO: appConfig中的stores配置应仅作声明用，Page.stores中的entity stores应由组件在渲染时创建
+                      ...(appConfig.stores || []),
+                    ];
                     sendDesignerCommand(context.page, designerStore, {
                       name: "setPageConfig",
                       payload: {
                         pageConfig: {
                           $id: "designPreviewPage",
+                          initialVars,
                           stores,
                           layout: {
                             view: [

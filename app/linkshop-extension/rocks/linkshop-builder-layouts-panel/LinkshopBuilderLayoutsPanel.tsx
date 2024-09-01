@@ -1,4 +1,4 @@
-import type { Rock, RockConfig, RockEvent, RockEventHandlerScript, RockInstanceContext } from "@ruiapp/move-style";
+import type { Rock, RockConfig, RockEvent, RockEventHandlerScript, RockInstanceContext, StoreConfig } from "@ruiapp/move-style";
 import LinkshopBuilderStepsPanelMeta from "./LinkshopBuilderLayoutsPanelMeta";
 import type { LinkshopBuilderLayoutsPanelRockConfig } from "./linkshop-builder-layouts-panel-types";
 import type { LinkshopAppRockConfig, LinkshopAppLayoutRockConfig } from "~/linkshop-extension/linkshop-types";
@@ -9,6 +9,7 @@ import { sendDesignerCommand } from "~/linkshop-extension/utilities/DesignerUtil
 import LayoutSettingsFormModal from "./LayoutSettingsFormModal";
 import { EllipsisOutlined, PlusOutlined } from "@ant-design/icons";
 import { Dropdown } from "antd";
+import { LinkshopAppRuntimeStateStoreConfig } from "~/linkshop-extension/stores/LinkshopAppRuntimeStateStore";
 
 enum ItemOperation {
   View = "view",
@@ -49,12 +50,28 @@ export default {
 
           const currentLayout = designerStore.currentLayout;
           if (currentLayout) {
-            const stores = designerStore.page.scope.config.stores || [];
+            const appConfig = designerStore.appConfig!;
+            const initialVars = {
+              linkshopAppConfig: {
+                stores: appConfig.stores,
+              },
+            };
+            const stores: StoreConfig[] = [
+              {
+                type: "linkshopAppRuntimeStateStore",
+                name: "runtimeStore",
+                variables: appConfig.variables,
+                records: appConfig.records,
+              } as LinkshopAppRuntimeStateStoreConfig,
+              //TODO: appConfig中的stores配置应仅作声明用，Page.stores中的entity stores应由组件在渲染时创建
+              ...(appConfig.stores || []),
+            ];
             sendDesignerCommand(context.page, designerStore, {
               name: "setPageConfig",
               payload: {
                 pageConfig: {
                   $id: "designPreviewPage",
+                  initialVars,
                   stores,
                   layout: {
                     view: [

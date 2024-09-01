@@ -19,12 +19,13 @@ export default {
 
     const designerStore = page.getStore<LinkshopAppDesignerStore>("designerStore");
 
-    const stores = (designerStore.page.scope.config.stores || []) as EntityStoreConfig[];
+    const stores = (designerStore.appConfig.stores || []) as EntityStoreConfig[];
 
     const onEntityChange = useCallback(
       (e: RockEvent) => {
         const code = e.args[0];
         const store = stores.find((store) => store.entityCode === code);
+        //TODO: 应该只保存数据源的name或者id，而不是整个数据源配置。
         handleComponentEvent("onChange", framework, page, scope, props, onChange!, [store]);
       },
       [page, $id, onChange, stores],

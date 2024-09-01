@@ -23,7 +23,8 @@ export default {
 
     const designerStore = page.getStore<LinkshopAppDesignerStore>(designerStoreName || "designerStore");
 
-    const stores = (designerStore.page.scope.config.stores || []).filter((item) => item.name !== "runtimeStore");
+    const appConfig = designerStore.appConfig!;
+    const stores = appConfig.stores;
 
     const onStoreOperator = (key: StoreOperator, store: any) => {
       switch (key) {
@@ -33,12 +34,7 @@ export default {
           });
           break;
         case StoreOperator.Remove:
-          sendDesignerCommand(context.page, designerStore, {
-            name: "removeStore",
-            payload: {
-              store,
-            },
-          });
+          designerStore.removeEntityStore(store);
           break;
       }
     };
@@ -97,13 +93,12 @@ export default {
               return { ...draft, visible: v };
             });
           }}
-          onFormSubmit={(config) => {
-            sendDesignerCommand(context.page, designerStore, {
-              name: state.entityStoreConfig != null ? "modifyStore" : "addStore",
-              payload: {
-                store: config,
-              },
-            });
+          onFormSubmit={(storeConfig) => {
+            if (state.entityStoreConfig) {
+              designerStore.updateEntityStore(storeConfig);
+            } else {
+              designerStore.addEntityStore(storeConfig);
+            }
           }}
         />
       </>

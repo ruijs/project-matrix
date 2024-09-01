@@ -1,6 +1,7 @@
-import { EventEmitter, Framework, IPage, IStore, Page, PageCommand, PageConfig, RockConfig, StoreConfig, StoreConfigBase, StoreMeta } from "@ruiapp/move-style";
+import { EventEmitter, Framework, IPage, IStore, Page, PageConfig, RockConfig, StoreConfig, StoreConfigBase, StoreMeta } from "@ruiapp/move-style";
 import type {
   DesignerPageCommand,
+  LinkshopAppEntityStoreConfig,
   LinkshopAppLayoutRockConfig,
   LinkshopAppRecordConfig,
   LinkshopAppRockConfig,
@@ -10,25 +11,30 @@ import type {
 import { cloneDeep, find, map, some } from "lodash";
 import type { DesignStage } from "../designer-types";
 import rapidApi from "~/rapidApi";
-import type { EntityStoreConfig } from "@ruiapp/rapid-extension";
 import { createRandomString, genRandomComponentId, sendDesignerCommand } from "../utilities/DesignerUtility";
 import { BindableManager } from "@ruiapp/data-binding-extension";
-import { LinkshopAppRuntimeState, LinkshopAppRuntimeStateConfig } from "../bindables/LinkshopAppRuntimeState";
-import { LinkshopAppRuntimeStateStore, LinkshopAppRuntimeStateStoreConfig } from "./LinkshopAppRuntimeStateStore";
+import { LinkshopAppRuntimeState } from "../bindables/LinkshopAppRuntimeState";
+import type { LinkshopAppRuntimeStateStoreConfig } from "./LinkshopAppRuntimeStateStore";
 
-export interface LinkshopAppStoreConfig extends StoreConfigBase {
+export interface LinkshopAppDesignerStoreConfig extends StoreConfigBase {
   appId?: string;
   appConfig?: LinkshopAppRockConfig;
-  stores?: EntityStoreConfig[];
-  variables?: LinkshopAppVariableConfig[];
-  records?: LinkshopAppRecordConfig[];
 }
 
-export class LinkshopAppDesignerStore implements IStore<LinkshopAppStoreConfig> {
+const defaultAppConfig: LinkshopAppRockConfig = {
+  $type: "linkshopApp",
+  variables: [],
+  records: [],
+  stores: [],
+  layouts: [],
+  steps: [],
+};
+
+export class LinkshopAppDesignerStore implements IStore<LinkshopAppDesignerStoreConfig> {
   #emitter: EventEmitter;
   #name: string;
   appId?: string;
-  appConfig?: LinkshopAppRockConfig;
+  appConfig: LinkshopAppRockConfig;
   #framework: Framework;
   #page: Page;
   #stage?: DesignStage;
@@ -63,25 +69,21 @@ export class LinkshopAppDesignerStore implements IStore<LinkshopAppStoreConfig> 
     this.#page.scope.setVars({
       runtimeState: this.#runtimeState,
     });
+
+    this.appConfig = defaultAppConfig;
   }
 
   get name(): string {
     return this.#name;
   }
 
-  setConfig(storeConfig: LinkshopAppStoreConfig) {
+  setConfig(storeConfig: LinkshopAppDesignerStoreConfig) {
     console.debug(`[RUI][LinkshopAppDesignerStore][${storeConfig.name}] LinkshopAppDesignerStore.setConfig()`);
     this.#name = storeConfig.name;
+
+    const appConfig: LinkshopAppRockConfig = storeConfig.appConfig || defaultAppConfig;
     if (storeConfig.appConfig) {
-      this.setAppConfig(
-        storeConfig.appConfig || {
-          $type: "linkshopApp",
-          variables: [],
-          records: [],
-          layouts: [],
-          steps: [],
-        },
-      );
+      this.setAppConfig(appConfig);
     }
 
     const stores: StoreConfig[] = [
@@ -91,7 +93,7 @@ export class LinkshopAppDesignerStore implements IStore<LinkshopAppStoreConfig> 
         variables: this.appConfig?.variables,
         records: this.appConfig?.records,
       } as LinkshopAppRuntimeStateStoreConfig,
-      ...(storeConfig.stores || []),
+      ...(appConfig.stores || []),
     ];
 
     this.processCommand({
@@ -213,11 +215,6 @@ export class LinkshopAppDesignerStore implements IStore<LinkshopAppStoreConfig> 
     return find(this.appConfig?.layouts, { $id: layoutId });
   }
 
-  setPageConfig(value: PageConfig) {
-    this.#page.setConfig(value);
-    this.#emitter.emit("dataChange", null);
-  }
-
   setPropertyExpression(propName: string, propExpression: string) {}
 
   async loadData(input?: any): Promise<any> {
@@ -263,9 +260,9 @@ export class LinkshopAppDesignerStore implements IStore<LinkshopAppStoreConfig> 
     const appContent = {
       variables: appConfig.variables,
       records: appConfig.records,
+      stores: appConfig.stores,
       layouts: appConfig.layouts,
       steps: appConfig.steps,
-      stores: (this.page.scope.config.stores || []).filter((item) => item.name !== "runtimeStore"),
     };
 
     await rapidApi.patch(`/shopfloor/shopfloor_apps/${this.appId}`, {
@@ -389,7 +386,7 @@ export class LinkshopAppDesignerStore implements IStore<LinkshopAppStoreConfig> 
       const copyStep = cloneDeep(command.payload.step);
       copyStep.$name = copyStep.$name + " copy";
       copyStep.$id = createRandomString(10);
-      copyStep.children = copyStep.children.map((c) => ({
+      copyStep.children = copyStep.children.map((c: any) => ({
         ...c,
         $id: createRandomString(10),
       }));
@@ -550,7 +547,7 @@ export class LinkshopAppDesignerStore implements IStore<LinkshopAppStoreConfig> 
   }
 
   addVariable(variable: LinkshopAppVariableConfig) {
-    if (some(this.appConfig?.records, { name: variable.name })) {
+    if (some(this.appConfig?.variables, { name: variable.name })) {
       return;
     }
     this.setAppConfig({
@@ -558,17 +555,17 @@ export class LinkshopAppDesignerStore implements IStore<LinkshopAppStoreConfig> 
       variables: [...(this.appConfig?.variables || []), variable],
     } as LinkshopAppRockConfig);
 
-    updateAppRuntimeStateStore(this.#page, this);
+    updateAppConfigVar(this.#page, this);
   }
 
   updateVariable(variable: LinkshopAppVariableConfig) {
     const variables = this.appConfig?.variables || [];
     this.setAppConfig({
       ...this.appConfig,
-      variables: variables?.map((item: LinkshopAppVariableConfig) => (item.name === variable.name ? { ...item, ...variable } : item)),
+      variables: variables.map((item: LinkshopAppVariableConfig) => (item.name === variable.name ? { ...item, ...variable } : item)),
     } as LinkshopAppRockConfig);
 
-    updateAppRuntimeStateStore(this.#page, this);
+    updateAppConfigVar(this.#page, this);
   }
 
   removeVariable(variable: LinkshopAppVariableConfig) {
@@ -577,7 +574,7 @@ export class LinkshopAppDesignerStore implements IStore<LinkshopAppStoreConfig> 
       variables: this.appConfig?.variables?.filter((item: LinkshopAppVariableConfig) => item.name !== variable.name),
     } as LinkshopAppRockConfig);
 
-    updateAppRuntimeStateStore(this.#page, this);
+    updateAppConfigVar(this.#page, this);
   }
 
   addRecord(record: LinkshopAppRecordConfig) {
@@ -589,17 +586,17 @@ export class LinkshopAppDesignerStore implements IStore<LinkshopAppStoreConfig> 
       records: [...(this.appConfig?.records || []), record],
     } as LinkshopAppRockConfig);
 
-    updateAppRuntimeStateStore(this.#page, this);
+    updateAppConfigVar(this.#page, this);
   }
 
   updateRecord(record: LinkshopAppRecordConfig) {
     const records = this.appConfig?.records || [];
     this.setAppConfig({
       ...this.appConfig,
-      records: records?.map((item: LinkshopAppRecordConfig) => (item.name === record.name ? { ...item, ...record } : item)),
+      records: records.map((item: LinkshopAppRecordConfig) => (item.name === record.name ? { ...item, ...record } : item)),
     } as LinkshopAppRockConfig);
 
-    updateAppRuntimeStateStore(this.#page, this);
+    updateAppConfigVar(this.#page, this);
   }
 
   removeRecord(record: LinkshopAppRecordConfig) {
@@ -608,11 +605,42 @@ export class LinkshopAppDesignerStore implements IStore<LinkshopAppStoreConfig> 
       records: this.appConfig?.records?.filter((item: LinkshopAppRecordConfig) => item.name !== record.name),
     } as LinkshopAppRockConfig);
 
-    updateAppRuntimeStateStore(this.#page, this);
+    updateAppConfigVar(this.#page, this);
+  }
+
+  addEntityStore(store: LinkshopAppEntityStoreConfig) {
+    if (some(this.appConfig?.stores, { name: store.name })) {
+      return;
+    }
+    this.setAppConfig({
+      ...this.appConfig,
+      stores: [...(this.appConfig?.stores || []), store],
+    } as LinkshopAppRockConfig);
+
+    updateAppConfigVar(this.#page, this);
+  }
+
+  updateEntityStore(store: LinkshopAppEntityStoreConfig) {
+    const stores = this.appConfig?.stores || [];
+    this.setAppConfig({
+      ...this.appConfig,
+      stores: stores.map((item: LinkshopAppEntityStoreConfig) => (item.name === store.name ? { ...item, ...store } : item)),
+    } as LinkshopAppRockConfig);
+
+    updateAppConfigVar(this.#page, this);
+  }
+
+  removeEntityStore(store: LinkshopAppEntityStoreConfig) {
+    this.setAppConfig({
+      ...this.appConfig,
+      stores: this.appConfig?.stores?.filter((item: LinkshopAppEntityStoreConfig) => item.name !== store.name),
+    } as LinkshopAppRockConfig);
+
+    updateAppConfigVar(this.#page, this);
   }
 }
 
-function updateAppRuntimeStateStore(designerPage: IPage, designerStore: LinkshopAppDesignerStore) {
+function updateAppConfigVar(designerPage: IPage, designerStore: LinkshopAppDesignerStore) {
   sendDesignerCommand(designerPage, designerStore, {
     name: "updateStore",
     payload: {
@@ -626,9 +654,11 @@ function updateAppRuntimeStateStore(designerPage: IPage, designerStore: Linkshop
       },
     },
   });
+
+  //TODO: updateAppConfigVar
 }
 
 export default {
   type: "linkshopAppDesignerStore",
   store: LinkshopAppDesignerStore,
-} as StoreMeta<LinkshopAppStoreConfig>;
+} as StoreMeta<LinkshopAppDesignerStoreConfig>;

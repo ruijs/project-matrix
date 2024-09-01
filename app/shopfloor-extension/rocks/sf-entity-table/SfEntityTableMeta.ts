@@ -31,11 +31,6 @@ export default {
       $type: "componentPropPanel",
       setters: [
         {
-          $type: "textPropSetter",
-          label: "名称",
-          propName: "$name",
-        },
-        {
           $type: "storeEntityPropSetter",
           label: "数据模型",
           propName: "entityConfig",

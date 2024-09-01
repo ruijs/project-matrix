@@ -1,4 +1,4 @@
-import type { Rock, RockConfig, RockInstanceContext } from "@ruiapp/move-style";
+import type { Rock, RockConfig, RockInstanceContext, StoreConfig } from "@ruiapp/move-style";
 import LinkshopBuilderStepsPanelMeta from "./LinkshopBuilderStepsPanelMeta";
 import type { LinkshopBuilderStepsPanelRockConfig } from "./linkshop-builder-steps-panel-types";
 import type { LinkshopAppLayoutRockConfig, LinkshopAppStepRockConfig } from "~/linkshop-extension/linkshop-types";
@@ -11,6 +11,7 @@ import { Dropdown } from "antd";
 import { closestCenter, DndContext, DragEndEvent, KeyboardSensor, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { LinkshopAppRuntimeStateStoreConfig } from "~/linkshop-extension/stores/LinkshopAppRuntimeStateStore";
 
 enum StepOperator {
   View = "view",
@@ -114,13 +115,32 @@ export default {
             if (currentStep.layoutId) {
               layoutOfCurrentStep = designerStore.getLayoutById(currentStep.layoutId);
             }
+
+            const appConfig = designerStore.appConfig!;
+            const initialVars = {
+              linkshopAppConfig: {
+                variables: appConfig.variables,
+                records: appConfig.records,
+                stores: appConfig.stores,
+              },
+            };
+            const stores: StoreConfig[] = [
+              {
+                type: "linkshopAppRuntimeStateStore",
+                name: "runtimeStore",
+                variables: appConfig.variables,
+                records: appConfig.records,
+              } as LinkshopAppRuntimeStateStoreConfig,
+              //TODO: appConfig中的stores配置应仅作声明用，Page.stores中的entity stores应由组件在渲染时创建
+              ...(appConfig.stores || []),
+            ];
             // TODO: 此处应该只更改view和layout配置。
-            const stores = designerStore.page.scope.config.stores || [];
             sendDesignerCommand(context.page, designerStore, {
               name: "setPageConfig",
               payload: {
                 pageConfig: {
                   $id: "designPreviewPage",
+                  initialVars,
                   stores,
                   layout: {
                     view: [

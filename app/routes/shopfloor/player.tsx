@@ -214,6 +214,7 @@ export default function Index() {
           variables: shopfloorAppConfig.variables,
           records: shopfloorAppConfig.records,
         } as LinkshopAppRuntimeStateStoreConfig,
+        //TODO: appConfig中的stores配置应仅作声明用，Page.stores中的entity stores应由组件在渲染时创建
         ...get(shopfloorAppConfig, "stores", []),
       ];
 

@@ -1,4 +1,5 @@
 import type { ContainerRockConfig, PageCommand, RockConfigBase, SimpleRockConfig } from "@ruiapp/move-style";
+import type { FindEntityOptions } from "@ruiapp/rapid-extension";
 
 export type LinkshopWidgetCommonConfig = {
   left: number;
@@ -12,30 +13,34 @@ export type LinkshopWidgetCommonConfig = {
 
 export type LinkshopWidgetRockConfig = RockConfigBase & LinkshopWidgetCommonConfig;
 
-export type LinkshopAppRockConfig = SimpleRockConfig &
-  LinkshopWidgetCommonConfig & {
-    $type: "linkshopApp";
+export type LinkshopAppRockConfig = SimpleRockConfig & {
+  $type: "linkshopApp";
 
-    /**
-     * 应用变量
-     */
-    variables: LinkshopAppVariableConfig[];
+  /**
+   * 应用变量
+   */
+  variables: LinkshopAppVariableConfig[];
 
-    /**
-     * 数据记录
-     */
-    records: LinkshopAppRecordConfig[];
+  /**
+   * 数据记录
+   */
+  records: LinkshopAppRecordConfig[];
 
-    /**
-     * 应用步骤
-     */
-    layouts: LinkshopAppLayoutRockConfig[];
+  /**
+   * 数据源
+   */
+  stores: LinkshopAppEntityStoreConfig[];
 
-    /**
-     * 应用步骤
-     */
-    steps: LinkshopAppStepRockConfig[];
-  };
+  /**
+   * 应用步骤
+   */
+  layouts: LinkshopAppLayoutRockConfig[];
+
+  /**
+   * 应用步骤
+   */
+  steps: LinkshopAppStepRockConfig[];
+};
 
 export type LinkshopAppLayoutRockConfig = ContainerRockConfig &
   LinkshopWidgetCommonConfig & {
@@ -145,3 +150,9 @@ export type LinkshopAppRecordConfig = {
   name: string;
   entityCode: string;
 };
+
+export interface LinkshopAppEntityStoreConfig extends FindEntityOptions {
+  type: "entityStore";
+  name: string;
+  entityCode: string;
+}
