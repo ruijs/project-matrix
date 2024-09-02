@@ -3,8 +3,7 @@ import SfEntityFormMeta from "./SfEntityFormMeta";
 import type { SfEntityFormRockConfig } from "./sf-entity-form-types";
 import { find, pick } from "lodash";
 import { renderRock } from "@ruiapp/react-renderer";
-import rapidAppDefinition from "~/rapidAppDefinition";
-import { generateRockConfigOfError, RapidEntity } from "@ruiapp/rapid-extension";
+import { generateRockConfigOfError, rapidAppDefinition, RapidEntity } from "@ruiapp/rapid-extension";
 
 export default {
   onReceiveMessage(message, state, props) {
@@ -36,7 +35,7 @@ export default {
     wrapStyle.position = "absolute";
     wrapStyle.overflow = "auto";
 
-    const entities = rapidAppDefinition.entities;
+    const entities = rapidAppDefinition.getEntities();
     let mainEntity: RapidEntity | undefined;
 
     if (entityConfig?.entityCode) {

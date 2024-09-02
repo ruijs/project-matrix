@@ -60,14 +60,14 @@ importers:
         specifier: ~0.3.5
         version: 0.3.5(lodash@4.17.21)
       '@ruiapp/rapid-core':
-        specifier: ~0.1.79
-        version: 0.1.79(winston@3.11.0)
+        specifier: ~0.2.0
+        version: 0.2.0(winston@3.11.0)
       '@ruiapp/rapid-express':
         specifier: ~0.1.57
-        version: 0.1.57(@ruiapp/rapid-core@0.1.79(winston@3.11.0))(express@4.18.3)
+        version: 0.1.57(@ruiapp/rapid-core@0.2.0(winston@3.11.0))(express@4.18.3)
       '@ruiapp/rapid-extension':
-        specifier: ~0.2.4
-        version: 0.2.4(@ant-design/icons@4.8.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@ruiapp/move-style@0.3.5(lodash@4.17.21))(@ruiapp/react-renderer@0.3.4(@ruiapp/move-style@0.3.5(lodash@4.17.21))(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@wangeditor/editor-for-react@1.0.6(@wangeditor/core@1.1.19(@uppy/core@2.3.4)(@uppy/xhr-upload@2.1.3(@uppy/core@2.3.4))(dom7@3.0.0)(is-hotkey@0.2.0)(lodash.camelcase@4.3.0)(lodash.clonedeep@4.5.0)(lodash.debounce@4.0.8)(lodash.foreach@4.5.0)(lodash.isequal@4.5.0)(lodash.throttle@4.1.1)(lodash.toarray@4.4.0)(nanoid@3.3.6)(slate@0.72.8)(snabbdom@3.6.2))(@wangeditor/editor@5.1.23)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@wangeditor/editor@5.1.23)(antd@4.24.15(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(axios@1.2.6)(dayjs@1.11.11)(lodash@4.17.21)(moment@2.29.4)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        specifier: ~0.3.0
+        version: 0.3.0(@ant-design/icons@4.8.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@ruiapp/move-style@0.3.5(lodash@4.17.21))(@ruiapp/react-renderer@0.3.4(@ruiapp/move-style@0.3.5(lodash@4.17.21))(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@wangeditor/editor-for-react@1.0.6(@wangeditor/core@1.1.19(@uppy/core@2.3.4)(@uppy/xhr-upload@2.1.3(@uppy/core@2.3.4))(dom7@3.0.0)(is-hotkey@0.2.0)(lodash.camelcase@4.3.0)(lodash.clonedeep@4.5.0)(lodash.debounce@4.0.8)(lodash.foreach@4.5.0)(lodash.isequal@4.5.0)(lodash.throttle@4.1.1)(lodash.toarray@4.4.0)(nanoid@3.3.6)(slate@0.72.8)(snabbdom@3.6.2))(@wangeditor/editor@5.1.23)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@wangeditor/editor@5.1.23)(antd@4.24.15(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(axios@1.2.6)(dayjs@1.11.11)(lodash@4.17.21)(moment@2.29.4)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@ruiapp/react-renderer':
         specifier: ~0.3.4
         version: 0.3.4(@ruiapp/move-style@0.3.5(lodash@4.17.21))(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -196,8 +196,8 @@ importers:
         specifier: ^1.19.3
         version: 1.19.3(eslint@8.57.0)(jest@29.7.0(@types/node@18.19.33)(ts-node@10.9.2(@types/node@18.19.33)(typescript@4.9.5)))(react@18.2.0)(typescript@4.9.5)
       '@ruiapp/rapid-configure-tools':
-        specifier: ^0.1.2
-        version: 0.1.2(@ruiapp/rapid-extension@0.2.4(@ant-design/icons@4.8.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@ruiapp/move-style@0.3.5(lodash@4.17.21))(@ruiapp/react-renderer@0.3.4(@ruiapp/move-style@0.3.5(lodash@4.17.21))(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@wangeditor/editor-for-react@1.0.6(@wangeditor/core@1.1.19(@uppy/core@2.3.4)(@uppy/xhr-upload@2.1.3(@uppy/core@2.3.4))(dom7@3.0.0)(is-hotkey@0.2.0)(lodash.camelcase@4.3.0)(lodash.clonedeep@4.5.0)(lodash.debounce@4.0.8)(lodash.foreach@4.5.0)(lodash.isequal@4.5.0)(lodash.throttle@4.1.1)(lodash.toarray@4.4.0)(nanoid@3.3.6)(slate@0.72.8)(snabbdom@3.6.2))(@wangeditor/editor@5.1.23)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@wangeditor/editor@5.1.23)(antd@4.24.15(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(axios@1.2.6)(dayjs@1.11.11)(lodash@4.17.21)(moment@2.29.4)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(axios-cookiejar-support@4.0.7(axios@1.2.6)(deasync@0.1.29)(tough-cookie@4.1.4))(axios@1.2.6)(lodash@4.17.21)(tough-cookie@4.1.4)
+        specifier: ^0.2.0
+        version: 0.2.0(@ruiapp/rapid-extension@0.3.0(@ant-design/icons@4.8.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@ruiapp/move-style@0.3.5(lodash@4.17.21))(@ruiapp/react-renderer@0.3.4(@ruiapp/move-style@0.3.5(lodash@4.17.21))(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@wangeditor/editor-for-react@1.0.6(@wangeditor/core@1.1.19(@uppy/core@2.3.4)(@uppy/xhr-upload@2.1.3(@uppy/core@2.3.4))(dom7@3.0.0)(is-hotkey@0.2.0)(lodash.camelcase@4.3.0)(lodash.clonedeep@4.5.0)(lodash.debounce@4.0.8)(lodash.foreach@4.5.0)(lodash.isequal@4.5.0)(lodash.throttle@4.1.1)(lodash.toarray@4.4.0)(nanoid@3.3.6)(slate@0.72.8)(snabbdom@3.6.2))(@wangeditor/editor@5.1.23)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@wangeditor/editor@5.1.23)(antd@4.24.15(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(axios@1.2.6)(dayjs@1.11.11)(lodash@4.17.21)(moment@2.29.4)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(axios-cookiejar-support@4.0.7(axios@1.2.6)(deasync@0.1.29)(tough-cookie@4.1.4))(axios@1.2.6)(lodash@4.17.21)(tough-cookie@4.1.4)
       '@svgr/cli':
         specifier: ^8.1.0
         version: 8.1.0(typescript@4.9.5)
@@ -1891,17 +1891,17 @@ packages:
     peerDependencies:
       lodash: ^4.17.21
 
-  '@ruiapp/rapid-configure-tools@0.1.2':
-    resolution: {integrity: sha512-Bk3DEKT+YKt2IL5QEWT16jUpRKGyLHcF9TU7cUIZt8S6Yar56jikEx8gKE7qVBz3VezvynquFs2gDxyBLhYNrQ==}
+  '@ruiapp/rapid-configure-tools@0.2.0':
+    resolution: {integrity: sha512-9rrv9HJkZvRayIzvk3cCwmAdwe4+9AiCy27+VXCgnmxTPMpGovM3HpJrTrVb7q9XhmzUnKaY9ZsDYD92K5J2Rg==}
     peerDependencies:
-      '@ruiapp/rapid-extension': ^0.1.7
+      '@ruiapp/rapid-extension': ^0.3.0
       axios: ^1.1.2
       axios-cookiejar-support: ^4.0.7
       lodash: ^4.17.21
       tough-cookie: ^4.1.3
 
-  '@ruiapp/rapid-core@0.1.79':
-    resolution: {integrity: sha512-2frnfiNcAR4qDWByAhFIfamaVxWUi4HtbmvXPCRUNm7D7pvSiznyjVHfZz53IEWeN5eTzQRjTxC712zj9vT2EQ==}
+  '@ruiapp/rapid-core@0.2.0':
+    resolution: {integrity: sha512-jEmkvWyc4/tYEQ9w7eKdLH74UbHAxkMIPmUPzRmt7EXZ+pEPwWDs6694DCcoNYTTkz/eWlozmKjyjhrQP4WsXg==}
     peerDependencies:
       winston: ^3.11.0
 
@@ -1911,8 +1911,8 @@ packages:
       '@ruiapp/rapid-core': ^0.1.57
       express: ^4.18.2
 
-  '@ruiapp/rapid-extension@0.2.4':
-    resolution: {integrity: sha512-Jrxs7FQBFUZeK3WYScBrJZclXst/RG1PKcTeRn3S0aIeSK3iCiLPvZVS4b+/JzgTqHMsibouGpFUOZZS4z5a8w==}
+  '@ruiapp/rapid-extension@0.3.0':
+    resolution: {integrity: sha512-HT2pA594fnnMId3v653IeixFa7i1UHYW3jbOqVJPzOSN+Ht8hakLK/eXvVoFqj1TZAAygeMpp65dWPrP8JmmDA==}
     peerDependencies:
       '@ant-design/icons': ^4.7.0
       '@ruiapp/move-style': ^0.3.4
@@ -9639,15 +9639,15 @@ snapshots:
     transitivePeerDependencies:
       - debug
 
-  ? '@ruiapp/rapid-configure-tools@0.1.2(@ruiapp/rapid-extension@0.2.4(@ant-design/icons@4.8.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@ruiapp/move-style@0.3.5(lodash@4.17.21))(@ruiapp/react-renderer@0.3.4(@ruiapp/move-style@0.3.5(lodash@4.17.21))(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@wangeditor/editor-for-react@1.0.6(@wangeditor/core@1.1.19(@uppy/core@2.3.4)(@uppy/xhr-upload@2.1.3(@uppy/core@2.3.4))(dom7@3.0.0)(is-hotkey@0.2.0)(lodash.camelcase@4.3.0)(lodash.clonedeep@4.5.0)(lodash.debounce@4.0.8)(lodash.foreach@4.5.0)(lodash.isequal@4.5.0)(lodash.throttle@4.1.1)(lodash.toarray@4.4.0)(nanoid@3.3.6)(slate@0.72.8)(snabbdom@3.6.2))(@wangeditor/editor@5.1.23)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@wangeditor/editor@5.1.23)(antd@4.24.15(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(axios@1.2.6)(dayjs@1.11.11)(lodash@4.17.21)(moment@2.29.4)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(axios-cookiejar-support@4.0.7(axios@1.2.6)(deasync@0.1.29)(tough-cookie@4.1.4))(axios@1.2.6)(lodash@4.17.21)(tough-cookie@4.1.4)'
+  ? '@ruiapp/rapid-configure-tools@0.2.0(@ruiapp/rapid-extension@0.3.0(@ant-design/icons@4.8.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@ruiapp/move-style@0.3.5(lodash@4.17.21))(@ruiapp/react-renderer@0.3.4(@ruiapp/move-style@0.3.5(lodash@4.17.21))(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@wangeditor/editor-for-react@1.0.6(@wangeditor/core@1.1.19(@uppy/core@2.3.4)(@uppy/xhr-upload@2.1.3(@uppy/core@2.3.4))(dom7@3.0.0)(is-hotkey@0.2.0)(lodash.camelcase@4.3.0)(lodash.clonedeep@4.5.0)(lodash.debounce@4.0.8)(lodash.foreach@4.5.0)(lodash.isequal@4.5.0)(lodash.throttle@4.1.1)(lodash.toarray@4.4.0)(nanoid@3.3.6)(slate@0.72.8)(snabbdom@3.6.2))(@wangeditor/editor@5.1.23)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@wangeditor/editor@5.1.23)(antd@4.24.15(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(axios@1.2.6)(dayjs@1.11.11)(lodash@4.17.21)(moment@2.29.4)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(axios-cookiejar-support@4.0.7(axios@1.2.6)(deasync@0.1.29)(tough-cookie@4.1.4))(axios@1.2.6)(lodash@4.17.21)(tough-cookie@4.1.4)'
   : dependencies:
-      '@ruiapp/rapid-extension': 0.2.4(@ant-design/icons@4.8.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@ruiapp/move-style@0.3.5(lodash@4.17.21))(@ruiapp/react-renderer@0.3.4(@ruiapp/move-style@0.3.5(lodash@4.17.21))(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@wangeditor/editor-for-react@1.0.6(@wangeditor/core@1.1.19(@uppy/core@2.3.4)(@uppy/xhr-upload@2.1.3(@uppy/core@2.3.4))(dom7@3.0.0)(is-hotkey@0.2.0)(lodash.camelcase@4.3.0)(lodash.clonedeep@4.5.0)(lodash.debounce@4.0.8)(lodash.foreach@4.5.0)(lodash.isequal@4.5.0)(lodash.throttle@4.1.1)(lodash.toarray@4.4.0)(nanoid@3.3.6)(slate@0.72.8)(snabbdom@3.6.2))(@wangeditor/editor@5.1.23)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@wangeditor/editor@5.1.23)(antd@4.24.15(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(axios@1.2.6)(dayjs@1.11.11)(lodash@4.17.21)(moment@2.29.4)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      '@ruiapp/rapid-extension': 0.3.0(@ant-design/icons@4.8.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@ruiapp/move-style@0.3.5(lodash@4.17.21))(@ruiapp/react-renderer@0.3.4(@ruiapp/move-style@0.3.5(lodash@4.17.21))(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@wangeditor/editor-for-react@1.0.6(@wangeditor/core@1.1.19(@uppy/core@2.3.4)(@uppy/xhr-upload@2.1.3(@uppy/core@2.3.4))(dom7@3.0.0)(is-hotkey@0.2.0)(lodash.camelcase@4.3.0)(lodash.clonedeep@4.5.0)(lodash.debounce@4.0.8)(lodash.foreach@4.5.0)(lodash.isequal@4.5.0)(lodash.throttle@4.1.1)(lodash.toarray@4.4.0)(nanoid@3.3.6)(slate@0.72.8)(snabbdom@3.6.2))(@wangeditor/editor@5.1.23)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@wangeditor/editor@5.1.23)(antd@4.24.15(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(axios@1.2.6)(dayjs@1.11.11)(lodash@4.17.21)(moment@2.29.4)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       axios: 1.2.6
       axios-cookiejar-support: 4.0.7(axios@1.2.6)(deasync@0.1.29)(tough-cookie@4.1.4)
       lodash: 4.17.21
       tough-cookie: 4.1.4
 
-  '@ruiapp/rapid-core@0.1.79(winston@3.11.0)':
+  '@ruiapp/rapid-core@0.2.0(winston@3.11.0)':
     dependencies:
       bcrypt: 5.1.1
       cron: 3.1.7
@@ -9663,12 +9663,12 @@ snapshots:
       - encoding
       - supports-color
 
-  '@ruiapp/rapid-express@0.1.57(@ruiapp/rapid-core@0.1.79(winston@3.11.0))(express@4.18.3)':
+  '@ruiapp/rapid-express@0.1.57(@ruiapp/rapid-core@0.2.0(winston@3.11.0))(express@4.18.3)':
     dependencies:
-      '@ruiapp/rapid-core': 0.1.79(winston@3.11.0)
+      '@ruiapp/rapid-core': 0.2.0(winston@3.11.0)
       express: 4.18.3
 
-  '@ruiapp/rapid-extension@0.2.4(@ant-design/icons@4.8.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@ruiapp/move-style@0.3.5(lodash@4.17.21))(@ruiapp/react-renderer@0.3.4(@ruiapp/move-style@0.3.5(lodash@4.17.21))(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@wangeditor/editor-for-react@1.0.6(@wangeditor/core@1.1.19(@uppy/core@2.3.4)(@uppy/xhr-upload@2.1.3(@uppy/core@2.3.4))(dom7@3.0.0)(is-hotkey@0.2.0)(lodash.camelcase@4.3.0)(lodash.clonedeep@4.5.0)(lodash.debounce@4.0.8)(lodash.foreach@4.5.0)(lodash.isequal@4.5.0)(lodash.throttle@4.1.1)(lodash.toarray@4.4.0)(nanoid@3.3.6)(slate@0.72.8)(snabbdom@3.6.2))(@wangeditor/editor@5.1.23)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@wangeditor/editor@5.1.23)(antd@4.24.15(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(axios@1.2.6)(dayjs@1.11.11)(lodash@4.17.21)(moment@2.29.4)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
+  '@ruiapp/rapid-extension@0.3.0(@ant-design/icons@4.8.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@ruiapp/move-style@0.3.5(lodash@4.17.21))(@ruiapp/react-renderer@0.3.4(@ruiapp/move-style@0.3.5(lodash@4.17.21))(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@wangeditor/editor-for-react@1.0.6(@wangeditor/core@1.1.19(@uppy/core@2.3.4)(@uppy/xhr-upload@2.1.3(@uppy/core@2.3.4))(dom7@3.0.0)(is-hotkey@0.2.0)(lodash.camelcase@4.3.0)(lodash.clonedeep@4.5.0)(lodash.debounce@4.0.8)(lodash.foreach@4.5.0)(lodash.isequal@4.5.0)(lodash.throttle@4.1.1)(lodash.toarray@4.4.0)(nanoid@3.3.6)(slate@0.72.8)(snabbdom@3.6.2))(@wangeditor/editor@5.1.23)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@wangeditor/editor@5.1.23)(antd@4.24.15(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(axios@1.2.6)(dayjs@1.11.11)(lodash@4.17.21)(moment@2.29.4)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
     dependencies:
       '@ant-design/icons': 4.8.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@ruiapp/move-style': 0.3.5(lodash@4.17.21)

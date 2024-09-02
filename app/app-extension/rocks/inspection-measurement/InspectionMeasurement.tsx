@@ -6,10 +6,10 @@ import { useDebounceFn, useSetState } from "ahooks";
 import { v4 as uuidv4 } from "uuid";
 import rapidApi from "~/rapidApi";
 import { find, get, groupBy, map, orderBy, split, uniqBy } from "lodash";
-import rapidAppDefinition from "~/rapidAppDefinition";
 import { useEffect, useState } from "react";
 import { calculateInspectionResult } from "~/utils/calculate";
 import { fmtCharacteristicNorminal } from "~/utils/fmt";
+import { rapidAppDefinition } from "@ruiapp/rapid-extension";
 
 export default {
   $type: "inspectionMeasurement",
@@ -133,7 +133,7 @@ export default {
                 />
               );
             case "qualitative":
-              const dictionary = find(rapidAppDefinition.dataDictionaries, (d) => d.code === "QualitativeInspectionDetermineType");
+              const dictionary = find(rapidAppDefinition.getDataDictionaries(), (d) => d.code === "QualitativeInspectionDetermineType");
               const item = find(get(dictionary, "entries"), (entry) => entry.value === r?.qualitativeDetermineType);
               const options = map(split(get(item, "name"), "-"), (v) => ({ label: v, value: v }));
               return (

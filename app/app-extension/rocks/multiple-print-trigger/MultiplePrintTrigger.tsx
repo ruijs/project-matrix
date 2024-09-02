@@ -4,10 +4,10 @@ import MultiplePrintTriggerMeta from "./MultiplePrintTriggerMeta";
 import type { MultiplePrintTriggerRockConfig } from "./multiple-print-trigger-types";
 import { message } from "antd";
 import rapidApi from "~/rapidApi";
-import rapidAppDefinition from "~/rapidAppDefinition";
 import { useEffect, useState } from "react";
 import { find } from "lodash";
 import { replaceTemplatePlaceholder } from "../print-trigger/PrintTrigger";
+import { rapidAppDefinition } from "@ruiapp/rapid-extension";
 
 export default {
   onInit(context, props) {},
@@ -71,8 +71,8 @@ export default {
 
   Renderer(context, props, state) {
     useEffect(() => {
-      const printerEntity = rapidAppDefinition.entities.find((entity) => entity.code === "SvcPrinter");
-      const printTemplateEntity = rapidAppDefinition.entities.find((entity) => entity.code === "MomPrintTemplate");
+      const printerEntity = rapidAppDefinition.getEntities().find((entity) => entity.code === "SvcPrinter");
+      const printTemplateEntity = rapidAppDefinition.getEntities().find((entity) => entity.code === "MomPrintTemplate");
       const stores = [
         {
           name: "printerList",

@@ -4,14 +4,14 @@ import PrintTriggerMeta from "./PrintTriggerMeta";
 import type { PrintTriggerRockConfig } from "./print-trigger-types";
 import { message } from "antd";
 import rapidApi from "~/rapidApi";
-import rapidAppDefinition from "~/rapidAppDefinition";
 import { useState } from "react";
 import { find } from "lodash";
+import { rapidAppDefinition } from "@ruiapp/rapid-extension";
 
 export default {
   onInit(context, props) {
-    const printerEntity = rapidAppDefinition.entities.find((entity) => entity.code === "SvcPrinter");
-    const printTemplateEntity = rapidAppDefinition.entities.find((entity) => entity.code === "MomPrintTemplate");
+    const printerEntity = rapidAppDefinition.getEntities().find((entity) => entity.code === "SvcPrinter");
+    const printTemplateEntity = rapidAppDefinition.getEntities().find((entity) => entity.code === "MomPrintTemplate");
     const stores = [
       {
         name: "printerList",

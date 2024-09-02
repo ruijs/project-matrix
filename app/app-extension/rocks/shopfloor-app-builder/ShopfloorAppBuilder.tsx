@@ -3,14 +3,14 @@ import ShopfloorAppBuilderMeta from "./ShopfloorAppBuilderMeta";
 import type { ShopfloorAppBuilderRockConfig } from "./shopfloor-app-builder-types";
 import { renderRock } from "@ruiapp/react-renderer";
 import { find } from "lodash";
-import rapidAppDefinition from "~/rapidAppDefinition";
+import { rapidAppDefinition } from "@ruiapp/rapid-extension";
 
 export default {
   onInit(context, props) {
     const detailDataStoreConfig = {
       type: "entityStore",
       name: "appDetail",
-      entityModel: find(rapidAppDefinition.entities, { code: "ShopfloorApp" }),
+      entityModel: find(rapidAppDefinition.getEntities(), { code: "ShopfloorApp" }),
       properties: ["id", "name", "content"],
       filters: [
         {

@@ -1,9 +1,8 @@
 import type { Rock, RockConfig } from "@ruiapp/move-style";
-import { FindEntityOptions } from "@ruiapp/rapid-extension";
+import { FindEntityOptions, rapidAppDefinition } from "@ruiapp/rapid-extension";
 import { renderRock } from "@ruiapp/react-renderer";
 import dayjs from "dayjs";
 import { find, get, isPlainObject } from "lodash";
-import rapidAppDefinition from "~/rapidAppDefinition";
 
 export default {
   $type: "materialLotNumSelector",
@@ -11,7 +10,7 @@ export default {
   propertyPanels: [],
 
   onInit(context, props) {
-    const entity = rapidAppDefinition.entities.find((entity) => entity.code === "MomWarehouseStrategy");
+    const entity = rapidAppDefinition.getEntities().find((entity) => entity.code === "MomWarehouseStrategy");
     const store = {
       name: "momWarehouseStrategyList",
       type: "entityStore",

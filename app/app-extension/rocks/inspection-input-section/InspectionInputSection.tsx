@@ -6,11 +6,11 @@ import ScannerSection from "./ScannerSection";
 import rapidApi from "~/rapidApi";
 import { find, get, map, split } from "lodash";
 import { decimalSum } from "~/utils/decimal";
-import rapidAppDefinition from "~/rapidAppDefinition";
 import { useState } from "react";
 import dayjs from "dayjs";
 import { fmtCharacteristicNorminal } from "~/utils/fmt";
 import { calculateInspectionResult } from "~/utils/calculate";
+import { rapidAppDefinition } from "@ruiapp/rapid-extension";
 
 interface ICurrentState {
   inspectionScanInfo?: Record<string, any>;
@@ -91,7 +91,7 @@ export default {
                 />
               );
             case "qualitative":
-              const dictionary = find(rapidAppDefinition.dataDictionaries, (d) => d.code === "QualitativeInspectionDetermineType");
+              const dictionary = find(rapidAppDefinition.getDataDictionaries(), (d) => d.code === "QualitativeInspectionDetermineType");
               const item = find(get(dictionary, "entries"), (entry) => entry.value === r?.qualitativeDetermineType);
               const options = map(split(get(item, "name"), "-"), (v) => ({ label: v, value: v }));
               return (

@@ -1,9 +1,8 @@
 import { Bindable, BindableBase, BindableManager, BindableMeta, BindableObjectFieldMeta } from "@ruiapp/data-binding-extension";
 import type { LinkshopAppRecordConfig } from "../linkshop-types";
-import rapidAppDefinition from "~/rapidAppDefinition";
 import { find } from "lodash";
 import rapidApi, { rapidApiRequest } from "~/rapidApi";
-import { FindEntityOptions } from "@ruiapp/rapid-extension";
+import { FindEntityOptions, rapidAppDefinition } from "@ruiapp/rapid-extension";
 
 function convertBindableMetaFromRecordConfig(variableConfig: LinkshopAppRecordConfig) {
   return {
@@ -28,7 +27,7 @@ export class LinkshopAppRecord extends BindableBase<BindableMeta, any> implement
   }
 
   get _bindableMeta() {
-    const entityModel = rapidAppDefinition.entities.find((item) => item.code === this.#recordConfig.entityCode);
+    const entityModel = rapidAppDefinition.getEntities().find((item) => item.code === this.#recordConfig.entityCode);
     const fieldsMeta: BindableObjectFieldMeta[] = [];
     if (entityModel) {
       for (const property of entityModel.fields) {
@@ -58,7 +57,7 @@ export class LinkshopAppRecord extends BindableBase<BindableMeta, any> implement
 
   async loadRecord(id: number) {
     const entityCode = this.#recordConfig.entityCode;
-    const entity = rapidAppDefinition.entities.find((item) => item.code === entityCode);
+    const entity = rapidAppDefinition.getEntities().find((item) => item.code === entityCode);
     if (!entity) {
       throw new Error(`Entity definition with code '${entityCode}' not found.`);
     }
@@ -90,7 +89,7 @@ export class LinkshopAppRecord extends BindableBase<BindableMeta, any> implement
 
   async saveRecord() {
     const entityCode = this.#recordConfig.entityCode;
-    const entity = rapidAppDefinition.entities.find((item) => item.code === entityCode);
+    const entity = rapidAppDefinition.getEntities().find((item) => item.code === entityCode);
     if (!entity) {
       throw new Error(`Entity definition with code '${entityCode}' not found.`);
     }

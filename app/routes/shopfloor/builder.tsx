@@ -15,9 +15,6 @@ import type { RapidPage, RapidEntity, RapidDataDictionary } from "@ruiapp/rapid-
 import DesignerHudExtension, { HudWidgetRectChangeEvent, hudItemsFromRockChildrenConfig } from "@ruiapp/designer-hud";
 import qs from "qs";
 
-import dataDictionaryModels from "~/_definitions/meta/data-dictionary-models";
-import entityModels from "~/_definitions/meta/entity-models";
-
 import AppExtension from "~/app-extension/mod";
 import LinkshopExtension from "~/linkshop-extension/mod";
 import ShopfloorExtension from "~/shopfloor-extension/mod";
@@ -36,6 +33,8 @@ import type { ShopfloorApp } from "~/_definitions/meta/entity-types";
 import { sendDesignerCommand } from "~/linkshop-extension/utilities/DesignerUtility";
 import { RuiLoggerProvider } from "rui-logger";
 import { redirectToSignin } from "~/utils/navigate";
+import { RapidServer } from "@ruiapp/rapid-core";
+import { AppDefinition } from "@ruiapp/rapid-extension/src/rapidAppDefinition";
 
 export function links() {
   return [
@@ -113,7 +112,9 @@ type ViewModel = {
   dataDictionaries: RapidDataDictionary[];
 };
 
-export const loader: LoaderFunction = async ({ request, params }) => {
+export const loader: LoaderFunction = async ({ context, request, params }) => {
+  const appDefinition = context.appDefinition as AppDefinition;
+
   const myProfile = (
     await rapidService.get(`me`, {
       headers: {
@@ -164,15 +165,15 @@ export const loader: LoaderFunction = async ({ request, params }) => {
     myAllowedActions,
     appId,
     shopfloorApp,
-    entities: entityModels,
-    dataDictionaries: dataDictionaryModels,
+    entities: appDefinition.entities,
+    dataDictionaries: appDefinition.dataDictionaries,
     pageAccessAllowed: true,
   };
 };
 
 export default function Index() {
   const viewModel = useLoaderData<ViewModel>();
-  const { myProfile, myAllowedActions, pageAccessAllowed, appId, shopfloorApp, entities, dataDictionaries } = viewModel;
+  const { myProfile, myAllowedActions, pageAccessAllowed, appId, shopfloorApp, entities, dataDictionaries } = viewModel as ViewModel;
 
   framework.registerExpressionVar("me", {
     profile: myProfile,

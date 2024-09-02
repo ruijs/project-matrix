@@ -3,14 +3,13 @@ import { renderRock } from "@ruiapp/react-renderer";
 import SfEntityTableMeta from "./SfEntityTableMeta";
 import type { SfEntityTableRockConfig, SfEntityTableState } from "./sf-entity-table-types";
 import { find, pick } from "lodash";
-import rapidAppDefinition from "~/rapidAppDefinition";
-import { generateRockConfigOfError, RapidEntity } from "@ruiapp/rapid-extension";
+import { generateRockConfigOfError, rapidAppDefinition, RapidEntity } from "@ruiapp/rapid-extension";
 
 export default {
   Renderer(context, props, state) {
     const { pageSize = 20 } = props;
 
-    const entities = rapidAppDefinition.entities;
+    const entities = rapidAppDefinition.getEntities();
     const entityConfig = props.entityConfig;
     let mainEntity: RapidEntity | undefined;
 

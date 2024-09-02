@@ -2,8 +2,7 @@
 import { memo, useEffect, useRef, useState } from "react";
 import { Checkbox, Col, Form, Input, message, Modal, Row } from "antd";
 import ModelSelector from "../../components/ModelSelector";
-import rapidAppDefinition from "~/rapidAppDefinition";
-import { EntityStoreConfig, RapidEntity } from "@ruiapp/rapid-extension";
+import { EntityStoreConfig, rapidAppDefinition, RapidEntity } from "@ruiapp/rapid-extension";
 import { MoveStyleUtils, RockEvent, RockEventHandlerScript, RockInstanceContext } from "@ruiapp/move-style";
 import { renderRock } from "@ruiapp/react-renderer";
 import { isPlainObject, omit } from "lodash";
@@ -37,7 +36,7 @@ const StoreSettingsFormModal = memo<StoreSettingsFormModalProps>((props) => {
         },
       );
 
-      const entiry = rapidAppDefinition.entities.find((e) => e.code === props.entityStoreConfig?.entityCode);
+      const entiry = rapidAppDefinition.getEntities().find((e) => e.code === props.entityStoreConfig?.entityCode);
       setSelectedEntity(entiry);
     }
   }, [props.visible, props.entityStoreConfig]);
@@ -94,7 +93,7 @@ const StoreSettingsFormModal = memo<StoreSettingsFormModalProps>((props) => {
           }}
           onValuesChange={(values) => {
             if ("entityCode" in values) {
-              const entiry = rapidAppDefinition.entities.find((e) => e.code === values.entityCode);
+              const entiry = rapidAppDefinition.getEntities().find((e) => e.code === values.entityCode);
               setSelectedEntity(entiry);
               form.setFieldValue(
                 "properties",

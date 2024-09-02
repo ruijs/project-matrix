@@ -32,6 +32,7 @@ import cronJobs from "./app/_definitions/meta/cron-jobs";
 import "dotenv/config";
 import PrinterPlugin from "rapid-plugins/printerService/PrinterPlugin";
 import BpmPlugin from "rapid-plugins/bpm/BpmPlugin";
+import { getRapidAppDefinitionFromRapidServer } from "~/utils/app-definition-utility";
 
 const isDevelopmentEnv = process.env.NODE_ENV === "development";
 
@@ -159,26 +160,34 @@ export async function startServer() {
     rapidRequestHandler(req, res, next);
   });
 
+  const remixRequestHandler = createRemixRequestHandler(rapidServer);
   app.all(
     "*",
     isDevelopmentEnv
       ? (req, res, next) => {
           purgeRequireCache();
-
-          return createRequestHandler({
-            build: require(BUILD_DIR),
-            mode: process.env.NODE_ENV,
-          })(req, res, next);
+          return remixRequestHandler(req, res, next);
         }
-      : createRequestHandler({
-          build: require(BUILD_DIR),
-          mode: process.env.NODE_ENV,
-        }),
+      : remixRequestHandler,
   );
   const port = process.env.PORT || 3000;
 
   app.listen(port, () => {
     logger.info("Express server listening on port %d", port);
+  });
+}
+
+function createRemixRequestHandler(rapidServer: RapidServer) {
+  const appDefinition = getRapidAppDefinitionFromRapidServer(rapidServer);
+  return createRequestHandler({
+    build: require(BUILD_DIR),
+    mode: process.env.NODE_ENV,
+    getLoadContext(req, res) {
+      return {
+        rapidServer,
+        appDefinition,
+      };
+    },
   });
 }
 

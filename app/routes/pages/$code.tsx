@@ -13,8 +13,6 @@ import { Link, useLoaderData } from "@remix-run/react";
 import type { RapidPage, RapidEntity, RapidDataDictionary } from "@ruiapp/rapid-extension";
 import qs from "qs";
 
-import dataDictionaryModels from "~/_definitions/meta/data-dictionary-models";
-import entityModels from "~/_definitions/meta/entity-models";
 import pageModels from "~/_definitions/meta/page-models";
 
 import AppExtension from "~/app-extension/mod";
@@ -30,6 +28,7 @@ import { isAccessAllowed } from "~/utils/access-control-utility";
 import { RuiLoggerProvider } from "rui-logger";
 import { redirectToSignin } from "~/utils/navigate";
 import dayjs from "dayjs";
+import { AppDefinition } from "@ruiapp/rapid-extension/src/rapidAppDefinition";
 
 export function links() {
   return [
@@ -109,7 +108,9 @@ type ViewModel = {
   dataDictionaries: RapidDataDictionary[];
 };
 
-export const loader: LoaderFunction = async ({ request, params }) => {
+export const loader: LoaderFunction = async ({ context, request, params }) => {
+  const appDefinition = context.appDefinition as AppDefinition;
+
   const myProfile = (
     await rapidService.get(`me`, {
       headers: {
@@ -170,8 +171,8 @@ export const loader: LoaderFunction = async ({ request, params }) => {
     pageCode,
     pageAccessAllowed,
     sdPage,
-    entities: entityModels,
-    dataDictionaries: dataDictionaryModels,
+    entities: appDefinition.entities,
+    dataDictionaries: appDefinition.dataDictionaries,
   };
 };
 
