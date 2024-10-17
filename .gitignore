@@ -17,3 +17,5 @@ node_modules
 # Thumbnails
 ._*
 tests
+
+/logs
