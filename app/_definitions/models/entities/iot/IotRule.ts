@@ -3,17 +3,11 @@ import type { TEntitySingularCodes } from "../../../meta/model-codes";
 import type { RapidEntity } from "@ruiapp/rapid-extension";
 
 const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
-  metaOnly: true,
-  namespace: "svc",
-  code: "SystemSettingGroupSetting",
-  name: "系统设置项分组设置",
+  namespace: "app",
+  code: "IotRule",
+  name: "规则",
+  description: "",
   fields: [
-    {
-      code: "code",
-      name: "编码",
-      type: "text",
-      required: true,
-    },
     {
       code: "name",
       name: "名称",
@@ -26,16 +20,22 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
       type: "text",
     },
     {
-      code: "permissionAssignments",
-      name: "权限设置",
+      code: "state",
+      name: "状态",
+      required: true,
+      type: "option",
+      dataDictionary: "EnabledDisabledState",
+      defaultValue: "'enabled'",
+    },
+    {
+      code: "triggerConfig",
+      name: "触发器配置",
       type: "json",
     },
     {
-      code: "items",
-      name: "设置项",
-      type: "relation[]",
-      targetSingularCode: "system_setting_item_setting",
-      selfIdColumnName: "group_id",
+      code: "reactionConfig",
+      name: "响应配置",
+      type: "json",
     },
   ],
 };

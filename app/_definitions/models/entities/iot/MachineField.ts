@@ -1,3 +1,6 @@
+/**
+ * @deprecated
+ */
 import type { RapidEntity } from "@ruiapp/rapid-extension";
 import type { TEntitySingularCodes } from "~/_definitions/meta/model-codes";
 import type { TDictionaryCodes } from "~/_definitions/meta/data-dictionary-codes";
@@ -31,7 +34,7 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
       name: "数据类型",
       type: "option",
       required: true,
-      dataDictionary: "IotDataType",
+      dataDictionary: "IotAttributeDataType",
     },
     {
       code: "machines",

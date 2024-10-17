@@ -23,7 +23,8 @@ import type {
   InspectionDetermineType,
   InspectionKind,
   InspectionResult,
-  IotDataType,
+  IotAttributeDataType,
+  IotMeasurementDataType,
   IotTriggerEventType,
   MaterialSourceType,
   MomApplicationSource,
@@ -10363,6 +10364,412 @@ export interface IotDataSource {
 export type SaveIotDataSourceInput = Omit<IotDataSource, 'id' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>;
 
 /**
+ * 属性
+ */
+export interface IotAttribute {
+  /**
+   * id
+   */
+  id: number;
+  /**
+   * 所属类型
+   */
+  type?: Partial<IotType>;
+  /**
+   * 数据类型
+   */
+  dataType: IotAttributeDataType;
+  /**
+   * 数据标签
+   */
+  isDataTag: boolean;
+  /**
+   * 编码
+   */
+  code: string;
+  /**
+   * 名称
+   */
+  name: string;
+  /**
+   * 描述
+   */
+  description?: string;
+  /**
+   * 状态
+   */
+  state: EnabledDisabledState;
+  /**
+   * 排序号
+   */
+  orderNum: number;
+  /**
+   * 创建时间
+   */
+  createdAt?: string;
+  /**
+   * 创建人
+   */
+  createdBy?: Partial<OcUser>;
+  /**
+   * 更新时间
+   */
+  updatedAt?: string;
+  /**
+   * 更新人
+   */
+  updatedBy?: Partial<OcUser>;
+  /**
+   * 删除时间
+   */
+  deletedAt?: string;
+  /**
+   * 删除人
+   */
+  deletedBy?: Partial<OcUser>;
+}
+
+/**
+ * 属性
+ */
+export type SaveIotAttributeInput = Omit<IotAttribute, 'id' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>;
+
+/**
+ * 网关
+ */
+export interface IotGateway {
+  /**
+   * id
+   */
+  id: number;
+  /**
+   * 编号
+   */
+  code: string;
+  /**
+   * 描述
+   */
+  description?: string;
+  /**
+   * 属性
+   */
+  attributes?: Record<string, any>;
+  /**
+   * 状态
+   */
+  state: EnabledDisabledState;
+  /**
+   * 管理物品
+   */
+  managedThings?: any;
+  /**
+   * 访问令牌
+   */
+  accessToken?: string;
+  /**
+   * MQTT客户端id
+   */
+  mqtt_client_id?: string;
+  /**
+   * 创建时间
+   */
+  createdAt?: string;
+  /**
+   * 创建人
+   */
+  createdBy?: Partial<OcUser>;
+  /**
+   * 更新时间
+   */
+  updatedAt?: string;
+  /**
+   * 更新人
+   */
+  updatedBy?: Partial<OcUser>;
+  /**
+   * 删除时间
+   */
+  deletedAt?: string;
+  /**
+   * 删除人
+   */
+  deletedBy?: Partial<OcUser>;
+}
+
+/**
+ * 网关
+ */
+export type SaveIotGatewayInput = Omit<IotGateway, 'id' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>;
+
+/**
+ * 测量指标
+ */
+export interface IotMeasurement {
+  /**
+   * id
+   */
+  id: number;
+  /**
+   * 所属类型
+   */
+  type?: Partial<IotType>;
+  /**
+   * 数据类型
+   */
+  dataType: IotMeasurementDataType;
+  /**
+   * 编码
+   */
+  code: string;
+  /**
+   * 名称
+   */
+  name: string;
+  /**
+   * 描述
+   */
+  description?: string;
+  /**
+   * 长度
+   */
+  dataLength: number;
+  /**
+   * 计量单位
+   */
+  unit?: string;
+  /**
+   * 状态
+   */
+  state: EnabledDisabledState;
+  /**
+   * 排序号
+   */
+  orderNum: number;
+  /**
+   * 创建时间
+   */
+  createdAt?: string;
+  /**
+   * 创建人
+   */
+  createdBy?: Partial<OcUser>;
+  /**
+   * 更新时间
+   */
+  updatedAt?: string;
+  /**
+   * 更新人
+   */
+  updatedBy?: Partial<OcUser>;
+  /**
+   * 删除时间
+   */
+  deletedAt?: string;
+  /**
+   * 删除人
+   */
+  deletedBy?: Partial<OcUser>;
+}
+
+/**
+ * 测量指标
+ */
+export type SaveIotMeasurementInput = Omit<IotMeasurement, 'id' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>;
+
+/**
+ * 规则
+ */
+export interface IotRule {
+  /**
+   * id
+   */
+  id: number;
+  /**
+   * 名称
+   */
+  name: string;
+  /**
+   * 描述
+   */
+  description?: string;
+  /**
+   * 状态
+   */
+  state: EnabledDisabledState;
+  /**
+   * 触发器配置
+   */
+  triggerConfig?: Record<string, any>;
+  /**
+   * 响应配置
+   */
+  reactionConfig?: Record<string, any>;
+  /**
+   * 创建时间
+   */
+  createdAt?: string;
+  /**
+   * 创建人
+   */
+  createdBy?: Partial<OcUser>;
+  /**
+   * 更新时间
+   */
+  updatedAt?: string;
+  /**
+   * 更新人
+   */
+  updatedBy?: Partial<OcUser>;
+  /**
+   * 删除时间
+   */
+  deletedAt?: string;
+  /**
+   * 删除人
+   */
+  deletedBy?: Partial<OcUser>;
+}
+
+/**
+ * 规则
+ */
+export type SaveIotRuleInput = Omit<IotRule, 'id' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>;
+
+/**
+ * 物品
+ */
+export interface IotThing {
+  /**
+   * id
+   */
+  id: number;
+  /**
+   * 类型
+   */
+  type?: Partial<IotType>;
+  /**
+   * 编号
+   */
+  code: string;
+  /**
+   * 描述
+   */
+  description?: string;
+  /**
+   * 属性
+   */
+  attributes?: Record<string, any>;
+  /**
+   * 状态
+   */
+  state: EnabledDisabledState;
+  /**
+   * 网关
+   */
+  gateway?: Partial<IotGateway>;
+  /**
+   * 访问令牌
+   */
+  accessToken?: string;
+  /**
+   * MQTT客户端id
+   */
+  mqtt_client_id?: string;
+  /**
+   * 创建时间
+   */
+  createdAt?: string;
+  /**
+   * 创建人
+   */
+  createdBy?: Partial<OcUser>;
+  /**
+   * 更新时间
+   */
+  updatedAt?: string;
+  /**
+   * 更新人
+   */
+  updatedBy?: Partial<OcUser>;
+  /**
+   * 删除时间
+   */
+  deletedAt?: string;
+  /**
+   * 删除人
+   */
+  deletedBy?: Partial<OcUser>;
+}
+
+/**
+ * 物品
+ */
+export type SaveIotThingInput = Omit<IotThing, 'id' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>;
+
+/**
+ * 类型
+ */
+export interface IotType {
+  /**
+   * id
+   */
+  id: number;
+  /**
+   * 编号
+   */
+  code: string;
+  /**
+   * 名称
+   */
+  name: string;
+  /**
+   * 描述
+   */
+  description?: string;
+  /**
+   * 状态
+   */
+  state: EnabledDisabledState;
+  /**
+   * 属性
+   */
+  attributes?: any;
+  /**
+   * 测量指标
+   */
+  measurements?: any;
+  /**
+   * 创建时间
+   */
+  createdAt?: string;
+  /**
+   * 创建人
+   */
+  createdBy?: Partial<OcUser>;
+  /**
+   * 更新时间
+   */
+  updatedAt?: string;
+  /**
+   * 更新人
+   */
+  updatedBy?: Partial<OcUser>;
+  /**
+   * 删除时间
+   */
+  deletedAt?: string;
+  /**
+   * 删除人
+   */
+  deletedBy?: Partial<OcUser>;
+}
+
+/**
+ * 类型
+ */
+export type SaveIotTypeInput = Omit<IotType, 'id' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>;
+
+/**
  * 机器
  */
 export interface IotMachine {
@@ -10456,7 +10863,7 @@ export interface IotMachineAttribute {
   /**
    * 数据类型
    */
-  dataType: IotDataType;
+  dataType: IotAttributeDataType;
   /**
    * 已配机器类型
    */
@@ -10574,7 +10981,7 @@ export interface IotMachineField {
   /**
    * 数据类型
    */
-  dataType: IotDataType;
+  dataType: IotAttributeDataType;
   /**
    * 已配机器类型
    */
@@ -11943,14 +12350,6 @@ export interface SystemSettingGroupSetting {
    * 设置项
    */
   items?: any;
-  /**
-   * 详细信息
-   */
-  details?: Record<string, any>;
-  /**
-   * 用户
-   */
-  user?: Partial<OcUser>;
   /**
    * 创建时间
    */

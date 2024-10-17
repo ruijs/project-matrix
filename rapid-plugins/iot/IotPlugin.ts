@@ -1,5 +1,5 @@
 /**
- * Bpm plugin
+ * Iot plugin
  */
 
 import type {
@@ -14,13 +14,19 @@ import pluginActionHandlers from "./actionHandlers";
 import pluginEntityWatchers from "./entityWatchers";
 import pluginModels from "./models";
 import pluginRoutes from "./routes";
-import BpmService from "./BpmService";
+import TimeSeriesDataService from "./services/TimeSeriesDataService";
+import MqttMessageHandler from "./MqttMessageHandler";
 
-class BpmPlugin implements RapidPlugin {
-  #bpmService!: BpmService;
+class IotPlugin implements RapidPlugin {
+  #mqttMessageHandler: MqttMessageHandler;
+  #timeSeriesDataService!: TimeSeriesDataService;
+
+  constructor() {
+    this.#mqttMessageHandler = new MqttMessageHandler(this);
+  }
 
   get code(): string {
-    return "bpmService";
+    return "iot";
   }
 
   get description(): string {
@@ -54,8 +60,8 @@ class BpmPlugin implements RapidPlugin {
   }
 
   async configureServices(server: IRpdServer, applicationConfig: RpdApplicationConfig): Promise<any> {
-    this.#bpmService = new BpmService(server);
-    server.registerService("bpmService", this.#bpmService);
+    this.#timeSeriesDataService = new TimeSeriesDataService(server);
+    server.registerService("timeSeriesDataService", this.#timeSeriesDataService);
   }
 
   async configureRoutes(server: IRpdServer, applicationConfig: RpdApplicationConfig): Promise<any> {
@@ -64,9 +70,13 @@ class BpmPlugin implements RapidPlugin {
 
   async onApplicationLoaded(server: IRpdServer, applicationConfig: RpdApplicationConfig) {}
 
-  get bpmService() {
-    return this.#bpmService;
+  get timeSeriesDataService() {
+    return this.#timeSeriesDataService;
+  }
+
+  get mqttMessageHandler() {
+    return this.#mqttMessageHandler;
   }
 }
 
-export default BpmPlugin;
+export default IotPlugin;

@@ -1,3 +1,6 @@
+/**
+ * @deprecated
+ */
 import type { RapidEntity } from "@ruiapp/rapid-extension";
 import type { TEntitySingularCodes } from "~/_definitions/meta/model-codes";
 import type { TDictionaryCodes } from "~/_definitions/meta/data-dictionary-codes";

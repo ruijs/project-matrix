@@ -66,7 +66,9 @@ const dictionaryCodes = [
   'UnitType',
   'UserSecretLevel',
   'WarehouseStrategy',
-  'IotDataType',
+  'IotAttributeDataType',
+  'IotMeasurementDataType',
+  'IotTdengineDataType',
   'IotTriggerEventType',
   'SettingItemType',
 ] as const;

@@ -1,5 +1,5 @@
-import type {EntityWatcher, EntityWatchHandlerContext} from "@ruiapp/rapid-core";
-import {MomInspectionSheet, MomTransportOperation, MomTransportOperationItem} from "~/_definitions/meta/entity-types";
+import type { EntityWatcher, EntityWatchHandlerContext } from "@ruiapp/rapid-core";
+import { MomInspectionSheet, MomTransportOperation, MomTransportOperationItem } from "~/_definitions/meta/entity-types";
 import YidaHelper from "~/sdk/yida/helper";
 import YidaApi from "~/sdk/yida/api";
 
@@ -11,7 +11,6 @@ export default [
       const { server, payload } = ctx;
       const after = payload.after;
       const changes = payload.changes;
-
 
       try {
         if (changes.hasOwnProperty("state") && changes.state === "finished") {
@@ -29,24 +28,22 @@ export default [
             const yidaSDK = await new YidaHelper(server).NewAPIClient();
             const yidaAPI = new YidaApi(yidaSDK);
 
-            const yidaResp = await yidaAPI.uploadTransmitAudit(transportItems)
+            const yidaResp = await yidaAPI.uploadTransmitAudit(transportItems);
 
             if (yidaResp && yidaResp.result) {
               await server.getEntityManager<MomTransportOperation>("mom_transport_operation").updateEntityById({
                 routeContext: ctx.routerContext,
                 id: after.id,
                 entityToSave: {
-                  yidaId: yidaResp.result
-                }
+                  yidaId: yidaResp.result,
+                },
               });
             }
           }
         }
-
       } catch (e) {
-        console.log(e)
+        console.log(e);
       }
-
-    }
+    },
   },
 ] satisfies EntityWatcher<any>[];

@@ -1,3 +1,6 @@
+/**
+ * @deprecated
+ */
 import type { RapidDataDictionary } from "@ruiapp/rapid-extension";
 
 export default {
