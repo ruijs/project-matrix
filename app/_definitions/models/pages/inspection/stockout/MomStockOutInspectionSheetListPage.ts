@@ -109,6 +109,10 @@ const formConfig: Partial<RapidEntityFormConfig> = {
     },
     {
       type: "auto",
+      code: "gcmsPassed",
+    },
+    {
+      type: "auto",
       code: "sender",
     },
     {

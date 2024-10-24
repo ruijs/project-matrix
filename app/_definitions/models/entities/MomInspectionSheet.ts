@@ -234,8 +234,9 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
     },
     {
       code: "gcmsPassed",
-      name: "GCMS检测通过",
-      type: "boolean",
+      name: "GCMS检验结果",
+      type: "option",
+      dataDictionary: "InspectionResult",
     },
     {
       code: "invoiceReportFile",

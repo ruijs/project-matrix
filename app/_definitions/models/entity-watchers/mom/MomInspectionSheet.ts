@@ -1,9 +1,11 @@
 import type {EntityWatcher, EntityWatchHandlerContext, IRpdServer} from "@ruiapp/rapid-core";
 import {
-  BaseLot, HuateGCMS,
+  BaseLot,
+  HuateGCMS,
   MomInspectionMeasurement,
   MomInspectionSheet,
-  type SaveBaseLotInput, SaveHuateGCMSInput
+  type SaveBaseLotInput,
+  SaveHuateGCMSInput
 } from "~/_definitions/meta/entity-types";
 import YidaHelper from "~/sdk/yida/helper";
 import YidaApi from "~/sdk/yida/api";
@@ -75,8 +77,20 @@ export default [
 
       let after = payload.after
 
-      if (after.hasOwnProperty('gcms_report_file')) {
-        const items = await readGCMSFile(server, after.gcms_report_file.key)
+      const operationTarget = await server.getEntityManager<MomInspectionSheet>("mom_inspection_sheet").findEntity({
+        filters: [
+          {
+            operator: "eq",
+            field: "id",
+            value: after.id,
+          },
+        ],
+        properties: ["id", "material", "code", "gcmsReportFile"],
+      });
+
+
+      if (operationTarget?.gcmsReportFile && operationTarget?.material?.name === "石蜡油") {
+        const items = await readGCMSFile(server, operationTarget?.gcmsReportFile?.key)
         if (items) {
           const gcmsItems = await server.getEntityManager<HuateGCMS>("huate_gcms").findEntities({
             filters: [{
@@ -88,10 +102,15 @@ export default [
           if (gcmsItems && gcmsItems.length > 0) {
             //   check if all items in gcmsItems
 
+            let gcmsPassed = true
             for (const item of items) {
               const gcmsItem = gcmsItems.find((gcmsItem) => {
                 return item === gcmsItem.code
               })
+
+              if (!gcmsItem) {
+                gcmsPassed = false
+              }
 
               await server.getEntityManager<HuateGCMS>("huate_gcms").createEntity({
                 entity: {
@@ -103,6 +122,14 @@ export default [
                 } as SaveHuateGCMSInput
               })
             }
+
+            await server.getEntityManager<MomInspectionSheet>("mom_inspection_sheet").updateEntityById({
+              routeContext: ctx.routerContext,
+              id: after.id,
+              entityToSave: {
+                gcmsPassed: gcmsPassed,
+              }
+            })
           }
         }
       }
@@ -142,8 +169,8 @@ export default [
         }
       }
 
-      if (changes.hasOwnProperty('gcms_report_file') && operationTarget?.material?.name === "石蜡油") {
-        const items = await readGCMSFile(server, after.gcms_report_file.key)
+      if (changes.hasOwnProperty('gcmsReportFile') && operationTarget?.material?.name === "石蜡油") {
+        const items = await readGCMSFile(server, after?.gcmsReportFile?.key)
         if (items) {
           const gcmsItems = await server.getEntityManager<HuateGCMS>("huate_gcms").findEntities({
             filters: [{
@@ -227,7 +254,7 @@ export default [
 
         await yidaAPI.uploadInspectionMeasurements(measurements)
 
-        const yidaResp =  await yidaAPI.uploadInspectionSheetAudit(measurements)
+        const yidaResp = await yidaAPI.uploadInspectionSheetAudit(measurements)
 
         if (yidaResp && yidaResp.result) {
           await server.getEntityManager<MomInspectionSheet>("mom_inspection_sheet").updateEntityById({

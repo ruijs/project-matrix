@@ -75,14 +75,14 @@ const page: RapidPage = {
           label: "检验报告",
           type: "auto",
         },
-        {
-          code: "gcmsReportFile",
-          type: "auto",
-        },
-        {
-          type: "auto",
-          code: "gcmsPassed",
-        },
+        // {
+        //   code: "gcmsReportFile",
+        //   type: "auto",
+        // },
+        // {
+        //   type: "auto",
+        //   code: "gcmsPassed",
+        // },
         {
           code: "rule",
           type: "auto",

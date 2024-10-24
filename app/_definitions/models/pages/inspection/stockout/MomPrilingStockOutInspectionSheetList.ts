@@ -102,11 +102,11 @@ const formConfig: Partial<RapidEntityFormConfig> = {
       type: "auto",
       required: true,
     },
-    {
-      code: "gcmsReportFile",
-      label: "GCMS报告",
-      type: "auto",
-    },
+    // {
+    //   code: "gcmsReportFile",
+    //   label: "GCMS报告",
+    //   type: "auto",
+    // },
     {
       type: "auto",
       code: "sender",

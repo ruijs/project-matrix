@@ -4460,9 +4460,9 @@ export interface MomInspectionSheet {
    */
   gcmsReportFile?: any;
   /**
-   * GCMS检测通过
+   * GCMS检验结果
    */
-  gcmsPassed?: boolean;
+  gcmsPassed?: InspectionResult;
   /**
    * 月度发票
    */
