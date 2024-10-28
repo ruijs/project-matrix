@@ -290,6 +290,15 @@ const page: RapidPage = {
                 url: `"/api/mom/mom_transport_operations/" + $rui.parseQuery().id`,
               },
             },
+            {
+              $action: "antdMessage",
+              title: "已提交",
+              onClose: [
+                {
+                  $action: "reloadPage",
+                },
+              ],
+            },
           ],
           $exps: {
             _hidden: "_.get(_.first(_.get($stores.detail, 'data.list')), 'state') !== 'processing'",
@@ -310,6 +319,15 @@ const page: RapidPage = {
                 url: `"/api/mom/mom_transport_operations/" + $rui.parseQuery().id`,
               },
             },
+            {
+              $action: "antdMessage",
+              title: "已批准",
+              onClose: [
+                {
+                  $action: "reloadPage",
+                },
+              ],
+            },
           ],
           $exps: {
             _hidden: "_.get(_.first(_.get($stores.detail, 'data.list')), 'approvalState') !== 'approving'",
@@ -329,6 +347,15 @@ const page: RapidPage = {
               $exps: {
                 url: `"/api/mom/mom_transport_operations/" + $rui.parseQuery().id`,
               },
+            },
+            {
+              $action: "antdMessage",
+              title: "已拒绝",
+              onClose: [
+                {
+                  $action: "reloadPage",
+                },
+              ],
             },
           ],
           $exps: {

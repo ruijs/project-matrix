@@ -11,6 +11,11 @@ const formConfig: Partial<RapidEntityFormConfig> = {
       type: "auto",
       code: "applicant",
       required: true,
+      formControlProps: {
+        $exps: {
+          disabled: "true",
+        },
+      },
     },
     {
       type: "auto",
@@ -22,17 +27,18 @@ const formConfig: Partial<RapidEntityFormConfig> = {
       code: "supplier",
       required: true,
     },
-    {
-      type: "auto",
-      code: "state",
-    },
-    {
-      type: "auto",
-      code: "approvalState",
-    },
+    // {
+    //   type: "auto",
+    //   code: "state",
+    // },
+    // {
+    //   type: "auto",
+    //   code: "approvalState",
+    // },
   ],
   defaultFormFields: {
     state: "pending",
+    applicant: "",
     approvalState: "uninitiated",
   },
 };
@@ -117,6 +123,9 @@ const page: RapidPage = {
           actionType: "edit",
           actionText: "修改",
           $permissionCheck: "inspectionTransport.manage",
+          $exps: {
+            disabled: "$slot.record.approvalState !== 'uninitiated'",
+          },
         },
         {
           $type: "sonicRecordActionDeleteEntity",
@@ -126,11 +135,15 @@ const page: RapidPage = {
           dataSourceCode: "list",
           entityCode: "MomTransportOperation",
           $permissionCheck: "inspectionTransport.manage",
+          $exps: {
+            disabled: "$slot.record.approvalState !== 'uninitiated'",
+          },
         },
       ],
       newForm: cloneDeep(formConfig),
       editForm: cloneDeep(formConfig),
       $exps: {
+        "newForm.defaultFormFields.applicant": "me.profile.id",
         "newForm.fixedFields.state": "'processing'",
         "newForm.fixedFields.approvalState": "'uninitiated'",
       },
