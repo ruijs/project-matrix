@@ -1971,6 +1971,7 @@ const entityFieldCodes = {
     'extra',
     'orderNumb',
     'supplier',
+    'yidaId',
     'createdAt',
     'createdBy',
     'updatedAt',

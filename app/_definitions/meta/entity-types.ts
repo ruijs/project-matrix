@@ -7624,6 +7624,10 @@ export interface MomTransportOperation {
    */
   supplier?: string;
   /**
+   * Yida ID
+   */
+  yidaId?: string;
+  /**
    * 创建时间
    */
   createdAt?: string;

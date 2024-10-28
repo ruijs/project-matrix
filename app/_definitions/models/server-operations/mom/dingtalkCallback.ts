@@ -11,7 +11,7 @@ export type CallbackInput = {
 
 export default {
   code: "dingtalkCallback",
-  method: "POST",
+  method: "GET",
   async handler(ctx: ActionHandlerContext) {
     const { server } = ctx;
     const input: CallbackInput = ctx.input;
@@ -28,19 +28,28 @@ export default {
     });
 
     if (inspectSheet) {
-      const yidaSDK = await new YidaHelper(server).NewAPIClient();
-      const yidaAPI = new YidaApi(yidaSDK);
+      try {
+        const yidaSDK = await new YidaHelper(server).NewAPIClient();
+        const yidaAPI = new YidaApi(yidaSDK);
 
-      const yidaResp = await yidaAPI.getAuditDetail(input.id)
+        const yidaResp = await yidaAPI.getAuditDetail(input.id)
 
-      await server.getEntityManager<MomInspectionSheet>("mom_inspection_sheet").updateEntityById({
-        routeContext: ctx.routerContext,
-        id: inspectSheet.id,
-        entityToSave: {
-          result: yidaResp?.approvedResult === 'agree' ? 'approved' : 'rejected',
+        if (yidaResp.approvedResult) {
+          await server.getEntityManager<MomInspectionSheet>("mom_inspection_sheet").updateEntityById({
+            routeContext: ctx.routerContext,
+            id: inspectSheet.id,
+            entityToSave: {
+              result: yidaResp?.approvedResult === 'agree' ? 'approved' : 'rejected',
+            }
+          });
+
+          ctx.output = {
+            result: ctx.input,
+          };
         }
-      });
+      } catch (e) {
+        console.log(e)
+      }
     }
-
   },
 } satisfies ServerOperation;

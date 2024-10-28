@@ -56,6 +56,9 @@ const formConfig: Partial<RapidEntityFormConfig> = {
       required: true,
     },
   ],
+  defaultFormFields: {
+    state: "processing"
+  },
   onValuesChange: [
     {
       $action: "script",
@@ -285,7 +288,7 @@ const page: RapidPage = {
             {
               $action: "sendHttpRequest",
               method: "PATCH",
-              data: { state: "done", approvalState: "approving" },
+              data: { state: "finished", approvalState: "approving" },
               $exps: {
                 url: `"/api/mom/mom_transport_operations/" + $rui.parseQuery().id`,
               },
@@ -302,64 +305,6 @@ const page: RapidPage = {
           ],
           $exps: {
             _hidden: "_.get(_.first(_.get($stores.detail, 'data.list')), 'state') !== 'processing'",
-          },
-        },
-        {
-          $type: "rapidToolbarButton",
-          text: "批准",
-          actionStyle: "primary",
-          $permissionCheck: "inspectionTransport.manage",
-          size: "large",
-          onAction: [
-            {
-              $action: "sendHttpRequest",
-              method: "PATCH",
-              data: { approvalState: "approved" },
-              $exps: {
-                url: `"/api/mom/mom_transport_operations/" + $rui.parseQuery().id`,
-              },
-            },
-            {
-              $action: "antdMessage",
-              title: "已批准",
-              onClose: [
-                {
-                  $action: "reloadPage",
-                },
-              ],
-            },
-          ],
-          $exps: {
-            _hidden: "_.get(_.first(_.get($stores.detail, 'data.list')), 'approvalState') !== 'approving'",
-          },
-        },
-        {
-          $type: "rapidToolbarButton",
-          text: "拒绝",
-          danger: true,
-          $permissionCheck: "inspectionTransport.manage",
-          size: "large",
-          onAction: [
-            {
-              $action: "sendHttpRequest",
-              method: "PATCH",
-              data: { approvalState: "rejected" },
-              $exps: {
-                url: `"/api/mom/mom_transport_operations/" + $rui.parseQuery().id`,
-              },
-            },
-            {
-              $action: "antdMessage",
-              title: "已拒绝",
-              onClose: [
-                {
-                  $action: "reloadPage",
-                },
-              ],
-            },
-          ],
-          $exps: {
-            _hidden: "_.get(_.first(_.get($stores.detail, 'data.list')), 'approvalState') !== 'approving'",
           },
         },
       ],

@@ -1,7 +1,6 @@
 import type { ServerOperation as TServerOperation } from '@ruiapp/rapid-core';
 import mom$calcMaterialRequirements from '../models/server-operations/mom/calcMaterialRequirements';
 import mom$calcWorkOrderMaterialRequirements from '../models/server-operations/mom/calcWorkOrderMaterialRequirements';
-import mom$callback from '../models/server-operations/mom/callback';
 import mom$createGoodTransferIn from '../models/server-operations/mom/createGoodTransferIn';
 import mom$createInventoryApplicationItems from '../models/server-operations/mom/createInventoryApplicationItems';
 import mom$createInventoryOperation from '../models/server-operations/mom/createInventoryOperation';
@@ -9,6 +8,7 @@ import mom$dingtalkCallback from '../models/server-operations/mom/dingtalkCallba
 import mom$downloadInspectSheet from '../models/server-operations/mom/downloadInspectSheet';
 import mom$exportExcel from '../models/server-operations/mom/exportExcel';
 import mom$fix from '../models/server-operations/mom/fix';
+import mom$iotCallback from '../models/server-operations/mom/iotCallback';
 import mom$listGoodCheckTransfer from '../models/server-operations/mom/listGoodCheckTransfer';
 import mom$listGoodInTransfer from '../models/server-operations/mom/listGoodInTransfer';
 import mom$listGoodOutTransfer from '../models/server-operations/mom/listGoodOutTransfer';
@@ -33,7 +33,6 @@ import sys$listMyAllowedSysActions from '../models/server-operations/sys/listMyA
 export default [
   mom$calcMaterialRequirements,
   mom$calcWorkOrderMaterialRequirements,
-  mom$callback,
   mom$createGoodTransferIn,
   mom$createInventoryApplicationItems,
   mom$createInventoryOperation,
@@ -41,6 +40,7 @@ export default [
   mom$downloadInspectSheet,
   mom$exportExcel,
   mom$fix,
+  mom$iotCallback,
   mom$listGoodCheckTransfer,
   mom$listGoodInTransfer,
   mom$listGoodOutTransfer,
