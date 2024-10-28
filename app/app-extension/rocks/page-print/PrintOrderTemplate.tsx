@@ -8,7 +8,7 @@ const PrintOrderTemplate = memo((props: { printContent: any }) => {
   const ref = useRef<HTMLDivElement>(null);
   return (
     <>
-      <div className="button-location ">
+      <div className="button-location">
         <Button
           type="primary"
           onClick={() => {
