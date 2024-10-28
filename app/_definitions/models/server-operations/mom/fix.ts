@@ -64,7 +64,7 @@ async function fix(server: IRpdServer, input: CreateGoodTransferInput) {
         value: inventoryOperation?.application?.id,
       },
     ],
-    properties: ["id", "businessType", "from", "to", "operationType", "createdBy", "biller", "fFManager", "fSManager", "fUse", "fPlanSn", "fPOStyle", "fSupplyID", "items"],
+    properties: ["id", "supplier", "customer", "businessType", "from", "to", "operationType", "createdBy", "biller", "fFManager", "fSManager", "fUse", "fPlanSn", "fPOStyle", "fSupplyID", "items"],
   });
 
   if (!inventoryApplication) {
@@ -118,7 +118,6 @@ async function fix(server: IRpdServer, input: CreateGoodTransferInput) {
 
 
         let kisResponse: any;
-
 
         if (inventoryOperation?.businessType?.operationType === "in") {
           // TODO: 生成KIS入库单
@@ -422,7 +421,7 @@ async function fix(server: IRpdServer, input: CreateGoodTransferInput) {
                 });
               }
 
-              kisResponse = await kisOperationApi.createSubcontractReceipt(
+              kisResponse = await kisOperationApi.createSalesDelivery(
                 {
                   Object: {
                     Head: {
@@ -433,8 +432,11 @@ async function fix(server: IRpdServer, input: CreateGoodTransferInput) {
                       FTranType: 21,
                       FDeptID: "781",
                       FROB: 1,
-                      FHeadSelfB0163: inventoryApplication.contractNum || "",
-                      FHeadSelfB0165: inventoryApplication.fDeliveryCode || "",
+                      FHeadSelfB0163: inventoryApplication.contractNum || "无",
+                      FHeadSelfB0165: inventoryApplication.fDeliveryCode || "无",
+                      FMarketingStyle: "12530",
+                      FSaleStyle: "102",
+                      FSupplyID: inventoryApplication.customer?.externalCode,
                     },
                     Entry: entries,
                   },

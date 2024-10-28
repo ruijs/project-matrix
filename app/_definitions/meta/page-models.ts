@@ -37,6 +37,7 @@ import MomInventoryApplicationListPage from '../models/pages/MomInventoryApplica
 import MomInventoryBusinessTypeListPage from '../models/pages/MomInventoryBusinessTypeListPage';
 import MomInventoryInOperationDetailsPage from '../models/pages/MomInventoryInOperationDetailsPage';
 import MomInventoryListPage from '../models/pages/MomInventoryListPage';
+import MomInventoryModifyOperationListPage from '../models/pages/MomInventoryModifyOperationListPage';
 import MomInventoryNormalOperationDetailsPage from '../models/pages/MomInventoryNormalOperationDetailsPage';
 import MomInventoryNormalOperationListPage from '../models/pages/MomInventoryNormalOperationListPage';
 import MomInventoryOperationFormPage from '../models/pages/MomInventoryOperationFormPage';
@@ -52,6 +53,7 @@ import MomMaterialInventoryBalanceListPage from '../models/pages/MomMaterialInve
 import MomMaterialInventoryListPage from '../models/pages/MomMaterialInventoryListPage';
 import MomMaterialLotInventoryListPage from '../models/pages/MomMaterialLotInventoryListPage';
 import MomMaterialLotListPage from '../models/pages/MomMaterialLotListPage';
+import MomMaterialModifyApplicationListPage from '../models/pages/MomMaterialModifyApplicationListPage';
 import MomMpsDetailsPage from '../models/pages/MomMpsDetailsPage';
 import MomMpsListPage from '../models/pages/MomMpsListPage';
 import MomMrpDetailsPage from '../models/pages/MomMrpDetailsPage';
@@ -157,6 +159,7 @@ export default [
   MomInventoryBusinessTypeListPage,
   MomInventoryInOperationDetailsPage,
   MomInventoryListPage,
+  MomInventoryModifyOperationListPage,
   MomInventoryNormalOperationDetailsPage,
   MomInventoryNormalOperationListPage,
   MomInventoryOperationFormPage,
@@ -172,6 +175,7 @@ export default [
   MomMaterialInventoryListPage,
   MomMaterialLotInventoryListPage,
   MomMaterialLotListPage,
+  MomMaterialModifyApplicationListPage,
   MomMpsDetailsPage,
   MomMpsListPage,
   MomMrpDetailsPage,

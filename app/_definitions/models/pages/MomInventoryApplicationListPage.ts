@@ -44,7 +44,7 @@ const formConfig: Partial<RapidEntityFormConfig> = {
       code: "fFManager",
       required: true,
       $exps: {
-        _hidden: "$self.form.getFieldValue('businessType')?.name === '领料出库' || $self.form.getFieldValue('businessType')?.name === '生产退料入库'",
+        _hidden: "$self.form.getFieldValue('operationType') !== 'in'",
       },
     },
     {
@@ -53,7 +53,7 @@ const formConfig: Partial<RapidEntityFormConfig> = {
       label: "保管",
       required: true,
       $exps: {
-        _hidden: "$self.form.getFieldValue('businessType')?.name === '领料出库' || $self.form.getFieldValue('businessType')?.name === '生产退料入库'",
+        _hidden: "$self.form.getFieldValue('operationType') !== 'in'",
       },
     },
     {
@@ -62,7 +62,7 @@ const formConfig: Partial<RapidEntityFormConfig> = {
       code: "fFManager",
       required: true,
       $exps: {
-        _hidden: "$self.form.getFieldValue('businessType')?.name !== '领料出库' && $self.form.getFieldValue('businessType')?.name !== '生产退料入库'",
+        _hidden: "$self.form.getFieldValue('operationType') !== 'out'",
       },
     },
     {
@@ -71,7 +71,7 @@ const formConfig: Partial<RapidEntityFormConfig> = {
       label: "领料",
       required: true,
       $exps: {
-        _hidden: "$self.form.getFieldValue('businessType')?.name !== '领料出库' && $self.form.getFieldValue('businessType')?.name !== '生产退料入库'",
+        _hidden: "$self.form.getFieldValue('operationType') !== 'out'",
       },
     },
     {
@@ -79,7 +79,7 @@ const formConfig: Partial<RapidEntityFormConfig> = {
       code: "fUse",
       label: "领料用途",
       $exps: {
-        _hidden: "$self.form.getFieldValue('businessType')?.name !== '领料出库' && $self.form.getFieldValue('businessType')?.name !== '生产退料入库'",
+        _hidden: "$self.form.getFieldValue('operationType') !== 'out'",
       },
     },
     {

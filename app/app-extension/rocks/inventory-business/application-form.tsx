@@ -328,7 +328,7 @@ export default {
               },
             })}
           </Form.Item>
-          {(businessType !== "领料出库" && businessType !== "生产退料入库")  && (
+          {operationType === "in" && (
             <>
               <Form.Item label="验收" name="fFManager" rules={[{ required: true, message: "验收人必填" }]}>
                 {renderRock({
@@ -368,7 +368,7 @@ export default {
               </Form.Item>
             </>
           )}
-          {(businessType === "领料出库" || businessType === "生产退料入库") && (
+          {operationType === "out" && (
             <>
               <Form.Item label="发料" name="fFManager" rules={[{ required: true, message: "发料人必填" }]}>
                 {renderRock({
@@ -416,6 +416,10 @@ export default {
                   },
                 })}
               </Form.Item>
+            </>
+          )}
+          {(businessType === "领料出库" || businessType === "生产退料入库") && (
+            <>
               <Form.Item label="生产计划单号" name="fPlanSn" rules={[{ message: "生产计划单号" }]}>
                 {renderRock({
                   context,

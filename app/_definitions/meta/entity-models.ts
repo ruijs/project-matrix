@@ -8,6 +8,7 @@ import BaseFormField from '../models/entities/BaseFormField';
 import BaseGate from '../models/entities/BaseGate';
 import BaseLocation from '../models/entities/BaseLocation';
 import BaseLot from '../models/entities/BaseLot';
+import BaseLotModifyApplication from '../models/entities/BaseLotModifyApplication';
 import BaseMaterial from '../models/entities/BaseMaterial';
 import BaseMaterialCategory from '../models/entities/BaseMaterialCategory';
 import BaseMaterialDocument from '../models/entities/BaseMaterialDocument';
@@ -88,6 +89,7 @@ import MomMaterialWarehouseLocationInventoryBalance from '../models/entities/Mom
 import MomMaterialWarehouseLocationInventoryLog from '../models/entities/MomMaterialWarehouseLocationInventoryLog';
 import MomPackage from '../models/entities/MomPackage';
 import MomPackageGood from '../models/entities/MomPackageGood';
+import MomPrintLog from '../models/entities/MomPrintLog';
 import MomPrintTemplate from '../models/entities/MomPrintTemplate';
 import MomProcess from '../models/entities/MomProcess';
 import MomProcessCategory from '../models/entities/MomProcessCategory';
@@ -157,6 +159,7 @@ const entityDefinitions = [
   BaseGate,
   BaseLocation,
   BaseLot,
+  BaseLotModifyApplication,
   BaseMaterial,
   BaseMaterialCategory,
   BaseMaterialDocument,
@@ -237,6 +240,7 @@ const entityDefinitions = [
   MomMaterialWarehouseLocationInventoryLog,
   MomPackage,
   MomPackageGood,
+  MomPrintLog,
   MomPrintTemplate,
   MomProcess,
   MomProcessCategory,
@@ -306,6 +310,7 @@ const configuredEntities:TRapidEntity[] = [
   autoConfigureRapidEntity(BaseGate, entityDefinitions),
   autoConfigureRapidEntity(BaseLocation, entityDefinitions),
   autoConfigureRapidEntity(BaseLot, entityDefinitions),
+  autoConfigureRapidEntity(BaseLotModifyApplication, entityDefinitions),
   autoConfigureRapidEntity(BaseMaterial, entityDefinitions),
   autoConfigureRapidEntity(BaseMaterialCategory, entityDefinitions),
   autoConfigureRapidEntity(BaseMaterialDocument, entityDefinitions),
@@ -386,6 +391,7 @@ const configuredEntities:TRapidEntity[] = [
   autoConfigureRapidEntity(MomMaterialWarehouseLocationInventoryLog, entityDefinitions),
   autoConfigureRapidEntity(MomPackage, entityDefinitions),
   autoConfigureRapidEntity(MomPackageGood, entityDefinitions),
+  autoConfigureRapidEntity(MomPrintLog, entityDefinitions),
   autoConfigureRapidEntity(MomPrintTemplate, entityDefinitions),
   autoConfigureRapidEntity(MomProcess, entityDefinitions),
   autoConfigureRapidEntity(MomProcessCategory, entityDefinitions),

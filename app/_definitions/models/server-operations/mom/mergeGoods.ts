@@ -97,8 +97,7 @@ async function mergeGoods(server: IRpdServer, ctx: RouteContext, input: MergeGoo
       id: good.id,
       entityToSave: {
         state: "merged",
-        quantity: 0,
-        source: newGood,
+        target: newGood,
       } as SaveMomGoodInput,
     });
   }));

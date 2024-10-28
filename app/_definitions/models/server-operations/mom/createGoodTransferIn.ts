@@ -81,7 +81,7 @@ async function createGoodTransferIn(server: IRpdServer, input: CreateGoodTransfe
     lotNum: input.lotNum,
     material: { id: input.material },
     sourceType: inventoryOperation?.businessType?.config?.defaultSourceType || null,
-    qualificationState: inventoryOperation?.businessType?.config?.defaultQualificationState || "qualified",
+    qualificationState: material.isInspectionFree ? "qualified" : inventoryOperation?.businessType?.config?.defaultQualificationState || "uninspected",
     validityDate: validityDate,
     isAOD: false,
     state: "pending",

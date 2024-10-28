@@ -141,7 +141,7 @@ async function handleOtherStrategies(
     lotNum: input.lotNum,
     material: {id: input.material},
     sourceType: inventoryApplication?.businessType?.config?.defaultSourceType || null,
-    qualificationState: inventoryApplication?.businessType?.config?.defaultQualificationState || "qualified",
+    qualificationState: material.isInspectionFree ? "qualified" : inventoryApplication?.businessType?.config?.defaultQualificationState || "uninspected",
     isAOD: false,
     state: "pending",
   });

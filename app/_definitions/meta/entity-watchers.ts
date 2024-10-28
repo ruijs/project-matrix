@@ -2,6 +2,7 @@ import type { EntityWatcherType as TEntityWatcherType } from '@ruiapp/rapid-core
 import bpm$BpmInstanceEntityWatchers from '../models/entity-watchers/bpm/BpmInstanceEntityWatchers';
 import cbs$CbsOrderItemWatchers from '../models/entity-watchers/cbs/CbsOrderItemWatchers';
 import cbs$CbsOrderWatchers from '../models/entity-watchers/cbs/CbsOrderWatchers';
+import mom$BaseLotModifyApplication from '../models/entity-watchers/mom/BaseLotModifyApplication';
 import mom$MomGoodTransfer from '../models/entity-watchers/mom/MomGoodTransfer';
 import mom$MomInspectionCharacteristic from '../models/entity-watchers/mom/MomInspectionCharacteristic';
 import mom$MomInspectionMeasurement from '../models/entity-watchers/mom/MomInspectionMeasurement';
@@ -20,6 +21,7 @@ export default [
   ...bpm$BpmInstanceEntityWatchers,
   ...cbs$CbsOrderItemWatchers,
   ...cbs$CbsOrderWatchers,
+  ...mom$BaseLotModifyApplication,
   ...mom$MomGoodTransfer,
   ...mom$MomInspectionCharacteristic,
   ...mom$MomInspectionMeasurement,
