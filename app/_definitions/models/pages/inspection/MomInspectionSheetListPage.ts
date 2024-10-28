@@ -286,18 +286,6 @@ const page: RapidPage = {
           },
         },
         {
-          code: "materialCategory",
-          type: "auto",
-          width: "120px",
-          title: "物料类型",
-          rendererType: "text",
-          rendererProps: {
-            $exps: {
-              text: "_.get($slot.record, 'material.category.name')",
-            },
-          },
-        },
-        {
           type: "auto",
           code: "material",
           fixed: "left",
@@ -311,6 +299,18 @@ const page: RapidPage = {
             },
             $exps: {
               href: "$rui.execVarText('/pages/base_material_details?id={{id}}', $slot.value)",
+            },
+          },
+        },
+        {
+          code: "materialCategory",
+          type: "auto",
+          width: "120px",
+          title: "物料类型",
+          rendererType: "text",
+          rendererProps: {
+            $exps: {
+              text: "_.get($slot.record, 'material.category.name')",
             },
           },
         },
@@ -408,6 +408,9 @@ const page: RapidPage = {
           $exps: {
             _hidden: "$slot.record.result !== 'unqualified'",
           },
+        },
+        {
+          $type: "inspectionPrintAction",
         },
       ],
       newForm: cloneDeep(formConfig),

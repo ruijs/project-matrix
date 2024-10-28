@@ -36,6 +36,7 @@ import InspectionConditionRenderer from "./inspection-condition-renderer/Inspect
 import InspectionFeedStockList from "./inspection-feedstock/InspectionFeedStockList";
 import InspectionFinishedStockList from "./inspection-finishedstock/InspectionFinishedStockList";
 import InspectionBadAction from "./insecption-bad-action/InspectionBadAction";
+import InspectionPrintAction from "./inspection-print-action/InspectionPrintAction";
 
 // render
 import BlockRerenderRock from "./block-rerender-rock/BlockRerenderRock";
@@ -80,6 +81,7 @@ export default [
   InspectionFeedStockList,
   InspectionFinishedStockList,
   InspectionBadAction,
+  InspectionPrintAction,
 
   // render
   BlockRerenderRock,
