@@ -28,6 +28,7 @@ import InventoryOperationForm from "./inventory-business/operation-form";
 import InventoryApplicationForm from "./inventory-business/application-form";
 import InventoryApplicationReceivingAction from "./inventory-application-receiving-action/InventoryApplicationReceivingAction";
 import PagePrint from "./page-print/PagePrint";
+import InventoryModifyOperationForm from "./inventory-business/modify-operation-form";
 
 // inspection
 import ViewInspectionRecordAction from "./view-inspection-record-action/ViewInspectionRecordAction";
@@ -69,6 +70,7 @@ export default [
   // inventory
   InventoryOperationForm,
   InventoryApplicationForm,
+  InventoryModifyOperationForm,
   InventoryApplicationReceivingAction,
   PagePrint,
 
