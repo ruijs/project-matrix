@@ -7,6 +7,7 @@ import { printDOM } from "../page-print/print";
 import logo from "../../../../public/favicon.png";
 import rapidApi from "~/rapidApi";
 import dayjs from "dayjs";
+import { fmtCharacteristicNorminal } from "~/utils/fmt";
 
 interface IInspectionsSheet {
   id: string;
@@ -116,7 +117,7 @@ export default {
             name: item?.characteristic?.name,
             method: item?.characteristic?.method?.name,
             unit: "",
-            norminal: item?.characteristic?.norminal, //指标
+            norminal: fmtCharacteristicNorminal(item?.characteristic), //指标
             category: item?.characteristic?.category?.name, //特性分类
           };
         }) || [];
@@ -136,7 +137,9 @@ export default {
           <img src={logo} style={{ width: 200, height: 75 }} />
           <table>
             <tr>
-              <th colSpan={7}>{title}</th>
+              <th colSpan={7} style={{ fontSize: 25, borderTop: "none", borderLeft: "none", borderRight: "none" }}>
+                {title}
+              </th>
             </tr>
             <tr>
               <td colSpan={2}>物料名称</td>
@@ -181,8 +184,8 @@ export default {
             </tr>
             <tr>
               <td style={{ width: "90px" }}>检测项目</td>
-              <td>检查方法</td>
-              <td>单位</td>
+              <td style={{ width: "100px" }}>检查方法</td>
+              <td style={{ width: "90px" }}>单位</td>
               <td style={{ width: "70px" }}>指标</td>
               <td style={{ width: "90px" }}>特性分类</td>
               <td style={{ width: "90px" }}>检测频次</td>
@@ -195,7 +198,7 @@ export default {
                   <td>{item.name}</td>
                   <td>{item.method}</td>
                   <td>{item.unit}</td>
-                  <td>{item.normial}</td>
+                  <td>{item.norminal}</td>
                   <td>{item.category}</td>
                   <td>{item.appearances}</td>
                   <td>{item.values}</td>
@@ -213,12 +216,9 @@ export default {
               <td colSpan={5}>异常描述：{res?.remark || "-"}</td>
             </tr>
             <tr>
-              <td>检测员:</td>
-              <td>{res?.sender?.name || "-"}</td>
-              <td>审核员:</td>
-              <td>{res?.reviewer?.name || "-"}</td>
-              <td colSpan={2}>确认（不合格时）:</td>
-              <td></td>
+              <td colSpan={2}>检测员:&nbsp;{res?.sender?.name || "-"}</td>
+              <td colSpan={2}>审核员:&nbsp;{res?.reviewer?.name || "-"}</td>
+              <td colSpan={3}>确认（不合格时）:&nbsp;</td>
             </tr>
           </table>
         </div>
@@ -300,7 +300,25 @@ const useInspectionSheet = () => {
           measurements: {
             relations: {
               characteristic: {
-                properties: ["id", "code", "name", "unit", "category", "method", "kind", "norminal", "qualitativeDetermineType"],
+                properties: [
+                  "id",
+                  "name",
+                  "skippable",
+                  "mustPass",
+                  "category",
+                  "method",
+                  "instrumentCategory",
+                  "instrument",
+                  "kind",
+                  "norminal",
+                  "createdAt",
+                  "determineType",
+                  "qualitativeDetermineType",
+                  "upperTol",
+                  "lowerTol",
+                  "upperLimit",
+                  "lowerLimit",
+                ],
               },
             },
             properties: ["id", "isQualified", "qualitativeValue", "quantitativeValue", "sampleCode", "instrument", "characteristic", "locked", "round"],
