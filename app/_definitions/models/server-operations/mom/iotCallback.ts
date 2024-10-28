@@ -10,7 +10,7 @@ export type CallbackInput = {
 };
 
 export default {
-  code: "callback",
+  code: "iotCallback",
   method: "POST",
   async handler(ctx: ActionHandlerContext) {
     const { server } = ctx;

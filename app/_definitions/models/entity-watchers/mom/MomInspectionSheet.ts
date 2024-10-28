@@ -309,8 +309,8 @@ export default [
 
       //   TODO: 处理GCMS文件
 
-      if (changes.hasOwnProperty('gcms_report_file')) {
-        const items = await readGCMSFile(server, after.gcms_report_file.key)
+      if (changes.hasOwnProperty('gcmsReportFile')) {
+        const items = await readGCMSFile(server, after.gcmsReportFile.key)
         if (items) {
           const gcmsItems = await server.getEntityManager<HuateGCMS>("huate_gcms").findEntities({
             filters: [{

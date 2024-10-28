@@ -1,6 +1,6 @@
 import type {EntityWatcher, EntityWatchHandlerContext, IRpdServer} from "@ruiapp/rapid-core";
 import type {
-  BaseLot, MomRouteProcessParameter,
+  BaseLot, MomPrintTemplate, MomRouteProcessParameter,
   MomRouteProcessParameterMeasurement,
   MomWorkReport,
   MomWorkTask,
@@ -8,6 +8,9 @@ import type {
 } from "~/_definitions/meta/entity-types";
 import dayjs from "dayjs";
 import IotDBHelper, {ParseDeviceData} from "~/sdk/iotdb/helper";
+import rapidApi from "~/rapidApi";
+import {replaceTemplatePlaceholder} from "~/app-extension/rocks/print-trigger/PrintTrigger";
+import {find} from "lodash";
 
 export default [
   {
@@ -224,16 +227,38 @@ export default [
         },
       });
 
-      //   TODO: 注塑工序自动打印
-      // await rapidApi.post(`/svc/printer/printers/1/tasks`, {
-      //   tasks: (dataSource || []).map((record) => {
-      //     return {
-      //       type: "zpl-label",
-      //       name: "标签打印",
-      //       data: replaceTemplatePlaceholder(formData.content, record),
-      //     };
-      //   }),
-      // });
+      const workReport = await server.getEntityManager<MomWorkReport>("mom_work_report").findEntity({
+        filters: [
+          { operator: "eq", field: "id", value: after?.id },
+        ],
+        properties: ["id", "process"],
+      })
+
+      if (workReport?.process?.config?.printTemplateCode) {
+        const printTemplate = await server.getEntityManager<MomPrintTemplate>("mom_print_template").findEntity({
+          filters: [
+            { operator: "eq", field: "code", value: workReport?.process?.config?.printTemplateCode },
+          ],
+          properties: ["id", "content"],
+        })
+
+        // if (printTemplate && printTemplate?.content) {
+        //   //   TODO: 注塑工序自动打印
+        //   await rapidApi.post(`/svc/printer/printers/${ workReport?.process?.config?.printerCode }/tasks`, {
+        //     tasks: (dataSource || [])
+        //       .map((record: any) => {
+        //         return {
+        //           type: "zpl-label",
+        //           name: "标签打印",
+        //           data: replaceTemplatePlaceholder(printTemplate.content!, record?.taskData),
+        //         };
+        //       })
+        //       .filter((item) => !!item.data),
+        //   });
+        // }
+
+      }
+
 
     }
   },

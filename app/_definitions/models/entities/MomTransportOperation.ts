@@ -88,6 +88,11 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
       name: "送货单位",
       type: "text",
     },
+    {
+      code: "yidaId",
+      name: "Yida ID",
+      type: "text",
+    },
   ],
 };
 
