@@ -395,7 +395,7 @@ const page: RapidPage = {
       entityCode: "MomInventoryApplication",
       mode: "view",
       column: 3,
-      extraProperties: ["from", "to"],
+      extraProperties: ["from", "to", "operationState"],
       items: [
         {
           type: "auto",
@@ -574,6 +574,9 @@ const page: RapidPage = {
                   icon: "PlusOutlined",
                   actionStyle: "primary",
                   $permissionCheck: "inventoryApplication.manage",
+                  $exps: {
+                    _hidden: `_.get(_.first(_.get($stores.detail, 'data.list')), 'operationState') === 'done'`,
+                  },
                 },
                 // {
                 //   $type: "sonicToolbarRefreshButton",
@@ -730,6 +733,7 @@ const page: RapidPage = {
                 },
               ],
               $exps: {
+                hideActionsColumn: "_.get(_.first(_.get($stores.detail, 'data.list')), 'operationState') === 'done'",
                 "stores[0].filters[0].value": "$rui.parseQuery().id",
                 "stores[0].filters[1].value": "$rui.parseQuery().operationType",
                 "fixedFilters[0].filters[0].value": "$rui.parseQuery().id",
@@ -814,13 +818,16 @@ const page: RapidPage = {
                         })
                       };
                     `,
+                    $exps: {
+                      _hidden: `_.get(_.first(_.get($stores.detail, 'data.list')), 'operationState') === 'done'`,
+                    },
                   },
                   {
                     $type: "batchDeleteAction",
                     title: "批量删除",
                     entityCode: "MomGoodTransfer",
                     $exps: {
-                      _hidden: `$rui.parseQuery().operationType !== 'in'`,
+                      _hidden: `$rui.parseQuery().operationType !== 'in' || _.get(_.first(_.get($stores.detail, 'data.list')), 'operationState') === 'done'`,
                     },
                     onSuccess: [
                       {
@@ -1050,6 +1057,7 @@ const page: RapidPage = {
                   },
                 ],
                 $exps: {
+                  hideActionsColumn: "_.get(_.first(_.get($stores.detail, 'data.list')), 'operationState') === 'done'",
                   "fixedFilters[0].filters[0].value": `_.get(${operationDataExp}, 'id') || -1`,
                   "newForm.fixedFields.operation_id": `_.get(${operationDataExp}, 'id')`,
                   "newForm.fixedFields.operationId": `_.get(${operationDataExp}, 'id')`,
@@ -1070,6 +1078,7 @@ const page: RapidPage = {
                   url: "/api/app/listGoodInTransfers",
                 },
                 $exps: {
+                  hideActionsColumn: "_.get(_.first(_.get($stores.detail, 'data.list')), 'operationState') === 'done'",
                   "fixedFilters[0].value": `_.get(${operationDataExp}, 'id')`,
                   "requestConfig.url": "$rui.parseQuery().operationType === 'in' ? '/api/app/listGoodInTransfers' : '/api/app/listGoodOutTransfers'",
                 },
