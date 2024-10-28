@@ -162,11 +162,20 @@ const page: RapidPage = {
       selectionMode: "none",
       listActions: [
         {
-          $type: "sonicToolbarNewEntityButton",
-          text: "新建",
-          icon: "PlusOutlined",
-          $permissionCheck: "inventoryOperation.manage",
-          actionStyle: "primary",
+          $type: "antdButton",
+          icon: {
+            $type: "antdIcon",
+            name: "PlusOutlined",
+          },
+          type: "primary",
+          href: `/pages/mom_inventory_modify_operation_form`,
+          children: [
+            {
+              $type: "text",
+              text: " 新建",
+            },
+          ],
+          $permissionCheck: "inventoryApplication.manage",
         },
         {
           $type: "antdButton",

@@ -94,6 +94,7 @@ const formConfig: Partial<RapidEntityFormConfig> = {
 
 const page: RapidPage = {
   code: "mom_inventory_normal_operation_details",
+  parentCode: "mom_inventory_modify_operation_list",
   name: "库存操作详情",
   title: "库存操作详情",
   // permissionCheck: {any: []},
@@ -127,21 +128,6 @@ const page: RapidPage = {
         {
           type: "auto",
           code: "state",
-        },
-        {
-          type: "auto",
-          code: "contractNum",
-        },
-        {
-          type: "auto",
-          code: "supplier",
-          rendererProps: {
-            format: "{{name}}",
-          },
-        },
-        {
-          type: "auto",
-          code: "approvalState",
         },
       ],
       $exps: {
