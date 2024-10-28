@@ -38,6 +38,11 @@ export default [
         const materialManager = server.getEntityManager<BaseMaterial>("base_material");
         const inventoryOperationManager = server.getEntityManager<MomInventoryOperation>("mom_inventory_operation");
 
+        const material = await materialManager.findEntity({
+          filters: [{ operator: "eq", field: "id", value: before.material.id }],
+          properties: ["id", "code", "defaultUnit", "qualityGuaranteePeriod", "isInspectionFree"],
+        })
+
         if (before.hasOwnProperty("lotNum") && before.hasOwnProperty("material")) {
 
           const inventoryOperation = await inventoryOperationManager.findEntity({
@@ -49,7 +54,7 @@ export default [
             lotNum: before.lotNum,
             material: before.material,
             sourceType: inventoryOperation?.businessType?.config?.defaultSourceType || null,
-            qualificationState: inventoryOperation?.businessType?.config?.defaultQualificationState || "qualified",
+            qualificationState: material?.isInspectionFree ? "qualified" : inventoryOperation?.businessType?.config?.defaultQualificationState || "uninspected",
             isAOD: false,
             state: "pending",
           });
@@ -60,11 +65,6 @@ export default [
         }
 
         if (before.hasOwnProperty("binNum") && before.hasOwnProperty("material") && !before.hasOwnProperty("good")) {
-          const material = await materialManager.findEntity({
-            filters: [{ operator: "eq", field: "id", value: before.material.id }],
-            properties: ["id", "code", "defaultUnit", "qualityGuaranteePeriod"],
-          })
-
           if (material) {
             const goodInput = {
               material: { id: material.id },

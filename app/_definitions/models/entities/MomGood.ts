@@ -87,6 +87,14 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
       targetIdColumnName: "source_id",
     },
     {
+      code: "target",
+      name: "来源",
+      description: "合并后的物品。来源的物料和本物品的物料一定是相同的。",
+      type: "relation",
+      targetSingularCode: "mom_good",
+      targetIdColumnName: "target_id",
+    },
+    {
       code: "tags",
       name: "标签",
       type: "text",

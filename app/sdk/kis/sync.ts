@@ -557,6 +557,12 @@ class KisDataSync {
               lotNum: entry.FBatchNo,
               quantity: entry.Fauxqty,
               unit: { id: material?.defaultUnit?.id },
+              remark: entry?.Fnote,
+              fOrderBillNo: entry?.FOrderBillNo,
+              fOrderType: entry?.FOrderType,
+              fSourceBillNo: entry?.FSourceBillNo,
+              fSourceBillType: entry?.FSourceBillType,
+              orderNum: 1,
             } as SaveMomInventoryApplicationItemInput;
           };
 
@@ -733,7 +739,10 @@ class KisDataSync {
               material,
               quantity: entry.Fauxqty,
               unit: { id: material?.defaultUnit?.id },
-              remark: entry?.Fnote
+              remark: entry?.Fnote,
+              fOrderBillNo: Head?.FBillNo,
+              fSourceBillNo: Head?.FBillNo,
+              orderNum: 1,
             } as SaveMomInventoryApplicationItemInput;
           };
 

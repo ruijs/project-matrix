@@ -94,6 +94,26 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
       name: "收货托数",
       type: "double",
     },
+    {
+      code: "fSourceBillNo",
+      name: "源单单号",
+      type: "text",
+    },
+    {
+      code: "fSourceTranType",
+      name: "源单类型",
+      type: "text",
+    },
+    {
+      code: "fOrderBillNo",
+      name: "订单单号",
+      type: "text",
+    },
+    {
+      code: "fOrderType",
+      name: "订单类型",
+      type: "text",
+    },
   ],
 };
 

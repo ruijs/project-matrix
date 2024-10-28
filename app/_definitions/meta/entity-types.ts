@@ -586,6 +586,85 @@ export interface BaseLot {
 export type SaveBaseLotInput = Omit<BaseLot, 'id' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>;
 
 /**
+ * 批次
+ */
+export interface BaseLotModifyApplication {
+  /**
+   * id
+   */
+  id: number;
+  /**
+   * 物料
+   */
+  material: Partial<BaseMaterial>;
+  /**
+   * 批次号
+   */
+  lot?: Partial<BaseLot>;
+  /**
+   * 原始批次号
+   */
+  originLotNum?: string;
+  /**
+   * 新批次号
+   */
+  lotNum?: string;
+  /**
+   * 新生产时间
+   */
+  manufactureDate?: string;
+  /**
+   * 失效时间
+   */
+  expireTime?: string;
+  /**
+   * 有效期至
+   */
+  validityDate?: string;
+  /**
+   * 合格证状态
+   */
+  qualificationState?: QualificationState;
+  /**
+   * 是否让步接收
+   */
+  isAOD: boolean;
+  /**
+   * 审批状态
+   */
+  approvalState?: ApprovalState;
+  /**
+   * 创建时间
+   */
+  createdAt?: string;
+  /**
+   * 创建人
+   */
+  createdBy?: Partial<OcUser>;
+  /**
+   * 更新时间
+   */
+  updatedAt?: string;
+  /**
+   * 更新人
+   */
+  updatedBy?: Partial<OcUser>;
+  /**
+   * 删除时间
+   */
+  deletedAt?: string;
+  /**
+   * 删除人
+   */
+  deletedBy?: Partial<OcUser>;
+}
+
+/**
+ * 批次
+ */
+export type SaveBaseLotModifyApplicationInput = Omit<BaseLotModifyApplication, 'id' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>;
+
+/**
  * 物料
  */
 export interface BaseMaterial {
@@ -2901,6 +2980,10 @@ export interface MomGood {
    */
   source?: Partial<MomGood>;
   /**
+   * 来源
+   */
+  target?: Partial<MomGood>;
+  /**
    * 标签
    */
   tags?: string;
@@ -4503,6 +4586,22 @@ export interface MomInventoryApplicationItem {
    * 收货托数
    */
   acceptPalletCount?: number;
+  /**
+   * 源单单号
+   */
+  fSourceBillNo?: string;
+  /**
+   * 源单类型
+   */
+  fSourceTranType?: string;
+  /**
+   * 订单单号
+   */
+  fOrderBillNo?: string;
+  /**
+   * 订单类型
+   */
+  fOrderType?: string;
   /**
    * 创建时间
    */
@@ -6288,6 +6387,53 @@ export interface MomPackageGood {
  * 物品包内物品
  */
 export type SaveMomPackageGoodInput = Omit<MomPackageGood, 'id' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>;
+
+/**
+ * 打印记录
+ */
+export interface MomPrintLog {
+  /**
+   * id
+   */
+  id: number;
+  /**
+   * 打印机编码
+   */
+  code: string;
+  /**
+   * 打印内容
+   */
+  tasks?: Record<string, any>;
+  /**
+   * 创建时间
+   */
+  createdAt?: string;
+  /**
+   * 创建人
+   */
+  createdBy?: Partial<OcUser>;
+  /**
+   * 更新时间
+   */
+  updatedAt?: string;
+  /**
+   * 更新人
+   */
+  updatedBy?: Partial<OcUser>;
+  /**
+   * 删除时间
+   */
+  deletedAt?: string;
+  /**
+   * 删除人
+   */
+  deletedBy?: Partial<OcUser>;
+}
+
+/**
+ * 打印记录
+ */
+export type SaveMomPrintLogInput = Omit<MomPrintLog, 'id' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>;
 
 /**
  * 打印模版

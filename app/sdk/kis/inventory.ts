@@ -21,15 +21,17 @@ export interface WarehouseEntry {
   FSecQty?: number;
   FQtyMust?: number;
   FSecCoefficient?: number;
-  FSourceBillNo?: string;
   FSourceEntryID?: string;
   FSourceInterId?: number;
-  FSourceTranType?: number;
   FUnitID?: string;
   FDeptID?: number;
   FPlanMode:number;
   FReProduceType?: number;
   FSCStockID?: string;
+  FSourceBillNo?: string;
+  FSourceBillType?: number;
+  FOrderBillNo?: string;
+  FOrderType?: string;
 }
 
 export interface WarehousePayload {
@@ -56,6 +58,7 @@ export interface WarehousePayload {
       FSupplyID?: string;
       FHeadSelfA0143?: string; // 质检员
       FMarketingStyle?: string;
+      FSaleStyle?: string;
       FHeadSelfB0163?: string; // 合同号
       FHeadSelfB0165?: string; // 销售发货单号
       FHeadSelfS0193?: string; // 合同号

@@ -1,7 +1,7 @@
 import {v4 as uuidv4} from 'uuid';
 import type { IRpdServer } from "@ruiapp/rapid-core";
 import { PrintTaskState, PrinterNetworkState, type CreatePrintTasksInput, type GetNextPendingPrintTaskInput, type PrintTask, type PrinterStatusInfo, type RegisterPrinterInput, type UpdatePrintTaskStateInput, type UpdatePrinterStateInput } from "./PrinterPluginTypes";
-import type { SaveSvcPrinterInput, SvcPrinter } from "~/_definitions/meta/entity-types";
+import type {MomPrintLog, SaveSvcPrinterInput, SvcPrinter} from "~/_definitions/meta/entity-types";
 import { find, findIndex, first } from "lodash";
 
 const offlineSeconds = 180;
@@ -35,7 +35,7 @@ export default class PrinterService {
 
   async registerPrinter(input: RegisterPrinterInput) {
     const printerManager = this.#server.getEntityManager<SvcPrinter>("svc_printer");
-  
+
     const printer = await printerManager.findEntity({
       filters: [
         { operator: "eq", field: "code", value: input.code },
@@ -64,13 +64,13 @@ export default class PrinterService {
 
   async updatePrinterState(input: UpdatePrinterStateInput) {
     const printerManager = this.#server.getEntityManager<SvcPrinter>("svc_printer");
-  
+
     const printer = await printerManager.findEntity({
       filters: [
         { operator: "eq", field: "code", value: input.code },
       ],
     });
-  
+
     if (!printer) {
       throw new Error(`Print '${input.code}' was not found.`)
     }
@@ -124,6 +124,14 @@ export default class PrinterService {
     }
 
     tasksOfPrinters.push(...tasksToCreate);
+
+    const printLogEntityManager = this.#server.getEntityManager<MomPrintLog>("mom_print_log");
+    await printLogEntityManager.createEntity({
+      entity: {
+        code: input.code,
+        tasks: input.tasks,
+      }
+    })
   }
 
   async getNextPendingPrintTask(input: GetNextPendingPrintTaskInput) {
