@@ -22,7 +22,7 @@ const formConfig: Partial<RapidEntityFormConfig> = {
           {
             field: "factory",
             operator: "eq",
-            value: "05",
+            value: "03",
           },
         ],
       },
@@ -191,14 +191,14 @@ const formConfig: Partial<RapidEntityFormConfig> = {
     },
   ],
   defaultFormFields: {
-    factory: 9,
+    factory: 5,
   },
 };
 
 const page: RapidPage = {
-  code: "mom_prod_tys_sheet_list",
-  name: "生产（泰洋圣）",
-  title: "生产（泰洋圣）",
+  code: "mom_prod_cc_sheet_list",
+  name: "生产（长春）",
+  title: "生产（长春）",
   view: [
     {
       $type: "sonicEntityList",
@@ -213,7 +213,7 @@ const page: RapidPage = {
             {
               field: "code",
               operator: "eq",
-              value: "05",
+              value: "03",
             },
           ],
         },
@@ -273,7 +273,7 @@ const page: RapidPage = {
           fixed: "left",
           rendererType: "link",
           rendererProps: {
-            url: "/pages/mom_prod_tys_details?id={{id}}",
+            url: "/pages/mom_prod_cc_details?id={{id}}",
           },
         },
         {

@@ -136,8 +136,16 @@ import pm$PmWorkItemListPage from '../models/pages/pm/PmWorkItemListPage';
 import pm$PmWorkItemResolutionListPage from '../models/pages/pm/PmWorkItemResolutionListPage';
 import pm$PmWorkItemTypeDetailsPage from '../models/pages/pm/PmWorkItemTypeDetailsPage';
 import pm$PmWorkItemTypeListPage from '../models/pages/pm/PmWorkItemTypeListPage';
+import prod$cc$MomProdCcDetailsPage from '../models/pages/prod/cc/MomProdCcDetailsPage';
+import prod$cc$MomProdCcSheetList from '../models/pages/prod/cc/MomProdCcSheetList';
+import prod$hg$MomProdHgDetailsPage from '../models/pages/prod/hg/MomProdHgDetailsPage';
+import prod$hg$MomProdHgSheetList from '../models/pages/prod/hg/MomProdHgSheetList';
+import prod$sy$MomProdSyDetailsPage from '../models/pages/prod/sy/MomProdSyDetailsPage';
+import prod$sy$MomProdSySheetList from '../models/pages/prod/sy/MomProdSySheetList';
 import prod$tys$MomProdTysDetailsPage from '../models/pages/prod/tys/MomProdTysDetailsPage';
 import prod$tys$MomProdTysSheetList from '../models/pages/prod/tys/MomProdTysSheetList';
+import prod$xzy$MomProdXzyDetailsPage from '../models/pages/prod/xzy/MomProdXzyDetailsPage';
+import prod$xzy$MomProdXzySheetList from '../models/pages/prod/xzy/MomProdXzySheetList';
 import setting$SystemSettingItemSettingPage from '../models/pages/setting/SystemSettingItemSettingPage';
 import setting$SystemSettingsPage from '../models/pages/setting/SystemSettingsPage';
 import sys$SysActionListPage from '../models/pages/sys/SysActionListPage';
@@ -284,8 +292,16 @@ export default [
   pm$PmWorkItemResolutionListPage,
   pm$PmWorkItemTypeDetailsPage,
   pm$PmWorkItemTypeListPage,
+  prod$cc$MomProdCcDetailsPage,
+  prod$cc$MomProdCcSheetList,
+  prod$hg$MomProdHgDetailsPage,
+  prod$hg$MomProdHgSheetList,
+  prod$sy$MomProdSyDetailsPage,
+  prod$sy$MomProdSySheetList,
   prod$tys$MomProdTysDetailsPage,
   prod$tys$MomProdTysSheetList,
+  prod$xzy$MomProdXzyDetailsPage,
+  prod$xzy$MomProdXzySheetList,
   setting$SystemSettingItemSettingPage,
   setting$SystemSettingsPage,
   sys$SysActionListPage,
