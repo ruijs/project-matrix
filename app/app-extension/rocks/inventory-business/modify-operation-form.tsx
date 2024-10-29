@@ -217,7 +217,7 @@ export default {
 
             saveApplication({
               operationType: "in",
-              state: "pending",
+              state: "processing",
               source: "manual",
               ...restValues,
               ...warehouseInfo,
