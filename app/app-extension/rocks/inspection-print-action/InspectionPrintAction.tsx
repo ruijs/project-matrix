@@ -68,7 +68,7 @@ export default {
       data.forEach((item: any) => {
         item.measurements.forEach((measurement: any) => {
           const name = measurement.characteristic.name;
-          const value = measurement.qualitativeValue || measurement.quantitativeValue;
+          const value = measurement.qualitativeValue || measurement.quantitativeValue || "-";
           const sampleCode = measurement.sampleCode;
 
           if (!stats[name]) {
