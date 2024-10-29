@@ -80,7 +80,7 @@ export default {
     const [warehouseId, setWarehouseId] = useState<string>();
 
     const { saveApplication, saving } = useSaveApplication((data) => {
-      navigate(`/pages/mom_inventory_normal_operation_details?id=${data.id}`);
+      navigate(`/pages/mom_inventory_modify_application_details?id=${data.id}`);
     });
 
     let binNumColumn: ColumnProps<any> = {
@@ -212,16 +212,22 @@ export default {
             });
 
             let warehouseInfo: Record<string, any> = {
-              warehouse,
+              to: warehouse,
             };
+            if (restValues.operationType === "out") {
+              warehouseInfo = {
+                from: warehouse,
+              };
+            }
 
             saveApplication({
+              operationState: "pending",
               operationType: "in",
-              state: "processing",
+              state: "approved",
               source: "manual",
               ...restValues,
               ...warehouseInfo,
-              transfers: applicationItems,
+              items: applicationItems,
             });
           }}
           onValuesChange={(values) => {
@@ -333,7 +339,7 @@ export default {
           </Form.Item>
           <Form.Item
             label="物品明细"
-            name="transfers"
+            name="items"
             labelCol={{ span: 2 }}
             wrapperCol={{ span: 22 }}
             rules={[
@@ -648,7 +654,7 @@ export default {
               <Button
                 disabled={saving}
                 onClick={() => {
-                  navigate("/pages/mom_inventory_modify_operation_list");
+                  navigate("/pages/mom_inventory_modify_application_list");
                 }}
               >
                 取消
@@ -680,7 +686,7 @@ function useSaveApplication(onSuccess: (data: Record<string, any>) => void) {
 
     setSaving(true);
     await rapidApi
-      .post("/mom/mom_inventory_operations", formData)
+      .post("/mom/mom_inventory_applications", formData)
       .then((res) => {
         if (res.status >= 200 && res.status < 400) {
           onSuccess(res.data);

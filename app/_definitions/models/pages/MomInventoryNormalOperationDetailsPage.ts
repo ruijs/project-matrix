@@ -94,7 +94,7 @@ const formConfig: Partial<RapidEntityFormConfig> = {
 
 const page: RapidPage = {
   code: "mom_inventory_normal_operation_details",
-  parentCode: "mom_inventory_modify_operation_list",
+  parentCode: "mom_inventory_normal_operation_list",
   name: "库存操作详情",
   title: "库存操作详情",
   // permissionCheck: {any: []},

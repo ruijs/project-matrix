@@ -384,7 +384,6 @@ function getFormConfig(formType: "newForm" | "editForm") {
 const operationDataExp = `_.first(_.get($page.getScope('applicationItemList-scope')?.getStore('operationList'), 'data.list'))`;
 const page: RapidPage = {
   code: "mom_inventory_application_details",
-  //@ts-ignore
   parentCode: "mom_inventory_application_list",
   name: "库存业务申请单详情",
   title: "库存业务申请单详情",
