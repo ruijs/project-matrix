@@ -62,6 +62,8 @@ export interface WarehousePayload {
       FHeadSelfB0163?: string; // 合同号
       FHeadSelfB0165?: string; // 销售发货单号
       FHeadSelfS0193?: string; // 合同号
+      FWLCompany?: string; // 物流公司
+
     };
     Entry: Array<WarehouseEntry>;
   };

@@ -64,7 +64,7 @@ async function fix(server: IRpdServer, input: CreateGoodTransferInput) {
         value: inventoryOperation?.application?.id,
       },
     ],
-    properties: ["id", "supplier", "customer", "businessType", "from", "to", "operationType", "createdBy", "biller", "fFManager", "fSManager", "fUse", "fPlanSn", "fPOStyle", "fSupplyID", "items"],
+    properties: ["id", "supplier", "code", "contractNum", "customer", "businessType", "from", "to", "operationType", "createdBy", "biller", "fFManager", "fSManager", "fUse", "fPlanSn", "fPOStyle", "fSupplyID", "items", "fDeliveryCode", "fWLCompany"],
   });
 
   if (!inventoryApplication) {
@@ -410,10 +410,11 @@ async function fix(server: IRpdServer, input: CreateGoodTransferInput) {
                   Fauxqty: transfer.quantity,
                   FAuxQtyMust: transfer.quantity,
                   FDCSPID: locationCode,
-                  FSCStockID: warehouseId,
+                  FDCStockID: warehouseId,
                   FBatchNo: transfer.lot_num,
                   FUnitID: transfer.unit_external_code,
-                  FMTONo: transfer.lot_num,
+                  FSourceBillNo: inventoryApplication?.code,
+                  FOrderBillNo: inventoryApplication?.code,
                   FAuxPrice: 1,
                   Famount: transfer.quantity,
                   FPlanMode: 14036,
@@ -432,6 +433,7 @@ async function fix(server: IRpdServer, input: CreateGoodTransferInput) {
                       FTranType: 21,
                       FDeptID: "781",
                       FROB: 1,
+                      FWLCompany: inventoryApplication.fWLCompany || "无",
                       FHeadSelfB0163: inventoryApplication.contractNum || "无",
                       FHeadSelfB0165: inventoryApplication.fDeliveryCode || "无",
                       FMarketingStyle: "12530",
