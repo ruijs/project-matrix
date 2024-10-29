@@ -190,6 +190,18 @@ const feedFormConfig: Partial<RapidEntityFormRockConfig> = {
         columns: [{ code: "lotNum", title: "批号", width: 120 }],
       },
     },
+    {
+      code: "150BsQuantity",
+      type: "auto",
+    },
+    {
+      code: "100OilQuantity",
+      type: "auto",
+    },
+    {
+      code: "instoreTankNumber",
+      type: "auto",
+    },
   ],
   defaultFormFields: {
     unqualifiedQuantity: 0,
@@ -524,6 +536,18 @@ const page: RapidPage = {
                   rendererProps: {
                     format: "{{lotNum}}",
                   },
+                },
+                {
+                  code: "150BsQuantity",
+                  type: "auto",
+                },
+                {
+                  code: "100OilQuantity",
+                  type: "auto",
+                },
+                {
+                  code: "instoreTankNumber",
+                  type: "auto",
                 },
                 {
                   type: "auto",

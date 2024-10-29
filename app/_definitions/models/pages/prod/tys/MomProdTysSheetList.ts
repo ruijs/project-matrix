@@ -137,8 +137,39 @@ const formConfig: Partial<RapidEntityFormConfig> = {
     //   code: "assignmentState",
     // },
     {
+      code: "oilMixtureRatio",
+      type: "auto",
+    },
+    {
+      code: "paraffinQuantity",
+      type: "auto",
+    },
+    {
+      code: "stirringTime",
+      type: "auto",
+    },
+    {
+      code: "stirringPressure",
+      type: "auto",
+    },
+    {
+      code: "tankNumber",
+      type: "auto",
+    },
+    {
+      code: "unloadingVideo",
+      type: "auto",
+    },
+    {
+      code: "dcsPicture",
+      type: "auto",
+    },
+    {
       type: "auto",
       code: "executionState",
+      formControlProps: {
+        disabled: true,
+      },
     },
   ],
   onFormRefresh: [
@@ -192,6 +223,7 @@ const formConfig: Partial<RapidEntityFormConfig> = {
   ],
   defaultFormFields: {
     factory: 9,
+    executionState: "processing",
   },
 };
 
@@ -301,16 +333,16 @@ const page: RapidPage = {
         //     format: "{{version}}",
         //   },
         // },
-        {
-          type: "auto",
-          code: "process",
-          width: "100px",
-        },
-        {
-          type: "auto",
-          code: "equipment",
-          width: "100px",
-        },
+        // {
+        //   type: "auto",
+        //   code: "process",
+        //   width: "100px",
+        // },
+        // {
+        //   type: "auto",
+        //   code: "equipment",
+        //   width: "100px",
+        // },
         // {
         //   type: "auto",
         //   code: "scheduledStartDate",
@@ -339,6 +371,34 @@ const page: RapidPage = {
         //   code: "assignmentState",
         //   width: "100px",
         // },
+        {
+          code: "oilMixtureRatio",
+          type: "auto",
+        },
+        {
+          code: "paraffinQuantity",
+          type: "auto",
+        },
+        {
+          code: "stirringTime",
+          type: "auto",
+        },
+        {
+          code: "stirringPressure",
+          type: "auto",
+        },
+        {
+          code: "tankNumber",
+          type: "auto",
+        },
+        {
+          code: "unloadingVideo",
+          type: "auto",
+        },
+        {
+          code: "dcsPicture",
+          type: "auto",
+        },
         {
           type: "auto",
           code: "executionState",

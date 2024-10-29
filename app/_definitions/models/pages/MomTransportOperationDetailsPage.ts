@@ -8,7 +8,14 @@ const formConfig: Partial<RapidEntityFormConfig> = {
       type: "auto",
       code: "material",
       listDataFindOptions: {
-        properties: ["id", "code", "name", "specification", "defaultUnit"],
+        fixedFilters: [
+          {
+            field: "category_id",
+            operator: "eq",
+            value: 5658,
+          },
+        ],
+        properties: ["id", "code", "category", "name", "specification", "defaultUnit"],
       },
       formControlProps: {
         dropdownMatchSelectWidth: 500,
@@ -57,7 +64,7 @@ const formConfig: Partial<RapidEntityFormConfig> = {
     },
   ],
   defaultFormFields: {
-    state: "processing"
+    state: "processing",
   },
   onValuesChange: [
     {
