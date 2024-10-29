@@ -129,7 +129,7 @@ async function fetchInventory(server: IRpdServer, input: ExportExcelInput) {
     relations: {
       material: {
         properties: [
-          "id","code","name","specification","category"
+          "id","code","name","specification","category", "onHandQuantity"
         ],
       },
     },
