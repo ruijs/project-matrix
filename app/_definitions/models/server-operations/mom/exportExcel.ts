@@ -124,12 +124,12 @@ async function fetchInventory(server: IRpdServer, input: ExportExcelInput) {
   return server.getEntityManager<MomMaterialLotInventoryBalance>("mom_material_lot_inventory_balance").findEntities({
     filters: filters,
     properties: [
-      "id","material","lotNum","unit","quantity","lot"
+      "id","material","lotNum","unit","onHandQuantity","lot"
     ],
     relations: {
       material: {
         properties: [
-          "id","code","name","specification","category", "onHandQuantity"
+          "id","code","name","specification","category"
         ],
       },
     },
