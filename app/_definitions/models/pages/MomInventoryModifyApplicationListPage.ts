@@ -183,7 +183,7 @@ const formConfig: Partial<RapidEntityFormConfig> = {
 };
 
 const page: RapidPage = {
-  code: "mom_inventory_application_list",
+  code: "mom_inventory_modify_application_list",
   name: "库存业务申请",
   title: "库存业务申请",
   permissionCheck: { any: [] },
@@ -283,7 +283,7 @@ const page: RapidPage = {
             name: "PlusOutlined",
           },
           type: "primary",
-          href: `/pages/mom_inventory_application_form`,
+          href: `/pages/mom_inventory_modify_application_form`,
           children: [
             {
               $type: "text",
@@ -354,7 +354,7 @@ const page: RapidPage = {
         },
       ],
       enabledFilterCache: true,
-      filterCacheName: "mom_inventory_application_list",
+      filterCacheName: "mom_inventory_modify_application_list",
       searchForm: {
         entityCode: "MomInventoryApplication",
         formDataAdapter: `
@@ -371,12 +371,12 @@ const page: RapidPage = {
           return data;
         `,
         items: [
-          {
-            type: "auto",
-            code: "businessType",
-            filterMode: "in",
-            filterFields: ["business_id"],
-          },
+          // {
+          //   type: "auto",
+          //   code: "businessType",
+          //   filterMode: "in",
+          //   filterFields: ["business_id"],
+          // },
           {
             type: "auto",
             code: "applicant",
@@ -421,7 +421,7 @@ const page: RapidPage = {
           filters: [
             {
               field: "name",
-              operator: "notIn",
+              operator: "in",
               value: ["入库调整单", "出库调整单"],
               itemType: "text",
             },
@@ -441,7 +441,7 @@ const page: RapidPage = {
           code: "code",
           // rendererType: 'rapidLinkRenderer',
           rendererProps: {
-            url: "/pages/mom_inventory_application_details?id={{id}}&operationType={{operationType}}",
+            url: "/pages/mom_inventory_modify_application_details?id={{id}}&operationType={{operationType}}",
           },
           width: "200px",
         },
