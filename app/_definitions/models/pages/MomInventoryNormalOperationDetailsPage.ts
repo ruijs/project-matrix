@@ -384,9 +384,6 @@ const page: RapidPage = {
                   actionType: "edit",
                   actionText: "修改",
                   $permissionCheck: "inventoryOperation.manage",
-                  $exps: {
-                    _hidden: "_.get(_.first(_.get($stores.detail, 'data.list')), 'state') !== 'processing'",
-                  },
                 },
                 {
                   $type: "sonicRecordActionDeleteEntity",
@@ -396,9 +393,6 @@ const page: RapidPage = {
                   dataSourceCode: "list",
                   entityCode: "MomGoodTransfer",
                   $permissionCheck: "inventoryOperation.manage",
-                  $exps: {
-                    _hidden: "_.get(_.first(_.get($stores.detail, 'data.list')), 'state') !== 'processing'",
-                  },
                 },
               ],
               newForm: cloneDeep(formConfig),
@@ -418,6 +412,7 @@ const page: RapidPage = {
                 },
               ],
               $exps: {
+                hideActionsColumn: "_.get(_.first(_.get($stores.detail, 'data.list')), 'state') !== 'processing'",
                 "fixedFilters[0].filters[0].value": "$rui.parseQuery().id",
                 "newForm.fixedFields.operation_id": "$rui.parseQuery().id",
               },
