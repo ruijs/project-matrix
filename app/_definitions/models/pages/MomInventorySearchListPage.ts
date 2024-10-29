@@ -15,7 +15,18 @@ const page: RapidPage = {
       entityCode: "MomMaterialInventoryBalance",
       viewMode: "table",
       selectionMode: "none",
-      listActions: [],
+      listActions: [
+        {
+          $type: "antdButton",
+          href: `/api/app/exportExcel?type=inventory`,
+          children: [
+            {
+              $type: "text",
+              text: " 下载",
+            },
+          ],
+        },
+      ],
       extraActions: [
         {
           $type: "sonicToolbarFormItem",
