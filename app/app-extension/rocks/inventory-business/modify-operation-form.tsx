@@ -212,22 +212,16 @@ export default {
             });
 
             let warehouseInfo: Record<string, any> = {
-              to: warehouse,
+              warehouse,
             };
-            if (restValues.operationType === "out") {
-              warehouseInfo = {
-                from: warehouse,
-              };
-            }
 
             saveApplication({
-              operationState: "pending",
               operationType: "in",
-              state: "approved",
+              state: "pending",
               source: "manual",
               ...restValues,
               ...warehouseInfo,
-              items: applicationItems,
+              transfers: applicationItems,
             });
           }}
           onValuesChange={(values) => {
@@ -339,7 +333,7 @@ export default {
           </Form.Item>
           <Form.Item
             label="物品明细"
-            name="items"
+            name="transfers"
             labelCol={{ span: 2 }}
             wrapperCol={{ span: 22 }}
             rules={[
