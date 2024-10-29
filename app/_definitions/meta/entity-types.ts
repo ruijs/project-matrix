@@ -4907,6 +4907,10 @@ export interface MomInventoryOperation {
    */
   externalCode?: string;
   /**
+   * 外部ID
+   */
+  externalId?: string;
+  /**
    * 车间
    */
   shop?: string;

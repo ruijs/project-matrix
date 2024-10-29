@@ -43,11 +43,11 @@ async function fix(server: IRpdServer, input: CreateGoodTransferInput) {
         operator: "eq",
         field: "id",
         value: input.operationId,
-      },
-      {
-        operator: "null",
-        field: "externalCode",
       }
+      // {
+      //   operator: "null",
+      //   field: "externalCode",
+      // }
     ],
     properties: ["id", "code", "application", "warehouse", "operationType", "businessType", "contractNum", "supplier", "customer", "externalCode", "createdBy", "state", "approvalState"],
   });
@@ -64,7 +64,7 @@ async function fix(server: IRpdServer, input: CreateGoodTransferInput) {
         value: inventoryOperation?.application?.id,
       },
     ],
-    properties: ["id", "supplier", "code", "contractNum", "customer", "businessType", "from", "to", "operationType", "createdBy", "biller", "fFManager", "fSManager", "fUse", "fPlanSn", "fPOStyle", "fSupplyID", "items", "fDeliveryCode", "fWLCompany"],
+    properties: ["id", "supplier", "externalCode", "code", "contractNum", "customer", "businessType", "from", "to", "operationType", "createdBy", "biller", "fFManager", "fSManager", "fUse", "fPlanSn", "fPOStyle", "fSupplyID", "items", "fDeliveryCode", "fWLCompany"],
   });
 
   if (!inventoryApplication) {
@@ -83,21 +83,21 @@ async function fix(server: IRpdServer, input: CreateGoodTransferInput) {
       // transfer aggregate, sum quantity by material and lotnum and location
       const transfers = await server.queryDatabaseObject(
         `
-                SELECT mgt.material_id,
-                       mgt.lot_num,
-                       bm.code                                        AS material_code,
-                       bm.external_code                               AS material_external_code,
-                       mgt.lot_id,
-                       bu.external_code                               AS unit_external_code,
-                       SUM(mgt.quantity)                              AS quantity
-                FROM mom_good_transfers mgt
-                       inner join base_materials bm on mgt.material_id = bm.id
-                       left join base_locations tbl ON mgt.to_location_id = tbl.id
-                       left join base_locations fbl ON mgt.from_location_id = fbl.id
-                       inner join base_units bu on bm.default_unit_id = bu.id
-                WHERE operation_id = $1
-                GROUP BY mgt.material_id, bm.code, bm.external_code, mgt.lot_num, mgt.lot_id, bu.external_code;
-              `,
+          SELECT mgt.material_id,
+                 mgt.lot_num,
+                 bm.code           AS material_code,
+                 bm.external_code  AS material_external_code,
+                 mgt.lot_id,
+                 bu.external_code  AS unit_external_code,
+                 SUM(mgt.quantity) AS quantity
+          FROM mom_good_transfers mgt
+                 inner join base_materials bm on mgt.material_id = bm.id
+                 left join base_locations tbl ON mgt.to_location_id = tbl.id
+                 left join base_locations fbl ON mgt.from_location_id = fbl.id
+                 inner join base_units bu on bm.default_unit_id = bu.id
+          WHERE operation_id = $1
+          GROUP BY mgt.material_id, bm.code, bm.external_code, mgt.lot_num, mgt.lot_id, bu.external_code;
+        `,
         [input.operationId]
       );
 
@@ -221,7 +221,7 @@ async function fix(server: IRpdServer, input: CreateGoodTransferInput) {
                       // FDCStockID: warehouseId,
                       FFManagerID: inventoryApplication?.fFManager?.externalCode || inventoryApplication?.createdBy?.externalCode,
                       FSManagerID: inventoryApplication?.fSManager?.externalCode || inventoryApplication?.createdBy?.externalCode,
-                      FBillerID: inventoryApplication?.createdBy?.externalUserCode,
+                      FBillerID: inventoryApplication?.biller?.externalUserCode,
                       FTranType: 2,
                       FROB: 1,
                       FHeadSelfA0143: inspectionSheet?.inspector?.externalCode || "3286"
@@ -371,7 +371,7 @@ async function fix(server: IRpdServer, input: CreateGoodTransferInput) {
                       FDeptID: "778",
                       FFManagerID: inventoryApplication?.fFManager?.externalCode || inventoryApplication?.createdBy?.externalCode,
                       FSManagerID: inventoryApplication?.fSManager?.externalCode || inventoryApplication?.createdBy?.externalCode,
-                      FBillerID: inventoryApplication?.createdBy?.externalUserCode,
+                      FBillerID: inventoryApplication?.biller?.externalUserCode,
                       FTranType: 24,
                       FROB: -1,
                       Fuse: inventoryApplication.fUse || "",
@@ -387,7 +387,7 @@ async function fix(server: IRpdServer, input: CreateGoodTransferInput) {
         } else if (inventoryOperation.operationType === "out") {
           switch (inventoryOperation?.businessType?.name) {
             case "销售出库":
-              for (const transfer of transfers) {
+              transfers.forEach((transfer, idx) => {
                 let locationCode = '1320'
                 // check if transfer.material_code prefix is 01. if so, set locationCode to 1320, if 03. set to 1321
                 if (transfer.material_code.startsWith('01.')) {
@@ -413,14 +413,19 @@ async function fix(server: IRpdServer, input: CreateGoodTransferInput) {
                   FDCStockID: warehouseId,
                   FBatchNo: transfer.lot_num,
                   FUnitID: transfer.unit_external_code,
+                  FSourceTranType: "81",
+                  FSourceInterId: inventoryApplication?.externalCode,
                   FSourceBillNo: inventoryApplication?.code,
+                  FSourceEntryID: idx+1,
                   FOrderBillNo: inventoryApplication?.code,
+                  FOrderInterID: inventoryApplication?.externalCode,
+                  FOrderEntryID: idx+1,
                   FAuxPrice: 1,
                   Famount: transfer.quantity,
                   FPlanMode: 14036,
                   Fnote: remark,
                 });
-              }
+              });
 
               kisResponse = await kisOperationApi.createSalesDelivery(
                 {
@@ -429,7 +434,7 @@ async function fix(server: IRpdServer, input: CreateGoodTransferInput) {
                       Fdate: getNowString(),
                       FFManagerID: inventoryApplication?.fFManager?.externalCode || inventoryApplication?.createdBy?.externalCode,
                       FSManagerID: inventoryApplication?.fSManager?.externalCode || inventoryApplication?.createdBy?.externalCode,
-                      FBillerID: inventoryApplication?.createdBy?.externalUserCode,
+                      FBillerID: inventoryApplication?.biller?.externalUserCode,
                       FTranType: 21,
                       FDeptID: "781",
                       FROB: 1,
@@ -487,7 +492,7 @@ async function fix(server: IRpdServer, input: CreateGoodTransferInput) {
                       // FDCStockID: warehouseId,
                       FFManagerID: inventoryApplication?.fFManager?.externalCode || inventoryApplication?.createdBy?.externalCode,
                       FSManagerID: inventoryApplication?.fSManager?.externalCode || inventoryApplication?.createdBy?.externalCode,
-                      FBillerID: inventoryApplication?.createdBy?.externalUserCode,
+                      FBillerID: inventoryApplication?.biller?.externalUserCode,
                       FTranType: 28,
                       FPurposeID: 14190,
                       FROB: 1,
@@ -539,7 +544,7 @@ async function fix(server: IRpdServer, input: CreateGoodTransferInput) {
                       // FSCStockID: warehouseId,
                       FFManagerID: inventoryApplication?.fSManager?.externalCode || inventoryApplication?.createdBy?.externalCode,
                       FSManagerID: inventoryApplication?.fFManager?.externalCode || inventoryApplication?.createdBy?.externalCode,
-                      FBillerID: inventoryApplication?.createdBy?.externalUserCode,
+                      FBillerID: inventoryApplication?.biller?.externalUserCode,
                       FTranType: 29,
                       FDeptID: "783",
                       Fuse: inventoryApplication.fUse || "",
@@ -595,7 +600,7 @@ async function fix(server: IRpdServer, input: CreateGoodTransferInput) {
                       FDeptID: "778",
                       FFManagerID: inventoryApplication?.fFManager?.externalCode || inventoryApplication?.createdBy?.externalCode,
                       FSManagerID: inventoryApplication?.fSManager?.externalCode || inventoryApplication?.createdBy?.externalCode,
-                      FBillerID: inventoryApplication?.createdBy?.externalUserCode,
+                      FBillerID: inventoryApplication?.biller?.externalUserCode,
                       FTranType: 24,
                       FROB: 1,
                       Fuse: inventoryApplication.fUse || "",

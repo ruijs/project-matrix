@@ -21,17 +21,18 @@ export interface WarehouseEntry {
   FSecQty?: number;
   FQtyMust?: number;
   FSecCoefficient?: number;
-  FSourceEntryID?: string;
-  FSourceInterId?: number;
   FUnitID?: string;
   FDeptID?: number;
   FPlanMode:number;
   FReProduceType?: number;
   FSCStockID?: string;
   FSourceBillNo?: string;
-  FSourceBillType?: number;
+  FSourceTranType?: string;
+  FSourceInterId?: string;
+  FSourceEntryID?: number;
   FOrderBillNo?: string;
-  FOrderType?: string;
+  FOrderInterID?: string;
+  FOrderEntryID?: number;
 }
 
 export interface WarehousePayload {
