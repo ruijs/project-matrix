@@ -4,7 +4,7 @@ import type {
   MomGood,
   MomGoodTransfer,
   MomInspectionMeasurement,
-  MomInventoryApplicationItem,
+  MomInventoryApplicationItem, MomMaterialLotInventoryBalance,
 } from "~/_definitions/meta/entity-types";
 import {EntityFilterOptions} from "@ruiapp/rapid-extension/src/types/rapid-entity-types";
 
@@ -59,8 +59,7 @@ async function exportGoodsExcel(server: IRpdServer, input: ExportExcelInput) {
   const rows = goodTransfers.map(flattenGoods);
 
   return createExcelSheet(rows, [
-    "物料编码", "物料名称", "物料规格", "物料类型", "批号", "托盘号", "数量", "生产日期", "有效期",
-    "状态", "仓库", "库位", "合格状态"
+    "物料编码", "物料名称", "物料规格", "物料类型", "批号", "数量"
   ]);
 }
 
@@ -100,7 +99,7 @@ async function exportApplicationExcel(server: IRpdServer, input: ExportExcelInpu
 // Fetching Functions
 
 async function fetchGoods(server: IRpdServer, input: ExportExcelInput) {
-  let filters: EntityFilterOptions[] = [{ operator: "ne", field: "state", value: "pending"}];
+  let filters: EntityFilterOptions[] = [{ operator: "gt", field: "onHandQuantity", value: 0}];
 
   if (input.createdAtFrom) {
     filters.push({ operator: "gte", field: "createdAt", value: input.createdAtFrom });
@@ -109,10 +108,10 @@ async function fetchGoods(server: IRpdServer, input: ExportExcelInput) {
     filters.push({ operator: "lte", field: "createdAt", value: input.createdAtTo });
   }
 
-  return server.getEntityManager<MomGood>("mom_good").findEntities({
+  return server.getEntityManager<MomMaterialLotInventoryBalance>("mom_good").findEntities({
     filters: filters,
     properties: [
-      "id","material","lotNum","binNum","quantity","unit","state","warehouse","location","lot","manufactureDate","validityDate","createdAt"
+      "id","material","lotNum","unit","quantity","lot"
     ],
     relations: {
       material: {
@@ -243,21 +242,14 @@ async function fetchApplicationItems(server: IRpdServer, input: ExportExcelInput
 }
 
 // Data Flattening Functions
-function flattenGoods(good: MomGood) {
+function flattenGoods(good: MomMaterialLotInventoryBalance) {
   return {
     materialCode: `${ good.material?.code }`,
     materialName: `${ good.material?.name }`,
     materialSpecification: `${ good.material?.specification }`,
     materialCategory: `${ good.material?.category?.name }`,
     lotNum: good.lotNum,
-    binNum: good.binNum,
-    quantity: good.quantity,
-    manufactureDate: good.manufactureDate,
-    validityDate: good.validityDate,
-    state: mapGoodState(good.state),
-    warehouse: good.warehouse?.name,
-    location: good.location?.name,
-    qualificationState: mapQualificationState(good.lot?.qualificationState),
+    quantity: good.onHandQuantity,
   };
 }
 

@@ -1312,6 +1312,7 @@ const entityFieldCodes = {
     'supplier',
     'customer',
     'externalCode',
+    'externalId',
     'shop',
     'department',
     'finishedMaterial',

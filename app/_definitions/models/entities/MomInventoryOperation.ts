@@ -129,6 +129,11 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
       type: "text",
     },
     {
+      code: "externalId",
+      name: "外部ID",
+      type: "text",
+    },
+    {
       code: "shop",
       name: "车间",
       type: "text",
