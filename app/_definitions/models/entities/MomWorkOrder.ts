@@ -21,7 +21,7 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
             segments: [
               {
                 type: "literal",
-                content: "W"
+                content: "W",
               },
               {
                 type: "year",
@@ -78,7 +78,7 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
             segments: [
               {
                 type: "literal",
-                content: "LOT-"
+                content: "LOT-",
               },
               {
                 type: "year",
@@ -168,7 +168,7 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
                   },
                   approvalResultVarName: "approvalResult",
                   groupDecisionPolicy: "everyone",
-                }
+                },
               },
               {
                 nodeId: "updateApprovalState",
@@ -176,23 +176,23 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
                 nodeTitle: "更新审批状态",
                 transfers: [
                   {
-                    "operation": "done",
-                    "nextNodeId": "end"
-                  }
+                    operation: "done",
+                    nextNodeId: "end",
+                  },
                 ],
                 activityType: "updateEntity",
                 activityConfig: {
-                  "$exps": {
-                    "entitySingularCode": "$processInstance.entityCode",
-                    "entityId": "$processInstance.entityId",
+                  $exps: {
+                    entitySingularCode: "$processInstance.entityCode",
+                    entityId: "$processInstance.entityId",
                     "entityToSave.state": "$processInstance.variables.approvalResult",
                   },
-                }
+                },
               },
               {
                 nodeId: "end",
                 nodeType: "endEvent",
-                nodeTitle: "结束"
+                nodeTitle: "结束",
               },
             ],
           },
@@ -249,9 +249,8 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
                   reopenOrder: "assigning",
                 },
               },
-            }
-          }
-
+            },
+          },
         } satisfies PropertyStateMachineConfig,
       },
     },
@@ -289,9 +288,8 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
                   reopenOrder: "processing",
                 },
               },
-            }
-          }
-
+            },
+          },
         } satisfies PropertyStateMachineConfig,
       },
     },
@@ -358,6 +356,44 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
       linkTableName: "mom_work_order_processes",
       targetIdColumnName: "process_id",
       selfIdColumnName: "task_id",
+    },
+    {
+      code: "oilMixtureRatio",
+      name: "混油比例",
+      type: "text",
+    },
+    {
+      code: "paraffinQuantity",
+      name: "石蜡油数量",
+      type: "integer",
+    },
+    {
+      code: "stirringTime",
+      name: "搅拌时间(分钟)",
+      type: "integer",
+    },
+    {
+      code: "stirringPressure",
+      name: "搅拌压力(MP)",
+      type: "integer",
+    },
+    {
+      code: "tankNumber",
+      name: "搅拌罐编号",
+      type: "text",
+    },
+    {
+      code: "unloadingVideo",
+      name: "卸油视频",
+      type: "file",
+      config: {
+        fileType: "video",
+      },
+    },
+    {
+      code: "dcsPicture",
+      name: "DCS液位重量照片",
+      type: "file",
     },
   ],
 };

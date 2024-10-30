@@ -7972,6 +7972,18 @@ export interface MomWorkFeed {
    */
   factory?: Partial<MomFactory>;
   /**
+   * 150BS数量
+   */
+  150BsQuantity?: number;
+  /**
+   * 100油数量
+   */
+  100OilQuantity?: number;
+  /**
+   * 存油罐编号
+   */
+  instoreTankNumber?: string;
+  /**
    * 创建时间
    */
   createdAt?: string;
@@ -8098,6 +8110,34 @@ export interface MomWorkOrder {
    * 工序
    */
   processes?: any;
+  /**
+   * 混油比例
+   */
+  oilMixtureRatio?: string;
+  /**
+   * 石蜡油数量
+   */
+  paraffinQuantity?: number;
+  /**
+   * 搅拌时间(分钟)
+   */
+  stirringTime?: number;
+  /**
+   * 搅拌压力(MP)
+   */
+  stirringPressure?: number;
+  /**
+   * 搅拌罐编号
+   */
+  tankNumber?: string;
+  /**
+   * 卸油视频
+   */
+  unloadingVideo?: any;
+  /**
+   * DCS液位重量照片
+   */
+  dcsPicture?: any;
   /**
    * 创建时间
    */
