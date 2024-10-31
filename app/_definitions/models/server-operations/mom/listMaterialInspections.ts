@@ -32,6 +32,43 @@ export default {
 
 async function listMaterialInspections(server: IRpdServer, input: QueryInput) {
 
+  const totalCount = await server.queryDatabaseObject(
+    `
+      with measurement_window_cte AS (select mim.sheet_id,
+                                             mic.name,
+                                             mim.quantitative_value,
+                                             mim.qualitative_value,
+                                             row_number()
+                                             over (partition by mim.sheet_id, mic.name order by mic.created_at desc) as round
+                                      from mom_inspection_measurements mim
+                                             inner join mom_inspection_characteristics mic
+                                                        on mim.characteristic_id = mic.id),
+           measurements_values_cte AS (select mim.sheet_id,
+                                              mim.name,
+                                              ARRAY_AGG(CONCAT('第', mim.round, '次', '-',
+                                                               COALESCE(mim.qualitative_value::TEXT,
+                                                                        mim.quantitative_value::TEXT))
+                                                        ORDER BY mim.round ASC) as values
+                                       from measurement_window_cte mim
+                                       group by sheet_id, mim.name),
+           measurements_cte AS (select mim.sheet_id,
+                                       jsonb_agg(jsonb_build_object('name', mim.name, 'value',
+                                                                    array_to_string(mim.values, ','))) as measurements
+                                from measurements_values_cte mim
+                                group by sheet_id)
+      SELECT count(*) as cnt
+      FROM mom_inspection_sheets mis
+             INNER JOIN base_materials bm ON mis.material_id = bm.id
+             INNER JOIN base_material_categories bmc ON get_root_category_id(bm.category_id) = bmc.id
+             LEFT JOIN mom_good_transfers mgt
+                       ON mis.inventory_operation_id = mgt.operation_id and mgt.lot_num = mis.lot_num
+             LEFT JOIN oc_users ou ON mis.inspector_id = ou.id
+             INNER JOIN base_lots bl ON mis.lot_id = bl.id
+             INNER JOIN measurements_cte mc ON mis.id = mc.sheet_id
+      WHERE bmc.name = '成品';
+    `,
+  );
+
   const results = await server.queryDatabaseObject(
     `
       with measurement_window_cte AS (select mim.sheet_id,
@@ -88,7 +125,7 @@ async function listMaterialInspections(server: IRpdServer, input: QueryInput) {
     [input.limit, input.offset]
   );
 
-  const outputs = results.map((item) => {
+  const items = results.map((item) => {
     return {
       id: item.id,
       inspectionDate: item.inspection_date,
@@ -108,5 +145,10 @@ async function listMaterialInspections(server: IRpdServer, input: QueryInput) {
     } as QueryOutput;
   });
 
-  return outputs;
+  return {
+    total: totalCount[0].cnt,
+    limit: input.limit,
+    offset: input.offset,
+    items: items,
+  };
 }
