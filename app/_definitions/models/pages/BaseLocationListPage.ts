@@ -41,7 +41,10 @@ const page: RapidPage = {
       $type: "sonicEntityList",
       entityCode: "BaseLocation",
       viewMode: "table",
-      virtual: true,
+      // tableProps: {
+      //   height: 800,
+      // },
+      // virtual: true,
       listActions: [
         {
           $type: "sonicToolbarNewEntityButton",
@@ -83,21 +86,22 @@ const page: RapidPage = {
         {
           type: "auto",
           code: "code",
-          width: "200px",
-        },
-        {
-          type: "auto",
-          code: "type",
-          width: "100px",
+          // width: 120,
         },
         {
           type: "auto",
           code: "name",
+          // width: 120,
+        },
+        {
+          type: "auto",
+          code: "type",
+          width: 120,
         },
         {
           type: "auto",
           code: "createdAt",
-          width: "150px",
+          width: 150,
         },
       ],
       actions: [

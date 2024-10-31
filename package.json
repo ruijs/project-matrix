@@ -40,7 +40,7 @@
     "@ruiapp/move-style": "~0.3.5",
     "@ruiapp/rapid-core": "~0.2.5",
     "@ruiapp/rapid-express": "~0.1.57",
-    "@ruiapp/rapid-extension": "~0.3.30",
+    "@ruiapp/rapid-extension": "~0.3.31",
     "@ruiapp/react-renderer": "~0.3.4",
     "@ruiapp/react-rocks": "~0.2.0",
     "@types/jest": "^29.5.12",

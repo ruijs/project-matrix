@@ -3,10 +3,12 @@ import { type Rock } from "@ruiapp/move-style";
 import { useSetState } from "ahooks";
 import { Table } from "antd";
 import dayjs from "dayjs";
-import { useEffect, useState } from "react";
+import { CSSProperties, useEffect, useState } from "react";
 import rapidApi from "~/rapidApi";
 import { sortedUniq } from "lodash";
-import { AntdVirtualTable, ClientOnlySuspense } from "@ruiapp/rapid-extension";
+import { AntdVirtualTable } from "@ruiapp/rapid-extension";
+
+const DEFAULT_LIMIT = 20;
 
 export default {
   $type: "inspectionFinishedStockList",
@@ -16,11 +18,18 @@ export default {
   propertyPanels: [],
 
   Renderer(context, props, state) {
-    const { inspectionFeedStockData, dataSource, extraColumns } = useInspectionFeedStockData();
+    const [pageNum, setPageNum] = useState<number>(1);
+
+    const { inspectionFeedStockData, dataSource, extraColumns, total, loading } = useInspectionFeedStockData();
 
     useEffect(() => {
       inspectionFeedStockData();
     }, []);
+
+    const scrollStyle: CSSProperties = {
+      overflow: "auto",
+      height: "100%",
+    };
 
     const columns = [
       {
@@ -28,14 +37,14 @@ export default {
         dataIndex: "lotNum",
         width: 160,
         fixed: "left",
-        render: (_: any) => _ || "",
+        render: (_: any) => <div style={scrollStyle}>{_ || ""}</div>,
       },
       {
         title: "产品",
         dataIndex: "materialName",
         width: 160,
         fixed: "left",
-        render: (_: any) => _ || "",
+        render: (_: any) => <div style={scrollStyle}>{_ || ""}</div>,
       },
       //   {
       //     title: "产品属性",
@@ -55,7 +64,7 @@ export default {
         dataIndex: "state",
         width: 120,
         fixed: "left",
-        render: (_: any) => _ || "",
+        render: (_: any) => <div style={scrollStyle}>{_ || ""}</div>,
       },
       {
         title: "成品检测时间",
@@ -69,7 +78,7 @@ export default {
         dataIndex: "result",
         width: 120,
         fixed: "left",
-        render: (_: any) => _ || "",
+        render: (_: any) => <div style={scrollStyle}>{_ || ""}</div>,
       },
       //   {
       //     title: "异常项目描述",
@@ -80,9 +89,9 @@ export default {
       {
         title: "备注",
         dataIndex: "remark",
-        width: 120,
+        width: 180,
         fixed: "left",
-        render: (_: any) => _ || "",
+        render: (_: any) => <div style={scrollStyle}>{_ || ""}</div>,
       },
     ];
 
@@ -90,19 +99,33 @@ export default {
       return {
         title: item,
         dataIndex: item,
-        width: 120,
-        render: (_: any) => _ || "",
+        width: 180,
+        render: (_: any) => <div style={scrollStyle}>{_ || ""}</div>,
       };
     });
 
     const tableWidth = (extraCol || []).reduce((s, col) => col.width + s, 1000);
+    const tableHeight = (dataSource?.length || 0) * 81;
 
     return (
       <div className="pm_inspection-input-sectioN">
         <div className="pm_inspection-title">成品检测数据列表：</div>
-        <ClientOnlySuspense>
-          <AntdVirtualTable scroll={{ x: tableWidth }} columns={columns.concat(extraCol) as any} dataSource={dataSource} />
-        </ClientOnlySuspense>
+        <AntdVirtualTable
+          loading={loading}
+          scroll={{ x: tableWidth, y: tableHeight || 200 }}
+          columns={columns.concat(extraCol) as any}
+          dataSource={dataSource}
+          rowHeight={80}
+          pagination={{
+            pageSize: DEFAULT_LIMIT,
+            current: pageNum,
+            total: total || 0,
+            onChange(page, pageSize) {
+              setPageNum(page);
+              inspectionFeedStockData(page);
+            },
+          }}
+        />
         {/* <Table scroll={{ x: tableWidth }} columns={columns.concat(extraCol)} dataSource={dataSource} /> */}
       </div>
     );
@@ -110,6 +133,7 @@ export default {
 } as Rock<any>;
 
 interface InspectionFeedStockData {
+  total: number;
   dataSource: any[];
   extraColumns: any[];
 }
@@ -117,11 +141,12 @@ interface InspectionFeedStockData {
 function useInspectionFeedStockData() {
   const [loading, setLoading] = useState<boolean>(false);
   const [state, setState] = useSetState<InspectionFeedStockData>({
+    total: 0,
     dataSource: [],
     extraColumns: [],
   });
 
-  const inspectionFeedStockData = async () => {
+  const inspectionFeedStockData = async (page: number = 1) => {
     if (loading) {
       return;
     }
@@ -129,9 +154,12 @@ function useInspectionFeedStockData() {
     setLoading(true);
 
     await rapidApi
-      .post("/app/listMaterialInspections", {})
+      .post("/app/listMaterialInspections", {
+        limit: DEFAULT_LIMIT,
+        offset: (page - 1) * DEFAULT_LIMIT,
+      })
       .then((res) => {
-        const data = res.data;
+        const data = res.data?.items || [];
         let obj = {} as any;
         const measurements = sortedUniq(
           data
@@ -149,6 +177,7 @@ function useInspectionFeedStockData() {
           };
         });
         setState({
+          total: res.data?.total || 0,
           dataSource: result,
           extraColumns: measurements,
         });
