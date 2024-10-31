@@ -6,6 +6,7 @@ import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import rapidApi from "~/rapidApi";
 import { sortedUniq } from "lodash";
+import { AntdVirtualTable, ClientOnlySuspense } from "@ruiapp/rapid-extension";
 
 export default {
   $type: "inspectionFinishedStockList",
@@ -99,7 +100,10 @@ export default {
     return (
       <div className="pm_inspection-input-sectioN">
         <div className="pm_inspection-title">成品检测数据列表：</div>
-        <Table scroll={{ x: tableWidth }} columns={columns.concat(extraCol)} dataSource={dataSource} />
+        <ClientOnlySuspense>
+          <AntdVirtualTable scroll={{ x: tableWidth }} columns={columns.concat(extraCol) as any} dataSource={dataSource} />
+        </ClientOnlySuspense>
+        {/* <Table scroll={{ x: tableWidth }} columns={columns.concat(extraCol)} dataSource={dataSource} /> */}
       </div>
     );
   },

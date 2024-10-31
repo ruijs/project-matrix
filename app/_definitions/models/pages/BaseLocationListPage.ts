@@ -41,6 +41,7 @@ const page: RapidPage = {
       $type: "sonicEntityList",
       entityCode: "BaseLocation",
       viewMode: "table",
+      virtual: true,
       listActions: [
         {
           $type: "sonicToolbarNewEntityButton",
