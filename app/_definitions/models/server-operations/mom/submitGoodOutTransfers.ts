@@ -146,7 +146,6 @@ async function handleGood(server: IRpdServer, ctx: RouteContext, goodId: number,
       routeContext: ctx,
       id: goodId,
       entityToSave: {
-        quantity: 0,
         state: "transferred",
       } as SaveMomGoodInput,
     });

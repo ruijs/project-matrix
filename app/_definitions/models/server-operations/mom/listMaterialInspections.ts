@@ -1,7 +1,8 @@
 import type {ActionHandlerContext, IRpdServer, ServerOperation} from "@ruiapp/rapid-core";
 
 export type QueryInput = {
-  operationId: number;
+  limit: number;
+  offset: number;
 };
 
 export type QueryOutput = {
@@ -15,6 +16,13 @@ export default {
   async handler(ctx: ActionHandlerContext) {
     const {server} = ctx;
     const input: QueryInput = ctx.input;
+
+    if (input.limit === undefined || input.limit <= 0) {
+      input.limit = 100
+    }
+    if (input.offset == undefined || input.offset < 0) {
+      input.offset = 0
+    }
 
     const transferOutputs = await listMaterialInspections(server, input);
 
@@ -75,8 +83,9 @@ async function listMaterialInspections(server: IRpdServer, input: QueryInput) {
              LEFT JOIN oc_users ou ON mis.inspector_id = ou.id
              INNER JOIN base_lots bl ON mis.lot_id = bl.id
              INNER JOIN measurements_cte mc ON mis.id = mc.sheet_id
-      WHERE bmc.name = '成品';
+      WHERE bmc.name = '成品' LIMIT $1 OFFSET $2;
     `,
+    [input.limit, input.offset]
   );
 
   const outputs = results.map((item) => {

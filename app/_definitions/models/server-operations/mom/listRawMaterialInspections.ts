@@ -1,20 +1,26 @@
 import type {ActionHandlerContext, IRpdServer, ServerOperation} from "@ruiapp/rapid-core";
 
 export type QueryInput = {
-  operationId: number;
+  limit: number;
+  offset: number;
 };
 
-export type QueryOutput = {
-
-};
+export type QueryOutput = {};
 
 
 export default {
   code: "listRawMaterialInspections",
   method: "POST",
   async handler(ctx: ActionHandlerContext) {
-    const {server} = ctx;
+    const { server } = ctx;
     const input: QueryInput = ctx.input;
+
+    if (input.limit === undefined || input.limit <= 0) {
+      input.limit = 100
+    }
+    if (input.offset == undefined || input.offset < 0) {
+      input.offset = 0
+    }
 
     const transferOutputs = await listRawMaterialInspections(server, input);
 
@@ -56,7 +62,7 @@ async function listRawMaterialInspections(server: IRpdServer, input: QueryInput)
              CASE
                WHEN mis.treatment = 'special' THEN '特采'
                WHEN mis.treatment = 'return' THEN '退货'
-               ELSE '' END                                                   AS treatment,
+               ELSE '' END                                                     AS treatment,
              bl.manufacture_date                                               AS manufacture_date,
              mgt.quantity                                                      AS quantity,
              mis.sample_count                                                  AS sample_count,
@@ -75,8 +81,9 @@ async function listRawMaterialInspections(server: IRpdServer, input: QueryInput)
              LEFT JOIN oc_users ou ON mis.inspector_id = ou.id
              INNER JOIN base_lots bl ON mis.lot_id = bl.id
              INNER JOIN measurements_cte mc ON mis.id = mc.sheet_id
-      WHERE bmc.name = '原材料';
+      WHERE bmc.name = '原材料' LIMIT $1 OFFSET $2;
     `,
+    [input.limit, input.offset]
   );
 
   const outputs = results.map((item) => {
