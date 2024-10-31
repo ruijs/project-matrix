@@ -361,27 +361,36 @@ async function fix(server: IRpdServer, input: CreateGoodTransferInput) {
                   locationCode = '1321'
                 }
 
-                entries.push({
+                if (inventoryApplication.to?.name === "外租仓库" || inventoryApplication.from?.name === "外租仓库") {
+                  locationCode = ""
+                }
+
+                let entity: any = {
                   FItemID: transfer.material_external_code,
                   FQty: transfer.quantity,
                   Fauxqty: transfer.quantity,
                   FAuxQtyMust: transfer.quantity,
-                  FDCSPID: locationCode,
                   FDCStockID: warehouseId,
                   FBatchNo: transfer.lot_num,
                   FUnitID: transfer.unit_external_code,
                   FSourceTranType: "81",
                   FSourceInterId: inventoryApplication?.externalCode,
                   FSourceBillNo: inventoryApplication?.code,
-                  FSourceEntryID: idx+1,
+                  FSourceEntryID: idx + 1,
                   FOrderBillNo: inventoryApplication?.code,
                   FOrderInterID: inventoryApplication?.externalCode,
-                  FOrderEntryID: idx+1,
+                  FOrderEntryID: idx + 1,
                   FAuxPrice: 1,
                   Famount: transfer.quantity,
                   FPlanMode: 14036,
                   Fnote: transfer.remark,
-                });
+                }
+
+                if (locationCode !== "") {
+                  entity.FDCSPID = locationCode
+                }
+
+                entries.push(entity);
               });
 
               kisResponse = await kisOperationApi.createSalesDelivery(
@@ -392,7 +401,7 @@ async function fix(server: IRpdServer, input: CreateGoodTransferInput) {
                       FFManagerID: inventoryApplication?.fFManager?.externalCode || inventoryApplication?.createdBy?.externalCode,
                       FSManagerID: inventoryApplication?.fSManager?.externalCode || inventoryApplication?.createdBy?.externalCode,
                       FBillerID: inventoryApplication?.biller?.externalUserCode,
-                      FEmpID:inventoryApplication?.createdBy?.externalCode,
+                      FEmpID: inventoryApplication?.applicant?.externalCode,
                       FTranType: 21,
                       FDeptID: "781",
                       FROB: 1,
@@ -461,12 +470,15 @@ async function fix(server: IRpdServer, input: CreateGoodTransferInput) {
                   locationCode = '1321'
                 }
 
-                entries.push({
+                if (inventoryApplication.to?.name === "外租仓库" || inventoryApplication.from?.name === "外租仓库") {
+                  locationCode = ""
+                }
+
+                let entity: any = {
                   FItemID: transfer.material_external_code,
                   FQty: transfer.quantity,
                   Fauxqty: transfer.quantity,
                   FAuxQtyMust: transfer.quantity,
-                  FDCSPID: locationCode,
                   FDCStockID: warehouseId,
                   FBatchNo: transfer.lot_num,
                   FUnitID: transfer.unit_external_code,
@@ -475,7 +487,13 @@ async function fix(server: IRpdServer, input: CreateGoodTransferInput) {
                   Famount: transfer.quantity,
                   FPlanMode: 14036,
                   Fnote: transfer.remark,
-                });
+                }
+
+                if (locationCode !== "") {
+                  entity.FDCSPID = locationCode
+                }
+
+                entries.push(entity);
               }
 
               kisResponse = await kisOperationApi.createMiscellaneousDelivery(
