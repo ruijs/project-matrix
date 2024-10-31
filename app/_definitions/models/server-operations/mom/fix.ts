@@ -83,22 +83,19 @@ async function fix(server: IRpdServer, input: CreateGoodTransferInput) {
       // transfer aggregate, sum quantity by material and lotnum and location
       const transfers = await server.queryDatabaseObject(
         `
-          SELECT mgt.material_id,
-                 mgt.lot_num,
-                 bm.code           AS material_code,
-                 bm.external_code  AS material_external_code,
-                 mgt.lot_id,
-                 bu.external_code  AS unit_external_code,
-                 SUM(mgt.quantity) AS quantity
-          FROM mom_good_transfers mgt
-                 inner join base_materials bm on mgt.material_id = bm.id
-                 left join base_locations tbl ON mgt.to_location_id = tbl.id
-                 left join base_locations fbl ON mgt.from_location_id = fbl.id
+          SELECT mai.material_id,
+                 mai.lot_num,
+                 bm.code             AS material_code,
+                 bm.external_code    AS material_external_code,
+                 bu.external_code    AS unit_external_code,
+                 mai.accept_quantity as quantity,
+                 mai.remark
+          FROM mom_inventory_application_items mai
+                 inner join base_materials bm on mai.material_id = bm.id
                  inner join base_units bu on bm.default_unit_id = bu.id
-          WHERE operation_id = $1
-          GROUP BY mgt.material_id, bm.code, bm.external_code, mgt.lot_num, mgt.lot_id, bu.external_code;
+          WHERE mai.operation_id = $1
         `,
-        [input.operationId]
+        [inventoryApplication.id]
       );
 
       if (inventoryOperation.approvalState === "approved") {
@@ -132,14 +129,6 @@ async function fix(server: IRpdServer, input: CreateGoodTransferInput) {
                   locationCode = '1321'
                 }
 
-                let remark = ""
-                for (let item of inventoryApplication.items) {
-                  if (item?.lotNum === transfer.lot_num) {
-                    remark = item?.remark;
-                    break;
-                  }
-                }
-
                 entries.push({
                   FItemID: transfer.material_external_code,
                   FQty: transfer.quantity,
@@ -154,7 +143,7 @@ async function fix(server: IRpdServer, input: CreateGoodTransferInput) {
                   // FSecCoefficient: 1,
                   // FAuxPrice: 1,
                   FPlanMode: 14036,
-                  Fnote: remark,
+                  Fnote: transfer.remark,
                 });
               }
 
@@ -187,14 +176,6 @@ async function fix(server: IRpdServer, input: CreateGoodTransferInput) {
                   locationCode = '1321'
                 }
 
-                let remark = ""
-                for (let item of inventoryApplication.items) {
-                  if (item?.lotNum === transfer.lot_num) {
-                    remark = item?.remark;
-                    break;
-                  }
-                }
-
                 entries.push({
                   FItemID: transfer.material_external_code,
                   FQty: transfer.quantity,
@@ -208,7 +189,7 @@ async function fix(server: IRpdServer, input: CreateGoodTransferInput) {
                   FAuxPrice: 1,
                   Famount: transfer.quantity,
                   FPlanMode: 14036,
-                  Fnote: remark,
+                  Fnote: transfer.remark,
                 });
               }
 
@@ -283,20 +264,12 @@ async function fix(server: IRpdServer, input: CreateGoodTransferInput) {
                   locationCode = '1321'
                 }
 
-                let remark = ""
-                for (let item of inventoryApplication.items) {
-                  if (item?.lotNum === transfer.lot_num) {
-                    remark = item?.remark;
-                    break;
-                  }
-                }
-
                 entries.push({
                   FItemID: transfer.material_external_code,
                   FQty: transfer.quantity,
                   Fauxqty: transfer.quantity,
                   FAuxQtyMust: transfer.quantity,
-                  FDCSPID: locationCode,
+                  // FDCSPID: locationCode,
                   FDCStockID: warehouseId,
                   FBatchNo: transfer.lot_num,
                   FUnitID: transfer.unit_external_code,
@@ -304,7 +277,7 @@ async function fix(server: IRpdServer, input: CreateGoodTransferInput) {
                   FAuxPrice: 1,
                   Famount: transfer.quantity,
                   FPlanMode: 14036,
-                  Fnote: remark,
+                  Fnote: transfer.remark,
                 });
               }
 
@@ -335,14 +308,6 @@ async function fix(server: IRpdServer, input: CreateGoodTransferInput) {
                   locationCode = '1321'
                 }
 
-                let remark = ""
-                for (let item of inventoryApplication.items) {
-                  if (item?.lotNum === transfer.lot_num) {
-                    remark = item?.remark;
-                    break;
-                  }
-                }
-
                 entries.push({
                   FItemID: transfer.material_external_code,
                   FQty: transfer.quantity,
@@ -357,7 +322,7 @@ async function fix(server: IRpdServer, input: CreateGoodTransferInput) {
                   Famount: transfer.quantity,
                   FPlanMode: 14036,
                   FReProduceType: 1059,
-                  Fnote: remark,
+                  Fnote: transfer.remark,
                 });
               }
 
@@ -396,14 +361,6 @@ async function fix(server: IRpdServer, input: CreateGoodTransferInput) {
                   locationCode = '1321'
                 }
 
-                let remark = ""
-                for (let item of inventoryApplication.items) {
-                  if (item?.lotNum === transfer.lot_num) {
-                    remark = item?.remark;
-                    break;
-                  }
-                }
-
                 entries.push({
                   FItemID: transfer.material_external_code,
                   FQty: transfer.quantity,
@@ -423,7 +380,7 @@ async function fix(server: IRpdServer, input: CreateGoodTransferInput) {
                   FAuxPrice: 1,
                   Famount: transfer.quantity,
                   FPlanMode: 14036,
-                  Fnote: remark,
+                  Fnote: transfer.remark,
                 });
               });
 
@@ -435,6 +392,7 @@ async function fix(server: IRpdServer, input: CreateGoodTransferInput) {
                       FFManagerID: inventoryApplication?.fFManager?.externalCode || inventoryApplication?.createdBy?.externalCode,
                       FSManagerID: inventoryApplication?.fSManager?.externalCode || inventoryApplication?.createdBy?.externalCode,
                       FBillerID: inventoryApplication?.biller?.externalUserCode,
+                      FEmpID:inventoryApplication?.createdBy?.externalCode,
                       FTranType: 21,
                       FDeptID: "781",
                       FROB: 1,
@@ -459,14 +417,6 @@ async function fix(server: IRpdServer, input: CreateGoodTransferInput) {
                   locationCode = '1321'
                 }
 
-                let remark = ""
-                for (let item of inventoryApplication.items) {
-                  if (item?.lotNum === transfer.lot_num) {
-                    remark = item?.remark;
-                    break;
-                  }
-                }
-
                 entries.push({
                   FItemID: transfer.material_external_code,
                   FQty: transfer.quantity,
@@ -480,7 +430,7 @@ async function fix(server: IRpdServer, input: CreateGoodTransferInput) {
                   FAuxPrice: 1,
                   Famount: transfer.quantity,
                   FPlanMode: 14036,
-                  Fnote: remark,
+                  Fnote: transfer.remark,
                 });
               }
 
@@ -511,14 +461,6 @@ async function fix(server: IRpdServer, input: CreateGoodTransferInput) {
                   locationCode = '1321'
                 }
 
-                let remark = ""
-                for (let item of inventoryApplication.items) {
-                  if (item?.lotNum === transfer.lot_num) {
-                    remark = item?.remark;
-                    break;
-                  }
-                }
-
                 entries.push({
                   FItemID: transfer.material_external_code,
                   FQty: transfer.quantity,
@@ -532,7 +474,7 @@ async function fix(server: IRpdServer, input: CreateGoodTransferInput) {
                   FAuxPrice: 1,
                   Famount: transfer.quantity,
                   FPlanMode: 14036,
-                  Fnote: remark,
+                  Fnote: transfer.remark,
                 });
               }
 
@@ -564,14 +506,6 @@ async function fix(server: IRpdServer, input: CreateGoodTransferInput) {
                   locationCode = '1321'
                 }
 
-                let remark = ""
-                for (let item of inventoryApplication.items) {
-                  if (item?.lotNum === transfer.lot_num) {
-                    remark = item?.remark;
-                    break;
-                  }
-                }
-
                 entries.push({
                   FItemID: transfer.material_external_code,
                   FQty: transfer.quantity,
@@ -586,7 +520,7 @@ async function fix(server: IRpdServer, input: CreateGoodTransferInput) {
                   Famount: transfer.quantity,
                   FPlanMode: 14036,
                   FReProduceType: 1059,
-                  Fnote: remark,
+                  Fnote: transfer.remark,
                 });
               }
 

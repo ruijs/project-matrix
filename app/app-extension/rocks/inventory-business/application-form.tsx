@@ -278,6 +278,12 @@ export default {
                         value: ["in", "out"],
                         itemType: "text",
                       },
+                      {
+                        field: "name",
+                        operator: "notIn",
+                        value: ["入库调整单", "出库调整单"],
+                        itemType: "text",
+                      },
                     ],
                   },
                 },
