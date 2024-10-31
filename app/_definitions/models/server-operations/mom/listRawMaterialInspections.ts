@@ -54,25 +54,7 @@ async function listRawMaterialInspections(server: IRpdServer, input: QueryInput)
                                                                     array_to_string(mim.values, ','))) as measurements
                                 from measurements_values_cte mim
                                 group by sheet_id)
-      SELECT mis.id,
-             DATE(mis.created_at)                                              AS inspection_date,
-             concat(bm.code, '-', bm.code, '-', bm.specification)              AS material_name,
-             mis.lot_num                                                       AS lot_num,
-             CASE WHEN mis.result = 'qualified' THEN '合格' ELSE '不合格' END  AS result,
-             CASE
-               WHEN mis.treatment = 'special' THEN '特采'
-               WHEN mis.treatment = 'return' THEN '退货'
-               ELSE '' END                                                     AS treatment,
-             bl.manufacture_date                                               AS manufacture_date,
-             mgt.quantity                                                      AS quantity,
-             mis.sample_count                                                  AS sample_count,
-             CASE WHEN mis.state = 'inspected' THEN '已完成' ELSE '检验中' END AS state,
-             ou.name                                                           AS inspector,
-             to_char(mis.inspected_at, 'YYYY-MM-DD')                           AS inspected_date,
-             to_char(mis.inspected_at, 'HH24:MI:SS')                           AS inspected_time,
-             mis.inspected_at,
-             mis.remark                                                        AS remark,
-             mc.measurements
+      SELECT count(*) as cnt
       FROM mom_inspection_sheets mis
              INNER JOIN base_materials bm ON mis.material_id = bm.id
              INNER JOIN base_material_categories bmc ON get_root_category_id(bm.category_id) = bmc.id
