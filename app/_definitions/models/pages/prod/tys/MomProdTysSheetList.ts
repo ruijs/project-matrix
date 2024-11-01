@@ -442,8 +442,7 @@ const page: RapidPage = {
         ],
       },
       $exps: {
-        "newForm.fixedFields.assignmentState": "unassigned",
-        "newForm.fixedFields.executionState": "processing",
+        "newForm.defaultFields.executionState": "processing",
       },
     },
   ],
