@@ -296,6 +296,7 @@ const page: RapidPage = {
         {
           type: "auto",
           code: "factory",
+          fixed: "left",
           width: "100px",
         },
         {

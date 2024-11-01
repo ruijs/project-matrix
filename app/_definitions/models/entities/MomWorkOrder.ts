@@ -364,7 +364,7 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
     },
     {
       code: "paraffinQuantity",
-      name: "石蜡油数量",
+      name: "石蜡油数量(kg)",
       type: "integer",
     },
     {
