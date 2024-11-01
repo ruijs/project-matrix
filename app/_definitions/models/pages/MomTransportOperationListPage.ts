@@ -37,7 +37,7 @@ const formConfig: Partial<RapidEntityFormConfig> = {
     // },
   ],
   defaultFormFields: {
-    state: "pending",
+    state: "processing",
     applicant: "",
     approvalState: "uninitiated",
   },

@@ -8115,7 +8115,7 @@ export interface MomWorkOrder {
    */
   oilMixtureRatio?: string;
   /**
-   * 石蜡油数量
+   * 石蜡油数量(kg)
    */
   paraffinQuantity?: number;
   /**
