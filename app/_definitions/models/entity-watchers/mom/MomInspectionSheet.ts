@@ -89,7 +89,7 @@ export default [
       });
 
 
-      if (operationTarget?.gcmsReportFile && operationTarget?.material?.name === "石蜡油") {
+      if (operationTarget?.gcmsReportFile && operationTarget?.material?.name === "石蜡油" && operationTarget?.gcmsReportFile.key.endsWith(".xlsx")) {
         const items = await readGCMSFile(server, operationTarget?.gcmsReportFile?.key)
         if (items) {
           const gcmsItems = await server.getEntityManager<HuateGCMS>("huate_gcms").findEntities({
@@ -169,7 +169,7 @@ export default [
         }
       }
 
-      if (changes.hasOwnProperty('gcmsReportFile') && operationTarget?.material?.name === "石蜡油") {
+      if (changes.hasOwnProperty('gcmsReportFile') && operationTarget?.material?.name === "石蜡油" && changes?.gcmsReportFile.key.endsWith(".xlsx")) {
         const items = await readGCMSFile(server, after?.gcmsReportFile?.key)
         if (items) {
           const gcmsItems = await server.getEntityManager<HuateGCMS>("huate_gcms").findEntities({
@@ -228,7 +228,7 @@ export default [
                 },
               },
               sheet: {
-                properties: ["id", "code", "lotNum", "material", "rule", "result"],
+                properties: ["id", "code", "lotNum", "material", "rule", "result", "reportFile", "gcmsReportFile", "invoiceReportFile", "normalReportFile", "qualityReportFile"],
                 relations: {
                   rule: {
                     properties: ["id", "name", "category"],
@@ -309,37 +309,43 @@ export default [
 
       //   TODO: 处理GCMS文件
 
-      if (changes.hasOwnProperty('gcmsReportFile')) {
-        const items = await readGCMSFile(server, after.gcmsReportFile.key)
-        if (items) {
-          const gcmsItems = await server.getEntityManager<HuateGCMS>("huate_gcms").findEntities({
-            filters: [{
-              operator: "eq",
-              field: "enabled",
-              value: true
-            }]
-          });
-          if (gcmsItems && gcmsItems.length > 0) {
-            //   check if all items in gcmsItems
+      try {
+        if (changes.hasOwnProperty('gcmsReportFile') && changes?.gcmsReportFile.key.endsWith(".xlsx")) {
+          const items = await readGCMSFile(server, after.gcmsReportFile.key)
+          if (items) {
+            const gcmsItems = await server.getEntityManager<HuateGCMS>("huate_gcms").findEntities({
+              filters: [{
+                operator: "eq",
+                field: "enabled",
+                value: true
+              }]
+            });
+            if (gcmsItems && gcmsItems.length > 0) {
+              //   check if all items in gcmsItems
 
-            for (const item of items) {
-              const gcmsItem = gcmsItems.find((gcmsItem) => {
-                return item === gcmsItem.code
-              })
+              for (const item of items) {
+                const gcmsItem = gcmsItems.find((gcmsItem) => {
+                  return item === gcmsItem.code
+                })
 
-              await server.getEntityManager<HuateGCMS>("huate_gcms").createEntity({
-                entity: {
-                  material: after?.material?.id || after?.material || after?.material_id,
-                  momInspectionSheetId: after.id,
-                  code: item,
-                  enabled: !!gcmsItem,
-                  needInspect: !gcmsItem,
-                } as SaveHuateGCMSInput
-              })
+                await server.getEntityManager<HuateGCMS>("huate_gcms").createEntity({
+                  entity: {
+                    material: after?.material?.id || after?.material || after?.material_id,
+                    momInspectionSheetId: after.id,
+                    code: item,
+                    enabled: !!gcmsItem,
+                    needInspect: !gcmsItem,
+                  } as SaveHuateGCMSInput
+                })
+              }
             }
           }
         }
+      } catch (error) {
+        console.error(error)
       }
+
+
 
     }
   },

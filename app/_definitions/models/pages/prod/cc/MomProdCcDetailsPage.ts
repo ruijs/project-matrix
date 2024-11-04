@@ -102,6 +102,10 @@ const reportFormConfig: Partial<RapidEntityFormRockConfig> = {
         ],
       },
     },
+    {
+      type: "auto",
+      code: "lotNum",
+    },
   ],
   defaultFormFields: {
     unqualifiedQuantity: 0,
@@ -418,6 +422,16 @@ const page: RapidPage = {
                   code: "createdAt",
                   title: "报工时间",
                   width: "150px",
+                },
+                {
+                  type: "auto",
+                  code: "lotNum",
+                  width: "100px",
+                },
+                {
+                  type: "auto",
+                  code: "serialNum",
+                  width: "100px",
                 },
                 {
                   type: "auto",

@@ -1,11 +1,18 @@
 import type {ActionHandlerContext, ServerOperation} from "@ruiapp/rapid-core";
-import type {MomRouteProcessParameterMeasurement, MomWorkReport, MomWorkTask} from "~/_definitions/meta/entity-types";
+import type {
+  MomRouteProcessParameter,
+  MomRouteProcessParameterMeasurement,
+  MomWorkReport,
+  MomWorkTask,
+  SaveMomRouteProcessParameterMeasurementInput
+} from "~/_definitions/meta/entity-types";
 import dayjs from "dayjs";
+import IotDBHelper, {ParseDeviceData, ParseLastDeviceData} from "~/sdk/iotdb/helper";
 
 export type CallbackInput = {
   machine: any,
-  runtimeFields: any
   activityFields: any
+  runtimeFields: any
   attributeFields: any
 };
 
@@ -17,16 +24,18 @@ export default {
     const input: CallbackInput = ctx.input;
 
 
-    if (input.runtimeFields.workTask) {
+    if (input.activityFields.workTask) {
       const workTask = await server.getEntityManager<MomWorkTask>("mom_work_task").findEntity({
         filters: [
-          { operator: "eq", field: "code", value: input.runtimeFields.workTask },
+          { operator: "eq", field: "code", value: input.activityFields.workTask },
         ],
         properties: ["id", "workOrder", "process", "material", "equipment"],
       })
 
-      if (workTask && input.runtimeFields.state !== "running") {
-        const workReport = await server.getEntityManager<MomWorkReport>("mom_work_report").findEntity({
+      const duration = input.activityFields.duration / 1000
+
+      if (workTask && input.activityFields.state !== "running") {
+        let workReport = await server.getEntityManager<MomWorkReport>("mom_work_report").findEntity({
           filters: [
             { operator: "eq", field: "workOrder", value: workTask.workOrder },
             { operator: "eq", field: "process", value: workTask.process },
@@ -40,37 +49,98 @@ export default {
           await server.getEntityManager<MomWorkReport>("mom_work_report").updateEntityById({
             id: workReport.id,
             entityToSave: {
-              actualStartTime: dayjs(input.runtimeFields.startTime).format("YYYY-MM-DD HH:mm:ss"),
-              actualFinishTime: dayjs(input.runtimeFields.endTime).format("YYYY-MM-DD HH:mm:ss"),
-              duration: input.runtimeFields.duration,
+              actualStartTime: dayjs(input.activityFields.startTime).format("YYYY-MM-DD HH:mm:ss"),
+              actualFinishTime: dayjs(input.activityFields.endTime).format("YYYY-MM-DD HH:mm:ss"),
+              duration: duration,
               state: "completed",
             }
           })
         } else {
-          await server.getEntityManager<MomWorkReport>("mom_work_report").createEntity({
+          workReport = await server.getEntityManager<MomWorkReport>("mom_work_report").createEntity({
             entity: {
               workOrder: workTask.workOrder,
               workTask: { id: workTask.id },
               process: workTask.process,
               equipment: workTask.equipment,
               material: workTask.material,
-              actualStartTime: dayjs(input.runtimeFields.startTime).format("YYYY-MM-DD HH:mm:ss"),
-              actualFinishTime: dayjs(input.runtimeFields.endTime).format("YYYY-MM-DD HH:mm:ss"),
-              duration: input.runtimeFields.duration,
+              actualStartTime: dayjs(input.activityFields.startTime).format("YYYY-MM-DD HH:mm:ss"),
+              actualFinishTime: dayjs(input.activityFields.endTime).format("YYYY-MM-DD HH:mm:ss"),
+              duration: duration,
               state: "completed",
             }
           })
         }
-      }
 
-      for (const attribute of input.attributeFields) {
-        // TODO: 处理数采数据
+        const iotDBSDK = await new IotDBHelper(server).NewAPIClient();
 
-        // await server.getEntityManager<MomRouteProcessParameterMeasurement>("mom_route_process_parameter_measurement").createEntity({})
+        let queryPayload = {
+          sql: `select last * from root.huate.devices.reports.${ workTask.equipment?.externalCode } where time > ${ input.activityFields.startTime } and time < ${ input.activityFields.endTime } ;`,
+        }
+
+        const tsResponse = await iotDBSDK.PostResourceRequest("http://192.168.1.10:6670/rest/v2/query", queryPayload)
+        const data = ParseLastDeviceData(tsResponse.data);
+
+        for (let deviceCode in data) {
+
+          const deviceMetricData = data[deviceCode];
+          for (let metricCode in deviceMetricData) {
+            const metricData = deviceMetricData[metricCode];
+            for (let i = 0; i < metricData.length; i++) {
+              const item = metricData[i];
+              const latestTimestamp = item.timestamp;
+              const latestValue = item.value;
+              // isOutSpecification
+              const metricParameter = await server.getEntityManager<MomRouteProcessParameter>("mom_route_process_parameter").findEntity({
+                filters: [
+                  {
+                    operator: "exists",
+                    field: "dimension",
+                    filters: [{ operator: "eq", field: "code", value: metricCode }]
+                  },
+                  { operator: "eq", field: "process", value: workTask.process?.id },
+                  { operator: "eq", field: "equipment", value: workTask.equipment?.id },
+                ],
+                properties: ["id", "upperLimit", "lowerLimit", "nominal", "dimension"],
+              })
+
+
+              if (!metricParameter) {
+                continue
+              }
+
+              if (!latestValue) {
+                continue
+              }
+
+              let isOutSpecification = false;
+              if (latestValue < (metricParameter?.lowerLimit || 0) + (metricParameter.nominal || 0) || latestValue > (metricParameter?.upperLimit || 0) + (metricParameter.nominal || 0)) {
+                isOutSpecification = true
+              }
+
+              await server.getEntityManager<MomRouteProcessParameterMeasurement>("mom_route_process_parameter_measurement").createEntity({
+                entity: {
+                  workOrder: workTask.workOrder?.id,
+                  workReport: workReport.id,
+                  process: workTask.process?.id,
+                  equipment: workTask.equipment?.id,
+                  factory: workTask.factory?.id,
+                  value: latestValue,
+                  dimension: metricParameter?.dimension?.id,
+                  upperLimit: metricParameter?.upperLimit,
+                  lowerLimit: metricParameter?.lowerLimit,
+                  nominal: metricParameter?.nominal,
+                  isOutSpecification: isOutSpecification,
+                  createdAt: latestTimestamp,
+                } as SaveMomRouteProcessParameterMeasurementInput
+              })
+            }
+          }
+        }
       }
 
     }
 
+    ctx.output = {}
 
   },
 } satisfies ServerOperation;

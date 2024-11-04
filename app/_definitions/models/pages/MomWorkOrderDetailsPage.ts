@@ -518,6 +518,10 @@ const page: RapidPage = {
                 },
                 {
                   type: "auto",
+                  code: "lotNum",
+                },
+                {
+                  type: "auto",
                   code: "serialNum",
                 },
                 {

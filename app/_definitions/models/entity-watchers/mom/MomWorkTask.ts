@@ -1,6 +1,7 @@
 import type {EntityWatcher, EntityWatchHandlerContext} from "@ruiapp/rapid-core";
 import type {MomWorkOrder, MomWorkTask, SaveMomWorkOrderInput} from "~/_definitions/meta/entity-types";
 import dayjs from "dayjs";
+import IotHelper from "~/sdk/iot/helper";
 
 export default [
   {
@@ -103,14 +104,16 @@ export default [
         return;
       }
 
-      // // TODO: 上报设备当前任务
-      // let deviceTaskPayload = {
-      //   workTask: workTask.code,
-      // };
-      //
-      // const iotSDK = await new IotHelper(server).NewAPIClient();
-      // await iotSDK.PutResourceRequest(`http://192.168.1.60:3020/api/machines/${ workTask?.equipment?.id }/fields`, deviceTaskPayload);
 
+      if(workTask?.equipment?.externalId) {
+        let deviceTaskPayload = {
+          workTask: workTask.code,
+          state: "running",
+        };
+
+        const iotSDK = await new IotHelper(server).NewAPIClient();
+        await iotSDK.PutResourceRequest(`http://10.0.0.3:3020/api/machines/${ workTask?.equipment?.externalId }/fields`, deviceTaskPayload);
+      }
     }
   },
   {
@@ -127,7 +130,7 @@ export default [
           filters: [
             { operator: "eq", field: "id", value: before.id },
           ],
-          properties: ["id", "workOrder"],
+          properties: ["id", "code", "workOrder"],
           relations: {
             workOrder: {
               properties: ["id", "processes"],
@@ -155,16 +158,15 @@ export default [
         }
 
 
-        // TODO: 上报设备当前任务
-        // let deviceTaskPayload = {
-        //   workOrder: after.code,
-        //   equipment: after.equipment.code,
-        //   process: after.process.code,
-        //   material: after.material.code,
-        // };
-        //
-        // const iotSDK = await new IotHelper(server).NewAPIClient();
-        // await iotSDK.PostResourceRequest("http://127.0.0.1:8080/api/v1/device/task", deviceTaskPayload);
+        if(workTask?.equipment?.externalId) {
+          let deviceTaskPayload = {
+            workTask: "",
+            state: "stopped",
+          };
+
+          const iotSDK = await new IotHelper(server).NewAPIClient();
+          await iotSDK.PutResourceRequest(`http://10.0.0.3:3020/api/machines/${ workTask?.equipment?.externalId }/fields`, deviceTaskPayload);
+        }
       }
     }
   },

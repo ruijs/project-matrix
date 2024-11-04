@@ -186,70 +186,70 @@ const page: RapidPage = {
       $type: "sectionSeparator",
       showLine: false,
     },
-    {
-      $type: "rapidToolbar",
-      items: [
-        {
-          $type: "rapidToolbarButton",
-          text: "批准",
-
-          actionStyle: "primary",
-          size: "large",
-          $permissionCheck: "xzyInspectionFeedStock.manage",
-          onAction: [
-            {
-              $action: "sendHttpRequest",
-              method: "PATCH",
-              data: { approvalState: "approved", state: "inspected" },
-              $exps: {
-                url: `"/api/mom/mom_inspection_sheets/" + $rui.parseQuery().id`,
-              },
-            },
-            {
-              $action: "antdMessage",
-              title: "审核成功",
-              onClose: [
-                {
-                  $action: "reloadPage",
-                },
-              ],
-            },
-          ],
-          $exps: {
-            _hidden: "!(_.get(_.first(_.get($stores.detail, 'data.list')), 'approvalState') === 'approving')",
-          },
-        },
-        {
-          $type: "rapidToolbarButton",
-          text: "拒绝",
-          danger: true,
-          size: "large",
-          $permissionCheck: "xzyInspectionFeedStock.manage",
-          onAction: [
-            {
-              $action: "sendHttpRequest",
-              method: "PATCH",
-              data: { approvalState: "rejected", state: "pending" },
-              $exps: {
-                url: `"/api/mom/mom_inspection_sheets/" + $rui.parseQuery().id`,
-              },
-            },
-            {
-              $action: "antdMessage",
-              title: "审核成功",
-              onClose: [
-                {
-                  $action: "reloadPage",
-                },
-              ],
-            },
-          ],
-          $exps: {
-            _hidden: "!(_.get(_.first(_.get($stores.detail, 'data.list')), 'approvalState') === 'approving')",
-          },
-        },
-      ],
-    },
+    // {
+    //   $type: "rapidToolbar",
+    //   items: [
+    //     {
+    //       $type: "rapidToolbarButton",
+    //       text: "批准",
+    //
+    //       actionStyle: "primary",
+    //       size: "large",
+    //       $permissionCheck: "xzyInspectionFeedStock.manage",
+    //       onAction: [
+    //         {
+    //           $action: "sendHttpRequest",
+    //           method: "PATCH",
+    //           data: { approvalState: "approved", state: "inspected" },
+    //           $exps: {
+    //             url: `"/api/mom/mom_inspection_sheets/" + $rui.parseQuery().id`,
+    //           },
+    //         },
+    //         {
+    //           $action: "antdMessage",
+    //           title: "审核成功",
+    //           onClose: [
+    //             {
+    //               $action: "reloadPage",
+    //             },
+    //           ],
+    //         },
+    //       ],
+    //       $exps: {
+    //         _hidden: "!(_.get(_.first(_.get($stores.detail, 'data.list')), 'approvalState') === 'approving')",
+    //       },
+    //     },
+    //     {
+    //       $type: "rapidToolbarButton",
+    //       text: "拒绝",
+    //       danger: true,
+    //       size: "large",
+    //       $permissionCheck: "xzyInspectionFeedStock.manage",
+    //       onAction: [
+    //         {
+    //           $action: "sendHttpRequest",
+    //           method: "PATCH",
+    //           data: { approvalState: "rejected", state: "pending" },
+    //           $exps: {
+    //             url: `"/api/mom/mom_inspection_sheets/" + $rui.parseQuery().id`,
+    //           },
+    //         },
+    //         {
+    //           $action: "antdMessage",
+    //           title: "审核成功",
+    //           onClose: [
+    //             {
+    //               $action: "reloadPage",
+    //             },
+    //           ],
+    //         },
+    //       ],
+    //       $exps: {
+    //         _hidden: "!(_.get(_.first(_.get($stores.detail, 'data.list')), 'approvalState') === 'approving')",
+    //       },
+    //     },
+    //   ],
+    // },
   ],
 };
 

@@ -20,7 +20,7 @@ const formConfig: Partial<RapidEntityFormConfig> = {
         properties: ["id", "code", "name"],
         fixedFilters: [
           {
-            field: "factory",
+            field: "code",
             operator: "eq",
             value: "05",
           },
@@ -132,10 +132,10 @@ const formConfig: Partial<RapidEntityFormConfig> = {
     //   type: "auto",
     //   code: "unit",
     // },
-    // {
-    //   type: "auto",
-    //   code: "assignmentState",
-    // },
+    {
+      type: "auto",
+      code: "lotNum",
+    },
     {
       code: "oilMixtureRatio",
       type: "auto",
@@ -372,6 +372,10 @@ const page: RapidPage = {
         //   code: "assignmentState",
         //   width: "100px",
         // },
+        {
+          type: "auto",
+          code: "lotNum",
+        },
         {
           code: "oilMixtureRatio",
           type: "auto",

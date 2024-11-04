@@ -138,12 +138,10 @@ export default [
         const iotDBSDK = await new IotDBHelper(server).NewAPIClient();
 
         let input = {
-          sql: `select *
+          sql: `select last *
                 from root.devices.${ workReport.equipment?.externalCode }
-                where time >= ${ dayjs(workReport.actualStartTime).format('YYYY-MM-DD HH:mm:ss') }
-                  and time <= ${ dayjs(workReport.actualFinishTime).format('YYYY-MM-DD HH:mm:ss') }
-                order by time desc
-                limit 10;`,
+                where time >= ${ workReport.actualStartTime }
+                  and time <= ${ workReport.actualFinishTime }`,
         }
 
         const tsResponse = await iotDBSDK.PostResourceRequest("http://192.168.1.10:6670/rest/v2/query", input)
@@ -231,10 +229,15 @@ export default [
         filters: [
           { operator: "eq", field: "id", value: after?.id },
         ],
-        properties: ["id", "process"],
+        properties: ["id", "equipment", "workOrder", "workTask", "process", "lotNum", "serialNum"],
+        relations: {
+          workOrder: {
+            properties: ["id", "code", "material"]
+          }
+        }
       })
 
-      if (workReport?.process?.config?.printTemplateCode) {
+      if (workReport?.process?.config?.printTemplateCode && workReport?.process?.config?.printerCode) {
         const printTemplate = await server.getEntityManager<MomPrintTemplate>("mom_print_template").findEntity({
           filters: [
             { operator: "eq", field: "code", value: workReport?.process?.config?.printTemplateCode },
@@ -242,20 +245,34 @@ export default [
           properties: ["id", "content"],
         })
 
-        // if (printTemplate && printTemplate?.content) {
-        //   //   TODO: 注塑工序自动打印
-        //   await rapidApi.post(`/svc/printer/printers/${ workReport?.process?.config?.printerCode }/tasks`, {
-        //     tasks: (dataSource || [])
-        //       .map((record: any) => {
-        //         return {
-        //           type: "zpl-label",
-        //           name: "标签打印",
-        //           data: replaceTemplatePlaceholder(printTemplate.content!, record?.taskData),
-        //         };
-        //       })
-        //       .filter((item) => !!item.data),
-        //   });
-        // }
+        let dataSource = [
+          {
+            taskData: {
+              materialCode: workReport?.workOrder?.material?.code,
+              materialName: workReport?.workOrder?.material?.name,
+              processCode: workReport?.process?.code,
+              processName: workReport?.process?.name,
+              lotNum: workReport?.lotNum,
+              serialNum: workReport?.serialNum,
+              workOrderCode: workReport?.workOrder?.code,
+            },
+          }
+        ]
+
+        if (printTemplate && printTemplate?.content) {
+          //   TODO: 注塑工序自动打印
+          await rapidApi.post(`/svc/printer/printers/${ workReport?.process?.config?.printerCode }/tasks`, {
+            tasks: (dataSource || [])
+              .map((record: any) => {
+                return {
+                  type: "zpl-label",
+                  name: "标签打印",
+                  data: replaceTemplatePlaceholder(printTemplate.content!, record?.taskData),
+                };
+              })
+              .filter((item) => !!item.data),
+          });
+        }
 
       }
 
