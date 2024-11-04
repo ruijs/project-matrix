@@ -34,6 +34,14 @@ const formConfig: Partial<RapidEntityFormConfig> = {
     },
     {
       type: "auto",
+      code: "binNum",
+    },
+    {
+      type: "auto",
+      code: "manufacturer",
+    },
+    {
+      type: "auto",
       code: "sealNum",
     },
     {
@@ -213,8 +221,15 @@ const page: RapidPage = {
                 },
                 {
                   type: "auto",
+                  code: "binNum",
+                },
+                {
+                  type: "auto",
+                  code: "manufacturer",
+                },
+                {
+                  type: "auto",
                   code: "sealNum",
-                  width: "100px",
                 },
                 {
                   type: "auto",

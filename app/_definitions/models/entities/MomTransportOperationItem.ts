@@ -33,7 +33,7 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
     },
     {
       code: "binNum",
-      name: "箱号",
+      name: "罐号",
       type: "text",
     },
     {
@@ -73,6 +73,11 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
     {
       code: "remark",
       name: "备注",
+      type: "text",
+    },
+    {
+      code: "manufacturer",
+      name: "生产厂家",
       type: "text",
     },
     {

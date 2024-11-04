@@ -13,7 +13,7 @@ class IotDBSDK {
       baseURL: config.baseURL,
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Basic ' + btoa('root:root'),
+        'Authorization': 'Basic ' + btoa('root:tj7uObnMyixd8XKG'),
       },
     });
   }

@@ -255,17 +255,17 @@ export default function Index() {
         title={sdPage?.title || sdPage?.name || pageCode}
         extra={
           <Space>
-            {myUnreadNotificationCount ? (
-              <Link to="/account/my_notifications">
-                <Badge count={myUnreadNotificationCount}>
-                  <BellOutlined onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} style={{ fontSize: "24px", color: "#666" }} />
-                </Badge>
-              </Link>
-            ) : (
-              <Link to="/account/my_notifications">
-                <BellOutlined onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} style={{ fontSize: "24px", color: "#666" }} />
-              </Link>
-            )}
+            {/*{myUnreadNotificationCount ? (*/}
+            {/*  <Link to="/account/my_notifications">*/}
+            {/*    <Badge count={myUnreadNotificationCount}>*/}
+            {/*      <BellOutlined onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} style={{ fontSize: "24px", color: "#666" }} />*/}
+            {/*    </Badge>*/}
+            {/*  </Link>*/}
+            {/*) : (*/}
+            {/*  <Link to="/account/my_notifications">*/}
+            {/*    <BellOutlined onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} style={{ fontSize: "24px", color: "#666" }} />*/}
+            {/*  </Link>*/}
+            {/*)}*/}
             <div style={{ width: "20px", height: "20px" }}></div>
             <Dropdown menu={{ items: profileMenuItems }}>
               <div className="rui-current-user-indicator">

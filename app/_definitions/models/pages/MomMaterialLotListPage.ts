@@ -35,14 +35,14 @@ const page: RapidPage = {
       entityCode: "BaseLot",
       viewMode: "table",
       selectionMode: "none",
-      listActions: [
-        {
-          $type: "sonicToolbarNewEntityButton",
-          text: "新建",
-          icon: "PlusOutlined",
-          actionStyle: "primary",
-        },
-      ],
+      // listActions: [
+      //   {
+      //     $type: "sonicToolbarNewEntityButton",
+      //     text: "新建",
+      //     icon: "PlusOutlined",
+      //     actionStyle: "primary",
+      //   },
+      // ],
       extraActions: [
         {
           $type: "sonicToolbarFormItem",
@@ -94,14 +94,10 @@ const page: RapidPage = {
       ],
       columns: [
         {
-          type: "link",
+          type: "auto",
           code: "lotNum",
           width: "200px",
           fixed: "left",
-          rendererType: "link",
-          rendererProps: {
-            url: "/pages/mom_material_lot_details?id={{id}}",
-          },
         },
         {
           type: "auto",
@@ -131,22 +127,22 @@ const page: RapidPage = {
           width: "150px",
         },
       ],
-      actions: [
-        {
-          $type: "sonicRecordActionEditEntity",
-          code: "edit",
-          actionType: "edit",
-          actionText: "修改",
-        },
-        {
-          $type: "sonicRecordActionDeleteEntity",
-          code: "delete",
-          actionType: "delete",
-          actionText: "删除",
-          dataSourceCode: "list",
-          entityCode: "BaseLot",
-        },
-      ],
+      // actions: [
+      //   {
+      //     $type: "sonicRecordActionEditEntity",
+      //     code: "edit",
+      //     actionType: "edit",
+      //     actionText: "修改",
+      //   },
+      //   {
+      //     $type: "sonicRecordActionDeleteEntity",
+      //     code: "delete",
+      //     actionType: "delete",
+      //     actionText: "删除",
+      //     dataSourceCode: "list",
+      //     entityCode: "BaseLot",
+      //   },
+      // ],
       newForm: cloneDeep(formConfig),
       editForm: cloneDeep(formConfig),
     },

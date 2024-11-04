@@ -20,7 +20,7 @@ const formConfig: Partial<RapidEntityFormConfig> = {
         properties: ["id", "code", "name"],
         fixedFilters: [
           {
-            field: "factory",
+            field: "code",
             operator: "eq",
             value: "02",
           },
@@ -81,6 +81,10 @@ const formConfig: Partial<RapidEntityFormConfig> = {
           { code: "specification", title: "规格", width: 120 },
         ],
       },
+    },
+    {
+      type: "auto",
+      code: "lotNum",
     },
     // {
     //   type: "auto",
@@ -293,6 +297,10 @@ const page: RapidPage = {
             },
           },
         },
+        {
+          type: "auto",
+          code: "lotNum",
+        },
         // {
         //   type: "auto",
         //   code: "route",
@@ -355,7 +363,7 @@ const page: RapidPage = {
           $type: "sonicRecordActionEditEntity",
           code: "edit",
           actionType: "edit",
-          $permissionCheck: "tysProduction.manage",
+          $permissionCheck: "syProduction.manage",
           actionText: "修改",
           $exps: {
             disabled: "$slot.record.executionState === 'finished'",
@@ -365,7 +373,7 @@ const page: RapidPage = {
           $type: "sonicRecordActionDeleteEntity",
           code: "delete",
           actionType: "delete",
-          $permissionCheck: "tysProduction.manage",
+          $permissionCheck: "syProduction.manage",
           actionText: "删除",
           dataSourceCode: "list",
           entityCode: "MomWorkOrder",

@@ -11,7 +11,7 @@ export default [
       const { server, payload } = ctx;
       const after = payload.after;
 
-    //   TODO: 处理注塑超差提交到钉钉
+      //   TODO: 处理注塑超差提交到钉钉
 
       try {
         const measurements = await server.getEntityManager<MomRouteProcessParameterMeasurement>("mom_route_process_parameter_measurement").findEntities({
@@ -24,6 +24,8 @@ export default [
           }
         });
 
+        let notifyEnabled = false;
+
         const yidaSDK = await new YidaHelper(server).NewAPIClient();
         const yidaAPI = new YidaApi(yidaSDK);
 
@@ -32,11 +34,16 @@ export default [
         if (measurements) {
           let isOutSpecification = false
           for (const measurement of measurements) {
+
+            if (measurement.process?.config?.notifyEnabled)  {
+              notifyEnabled = true
+            }
+
             if (measurement.isOutSpecification) {
               isOutSpecification = true
             }
           }
-          if (isOutSpecification) {
+          if (isOutSpecification && notifyEnabled) {
             await yidaAPI.uploadProductionMeasurementsAudit(measurements)
           }
         }

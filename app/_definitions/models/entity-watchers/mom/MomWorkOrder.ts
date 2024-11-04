@@ -9,6 +9,8 @@ import type {
   SaveMomWorkTaskInput
 } from "~/_definitions/meta/entity-types";
 import dayjs from "dayjs";
+import YidaHelper from "~/sdk/yida/helper";
+import YidaApi from "~/sdk/yida/api";
 
 export default [
   {
@@ -50,8 +52,22 @@ export default [
           }
         }
 
+        if (before.hasOwnProperty('lotNum')) {
+          const lot = await saveMaterialLotInfo(server, {
+            lotNum: before.lotNum,
+            material: { "id": before.material?.id || before.material || before.material_id },
+            sourceType: "selfMade",
+            qualificationState: "qualified",
+            isAOD: false,
+            state: "normal",
+          } as SaveBaseLotInput);
+          if (lot) {
+            before.lot = { id: lot?.id };
+          }
+        }
+
         for (const process of processes) {
-          if (process?.config?.reportLotNumAutoGenerate) {
+          if (!before.hasOwnProperty('lotNum') && process?.config?.taskLotNumAutoGenerate) {
             const lot = await saveMaterialLotInfo(server, {
               material: { id: before?.material?.id || before?.material },
               sourceType: "selfMade",
@@ -60,7 +76,7 @@ export default [
               state: "normal",
             });
             if (lot) {
-              before.lot_id = lot.id;
+              before.lot = { id: lot.id };
               before.lotNum = lot.lotNum;
             }
             break;
@@ -111,8 +127,16 @@ export default [
               value: after.id
             }
           ],
-          properties: ["id", "processes"]
+          properties: ["id", "processes", "code", "lotNum", "quantity", "factory", "material", "oilMixtureRatio", "paraffinQuantity", "stirringTime", "stirringPressure", "tankNumber", "unloadingVideo", "dcsPicture"]
         });
+
+        if (workOrder) {
+          // 泰洋圣上报宜搭
+          const yidaSDK = await new YidaHelper(server).NewAPIClient();
+          const yidaAPI = new YidaApi(yidaSDK);
+
+          await yidaAPI.uploadTYSProductionRecords(workOrder)
+        }
 
         const processIds = workOrder?.processes.map((process: MomProcess) => process.id);
 
@@ -162,6 +186,7 @@ export default [
           }
         }
 
+
       } catch (error) {
         console.error(error);
       }
@@ -176,4 +201,20 @@ async function saveMaterialLotInfo(server: IRpdServer, lot: SaveBaseLotInput) {
 
   const baseLotManager = server.getEntityManager<BaseLot>("base_lot");
   return await baseLotManager.createEntity({ entity: lot })
+}
+
+async function getOrSaveMaterialLotInfo(server: IRpdServer, lot: SaveBaseLotInput) {
+  if (!lot.lotNum || !lot.material || !lot.material.id) {
+    throw new Error("lotNum and material are required when saving lot info.");
+  }
+
+  const baseLotManager = server.getEntityManager<BaseLot>("base_lot");
+  const lotInDb = await baseLotManager.findEntity({
+    filters: [
+      { operator: "eq", field: "lot_num", value: lot.lotNum },
+      { operator: "eq", field: "material_id", value: lot.material.id },
+    ],
+  });
+
+  return lotInDb || (await baseLotManager.createEntity({ entity: lot }));
 }

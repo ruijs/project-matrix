@@ -2945,6 +2945,10 @@ export interface MomEquipment {
    */
   externalCode?: string;
   /**
+   * 外部ID
+   */
+  externalId?: string;
+  /**
    * 创建时间
    */
   createdAt?: string;
@@ -7683,7 +7687,7 @@ export interface MomTransportOperationItem {
    */
   lotNum?: string;
   /**
-   * 箱号
+   * 罐号
    */
   binNum?: string;
   /**
@@ -7714,6 +7718,10 @@ export interface MomTransportOperationItem {
    * 备注
    */
   remark?: string;
+  /**
+   * 生产厂家
+   */
+  manufacturer?: string;
   /**
    * 送货委托单
    */
