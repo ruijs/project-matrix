@@ -228,8 +228,6 @@ export type InspectionKind =
  * 检验结果
  */
 export type InspectionResult =
-  | 'inspectFree'
-  | 'uninspected'
   | 'qualified'
   | 'unqualified'
   ;

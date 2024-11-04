@@ -19,7 +19,7 @@ export default [
           properties: ["id", "process", "equipment", "workOrder", "upperLimit", "lowerLimit", "nominal", "value", "isOutSpecification", "dimension", "workReport"],
           relations: {
             workOrder: {
-              properties: ["id", "factory", "material", "process", "code", "process", "equipment"]
+              properties: ["id", "factory", "material", "process", "code", "process", "equipment", "createdBy"]
             }
           }
         });

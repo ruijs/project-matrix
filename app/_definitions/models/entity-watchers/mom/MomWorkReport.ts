@@ -4,13 +4,15 @@ import type {
   MomRouteProcessParameterMeasurement,
   MomWorkReport,
   MomWorkTask,
-  SaveBaseLotInput, SaveMomRouteProcessParameterMeasurementInput
+  SaveBaseLotInput, SaveMomRouteProcessParameterMeasurementInput, SvcPrinter
 } from "~/_definitions/meta/entity-types";
 import dayjs from "dayjs";
 import IotDBHelper, {ParseDeviceData} from "~/sdk/iotdb/helper";
 import rapidApi from "~/rapidApi";
 import {replaceTemplatePlaceholder} from "~/app-extension/rocks/print-trigger/PrintTrigger";
 import {find} from "lodash";
+import type PrinterService from "../../../../../rapid-plugins/printerService/PrinterService";
+import {CreatePrintTasksInput} from "../../../../../rapid-plugins/printerService/PrinterPluginTypes";
 
 export default [
   {
@@ -135,73 +137,77 @@ export default [
         }
 
 
-        const iotDBSDK = await new IotDBHelper(server).NewAPIClient();
+        try {
+          const iotDBSDK = await new IotDBHelper(server).NewAPIClient();
 
-        let input = {
-          sql: `select last *
-                from root.devices.${ workReport.equipment?.externalCode }
-                where time >= ${ workReport.actualStartTime }
-                  and time <= ${ workReport.actualFinishTime }`,
-        }
+          let input = {
+            sql: `select last *
+                  from root.devices.${ workReport.equipment?.externalCode }
+                  where time >= ${ (dayjs(workReport.actualStartTime).unix() + 28800) * 1000 }
+                    and time <= ${ (dayjs(workReport.actualFinishTime).unix() + 28800) * 1000 }`,
+          }
 
-        const tsResponse = await iotDBSDK.PostResourceRequest("http://192.168.1.10:6670/rest/v2/query", input)
-        const data = ParseDeviceData(tsResponse.data);
+          const tsResponse = await iotDBSDK.PostResourceRequest("http://10.0.0.3:6670/rest/v2/query", input, true)
+          const data = ParseDeviceData(tsResponse.data);
 
-        for (let deviceCode in data) {
+          for (let deviceCode in data) {
 
-          const deviceMetricData = data[deviceCode];
-          for (let metricCode in deviceMetricData) {
-            const metricData = deviceMetricData[metricCode];
-            for (let i = 0; i < metricData.length; i++) {
-              const item = metricData[i];
-              const latestTimestamp = item.timestamp;
-              const latestValue = item.value;
-              // isOutSpecification
-              const metricParameter = await server.getEntityManager<MomRouteProcessParameter>("mom_route_process_parameter").findEntity({
-                filters: [
-                  {
-                    operator: "exists",
-                    field: "dimension",
-                    filters: [{ operator: "eq", field: "code", value: metricCode }]
-                  },
-                  { operator: "eq", field: "process", value: workReport.process?.id },
-                  { operator: "eq", field: "equipment", value: workReport.equipment?.id },
-                ],
-                properties: ["id", "upperLimit", "lowerLimit", "nominal", "dimension"],
-              })
+            const deviceMetricData = data[deviceCode];
+            for (let metricCode in deviceMetricData) {
+              const metricData = deviceMetricData[metricCode];
+              for (let i = 0; i < metricData.length; i++) {
+                const item = metricData[i];
+                const latestTimestamp = item.timestamp;
+                const latestValue = item.value;
+                // isOutSpecification
+                const metricParameter = await server.getEntityManager<MomRouteProcessParameter>("mom_route_process_parameter").findEntity({
+                  filters: [
+                    {
+                      operator: "exists",
+                      field: "dimension",
+                      filters: [{ operator: "eq", field: "code", value: metricCode }]
+                    },
+                    { operator: "eq", field: "process", value: workReport.process?.id },
+                    { operator: "eq", field: "equipment", value: workReport.equipment?.id },
+                  ],
+                  properties: ["id", "upperLimit", "lowerLimit", "nominal", "dimension"],
+                })
 
 
-              if (!metricParameter) {
-                continue
+                if (!metricParameter) {
+                  continue
+                }
+
+                if (!latestValue) {
+                  continue
+                }
+
+                let isOutSpecification = false;
+                if (latestValue < (metricParameter?.lowerLimit || 0) + (metricParameter.nominal || 0) || latestValue > (metricParameter?.upperLimit || 0) - (metricParameter.nominal || 0)) {
+                  isOutSpecification = true
+                }
+
+                await server.getEntityManager<MomRouteProcessParameterMeasurement>("mom_route_process_parameter_measurement").createEntity({
+                  entity: {
+                    workOrder: workReport.workOrder?.id,
+                    workReport: workReport.id,
+                    process: workReport.process?.id,
+                    equipment: workReport.equipment?.id,
+                    factory: workReport.factory?.id,
+                    value: latestValue,
+                    dimension: metricParameter?.dimension?.id,
+                    upperLimit: metricParameter?.upperLimit,
+                    lowerLimit: metricParameter?.lowerLimit,
+                    nominal: metricParameter?.nominal,
+                    isOutSpecification: isOutSpecification,
+                    createdAt: latestTimestamp,
+                  } as SaveMomRouteProcessParameterMeasurementInput
+                })
               }
-
-              if (!latestValue) {
-                continue
-              }
-
-              let isOutSpecification = false;
-              if (latestValue < (metricParameter?.lowerLimit || 0) + (metricParameter.nominal || 0) || latestValue > (metricParameter?.upperLimit || 0) - (metricParameter.nominal || 0)) {
-                isOutSpecification = true
-              }
-
-              await server.getEntityManager<MomRouteProcessParameterMeasurement>("mom_route_process_parameter_measurement").createEntity({
-                entity: {
-                  workOrder: workReport.workOrder?.id,
-                  workReport: workReport.id,
-                  process: workReport.process?.id,
-                  equipment: workReport.equipment?.id,
-                  factory: workReport.factory?.id,
-                  value: latestValue,
-                  dimension: metricParameter?.dimension?.id,
-                  upperLimit: metricParameter?.upperLimit,
-                  lowerLimit: metricParameter?.lowerLimit,
-                  nominal: metricParameter?.nominal,
-                  isOutSpecification: isOutSpecification,
-                  createdAt: latestTimestamp,
-                } as SaveMomRouteProcessParameterMeasurementInput
-              })
             }
           }
+        } catch (e) {
+          console.log(e)
         }
       }
     }
@@ -213,31 +219,122 @@ export default [
       const { server, payload } = ctx;
       const after = payload.after;
 
-      if (!after.work_order_id) {
-        return;
-      }
+      const workReport = await server.getEntityManager<MomWorkReport>("mom_work_report").findEntity({
+        filters: [
+          { operator: "eq", field: "id", value: after?.id },
+        ],
+        properties: ["id", "factory", "process", "workOrder", "material", "equipment", "actualStartTime", "actualFinishTime", "executionState"],
+        relations: {
+          workOrder: {
+            properties: ["id", "code", "material", "executionState"]
+          },
+          process: {
+            properties: ["id", "code", "name", "config"]
+          }
+        }
+      })
 
       const workOrderEntityManager = server.getEntityManager("mom_work_order");
       await workOrderEntityManager.updateEntityById({
-        id: after.work_order_id,
+        id: workReport?.workOrder?.id,
         entityToSave: {
           executionState: 'processing',
         },
       });
 
-      const workReport = await server.getEntityManager<MomWorkReport>("mom_work_report").findEntity({
-        filters: [
-          { operator: "eq", field: "id", value: after?.id },
-        ],
-        properties: ["id", "equipment", "workOrder", "workTask", "process", "lotNum", "serialNum"],
-        relations: {
-          workOrder: {
-            properties: ["id", "code", "material"]
-          }
-        }
-      })
+      if (workReport && workReport.executionState === "completed") {
 
-      if (workReport?.process?.config?.printTemplateCode && workReport?.process?.config?.printerCode) {
+        if (!workReport.equipment?.externalCode) {
+          return;
+        }
+
+
+        try {
+
+          const iotDBSDK = await new IotDBHelper(server).NewAPIClient();
+
+          let input = {
+            sql: `select last *
+                  from root.devices.${ workReport.equipment?.externalCode }
+                  where time >= ${ (dayjs(workReport.actualStartTime).unix() + 28800) * 1000 }
+                    and time <= ${ (dayjs(workReport.actualFinishTime).unix() + 28800) * 1000 }`,
+          }
+
+          const tsResponse = await iotDBSDK.PostResourceRequest("http://10.0.0.3:6670/rest/v2/query", input, true)
+          const data = ParseDeviceData(tsResponse.data);
+
+          for (let deviceCode in data) {
+            const deviceMetricData = data[deviceCode];
+            // append work duration to device metric
+
+            if (workReport.equipment.externalCode === deviceCode && workReport?.duration) {
+              deviceMetricData["work_duration"] = [{
+                timestamp: dayjs().unix(),
+                value: workReport.duration / 1000,
+              }]
+            }
+
+
+            for (let metricCode in deviceMetricData) {
+              const metricData = deviceMetricData[metricCode];
+              for (let i = 0; i < metricData.length; i++) {
+                const item = metricData[i];
+                const latestTimestamp = item.timestamp;
+                const latestValue = item.value;
+                // isOutSpecification
+                const metricParameter = await server.getEntityManager<MomRouteProcessParameter>("mom_route_process_parameter").findEntity({
+                  filters: [
+                    {
+                      operator: "exists",
+                      field: "dimension",
+                      filters: [{ operator: "eq", field: "code", value: metricCode }]
+                    },
+                    { operator: "eq", field: "process", value: workReport.process?.id },
+                    { operator: "eq", field: "equipment", value: workReport.equipment?.id },
+                  ],
+                  properties: ["id", "upperLimit", "lowerLimit", "nominal", "dimension"],
+                })
+
+
+                if (!metricParameter) {
+                  continue
+                }
+
+                if (!latestValue) {
+                  continue
+                }
+
+                let isOutSpecification = false;
+                if (latestValue < (metricParameter?.lowerLimit || 0) + (metricParameter.nominal || 0) || latestValue > (metricParameter?.upperLimit || 0) - (metricParameter.nominal || 0)) {
+                  isOutSpecification = true
+                }
+
+                await server.getEntityManager<MomRouteProcessParameterMeasurement>("mom_route_process_parameter_measurement").createEntity({
+                  entity: {
+                    workOrder: workReport.workOrder?.id,
+                    workReport: workReport.id,
+                    process: workReport.process?.id,
+                    equipment: workReport.equipment?.id,
+                    factory: workReport.factory?.id,
+                    value: latestValue,
+                    dimension: metricParameter?.dimension?.id,
+                    upperLimit: metricParameter?.upperLimit,
+                    lowerLimit: metricParameter?.lowerLimit,
+                    nominal: metricParameter?.nominal,
+                    isOutSpecification: isOutSpecification,
+                    createdAt: latestTimestamp,
+                  } as SaveMomRouteProcessParameterMeasurementInput
+                })
+              }
+            }
+          }
+        } catch (e) {
+          console.log(e)
+        }
+      }
+
+      if (workReport && workReport.executionState === "completed" && workReport?.process?.config?.printTemplateCode && workReport?.process?.config?.printerCode) {
+
         const printTemplate = await server.getEntityManager<MomPrintTemplate>("mom_print_template").findEntity({
           filters: [
             { operator: "eq", field: "code", value: workReport?.process?.config?.printTemplateCode },
@@ -255,27 +352,42 @@ export default [
               lotNum: workReport?.lotNum,
               serialNum: workReport?.serialNum,
               workOrderCode: workReport?.workOrder?.code,
+              printTime: dayjs().format("YYYY-MM-DD HH:mm:ss"),
+              KT: workReport.workOrder?.material?.name === "B9" ? "KT" : ""
             },
           }
         ]
 
         if (printTemplate && printTemplate?.content) {
+          const printer = await server.getEntityManager<SvcPrinter>("svc_printer").findEntity({
+            filters: [
+              { operator: "eq", field: "code", value: workReport?.process?.config?.printerCode },
+            ],
+            properties: ["id", "networkState"],
+          })
+
+
           //   TODO: 注塑工序自动打印
-          await rapidApi.post(`/svc/printer/printers/${ workReport?.process?.config?.printerCode }/tasks`, {
-            tasks: (dataSource || [])
-              .map((record: any) => {
-                return {
-                  type: "zpl-label",
-                  name: "标签打印",
-                  data: replaceTemplatePlaceholder(printTemplate.content!, record?.taskData),
-                };
-              })
-              .filter((item) => !!item.data),
-          });
+          if (printer && printer.networkState === "1") {
+            console.log(`print work report: Template ${ workReport?.process?.config?.printTemplateCode } -- Printer ${ workReport?.process?.config?.printerCode }`)
+
+            const printerService = server.getService<PrinterService>("printerService");
+            await printerService.createPrintTasks({
+              code: workReport?.process?.config?.printerCode,
+              tasks: (dataSource || [])
+                .map((record: any) => {
+                  return {
+                    type: "zpl-label",
+                    name: "标签打印",
+                    data: replaceTemplatePlaceholder(printTemplate.content!, record?.taskData),
+                  };
+                })
+                .filter((item) => !!item.data)
+            } as CreatePrintTasksInput)
+          }
+
         }
-
       }
-
 
     }
   },

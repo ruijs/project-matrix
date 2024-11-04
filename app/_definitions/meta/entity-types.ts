@@ -7958,7 +7958,7 @@ export interface MomWorkFeed {
    */
   lotNum?: string;
   /**
-   * 数量
+   * 数量(kg)
    */
   quantity?: number;
   /**
@@ -7981,10 +7981,6 @@ export interface MomWorkFeed {
    * 工厂
    */
   factory?: Partial<MomFactory>;
-  /**
-   * 数量(kg)
-   */
-  quantity?: number;
   /**
    * 存油罐编号
    */

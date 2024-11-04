@@ -10,7 +10,7 @@ class IotDBHelper {
 
   public async NewAPIClient() {
     return new IotDBSDK({
-      baseURL: "http://192.168.1.10:6670"
+      baseURL: "http://10.0.0.3:6670"
     });
   }
 }

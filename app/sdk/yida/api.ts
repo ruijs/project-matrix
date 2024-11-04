@@ -2,7 +2,7 @@ import YidaSDK from "~/sdk/yida/sdk";
 import {
   MomInspectionMeasurement,
   MomRouteProcessParameterMeasurement,
-  MomTransportOperationItem,
+  MomTransportOperationItem, MomWorkFeed,
   MomWorkOrder
 } from "~/_definitions/meta/entity-types";
 import {fmtCharacteristicNorminal} from "~/utils/fmt";
@@ -17,12 +17,15 @@ class YidaApi {
   public async uploadTransmitAudit(inputs: MomTransportOperationItem[]) {
     let items = inputs.map((item: MomTransportOperationItem) => {
       let payload: any = {
-        textField_m25kjnoa: item.material?.name, // 物料
+        textField_m33uqlqd: item.material?.name, // 物料
         textField_m25kjnob: item.lotNum, // 批号
         textField_m25kjnoc: item.sealNum, // 铅封号
         textField_m25kjno9: item.quantity, // 数量
         textField_m2yavq1n: item.manufacturer, // 厂家
         textField_m2yavq1m: item.binNum, // 罐号
+        textField_m33uqlqa: "是", // 厂家/是否一致
+        textField_m33uqlqb: "是", // 罐号/是否一致
+        textField_m33uqlqc: "是", // 铅封号/是否一致
       }
       if (item.sealNumPicture) {
         payload.attachmentField_m25kjnod = [ // 铅封号照片
@@ -73,7 +76,7 @@ class YidaApi {
         appType: "APP_MV044H55941SP5OMR0PI",
         formDataJson: formDataJsonStr,
         systemToken: "9FA66WC107APIRYWEES29D6BYQHM23FRS812MWB",
-        userId: "68282452959857472",
+        userId: transportOperation?.createdBy?.dingtalkUserId,
         departmentId: "1"
       }
     const resp = await this.api.PostResourceRequest("/v2.0/yida/processes/instances/start", payload)
@@ -104,10 +107,10 @@ class YidaApi {
         appType: "APP_MV044H55941SP5OMR0PI",
         formDataJson: formDataJsonStr,
         systemToken: "9FA66WC107APIRYWEES29D6BYQHM23FRS812MWB",
-        userId: "68282452959857472"
+        userId: input.sheet?.createdBy?.dingtalkUserId,
       }
 
-      const resp = await this.api.PostResourceRequest("/v1.0/yida/forms/instances", payload, true)
+      const resp = await this.api.PostResourceRequest("/v1.0/yida/forms/instances", payload)
       console.log(resp.data)
     }
 
@@ -116,14 +119,14 @@ class YidaApi {
       if (input?.sheet?.gcmsReportFile) {
         const formDataJson = {
           textField_kocks566: input.sheet?.code, // 检验单号
-          textField_kpc0di1h: "",// 检验类型
+          textField_kpc0di1h: input.sheet?.rule?.category?.name,// 检验类型
           textField_kocks567: input.sheet?.material?.name,// 物料
-          textField_kpc0di1l: "GCMS报告",// 检验规则
+          textField_kpc0di1l: input.sheet?.rule?.name,// 检验规则
           textField_kpc0di1i: input.sheet?.lotNum,// 批次
-          textField_m245vk9o: input.sheet.gcmsPassed  ? '合格' : '不合格',// 结果
-          textField_m245vk9m: input.characteristic?.name,// 检验特性
+          textField_m245vk9o: input.sheet.gcmsPassed ? '合格' : '不合格',// 结果
+          textField_m245vk9m: "GCMS报告",// 检验特性
           textField_m245vk9q: "合格", // 标准值
-          textField_m245vk9r: input.sheet.gcmsPassed  ? '合格' : '不合格',// 检验值
+          textField_m245vk9r: input.sheet.gcmsPassed ? '合格' : '不合格',// 检验值
         }
 
         let formDataJsonStr = JSON.stringify(formDataJson);
@@ -134,10 +137,10 @@ class YidaApi {
           appType: "APP_MV044H55941SP5OMR0PI",
           formDataJson: formDataJsonStr,
           systemToken: "9FA66WC107APIRYWEES29D6BYQHM23FRS812MWB",
-          userId: "68282452959857472"
+          userId: input.sheet?.createdBy?.dingtalkUserId,
         }
 
-        const resp = await this.api.PostResourceRequest("/v1.0/yida/forms/instances", payload, true)
+        const resp = await this.api.PostResourceRequest("/v1.0/yida/forms/instances", payload)
         console.log(resp.data)
       }
     }
@@ -160,8 +163,8 @@ class YidaApi {
         measurements.push({
           textField_m24c9bpp: "GCMS报告",
           textField_m24g6498: "",
-          textField_m24c9bpq: "",
-          textField_m24c9bpr: "",
+          textField_m24c9bpq: "合格",
+          textField_m24c9bpr: inputs[0]?.sheet.gcmsPassed === "qualified" ? '合格' : '不合格',
           textField_m24g6499: inputs[0]?.sheet.gcmsPassed === "qualified" ? '合格' : '不合格',
         })
       }
@@ -242,10 +245,10 @@ class YidaApi {
         appType: "APP_MV044H55941SP5OMR0PI",
         formDataJson: formDataJsonStr,
         systemToken: "9FA66WC107APIRYWEES29D6BYQHM23FRS812MWB",
-        userId: "68282452959857472",
+        userId: inspectionSheet?.createdBy?.dingtalkUserId,
         departmentId: "1"
       }
-    const resp = await this.api.PostResourceRequest("/v2.0/yida/processes/instances/start", payload, true)
+    const resp = await this.api.PostResourceRequest("/v2.0/yida/processes/instances/start", payload)
     console.log(resp.data)
 
     return resp.data;
@@ -257,7 +260,7 @@ class YidaApi {
         textField_m24c9bpp: item.dimension?.name || "", // 指标
         textField_m24c9bpq: item.lowerLimit + '~' + item.upperLimit || "",
         textField_m24c9bpr: item.value || "",
-        textField_m24g6499: item.isOutSpecification ? '正常' : '超差',
+        textField_m24g6499: item.isOutSpecification ? '超差' : '正常',
       }
     })
 
@@ -284,6 +287,8 @@ class YidaApi {
     // convert json to string
     let formDataJsonStr = JSON.stringify(formDataJson);
 
+    let dingtalkUserId = workOrder?.createdBy?.dingtalkUserId || "68282452959857472"
+
     let payload =
       {
         noExecuteExpression: true,
@@ -294,10 +299,10 @@ class YidaApi {
         appType: "APP_MV044H55941SP5OMR0PI",
         formDataJson: formDataJsonStr,
         systemToken: "9FA66WC107APIRYWEES29D6BYQHM23FRS812MWB",
-        userId: "68282452959857472",
+        userId: dingtalkUserId,
         departmentId: "1"
       }
-    const resp = await this.api.PostResourceRequest("/v2.0/yida/processes/instances/start", payload, true)
+    const resp = await this.api.PostResourceRequest("/v2.0/yida/processes/instances/start", payload)
     console.log(resp.data)
 
     return resp.data;
@@ -307,7 +312,7 @@ class YidaApi {
     for (const input of inputs) {
       let formDataJson = {
         textField_m25kshxc: input.workOrder?.factory?.code, // 工厂
-        textField_kocks567: input.workOrder?.material,// 物料
+        textField_kocks567: input.workOrder?.material?.name,// 物料
         textField_m25kshxd: input.process?.name,// 工序
         textField_m25kshxe: input.equipment?.name,// 设备
         textField_kpc0di1i: input.workReport?.lotNum,// 批次
@@ -317,10 +322,12 @@ class YidaApi {
         textField_m2copt7z: input.upperLimit, // 上限
         textField_m2copt80: input.lowerLimit, // 下限
         textField_m245vk9r: input.value,// 检验值
-        textField_m2copt81: input.isOutSpecification ? '正常' : '超差',
+        textField_m2copt81: input.isOutSpecification ? '超差' : '正常',
       }
 
       let formDataJsonStr = JSON.stringify(formDataJson);
+
+      let dingtalkUserId = input.workOrder?.createdBy?.dingtalkUserId || "68282452959857472"
 
       let payload = {
         language: "zh_CN",
@@ -328,15 +335,15 @@ class YidaApi {
         appType: "APP_MV044H55941SP5OMR0PI",
         formDataJson: formDataJsonStr,
         systemToken: "9FA66WC107APIRYWEES29D6BYQHM23FRS812MWB",
-        userId: "68282452959857472"
+        userId: dingtalkUserId
       }
 
-      const resp = await this.api.PostResourceRequest("/v1.0/yida/forms/instances", payload, true)
+      const resp = await this.api.PostResourceRequest("/v1.0/yida/forms/instances", payload)
       console.log(resp.data)
     }
   }
 
-  public async getAuditDetail(id: string, kind: string) {
+  public async getAuditDetail(id: string, uid: string, kind: string) {
 
     let payload = {}
     switch (kind) {
@@ -346,7 +353,7 @@ class YidaApi {
           formUuid: "FORM-2327400348D843CD817C3AF4164F10A43CNW",
           appType: "APP_MV044H55941SP5OMR0PI",
           systemToken: "9FA66WC107APIRYWEES29D6BYQHM23FRS812MWB",
-          userId: "68282452959857472"
+          userId: uid
         }
         break;
       case "inspect":
@@ -355,7 +362,7 @@ class YidaApi {
           formUuid: "FORM-857ACE8654FF4F7A942151E1FAA59CDBVYMX",
           appType: "APP_MV044H55941SP5OMR0PI",
           systemToken: "9FA66WC107APIRYWEES29D6BYQHM23FRS812MWB",
-          userId: "68282452959857472"
+          userId: uid
         }
     }
 
@@ -365,53 +372,61 @@ class YidaApi {
     return resp.data
   }
 
-  public async uploadTYSProductionRecords(input: MomWorkOrder) {
-    let formDataJson: any = {
-      textField_m25kshxc: input.factory?.name, // 工厂
-      textField_kocks567: input.material?.name,// 物料
-      textField_kpc0di1i: input?.lotNum,// 批号
-      textField_m25kshxg: input?.code,// 工单号
-      textField_m32dy4v0: input?.oilMixtureRatio,// 混油比例
-      textField_m32dy4v5: input?.stirringPressure,// 搅拌压力(MP)
-      textField_m32dy4v1: input?.paraffinQuantity,// 石蜡油数量(kg)
-      textField_m32dy4v6: input?.tankNumber, // 搅拌罐编号,
-      textField_m32dy4v2: input?.stirringTime // 搅拌时间(分钟)
+  public async uploadTYSProductionRecords(inputs: MomWorkFeed[]) {
+    for (const input of inputs) {
+      let formDataJson: any = {
+        textField_m25kshxc: input?.workOrder?.factory?.name, // 工厂
+        textField_kocks567: input?.workOrder?.material?.name,// 物料
+        textField_kpc0di1i: input?.workOrder?.lotNum,// 批号
+        textField_m25kshxg: input?.workOrder?.code,// 工单号
+        textField_m32dy4v0: input?.workOrder?.oilMixtureRatio,// 混油比例
+        textField_m32dy4v5: input?.workOrder?.stirringPressure,// 搅拌压力(MP)
+        textField_m32dy4v1: input?.workOrder?.paraffinQuantity,// 石蜡油数量(kg)
+        textField_m32dy4v6: input?.workOrder?.tankNumber, // 搅拌罐编号,
+        textField_m32dy4v2: input?.workOrder?.stirringTime, // 搅拌时间(分钟)
+        textField_m32u20f2: input?.rawMaterial?.name, // 原材料
+        textField_m32u20f5: input?.quantity,  // 数量
+        textField_m32u20f3: input?.lotNum,  // 原材料批号
+        textField_m32u20f6: input?.equipment?.name, // 设备
+        textField_m32u20f4: input?.instoreTankNumber, // 存油罐编号
+        textField_m32u20f7: input?.process?.name,  // 工序
+      }
+
+      if (input?.workOrder?.unloadingVideo) {// 卸油视频
+        formDataJson.attachmentField_m32dy4va = [
+          {
+            downloadUrl: `http://121.237.179.45:3005/api/download/file?fileKey=${ encodeURIComponent(input?.workOrder?.unloadingVideo.key) }&fileName=${ encodeURIComponent(input?.workOrder?.unloadingVideo.name) }`,
+            name: input?.workOrder?.unloadingVideo.name,
+            url: `http://121.237.179.45:3005/api/download/file?fileKey=${ encodeURIComponent(input?.workOrder?.unloadingVideo.key) }&fileName=${ encodeURIComponent(input?.workOrder?.unloadingVideo.name) }`
+          }
+        ];
+      }
+
+      if (input?.workOrder?.dcsPicture) {// DCS液位重量照片
+        formDataJson.attachmentField_m32dy4va = [
+          {
+            downloadUrl: `http://121.237.179.45:3005/api/download/file?fileKey=${ encodeURIComponent(input?.workOrder?.unloadingVideo.key) }&fileName=${ encodeURIComponent(input?.workOrder?.unloadingVideo.name) }`,
+            name: input?.workOrder?.unloadingVideo.name,
+            url: `http://121.237.179.45:3005/api/download/file?fileKey=${ encodeURIComponent(input?.workOrder?.unloadingVideo.key) }&fileName=${ encodeURIComponent(input?.workOrder?.unloadingVideo.name) }`
+          }
+        ];
+      }
+
+
+      let formDataJsonStr = JSON.stringify(formDataJson);
+
+      let payload = {
+        language: "zh_CN",
+        formUuid: "FORM-1F700B466FE248F48DD0A16D3EF884C87V8I",
+        appType: "APP_MV044H55941SP5OMR0PI",
+        formDataJson: formDataJsonStr,
+        systemToken: "9FA66WC107APIRYWEES29D6BYQHM23FRS812MWB",
+        userId: input?.workOrder?.createdBy?.dingtalkUserId
+      }
+
+      const resp = await this.api.PostResourceRequest("/v1.0/yida/forms/instances", payload)
+      console.log(resp.data)
     }
-
-    if (input?.unloadingVideo) {// 卸油视频
-      formDataJson.attachmentField_m32dy4va = [
-        {
-          downloadUrl: `http://121.237.179.45:3005/api/download/file?fileKey=${ encodeURIComponent(input?.unloadingVideo.key) }&fileName=${ encodeURIComponent(input?.unloadingVideo.name) }`,
-          name: input?.unloadingVideo.name,
-          url: `http://121.237.179.45:3005/api/download/file?fileKey=${ encodeURIComponent(input?.unloadingVideo.key) }&fileName=${ encodeURIComponent(input?.unloadingVideo.name) }`
-        }
-      ];
-    }
-
-    if (input?.dcsPicture) {// DCS液位重量照片
-      formDataJson.attachmentField_m32dy4va = [
-        {
-          downloadUrl: `http://121.237.179.45:3005/api/download/file?fileKey=${ encodeURIComponent(input?.unloadingVideo.key) }&fileName=${ encodeURIComponent(input?.unloadingVideo.name) }`,
-          name: input?.unloadingVideo.name,
-          url: `http://121.237.179.45:3005/api/download/file?fileKey=${ encodeURIComponent(input?.unloadingVideo.key) }&fileName=${ encodeURIComponent(input?.unloadingVideo.name) }`
-        }
-      ];
-    }
-
-
-    let formDataJsonStr = JSON.stringify(formDataJson);
-
-    let payload = {
-      language: "zh_CN",
-      formUuid: "FORM-1F700B466FE248F48DD0A16D3EF884C87V8I",
-      appType: "APP_MV044H55941SP5OMR0PI",
-      formDataJson: formDataJsonStr,
-      systemToken: "9FA66WC107APIRYWEES29D6BYQHM23FRS812MWB",
-      userId: "68282452959857472"
-    }
-
-    const resp = await this.api.PostResourceRequest("/v1.0/yida/forms/instances", payload, true)
-    console.log(resp.data)
   }
 
 

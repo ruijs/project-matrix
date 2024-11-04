@@ -127,16 +127,8 @@ export default [
               value: after.id
             }
           ],
-          properties: ["id", "processes", "code", "lotNum", "quantity", "factory", "material", "oilMixtureRatio", "paraffinQuantity", "stirringTime", "stirringPressure", "tankNumber", "unloadingVideo", "dcsPicture"]
+          properties: ["id", "processes", "code", "lotNum", "quantity", "factory", "material", "oilMixtureRatio", "paraffinQuantity", "stirringTime", "stirringPressure", "tankNumber", "unloadingVideo", "dcsPicture", "createdBy"]
         });
-
-        if (workOrder) {
-          // 泰洋圣上报宜搭
-          const yidaSDK = await new YidaHelper(server).NewAPIClient();
-          const yidaAPI = new YidaApi(yidaSDK);
-
-          await yidaAPI.uploadTYSProductionRecords(workOrder)
-        }
 
         const processIds = workOrder?.processes.map((process: MomProcess) => process.id);
 
@@ -185,6 +177,48 @@ export default [
             )
           }
         }
+
+
+      } catch (error) {
+        console.error(error);
+      }
+    },
+  },
+  {
+    eventName: "entity.update",
+    modelSingularCode: "mom_work_order",
+    handler: async (ctx: EntityWatchHandlerContext<"entity.update">) => {
+      const { server, payload } = ctx;
+      const { after, changes } = payload;
+
+
+      try {
+
+        if (changes.hasOwnProperty("executionState") && changes.executionState === "completed") {
+
+        }
+
+        const workFeedManager = server.getEntityManager<MomWorkFeed>("mom_work_feed");
+        const workFeeds = await workFeedManager.findEntities({
+          filters: [
+            { operator: "eq", field: "work_order_id", value: after.id },
+          ],
+          properties: ["id", "workOrder", "rawMaterial", "quantity", "lotNum", "process", "equipment", "instoreTankNumber"],
+          relations: {
+            workOrder: {
+              properties: ["id", "processes", "code", "lotNum", "quantity", "factory", "material", "oilMixtureRatio", "paraffinQuantity", "stirringTime", "stirringPressure", "tankNumber", "unloadingVideo", "dcsPicture", "createdBy"]
+            }
+          }
+        });
+
+        if (workFeeds) {
+          // 泰洋圣上报宜搭
+          const yidaSDK = await new YidaHelper(server).NewAPIClient();
+          const yidaAPI = new YidaApi(yidaSDK);
+
+          await yidaAPI.uploadTYSProductionRecords(workFeeds)
+        }
+
 
 
       } catch (error) {

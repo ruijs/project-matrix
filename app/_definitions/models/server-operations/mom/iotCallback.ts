@@ -77,7 +77,7 @@ export default {
           sql: `select last * from root.huate.devices.reports.${ workTask.equipment?.externalCode } where time > ${ input.activityFields.startTime } and time < ${ input.activityFields.endTime } ;`,
         }
 
-        const tsResponse = await iotDBSDK.PostResourceRequest("http://192.168.1.10:6670/rest/v2/query", queryPayload)
+        const tsResponse = await iotDBSDK.PostResourceRequest("http://10.0.0.3:6670/rest/v2/query", queryPayload)
         const data = ParseLastDeviceData(tsResponse.data);
 
         for (let deviceCode in data) {

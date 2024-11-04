@@ -18,6 +18,11 @@ export default [
           const transportItems = await server.getEntityManager<MomTransportOperationItem>("mom_transport_operation_item").findEntities({
             filters: [{ operator: "eq", field: "operation_id", value: after.id }],
             properties: ["id", "operation", "material", "binNum", "manufacturer", "lotNum", "quantity", "unit", "sealNum", "remark", "deliveryOrderFile", "qualityInspectionReportFile", "sealNumPicture"],
+            relations: {
+              operation: {
+                properties: ["id", "code", "orderNumb", "supplier", "createdBy"]
+              }
+            }
           });
 
           if (transportItems) {
