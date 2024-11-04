@@ -557,11 +557,7 @@ const page: RapidPage = {
                   },
                 },
                 {
-                  code: "150BsQuantity",
-                  type: "auto",
-                },
-                {
-                  code: "100OilQuantity",
+                  code: "quantity",
                   type: "auto",
                 },
                 {
