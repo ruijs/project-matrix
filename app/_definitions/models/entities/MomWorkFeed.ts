@@ -114,13 +114,8 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
       targetIdColumnName: "factory_id",
     },
     {
-      code: "150BsQuantity",
-      name: "150BS数量",
-      type: "integer",
-    },
-    {
-      code: "100OilQuantity",
-      name: "100油数量",
+      code: "quantity",
+      name: "数量(kg)",
       type: "integer",
     },
     {

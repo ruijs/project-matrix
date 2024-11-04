@@ -366,7 +366,7 @@ const page: RapidPage = {
           $permissionCheck: "hgProduction.manage",
           actionText: "修改",
           $exps: {
-            disabled: "$slot.record.executionState === 'finished'",
+            disabled: "$slot.record.executionState === 'completed'",
           },
         },
         {
@@ -378,7 +378,7 @@ const page: RapidPage = {
           dataSourceCode: "list",
           entityCode: "MomWorkOrder",
           $exps: {
-            disabled: "$slot.record.executionState === 'finished'",
+            disabled: "$slot.record.executionState === 'completed'",
           },
         },
       ],

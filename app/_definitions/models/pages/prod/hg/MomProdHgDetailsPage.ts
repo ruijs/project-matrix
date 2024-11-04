@@ -407,7 +407,7 @@ const page: RapidPage = {
                   icon: "PlusOutlined",
                   actionStyle: "primary",
                   $exps: {
-                    _hidden: "_.get(_.first(_.get($stores.detail, 'data.list')), 'executionState') === 'finished'",
+                    _hidden: "_.get(_.first(_.get($stores.detail, 'data.list')), 'executionState') === 'completed'",
                   },
                 },
                 // {
@@ -466,7 +466,7 @@ const page: RapidPage = {
                   $permissionCheck: "tysProduction.manage",
                   actionText: "修改",
                   $exps: {
-                    disabled: "_.get(_.first(_.get($stores.detail, 'data.list')), 'executionState') === 'finished'",
+                    disabled: "_.get(_.first(_.get($stores.detail, 'data.list')), 'executionState') === 'completed'",
                   },
                 },
                 {
@@ -478,7 +478,7 @@ const page: RapidPage = {
                   dataSourceCode: "list",
                   entityCode: "MomWorkReport",
                   $exps: {
-                    disabled: "_.get(_.first(_.get($stores.detail, 'data.list')), 'executionState') === 'finished'",
+                    disabled: "_.get(_.first(_.get($stores.detail, 'data.list')), 'executionState') === 'completed'",
                   },
                 },
               ],
@@ -516,7 +516,7 @@ const page: RapidPage = {
                   icon: "PlusOutlined",
                   actionStyle: "primary",
                   $exps: {
-                    _hidden: "_.get(_.first(_.get($stores.detail, 'data.list')), 'executionState') === 'finished'",
+                    _hidden: "_.get(_.first(_.get($stores.detail, 'data.list')), 'executionState') === 'completed'",
                   },
                 },
                 // {
@@ -583,7 +583,7 @@ const page: RapidPage = {
                   $permissionCheck: "tysProduction.manage",
                   actionText: "修改",
                   $exps: {
-                    disabled: "_.get(_.first(_.get($stores.detail, 'data.list')), 'executionState') === 'finished'",
+                    disabled: "_.get(_.first(_.get($stores.detail, 'data.list')), 'executionState') === 'completed'",
                   },
                 },
                 {
@@ -595,7 +595,7 @@ const page: RapidPage = {
                   dataSourceCode: "list",
                   entityCode: "MomWorkFeed",
                   $exps: {
-                    disabled: "_.get(_.first(_.get($stores.detail, 'data.list')), 'executionState') === 'finished'",
+                    disabled: "_.get(_.first(_.get($stores.detail, 'data.list')), 'executionState') === 'completed'",
                   },
                 },
               ],
