@@ -414,6 +414,9 @@ const page: RapidPage = {
                   $permissionCheck: "tysProduction.manage",
                   icon: "PlusOutlined",
                   actionStyle: "primary",
+                  $exps: {
+                    _hidden: "_.get(_.first(_.get($stores.detail, 'data.list')), 'executionState') === 'finished'",
+                  },
                 },
                 // {
                 //   $type: "sonicToolbarRefreshButton",
@@ -460,6 +463,9 @@ const page: RapidPage = {
                   actionType: "edit",
                   $permissionCheck: "tysProduction.manage",
                   actionText: "修改",
+                  $exps: {
+                    disabled: "_.get(_.first(_.get($stores.detail, 'data.list')), 'executionState') === 'finished'",
+                  },
                 },
                 {
                   $type: "sonicRecordActionDeleteEntity",
@@ -469,6 +475,9 @@ const page: RapidPage = {
                   $permissionCheck: "tysProduction.manage",
                   dataSourceCode: "list",
                   entityCode: "MomWorkReport",
+                  $exps: {
+                    disabled: "_.get(_.first(_.get($stores.detail, 'data.list')), 'executionState') === 'finished'",
+                  },
                 },
               ],
               newForm: cloneDeep(reportFormConfig),
@@ -504,6 +513,9 @@ const page: RapidPage = {
                   $permissionCheck: "tysProduction.manage",
                   icon: "PlusOutlined",
                   actionStyle: "primary",
+                  $exps: {
+                    _hidden: "_.get(_.first(_.get($stores.detail, 'data.list')), 'executionState') === 'finished'",
+                  },
                 },
                 // {
                 //   $type: "sonicToolbarRefreshButton",
@@ -580,6 +592,9 @@ const page: RapidPage = {
                   actionType: "edit",
                   $permissionCheck: "tysProduction.manage",
                   actionText: "修改",
+                  $exps: {
+                    disabled: "_.get(_.first(_.get($stores.detail, 'data.list')), 'executionState') === 'finished'",
+                  },
                 },
                 {
                   $type: "sonicRecordActionDeleteEntity",
@@ -589,6 +604,9 @@ const page: RapidPage = {
                   $permissionCheck: "tysProduction.manage",
                   dataSourceCode: "list",
                   entityCode: "MomWorkFeed",
+                  $exps: {
+                    disabled: "_.get(_.first(_.get($stores.detail, 'data.list')), 'executionState') === 'finished'",
+                  },
                 },
               ],
               newForm: cloneDeep(feedFormConfig),

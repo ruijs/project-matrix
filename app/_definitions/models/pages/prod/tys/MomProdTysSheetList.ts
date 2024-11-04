@@ -418,6 +418,9 @@ const page: RapidPage = {
           actionType: "edit",
           $permissionCheck: "tysProduction.manage",
           actionText: "修改",
+          $exps: {
+            disabled: "$slot.record.executionState === 'finished'",
+          },
         },
         {
           $type: "sonicRecordActionDeleteEntity",
@@ -427,6 +430,9 @@ const page: RapidPage = {
           actionText: "删除",
           dataSourceCode: "list",
           entityCode: "MomWorkOrder",
+          $exps: {
+            disabled: "$slot.record.executionState === 'finished'",
+          },
         },
       ],
       newForm: cloneDeep(formConfig),
