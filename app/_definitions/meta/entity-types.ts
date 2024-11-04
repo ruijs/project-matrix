@@ -7980,13 +7980,9 @@ export interface MomWorkFeed {
    */
   factory?: Partial<MomFactory>;
   /**
-   * 150BS数量
+   * 数量(kg)
    */
-  150BsQuantity?: number;
-  /**
-   * 100油数量
-   */
-  100OilQuantity?: number;
+  quantity?: number;
   /**
    * 存油罐编号
    */
