@@ -53,6 +53,39 @@ const page: RapidPage = {
           filterFields: ["lotNum"],
         },
       ],
+      // mom_material_lot_list
+      searchForm: {
+        entityCode: "mom_material_lot_list",
+        items: [
+          {
+            type: "auto",
+            code: "material",
+            listDataFindOptions: {
+              fixedFilters: [
+                {
+                  field: "id",
+                  operator: "eq",
+                  value: "",
+                },
+              ],
+              $exps: {
+                "fixedFilters[0].value": "$scope.vars.active_material_id",
+              },
+            },
+            formControlProps: {
+              dropdownMatchSelectWidth: 500,
+              listTextFormat: materialFormatStrTemplate,
+              listFilterFields: ["name", "code", "specification"],
+              columns: [
+                { code: "code", title: "编号", width: 120 },
+                { code: "name", title: "名称", width: 120 },
+                { code: "specification", title: "规格", width: 120 },
+              ],
+            },
+            required: true,
+          },
+        ],
+      },
       orderBy: [
         {
           field: "createdAt",
