@@ -138,6 +138,14 @@ import bpm$BpmManualTask from '../models/entities/bpm/BpmManualTask';
 import bpm$BpmProcess from '../models/entities/bpm/BpmProcess';
 import bpm$BpmProcessCategory from '../models/entities/bpm/BpmProcessCategory';
 import bpm$BpmProcessRevision from '../models/entities/bpm/BpmProcessRevision';
+import iot$DataSource from '../models/entities/iot/DataSource';
+import iot$Machine from '../models/entities/iot/Machine';
+import iot$MachineAttribute from '../models/entities/iot/MachineAttribute';
+import iot$MachineAttributeBind from '../models/entities/iot/MachineAttributeBind';
+import iot$MachineField from '../models/entities/iot/MachineField';
+import iot$MachineState from '../models/entities/iot/MachineState';
+import iot$MachineTrigger from '../models/entities/iot/MachineTrigger';
+import iot$MachineType from '../models/entities/iot/MachineType';
 import pm$PmMilestone from '../models/entities/pm/PmMilestone';
 import pm$PmPhase from '../models/entities/pm/PmPhase';
 import pm$PmProject from '../models/entities/pm/PmProject';
@@ -298,6 +306,14 @@ const entityDefinitions = [
   bpm$BpmProcess,
   bpm$BpmProcessCategory,
   bpm$BpmProcessRevision,
+  iot$DataSource,
+  iot$Machine,
+  iot$MachineAttribute,
+  iot$MachineAttributeBind,
+  iot$MachineField,
+  iot$MachineState,
+  iot$MachineTrigger,
+  iot$MachineType,
   pm$PmMilestone,
   pm$PmPhase,
   pm$PmProject,
@@ -458,6 +474,14 @@ const configuredEntities:TRapidEntity[] = [
   autoConfigureRapidEntity(bpm$BpmProcess, entityDefinitions),
   autoConfigureRapidEntity(bpm$BpmProcessCategory, entityDefinitions),
   autoConfigureRapidEntity(bpm$BpmProcessRevision, entityDefinitions),
+  autoConfigureRapidEntity(iot$DataSource, entityDefinitions),
+  autoConfigureRapidEntity(iot$Machine, entityDefinitions),
+  autoConfigureRapidEntity(iot$MachineAttribute, entityDefinitions),
+  autoConfigureRapidEntity(iot$MachineAttributeBind, entityDefinitions),
+  autoConfigureRapidEntity(iot$MachineField, entityDefinitions),
+  autoConfigureRapidEntity(iot$MachineState, entityDefinitions),
+  autoConfigureRapidEntity(iot$MachineTrigger, entityDefinitions),
+  autoConfigureRapidEntity(iot$MachineType, entityDefinitions),
   autoConfigureRapidEntity(pm$PmMilestone, entityDefinitions),
   autoConfigureRapidEntity(pm$PmPhase, entityDefinitions),
   autoConfigureRapidEntity(pm$PmProject, entityDefinitions),

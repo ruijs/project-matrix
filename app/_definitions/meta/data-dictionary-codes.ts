@@ -66,6 +66,8 @@ const dictionaryCodes = [
   'UnitType',
   'UserSecretLevel',
   'WarehouseStrategy',
+  'IotDataType',
+  'IotTriggerEventType',
   'SettingItemType',
 ] as const;
 export type TDictionaryCodes = typeof dictionaryCodes[number];

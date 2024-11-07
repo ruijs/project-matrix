@@ -66,6 +66,8 @@ import UndeletedDeletedState from '../models/data-dictionaries/UndeletedDeletedS
 import UnitType from '../models/data-dictionaries/UnitType';
 import UserSecretLevel from '../models/data-dictionaries/UserSecretLevel';
 import WarehouseStrategy from '../models/data-dictionaries/WarehouseStrategy';
+import iot$IotDataType from '../models/data-dictionaries/iot/IotDataType';
+import iot$IotTriggerEventType from '../models/data-dictionaries/iot/IotTriggerEventType';
 import setting$SettingItemType from '../models/data-dictionaries/setting/SettingItemType';
 
 export default [
@@ -136,5 +138,7 @@ export default [
   UnitType,
   UserSecretLevel,
   WarehouseStrategy,
+  iot$IotDataType,
+  iot$IotTriggerEventType,
   setting$SettingItemType,
 ] as TRapidDataDictionary[];
