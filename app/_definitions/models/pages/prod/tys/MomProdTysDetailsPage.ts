@@ -402,8 +402,10 @@ const page: RapidPage = {
               orderBy: [
                 {
                   field: "id",
+                  desc: true,
                 },
               ],
+              extraProperties: ["workOrder"],
               listActions: [
                 {
                   $type: "sonicToolbarNewEntityButton",
@@ -423,10 +425,14 @@ const page: RapidPage = {
               ],
               columns: [
                 {
-                  type: "auto",
+                  type: "link",
                   code: "createdAt",
-                  title: "报工时间",
                   width: "150px",
+                  fixed: "left",
+                  rendererType: "link",
+                  rendererProps: {
+                    url: "/pages/mom_work_report_details?workOrderId={{workOrder.id}}&workReportId={{id}}",
+                  },
                 },
                 {
                   type: "auto",

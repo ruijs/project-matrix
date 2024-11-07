@@ -228,7 +228,7 @@ export default [
                 },
               },
               sheet: {
-                properties: ["id", "code", "lotNum", "material", "rule", "result", "reportFile", "gcmsReportFile", "invoiceReportFile", "normalReportFile", "qualityReportFile"],
+                properties: ["id", "code", "lotNum", "material", "rule", "result", "reportFile", "gcmsReportFile", "invoiceReportFile", "normalReportFile", "qualityReportFile", "createdBy", "gcmsPassed"],
                 relations: {
                   rule: {
                     properties: ["id", "name", "category"],

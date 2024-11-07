@@ -2065,7 +2065,6 @@ const entityFieldCodes = {
     'extra',
     'lot',
     'factory',
-    'quantity',
     'instoreTankNumber',
     'createdAt',
     'createdBy',

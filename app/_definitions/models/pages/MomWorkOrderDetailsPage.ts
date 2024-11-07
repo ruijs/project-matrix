@@ -489,6 +489,7 @@ const page: RapidPage = {
               orderBy: [
                 {
                   field: "id",
+                  desc: true
                 },
               ],
               extraProperties: ["workOrder"],

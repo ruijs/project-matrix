@@ -105,15 +105,19 @@ export default [
       }
 
 
-      if(workTask?.equipment?.externalId) {
-        let deviceTaskPayload = {
-          workTask: workTask.code,
-          state: "running",
-        };
+      try {
+        if(workTask?.equipment?.externalId) {
+          let deviceTaskPayload = {
+            workTask: workTask.code,
+          };
 
-        const iotSDK = await new IotHelper(server).NewAPIClient();
-        await iotSDK.PutResourceRequest(`http://10.0.0.3:3020/api/machines/${ workTask?.equipment?.externalId }/fields`, deviceTaskPayload);
+          const iotSDK = await new IotHelper(server).NewAPIClient();
+          await iotSDK.PutResourceRequest(`http://10.0.0.3:3020/api/machines/${ workTask?.equipment?.externalId }/fields`, deviceTaskPayload);
+        }
+      } catch (e) {
+        console.log(e)
       }
+
     }
   },
   {
