@@ -67,6 +67,10 @@ export default {
 
       data?.forEach((item: any) => {
         item.measurements?.forEach?.((measurement: any) => {
+          if (!measurement.characteristic) {
+            return;
+          }
+
           const name = measurement.characteristic?.name;
           const value = measurement.qualitativeValue || measurement.quantitativeValue || "-";
           const sampleCode = measurement.sampleCode;
@@ -112,15 +116,17 @@ export default {
         values: temp[name].values,
       }));
       const formateMeasurements =
-        res.samples[0]?.measurements?.map((item: any) => {
-          return {
-            name: item?.characteristic?.name,
-            method: item?.characteristic?.method?.name,
-            unit: "",
-            norminal: fmtCharacteristicNorminal(item?.characteristic), //指标
-            category: item?.characteristic?.category?.name, //特性分类
-          };
-        }) || [];
+        res.samples[0]?.measurements
+          ?.filter((item: any) => item?.characteristic != null)
+          ?.map((item: any) => {
+            return {
+              name: item?.characteristic?.name,
+              method: item?.characteristic?.method?.name,
+              unit: "",
+              norminal: fmtCharacteristicNorminal(item?.characteristic), //指标
+              category: item?.characteristic?.category?.name, //特性分类
+            };
+          }) || [];
 
       const samplesArray = formateMeasurements.map((item: any) => {
         const appearances = formattedResult.find((it) => item.name === it.name)?.appearances || "-";
