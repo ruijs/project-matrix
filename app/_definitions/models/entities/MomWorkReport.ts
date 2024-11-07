@@ -202,6 +202,12 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
       },
     },
   ],
+  indexes: [
+    {
+      unique: true,
+      properties: ["workOrder", "lotNum"],
+    },
+  ],
 };
 
 export default entity;
