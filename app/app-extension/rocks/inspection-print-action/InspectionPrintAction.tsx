@@ -3,11 +3,12 @@
 import { type Rock } from "@ruiapp/move-style";
 import { Button } from "antd";
 import { useEffect, useRef, useState } from "react";
-import { printDOM } from "../page-print/print";
+
 import logo from "../../../../public/favicon.png";
 import rapidApi from "~/rapidApi";
 import dayjs from "dayjs";
 import { fmtCharacteristicNorminal } from "~/utils/fmt";
+import { printDOM } from "../page-print/print";
 
 interface IInspectionsSheet {
   id: string;
@@ -52,14 +53,16 @@ export default {
   Renderer(context, props, state) {
     const ref = useRef<HTMLDivElement>(null);
     const { loadInspectionSheet, inspectionSheet } = useInspectionSheet();
-
-    useEffect(() => {
-      if (props?.record?.id) {
-        loadInspectionSheet(props?.record?.id);
-      }
-    }, [props.record.id]);
     const handleOnClick = async () => {
-      printDOM(ref.current!);
+      if (inspectionSheet) {
+        printDOM(ref.current);
+      } else {
+        loadInspectionSheet(props?.record?.id).then((res) => {
+          if (res) {
+            printDOM(ref.current!);
+          }
+        });
+      }
     };
 
     const countCharacteristics = (data: any) => {
@@ -107,8 +110,8 @@ export default {
 
     const printContent = (res: IInspectionsSheet) => {
       const title = res?.material?.category?.name?.includes("原材料") ? "进 料 检 测 报 告" : "成 品 检 测 报 告";
-      const result = res.result === "unqualified" ? false : true;
-      const samples = res.samples;
+      const result = res?.result === "unqualified" ? false : true;
+      const samples = res?.samples;
       const temp = countCharacteristics(samples);
       const formattedResult = Object.keys(temp).map((name) => ({
         name,
@@ -116,7 +119,7 @@ export default {
         values: temp[name].values,
       }));
       const formateMeasurements =
-        res.samples[0]?.measurements
+        res?.samples[0]?.measurements
           ?.filter((item: any) => item?.characteristic != null)
           ?.map((item: any) => {
             return {
@@ -139,7 +142,7 @@ export default {
       });
 
       return (
-        <div>
+        <div ref={ref} className="inspection-template-container">
           <img src={logo} style={{ width: 200, height: 75 }} />
           <table>
             <tr>
@@ -231,15 +234,19 @@ export default {
       );
     };
 
+    useEffect(() => {
+      if (inspectionSheet && ref.current) {
+        handleOnClick();
+      }
+    }, [inspectionSheet, ref.current]);
+
     return (
       <>
         <Button style={{ padding: 0, marginLeft: 6 }} type="link" onClick={handleOnClick}>
           打印
         </Button>
         <div style={{ display: "none" }}>
-          <div ref={ref} className="inspection-template-container">
-            {inspectionSheet && printContent(inspectionSheet)}
-          </div>
+          <div>{inspectionSheet && printContent(inspectionSheet)}</div>
         </div>
       </>
     );
