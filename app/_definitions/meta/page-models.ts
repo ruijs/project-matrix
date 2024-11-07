@@ -1,4 +1,4 @@
-import type { RapidPage as TRapidPage } from '@ruiapp/rapid-extension';
+import type { RapidPageLoader as TRapidPageLoader } from '@ruiapp/rapid-extension';
 import AppNavItemListPage from '../models/pages/AppNavItemListPage';
 import BaseEmployeeListPage from '../models/pages/BaseEmployeeListPage';
 import BaseFormFieldListPage from '../models/pages/BaseFormFieldListPage';
@@ -309,4 +309,4 @@ export default [
   sys$SysPrinterListPage,
   sys$SysSubSystemListPage,
   sys$SysWebhookListPage,
-] as TRapidPage[];
+] as TRapidPageLoader[];
