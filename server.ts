@@ -2,11 +2,11 @@ import process from "process";
 import path from "path";
 import express from "express";
 import compression from "compression";
-import { format, transports } from "winston";
+import {format, transports} from "winston";
 import expressWinston from "express-winston";
-import { createRequestHandler } from "@remix-run/express";
-import { createProxyMiddleware } from "http-proxy-middleware";
-import { consoleFormat, createAppLogger } from "./rapid-logger";
+import {createRequestHandler} from "@remix-run/express";
+import {createProxyMiddleware} from "http-proxy-middleware";
+import {consoleFormat, createAppLogger} from "./rapid-logger";
 import DatabaseAccessor from "./database-accessor";
 import {
   RapidServer,
@@ -22,8 +22,9 @@ import {
   CronJobPlugin,
   EntityAccessControlPlugin,
   SettingPlugin,
+  LicensePlugin,
 } from "@ruiapp/rapid-core";
-import { createRapidRequestHandler } from "@ruiapp/rapid-express";
+import {createRapidRequestHandler} from "@ruiapp/rapid-express";
 
 import serverOperations from "./app/_definitions/meta/server-operations";
 import entityWatchers from "./app/_definitions/meta/entity-watchers";
@@ -32,7 +33,7 @@ import cronJobs from "./app/_definitions/meta/cron-jobs";
 import "dotenv/config";
 import PrinterPlugin from "rapid-plugins/printerService/PrinterPlugin";
 import BpmPlugin from "rapid-plugins/bpm/BpmPlugin";
-import { getRapidAppDefinitionFromRapidServer } from "~/utils/app-definition-utility";
+import {getRapidAppDefinitionFromRapidServer} from "~/utils/app-definition-utility";
 
 const isDevelopmentEnv = process.env.NODE_ENV === "development";
 
@@ -150,6 +151,9 @@ export async function startServer() {
       }),
       new PrinterPlugin(),
       new BpmPlugin(),
+      new LicensePlugin({
+        encryptionKey: env.get("RAPID_LICENSE_ENCRYPTION_KEY", ""),
+      }),
     ],
     entityWatchers,
   });
