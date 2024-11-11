@@ -468,6 +468,11 @@ const page: RapidPage = {
                     format: "{{name}}",
                   },
                 },
+                {
+                  type: "auto",
+                  code: "executionState",
+                  width: "150px",
+                },
               ],
               actions: [
                 {

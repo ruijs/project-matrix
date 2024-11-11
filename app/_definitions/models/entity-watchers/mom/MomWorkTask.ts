@@ -11,7 +11,7 @@ export default [
       const { server, payload } = ctx;
       let before = payload.before;
 
-      before.actualStartTime = dayjs().format("YYYY-MM-DD HH:mm:ss");
+      before.actualStartTime = dayjs().format("YYYY-MM-DDTHH:mm:ss[Z]");
       before.executionState = 'processing';
 
       if (before.hasOwnProperty('processes') && !before.hasOwnProperty('process')) {
@@ -82,7 +82,7 @@ export default [
         changes.executionState = 'completed';
       }
       if (changes.hasOwnProperty("executionState") && changes.executionState === 'completed') {
-        changes.actualFinishTime = dayjs().format("YYYY-MM-DD HH:mm:ss");
+        changes.actualFinishTime = dayjs().format("YYYY-MM-DDTHH:mm:ss[Z]");
       }
     }
   },
@@ -98,21 +98,30 @@ export default [
           { operator: "eq", field: "id", value: after.id },
         ],
         properties: ["id", "code", "workOrder", "process", "material", "equipment"],
+        relations: {
+          equipment: {
+            properties: [
+              "id", "code", "name", "machine"
+            ]
+          }
+        }
       })
 
-      if (!workTask) {
+      if (!workTask || !workTask?.equipment?.machine) {
+        console.log("任务不存在或者设备没有绑定IOT设备")
         return;
       }
 
 
       try {
-        if(workTask?.equipment?.externalId) {
+        if (workTask?.equipment?.machine?.id) {
           let deviceTaskPayload = {
             workTask: workTask.code,
+            state: "stopped",
           };
 
           const iotSDK = await new IotHelper(server).NewAPIClient();
-          await iotSDK.PutResourceRequest(`http://10.0.0.3:3020/api/machines/${ workTask?.equipment?.externalId }/fields`, deviceTaskPayload);
+          await iotSDK.PutResourceRequest(`http://10.0.0.3:3020/api/machines/${ workTask?.equipment?.machine?.id }/fields`, deviceTaskPayload);
         }
       } catch (e) {
         console.log(e)
@@ -138,6 +147,11 @@ export default [
           relations: {
             workOrder: {
               properties: ["id", "processes"],
+            },
+            equipment: {
+              properties: [
+                "id", "code", "name", "machine"
+              ]
             }
           }
         })
@@ -162,14 +176,14 @@ export default [
         }
 
 
-        if(workTask?.equipment?.externalId) {
+        if (workTask?.equipment?.machine?.id) {
           let deviceTaskPayload = {
             workTask: "",
             state: "stopped",
           };
 
           const iotSDK = await new IotHelper(server).NewAPIClient();
-          await iotSDK.PutResourceRequest(`http://10.0.0.3:3020/api/machines/${ workTask?.equipment?.externalId }/fields`, deviceTaskPayload);
+          await iotSDK.PutResourceRequest(`http://10.0.0.3:3020/api/machines/${ workTask?.equipment?.machine?.id }/fields`, deviceTaskPayload);
         }
       }
     }

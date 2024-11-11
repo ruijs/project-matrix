@@ -859,6 +859,7 @@ const entityFieldCodes = {
     'factory',
     'externalCode',
     'externalId',
+    'machine',
     'createdAt',
     'createdBy',
     'updatedAt',
