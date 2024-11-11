@@ -238,8 +238,8 @@ async function createGoodTransfer(goodTransferManager: any, operationId: number,
     binNum: good.binNum,
     quantity: good.quantity,
     unit: { id: good.unit?.id },
-    transferTime: dayjs().format("YYYY-MM-DD HH:mm:ss"),
-    printTime: print ? dayjs().format("YYYY-MM-DD HH:mm:ss") : null,
+    transferTime: dayjs().format("YYYY-MM-DDTHH:mm:ss[Z]"),
+    printTime: print ? dayjs().format("YYYY-MM-DDTHH:mm:ss[Z]") : null,
   } as SaveMomGoodTransferInput
 
   if (locationId && locationId > 0) {

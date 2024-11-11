@@ -311,7 +311,13 @@ const page: RapidPage = {
         // },
         {
           type: "auto",
-          code: "process",
+          code: "processes",
+          rendererProps: {
+            item: {
+              $type: "rapidObjectRenderer",
+              format: "{{name}}",
+            },
+          },
           width: "100px",
         },
         {

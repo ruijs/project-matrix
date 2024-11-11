@@ -239,7 +239,7 @@ export default [
                       entityToSave: {
                         state: "normal",
                         location: { id: transfer.to_location_id },
-                        putInTime: dayjs().format("YYYY-MM-DD HH:mm:ss"),
+                        putInTime: dayjs().format("YYYY-MM-DDTHH:mm:ss[Z]"),
                       } as SaveMomGoodInput,
                     });
                   }

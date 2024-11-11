@@ -163,7 +163,7 @@ export default [
             id: after.good_id,
             entityToSave: {
               location: { id: after.to?.id || after.to_location_id },
-              putInTime: dayjs().format("YYYY-MM-DD HH:mm:ss"),
+              putInTime: dayjs().format("YYYY-MM-DDTHH:mm:ss[Z]"),
             },
           })
           await updateInventoryBalance(server);

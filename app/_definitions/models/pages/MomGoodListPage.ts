@@ -88,9 +88,9 @@ const page: RapidPage = {
                 materialCode: _.get(record, "material.code"),
                 materialSpecification: _.get(record, "material.specification"),
                 lotNum: _.get(record, "lot.lotNum"),
-                createdAt: createdAt && dayjs(createdAt).format("YYYY-MM-DD HH:mm:ss"),
+                createdAt: createdAt && dayjs(createdAt).format("YYYY-MM-DDTHH:mm:ss[Z]"),
                 validityDate: validityDate && dayjs(validityDate).format("YYYY-MM-DD"),
-                currentTime: dayjs().format("YYYY-MM-DD HH:mm:ss"),
+                currentTime: dayjs().format("YYYY-MM-DDTHH:mm:ss[Z]"),
                 unit: _.get(record, "unit.name"),
                 qualificationState: _.get(qualificationStateInfo, "name"),
               })

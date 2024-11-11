@@ -118,7 +118,7 @@ async function createGoodTransfer(server: IRpdServer, operationId: number, good:
     quantity: good.quantity,
     unit: { id: good.unit?.id },
     from: { id: good.location?.id },
-    transferTime: dayjs().format("YYYY-MM-DD HH:mm:ss"),
+    transferTime: dayjs().format("YYYY-MM-DDTHH:mm:ss[Z]"),
     orderNum: 1,
   } as SaveMomGoodTransferInput
 
@@ -177,7 +177,7 @@ async function handleGood(server: IRpdServer, ctx: RouteContext, goodId: number,
       routeContext: ctx,
       id: goodLocation.id,
       entityToSave: {
-        takeOutTime: dayjs().format("YYYY-MM-DD HH:mm:ss"),
+        takeOutTime: dayjs().format("YYYY-MM-DDTHH:mm:ss[Z]"),
       } as SaveMomGoodLocationInput,
     });
   }

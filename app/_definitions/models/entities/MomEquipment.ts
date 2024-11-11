@@ -87,6 +87,13 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
       name: "外部ID",
       type: "text",
     },
+    {
+      code: "machine",
+      name: "IOT设备",
+      type: "relation",
+      targetSingularCode: "iot_machine",
+      targetIdColumnName: "machine_id",
+    },
   ],
 };
 

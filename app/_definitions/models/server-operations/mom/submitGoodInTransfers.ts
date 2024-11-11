@@ -84,7 +84,7 @@ async function submitGoodInTransfers(server: IRpdServer, ctx: RouteContext, inpu
       id: goodTransfer?.good?.id,
       entityToSave: {
         location: { id: input.toLocationId },
-        putInTime: dayjs().format("YYYY-MM-DD HH:mm:ss"),
+        putInTime: dayjs().format("YYYY-MM-DDTHH:mm:ss[Z]"),
       } as SaveMomGoodInput,
     });
 
@@ -92,7 +92,7 @@ async function submitGoodInTransfers(server: IRpdServer, ctx: RouteContext, inpu
       entity: {
         good: { id: goodTransfer?.good?.id },
         location: { id: input.toLocationId },
-        putInTime: dayjs().format("YYYY-MM-DD HH:mm:ss"),
+        putInTime: dayjs().format("YYYY-MM-DDTHH:mm:ss[Z]"),
       } as SaveMomGoodLocationInput,
     });
 

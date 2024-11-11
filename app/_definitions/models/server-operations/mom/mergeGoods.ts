@@ -74,7 +74,7 @@ async function mergeGoods(server: IRpdServer, ctx: RouteContext, input: MergeGoo
     location: { id: input.locationId },
     quantity: goods.reduce((acc, curr) => acc + (curr?.quantity || 0), 0),
     manufactureDate: originGood.manufactureDate,
-    putInTime: dayjs().format("YYYY-MM-DD HH:mm:ss"),
+    putInTime: dayjs().format("YYYY-MM-DDTHH:mm:ss[Z]"),
     unit: originGood.unit,
     lotNum: originGood.lotNum,
     binNum: binNums[0],

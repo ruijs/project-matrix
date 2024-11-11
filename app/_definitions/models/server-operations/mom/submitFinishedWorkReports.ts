@@ -112,7 +112,7 @@ export default {
       await server.getEntityManager<MomWorkReport>("mom_work_report").updateEntityById({
         id: workReport.id,
         entityToSave: {
-          actualFinishTime: dayjs().format("YYYY-MM-DD HH:mm:ss"),
+          actualFinishTime: dayjs(),
           executionState: "completed",
         }
       })

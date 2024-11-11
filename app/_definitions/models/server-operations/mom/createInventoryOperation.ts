@@ -128,7 +128,7 @@ export async function createInventoryOperation(server: IRpdServer, ctx: RouteCon
         quantity: transfer.quantity,
         unit: {id: transfer.unit?.id},
         to: {id: 1},
-        transferTime: dayjs().format("YYYY-MM-DD HH:mm:ss"),
+        transferTime: dayjs().format("YYYY-MM-DDTHH:mm:ss[Z]"),
       } as SaveMomGoodTransferInput,
     });
   }

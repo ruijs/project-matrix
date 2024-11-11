@@ -2951,6 +2951,10 @@ export interface MomEquipment {
    */
   externalId?: string;
   /**
+   * IOT设备
+   */
+  machine?: Partial<IotMachine>;
+  /**
    * 创建时间
    */
   createdAt?: string;

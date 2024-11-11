@@ -466,9 +466,9 @@ const page: RapidPage = {
                         materialCode: _.get(record, "material.code"),
                         materialSpecification: _.get(record, "material.specification"),
                         lotNum: _.get(record, 'lot.lotNum'),
-                        createdAt: createdAt && dayjs(createdAt).format("YYYY-MM-DD HH:mm:ss"),
+                        createdAt: createdAt && dayjs(createdAt).format("YYYY-MM-DDTHH:mm:ss[Z]"),
                         validityDate: validityDate && dayjs(validityDate).format("YYYY-MM-DD"),
-                        currentTime: dayjs().format("YYYY-MM-DD HH:mm:ss"),
+                        currentTime: dayjs().format("YYYY-MM-DDTHH:mm:ss[Z]"),
                         unit: _.get(record, "unit.name"),
                         qualificationState: _.get(qualificationStateInfo, 'name')
                       })
@@ -590,9 +590,9 @@ const page: RapidPage = {
                           materialCode: _.get(item, "material.code"),
                           materialSpecification: _.get(item, "material.specification"),
                           lotNum: _.get(item, 'lot.lotNum'),
-                          createdAt: createdAt && dayjs(createdAt).format("YYYY-MM-DD HH:mm:ss"),
+                          createdAt: createdAt && dayjs(createdAt).format("YYYY-MM-DDTHH:mm:ss[Z]"),
                           validityDate: validityDate && dayjs(validityDate).format("YYYY-MM-DD"),
-                          currentTime: dayjs().format("YYYY-MM-DD HH:mm:ss"),
+                          currentTime: dayjs().format("YYYY-MM-DDTHH:mm:ss[Z]"),
                           unit: _.get(item, "unit.name"),
                           qualificationState: _.get(qualificationStateInfo, 'name')
                         })
@@ -616,9 +616,9 @@ const page: RapidPage = {
                 //         materialName: _.get(item, "material.name"),
                 //         materialCode: _.get(item, "material.code"),
                 //         materialSpecification: _.get(item, "material.specification"),
-                //         createdAt: createdAt && dayjs(createdAt).format("YYYY-MM-DD HH:mm:ss"),
+                //         createdAt: createdAt && dayjs(createdAt).format("YYYY-MM-DDTHH:mm:ss[Z]"),
                 //         lotNum: _.get(item, 'lot.lotNum'),
-                //         currentTime: dayjs().format("YYYY-MM-DD HH:mm:ss"),
+                //         currentTime: dayjs().format("YYYY-MM-DDTHH:mm:ss[Z]"),
                 //         sampleCode: _.get(item, 'sampleNo'),
                 //         inspectDate: dayjs().format("YYYY-MM-DD"),
                 //         remark: _.get(item, 'remark')
@@ -794,9 +794,9 @@ const page: RapidPage = {
                         materialName: _.get(item, "material.name"),
                         materialCode: _.get(item, "material.code"),
                         materialSpecification: _.get(item, "material.specification"),
-                        createdAt: createdAt && dayjs(createdAt).format("YYYY-MM-DD HH:mm:ss"),
+                        createdAt: createdAt && dayjs(createdAt).format("YYYY-MM-DDTHH:mm:ss[Z]"),
                         lotNum: _.get(item, 'lot.lotNum'),
-                        currentTime: dayjs().format("YYYY-MM-DD HH:mm:ss"),
+                        currentTime: dayjs().format("YYYY-MM-DDTHH:mm:ss[Z]"),
                         sampleCode: _.get(item, 'sampleNo'),
                         inspectDate: dayjs().format("YYYY-MM-DD"),
                         remark: _.get(item, 'remark')
