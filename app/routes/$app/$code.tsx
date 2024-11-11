@@ -29,6 +29,7 @@ import { BellOutlined, ExportOutlined, KeyOutlined, ProfileOutlined, UserOutline
 import { isAccessAllowed } from "~/utils/access-control-utility";
 import { RuiLoggerProvider } from "rui-logger";
 import { redirectToSignin } from "~/utils/navigate";
+import dayjs from "dayjs";
 
 export function links() {
   return [
@@ -42,6 +43,7 @@ framework.setLoggerProvider(new RuiLoggerProvider());
 
 framework.registerExpressionVar("_", _);
 framework.registerExpressionVar("qs", qs);
+framework.registerExpressionVar("dayjs", dayjs);
 
 framework.loadExtension(ReactRocks);
 framework.loadExtension(AntdExtension);

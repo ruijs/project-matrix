@@ -213,7 +213,6 @@ const feedFormConfig: Partial<RapidEntityFormRockConfig> = {
   },
 };
 
-
 const measurementFormConfig: Partial<RapidEntityFormRockConfig> = {
   items: [
     {
@@ -291,7 +290,7 @@ const measurementFormConfig: Partial<RapidEntityFormRockConfig> = {
     {
       type: "auto",
       code: "isOutSpecification",
-    }
+    },
   ],
   defaultFormFields: {
     isOutSpecification: false,
@@ -489,7 +488,7 @@ const page: RapidPage = {
               orderBy: [
                 {
                   field: "id",
-                  desc: true
+                  desc: true,
                 },
               ],
               extraProperties: ["workOrder"],
@@ -508,13 +507,21 @@ const page: RapidPage = {
               ],
               columns: [
                 {
-                  type: "link",
+                  type: "auto",
                   code: "createdAt",
                   width: "200px",
                   fixed: "left",
-                  rendererType: "link",
+                  rendererType: "anchor",
                   rendererProps: {
-                    url: "/pages/mom_work_report_details?workOrderId={{workOrder.id}}&workReportId={{id}}",
+                    children: {
+                      $type: "text",
+                      $exps: {
+                        text: "dayjs($slot.value).format('YYYY-MM-DD HH:mm:ss')",
+                      },
+                    },
+                    $exps: {
+                      href: "$rui.execVarText('/pages/mom_work_report_details?workOrderId={{workOrder.id}}&workReportId={{id}}', $slot.record)",
+                    },
                   },
                 },
                 {
@@ -728,7 +735,7 @@ const page: RapidPage = {
                   width: "150px",
                   rendererProps: {
                     format: "{{name}}",
-                  }
+                  },
                 },
                 {
                   type: "auto",
@@ -736,7 +743,7 @@ const page: RapidPage = {
                   width: "150px",
                   rendererProps: {
                     format: "{{code}}-{{name}}",
-                  }
+                  },
                 },
                 {
                   type: "auto",
@@ -744,7 +751,7 @@ const page: RapidPage = {
                   width: "150px",
                   rendererProps: {
                     format: "{{code}}-{{name}}",
-                  }
+                  },
                 },
                 {
                   type: "auto",
