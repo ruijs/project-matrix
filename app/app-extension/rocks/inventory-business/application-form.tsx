@@ -114,6 +114,11 @@ export default {
             operator: "gt",
             value: 0,
           },
+          {
+            field: "state",
+            operator: "eq",
+            value: "normal",
+          },
         ];
         if (r.material?.id) {
           fixedFilters.push({
