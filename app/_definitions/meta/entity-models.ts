@@ -92,6 +92,7 @@ import MomMaterialWarehouseLocationInventoryBalance from '../models/entities/Mom
 import MomMaterialWarehouseLocationInventoryLog from '../models/entities/MomMaterialWarehouseLocationInventoryLog';
 import MomPackage from '../models/entities/MomPackage';
 import MomPackageGood from '../models/entities/MomPackageGood';
+import MomPrintLog from '../models/entities/MomPrintLog';
 import MomPrintTemplate from '../models/entities/MomPrintTemplate';
 import MomProcess from '../models/entities/MomProcess';
 import MomProcessCategory from '../models/entities/MomProcessCategory';
@@ -260,6 +261,7 @@ const entityDefinitions = [
   MomMaterialWarehouseLocationInventoryLog,
   MomPackage,
   MomPackageGood,
+  MomPrintLog,
   MomPrintTemplate,
   MomProcess,
   MomProcessCategory,
@@ -428,6 +430,7 @@ const configuredEntities:TRapidEntity[] = [
   autoConfigureRapidEntity(MomMaterialWarehouseLocationInventoryLog, entityDefinitions),
   autoConfigureRapidEntity(MomPackage, entityDefinitions),
   autoConfigureRapidEntity(MomPackageGood, entityDefinitions),
+  autoConfigureRapidEntity(MomPrintLog, entityDefinitions),
   autoConfigureRapidEntity(MomPrintTemplate, entityDefinitions),
   autoConfigureRapidEntity(MomProcess, entityDefinitions),
   autoConfigureRapidEntity(MomProcessCategory, entityDefinitions),

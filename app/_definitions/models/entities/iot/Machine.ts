@@ -54,6 +54,11 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
       targetIdColumnName: "machine_state_id",
       required: false,
     },
+    {
+      code: "externalCode",
+      name: "外部编号",
+      type: "text",
+    },
   ],
 };
 

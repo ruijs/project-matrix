@@ -2,10 +2,11 @@ import YidaSDK from "~/sdk/yida/sdk";
 import {
   MomInspectionMeasurement,
   MomRouteProcessParameterMeasurement,
-  MomTransportOperationItem, MomWorkFeed,
-  MomWorkOrder
+  MomTransportOperationItem,
+  MomWorkFeed
 } from "~/_definitions/meta/entity-types";
 import {fmtCharacteristicNorminal} from "~/utils/fmt";
+import {isNumber} from "lodash";
 
 class YidaApi {
   private api!: YidaSDK;
@@ -87,6 +88,28 @@ class YidaApi {
 
   public async uploadInspectionMeasurements(inputs: MomInspectionMeasurement[]) {
     for (const input of inputs) {
+
+      let upperLimit: any;
+      if (isNumber(input.characteristic?.upperLimit)) {
+        upperLimit = input.characteristic?.upperLimit
+      }
+
+      let lowerLimit: any;
+      if (isNumber(input.characteristic?.lowerLimit)) {
+        lowerLimit = input.characteristic?.lowerLimit
+      }
+
+      if (input.characteristic?.norminal && input.characteristic?.upperTol && input.characteristic?.lowerTol) {
+        if (isNumber(input.characteristic?.norminal) && isNumber(input.characteristic?.upperTol)) {
+          upperLimit = input.characteristic?.norminal + input.characteristic?.upperTol
+        }
+
+        if (isNumber(input.characteristic?.norminal) && isNumber(input.characteristic?.lowerTol)) {
+          lowerLimit = input.characteristic?.norminal + input.characteristic?.lowerTol
+        }
+      }
+
+
       let formDataJson = {
         textField_kocks566: input.sheet?.code, // 检验单号
         textField_kpc0di1h: input.sheet?.rule?.category?.name,// 检验类型
@@ -97,6 +120,8 @@ class YidaApi {
         textField_m245vk9m: input.characteristic?.name,// 检验特性
         textField_m245vk9q: fmtCharacteristicNorminal(input.characteristic!), // 标准值
         textField_m245vk9r: input.qualitativeValue || input.quantitativeValue,// 检验值
+        textField_m3flq4hm: isNumber(upperLimit) ? upperLimit.toString() : "",
+        textField_m3flq4hn: isNumber(lowerLimit) ? lowerLimit.toString() : "",
       }
 
       let formDataJsonStr = JSON.stringify(formDataJson);
