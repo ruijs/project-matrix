@@ -405,7 +405,7 @@ async function fix(server: IRpdServer, input: CreateGoodTransferInput) {
                       FTranType: 21,
                       FDeptID: "781",
                       FROB: 1,
-                      FWLCompany: inventoryApplication.fWLCompany || "无",
+                      FHeadSelfB0164: inventoryApplication.fWLCompany || "无",
                       FHeadSelfB0163: inventoryApplication.contractNum || "无",
                       FHeadSelfB0165: inventoryApplication.fDeliveryCode || "无",
                       FMarketingStyle: "12530",

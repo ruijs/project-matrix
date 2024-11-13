@@ -366,6 +366,23 @@ class KisDataSync {
           } as SaveOcUserInput;
         },
       }),
+      // 同步物流供应商
+      this.createListSyncFunction({
+        url: "/koas/APP006992/api/Vendor/List",
+        singularCode: "base_partner",
+        mapToEntity: async (item: any) => {
+          const category = this.partnerCategories.find(cat => cat.code === 'supplier');
+          if (!category) return null;
+
+          return {
+            code: item.FNumber,
+            name: item.FName,
+            externalCode: item.FItemID,
+            categories: category ? [{ id: category.id }] : [],
+          } as SaveBasePartnerInput;
+        },
+        filter: (item: any) => item.FParentID !== 0
+      }),
       // 同步合作伙伴（供应商）
       this.createListSyncFunction({
         url: "/koas/APP006992/api/Vendor/List",
