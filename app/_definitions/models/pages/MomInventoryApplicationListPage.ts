@@ -100,10 +100,21 @@ const formConfig: Partial<RapidEntityFormConfig> = {
     },
     {
       type: "auto",
-      code: "fWLCompany",
+      code: "express",
       label: "物流公司",
       $exps: {
         _hidden: "$self.form.getFieldValue('businessType')?.name !== '销售出库'",
+      },
+      formControlProps: {
+        requestParams: {
+          fixedFilters: [
+            {
+              field: "categories",
+              operator: "exists",
+              filters: [{ field: "code", operator: "eq", value: "express_supplier" }],
+            },
+          ],
+        },
       },
     },
     {

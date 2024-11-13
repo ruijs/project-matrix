@@ -1211,6 +1211,7 @@ const entityFieldCodes = {
     'fSupplyID',
     'fWLCompany',
     'fDeliveryCode',
+    'express',
     'createdAt',
     'createdBy',
     'updatedAt',

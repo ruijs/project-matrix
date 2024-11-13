@@ -445,13 +445,33 @@ export default {
           )}
           {(businessType === "销售出库") && (
             <>
-              <Form.Item label="物流公司" name="fWLCompany" rules={[{ message: "物流公司" }]}>
+              <Form.Item label="物流公司" name="express" rules={[{ message: "物流公司" }]}>
                 {renderRock({
                   context,
                   rockConfig: {
-                    $type: "antdInput",
-                    $id: `${props.$id}_f_wl`,
-                    placeholder: "请输入",
+                    $type: "rapidTableSelect",
+                    $id: `${props.$id}_express`,
+                    placeholder: "请选择",
+                    listFilterFields: ["name", "code"],
+                    searchPlaceholder: "名称、编号搜索",
+                    columns: [
+                      { title: "名称", code: "name" },
+                      { title: "编号", code: "code" },
+                    ],
+                    requestConfig: {
+                      url: "/app/base_partners/operations/find",
+                      method: "post",
+                      params: {
+                        fixedFilters: [
+                          {
+                            field: "categories",
+                            operator: "exists",
+                            filters: [{ field: "code", operator: "eq", value: "express_supplier" }],
+                          },
+                        ],
+                        orderBy: [{ field: "name" }],
+                      },
+                    },
                   },
                 })}
               </Form.Item>

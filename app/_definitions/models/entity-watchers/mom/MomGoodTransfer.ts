@@ -517,8 +517,10 @@ export default [
               quantity: changes.quantity,
             }
           })
-          await updateInventoryBalance(server)
         }
+
+
+        await updateInventoryBalance(server)
 
       } catch (e) {
         console.error(e);
