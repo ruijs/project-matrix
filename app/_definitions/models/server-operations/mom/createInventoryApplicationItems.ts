@@ -73,7 +73,7 @@ async function getMaterial(server: IRpdServer, materialId: number) {
   const materialManager = server.getEntityManager<BaseMaterial>("base_material");
   return await materialManager.findEntity({
     filters: [{field: "id", operator: "eq", value: materialId}],
-    properties: ["id", "name", "code", "category", "defaultUnit"],
+    properties: ["id", "name", "code", "category", "defaultUnit", "isInspectionFree"],
   });
 }
 

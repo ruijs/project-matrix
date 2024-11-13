@@ -60,6 +60,7 @@ export interface WarehousePayload {
       FHeadSelfA0143?: string; // 质检员
       FMarketingStyle?: string;
       FSaleStyle?: string;
+      FHeadSelfB0164?: string; // 物流公司
       FHeadSelfB0163?: string; // 合同号
       FHeadSelfB0165?: string; // 销售发货单号
       FHeadSelfS0193?: string; // 合同号
