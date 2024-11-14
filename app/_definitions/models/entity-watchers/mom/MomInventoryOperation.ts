@@ -28,6 +28,7 @@ import rapidApi from "~/rapidApi";
 import {getNowString} from "~/utils/time-utils";
 import dayjs from "dayjs";
 import {isPlainObject} from "lodash";
+import {updateInventoryBalance} from "~/_definitions/models/server-operations/mom/splitGoods";
 
 export default [
   {
@@ -724,6 +725,8 @@ export default [
           //     }
           //   }
           // }
+
+          updateInventoryBalance(server)
         }
 
         if (changes) {

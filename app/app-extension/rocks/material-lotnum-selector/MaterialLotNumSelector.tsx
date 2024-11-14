@@ -16,7 +16,7 @@ export default {
       name: "momWarehouseStrategyList",
       type: "entityStore",
       entityModel: entity,
-      properties: ["id", "materialCategory", "warehouse", "businessType", "strategy", "enabled", "qualifiedFilter", "validityFilter"],
+      properties: ["id", "materialCategory", "warehouse", "businessType", "strategy", "enabled", "qualifiedFilter", "validityFilter", "isAOD"],
       fixedFilters: [
         {
           field: "enabled",
@@ -77,22 +77,17 @@ export default {
       if (lotFilterIndex > -1) {
         (fixedFilters[lotFilterIndex] as any).filters = [
           {
-            field: "isAOD",
-            operator: "eq",
-            value: true,
-          },
-          {
             operator: "or",
             filters: [
+              {
+                field: "isAOD",
+                operator: "eq",
+                value: true,
+              },
               {
                 field: "qualificationState",
                 operator: "eq",
                 value: "qualified",
-              },
-              {
-                field: "treatment",
-                operator: "eq",
-                value: "special",
               },
             ],
           },

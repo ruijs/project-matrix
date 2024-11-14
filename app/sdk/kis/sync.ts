@@ -368,10 +368,10 @@ class KisDataSync {
       }),
       // 同步物流供应商
       this.createListSyncFunction({
-        url: "/koas/APP006992/api/Vendor/List",
+        url: "/koas/APP006992/api/item/list",
         singularCode: "base_partner",
         mapToEntity: async (item: any) => {
-          const category = this.partnerCategories.find(cat => cat.code === 'supplier');
+          const category = this.partnerCategories.find(cat => cat.code === 'express_supplier');
           if (!category) return null;
 
           return {
@@ -381,7 +381,9 @@ class KisDataSync {
             categories: category ? [{ id: category.id }] : [],
           } as SaveBasePartnerInput;
         },
-        filter: (item: any) => item.FParentID !== 0
+        payload: {
+          ItemClassId: 3006
+        }
       }),
       // 同步合作伙伴（供应商）
       this.createListSyncFunction({

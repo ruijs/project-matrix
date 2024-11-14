@@ -4488,6 +4488,10 @@ export interface MomInventoryApplication {
    */
   fDeliveryCode?: string;
   /**
+   * KIS物流公司
+   */
+  express?: Partial<BasePartner>;
+  /**
    * 创建时间
    */
   createdAt?: string;
