@@ -2,7 +2,7 @@ import type {EntityWatcher, EntityWatchHandlerContext, IRpdServer} from "@ruiapp
 import type {
   BaseLot,
   MomProcess,
-  MomWorkFeed,
+  MomWorkFeed, MomWorkFeedTask,
   MomWorkOrder,
   MomWorkTask,
   SaveBaseLotInput,
@@ -132,6 +132,27 @@ export default [
 
         const processIds = workOrder?.processes.map((process: MomProcess) => process.id);
 
+        const workFeedTasks = await server.getEntityManager<MomWorkFeedTask>("mom_work_feed_task").findEntities({
+          filters: [
+            { operator: "in", field: "process_id", value: processIds },
+            { operator: "null", field: "workOrder" },
+          ],
+        });
+
+        if (workFeedTasks) {
+          for (const workFeedTask of workFeedTasks) {
+            await server.getEntityManager<MomWorkFeedTask>("mom_work_fee_task").updateEntityById(
+              {
+                id: workFeedTask.id,
+                entityToSave: {
+                  workOrder: { id: after.id },
+                }
+              }
+            )
+          }
+        }
+
+
         const workTasks = await server.getEntityManager<MomWorkTask>("mom_work_task").findEntities({
           filters: [
             { operator: "in", field: "process_id", value: processIds },
@@ -152,7 +173,6 @@ export default [
           }
         }
 
-        //   TODO: 处理投料信息
         const workFeedManager = server.getEntityManager<MomWorkFeed>("mom_work_feed");
         const workFeeds = await workFeedManager.findEntities({
           filters: [

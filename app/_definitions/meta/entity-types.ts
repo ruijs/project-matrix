@@ -7985,6 +7985,10 @@ export interface MomWorkFeed {
    */
   workTask?: Partial<MomWorkTask>;
   /**
+   * 投料任务
+   */
+  workFeedTask?: Partial<MomWorkFeedTask>;
+  /**
    * 工艺路线
    */
   route?: Partial<MomRoute>;
@@ -8066,6 +8070,145 @@ export interface MomWorkFeed {
  * 生产投料
  */
 export type SaveMomWorkFeedInput = Omit<MomWorkFeed, 'id' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>;
+
+/**
+ * 工序任务
+ */
+export interface MomWorkFeedTask {
+  /**
+   * id
+   */
+  id: number;
+  /**
+   * 任务号
+   */
+  code?: string;
+  /**
+   * 生产工单
+   */
+  workOrder?: Partial<MomWorkOrder>;
+  /**
+   * 生产流转单
+   */
+  workTrack?: Partial<MomWorkTrack>;
+  /**
+   * 物品
+   */
+  material?: Partial<BaseMaterial>;
+  /**
+   * 标签
+   */
+  tags?: string;
+  /**
+   * 工艺路线
+   */
+  route?: Partial<MomRoute>;
+  /**
+   * 生产工序
+   */
+  routeProcess?: Partial<MomRouteProcess>;
+  /**
+   * 工序
+   */
+  process?: Partial<MomProcess>;
+  /**
+   * 计划开始日期
+   */
+  scheduledStartDate?: string;
+  /**
+   * 计划完成日期
+   */
+  scheduledFinishDate?: string;
+  /**
+   * 数量
+   */
+  quantity?: number;
+  /**
+   * 单位
+   */
+  unit?: Partial<BaseUnit>;
+  /**
+   * 设备
+   */
+  equipment?: Partial<MomEquipment>;
+  /**
+   * 操作工
+   */
+  assignees?: any;
+  /**
+   * 最晚完成日期
+   */
+  deadline?: string;
+  /**
+   * 派工人员
+   */
+  assigner?: Partial<BaseEmployee>;
+  /**
+   * 派工时间
+   */
+  assignedAt?: string;
+  /**
+   * 领工时间
+   */
+  acceptedAt?: string;
+  /**
+   * 分配状态
+   */
+  assignmentState?: MomWorkTaskAssignmentState;
+  /**
+   * 执行状态
+   */
+  executionState?: MomWorkTaskExecutionState;
+  /**
+   * 生产报工单
+   */
+  workReports?: any;
+  /**
+   * 检验单
+   */
+  inspectionSheets?: any;
+  /**
+   * 工厂
+   */
+  factory?: Partial<MomFactory>;
+  /**
+   * 实际开始时间
+   */
+  actualStartTime?: string;
+  /**
+   * 实际完成时间
+   */
+  actualFinishTime?: string;
+  /**
+   * 创建时间
+   */
+  createdAt?: string;
+  /**
+   * 创建人
+   */
+  createdBy?: Partial<OcUser>;
+  /**
+   * 更新时间
+   */
+  updatedAt?: string;
+  /**
+   * 更新人
+   */
+  updatedBy?: Partial<OcUser>;
+  /**
+   * 删除时间
+   */
+  deletedAt?: string;
+  /**
+   * 删除人
+   */
+  deletedBy?: Partial<OcUser>;
+}
+
+/**
+ * 工序任务
+ */
+export type SaveMomWorkFeedTaskInput = Omit<MomWorkFeedTask, 'id' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>;
 
 /**
  * 生产工单
