@@ -1,6 +1,7 @@
 import type {EntityWatcher, EntityWatchHandlerContext, IRpdServer} from "@ruiapp/rapid-core";
 import type {
   BaseLot,
+  MomMaterialInventoryBalance,
   MomPrintTemplate,
   MomRouteProcessParameter,
   MomRouteProcessParameterMeasurement,
@@ -338,6 +339,31 @@ export default [
 
       if (!workReport) {
         return;
+      }
+
+      if (workReport.process?.code === "14") { // 通风工序
+        const inventory = await server.getEntityManager<MomMaterialInventoryBalance>("mom_material_inventory_balance").findEntity({
+          filters: [
+            { operator: "eq", field: "material_id", value: workReport.workOrder?.material?.id },
+          ],
+          properties: ["id", "onHandQuantity"],
+        })
+
+        if (inventory) {
+          await server.getEntityManager<MomMaterialInventoryBalance>("mom_material_inventory_balance").updateEntityById({
+            id: inventory?.id,
+            entityToSave: {
+              onHandQuantity: (inventory?.onHandQuantity || 0) + 1,
+            }
+          })
+        } else {
+          await server.getEntityManager<MomMaterialInventoryBalance>("mom_material_inventory_balance").createEntity({
+            entity: {
+              material: { id: workReport.workOrder?.material?.id },
+              onHandQuantity: 1,
+            }
+          })
+        }
       }
 
       if (workReport?.workOrder && workReport.workOrder.executionState !== "completed") {

@@ -1,5 +1,5 @@
-import type {EntityWatcher, EntityWatchHandlerContext, IRpdServer} from "@ruiapp/rapid-core";
-import type {BaseLot, HuateWarehouseOperation, MomWorkOrder, SaveBaseLotInput} from "~/_definitions/meta/entity-types";
+import type {EntityWatcher, EntityWatchHandlerContext} from "@ruiapp/rapid-core";
+import type {HuateWarehouseOperation, MomMaterialInventoryBalance} from "~/_definitions/meta/entity-types";
 
 export default [
   {
@@ -9,25 +9,35 @@ export default [
       const { server, payload } = ctx;
       let after = payload.after;
 
-      const operations =  await server.getEntityManager<HuateWarehouseOperation>("huate_warehouse_operation").findEntities({
+      const operation = await server.getEntityManager<HuateWarehouseOperation>("mom_material_inventory_balance").findEntity({
+        filters: [
+          { operator: "eq", field: "material_id", value: after?.material?.id || after?.material || after.material_id },
+        ],
         properties: ["id", "material", "quantity"],
-      });
+      })
 
-      // // sum all quantity group by material
-      // const materialMap = operations.reduce((acc, cur) => {
-      //   if (!acc[cur.material?.id]) {
-      //     acc[cur.material?.id] = {
-      //       id: cur.material?.id,
-      //       name: cur.material?.name,
-      //       specification: cur.material?.specification,
-      //       quantity: 0
-      //     };
-      //   }
-      //
-      //   acc[cur.material?.id].quantity += cur.quantity;
-      //   return acc;
-      // }, {} as Record<string, HuateWarehouseOperation>);
-    },
+      const inventory = await server.getEntityManager<MomMaterialInventoryBalance>("mom_material_inventory_balance").findEntity({
+        filters: [
+          { operator: "eq", field: "material_id", value: operation?.material?.id },
+        ],
+        properties: ["id", "onHandQuantity"],
+      })
+
+      if (inventory) {
+        await server.getEntityManager<MomMaterialInventoryBalance>("mom_material_inventory_balance").updateEntityById({
+          id: inventory?.id,
+          entityToSave: {
+            onHandQuantity: (inventory?.onHandQuantity || 0) - (operation?.quantity || 0),
+          }
+        })
+      } else {
+        await server.getEntityManager<MomMaterialInventoryBalance>("mom_material_inventory_balance").createEntity({
+          entity: {
+            material: { id: operation?.material?.id },
+            onHandQuantity: -(operation?.quantity || 0),
+          }
+        })
+      }
+    }
   },
 ] satisfies EntityWatcher<any>[];
-
