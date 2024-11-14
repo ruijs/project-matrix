@@ -47,7 +47,7 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
                 type: "autoIncrement",
                 scope: "",
                 period: "day",
-                length: 3,
+                length: 5,
               },
             ],
           },

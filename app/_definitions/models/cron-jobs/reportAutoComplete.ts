@@ -17,7 +17,7 @@ export default {
         {
           operator: "exists",
           field: "process",
-          filters: [{ operator: "eq", field: "name", value: "发泡工序" }]
+          filters: [{ operator: "eq", field: "code", value: "12" }]
         },
         {
           operator: "ne",

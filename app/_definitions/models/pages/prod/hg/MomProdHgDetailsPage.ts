@@ -420,13 +420,21 @@ const page: RapidPage = {
               ],
               columns: [
                 {
-                  type: "link",
+                  type: "auto",
                   code: "createdAt",
-                  width: "150px",
+                  width: "200px",
                   fixed: "left",
-                  rendererType: "link",
+                  rendererType: "anchor",
                   rendererProps: {
-                    url: "/pages/mom_work_report_details?workOrderId={{workOrder.id}}&workReportId={{id}}",
+                    children: {
+                      $type: "text",
+                      $exps: {
+                        text: "dayjs($slot.value).format('YYYY-MM-DD HH:mm:ss')",
+                      },
+                    },
+                    $exps: {
+                      href: "$rui.execVarText('/pages/mom_work_report_details?workOrderId={{workOrder.id}}&workReportId={{id}}', $slot.record)",
+                    },
                   },
                 },
                 {
@@ -517,6 +525,12 @@ const page: RapidPage = {
                   field: "work_order_id",
                   operator: "eq",
                   value: "",
+                },
+              ],
+              orderBy: [
+                {
+                  field: "id",
+                  desc: true,
                 },
               ],
               listActions: [
@@ -633,6 +647,12 @@ const page: RapidPage = {
                   field: "work_order_id",
                   operator: "eq",
                   value: "",
+                },
+              ],
+              orderBy: [
+                {
+                  field: "id",
+                  desc: true,
                 },
               ],
               columns: [

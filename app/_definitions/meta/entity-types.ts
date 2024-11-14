@@ -6688,6 +6688,53 @@ export interface MomPackageGood {
 export type SaveMomPackageGoodInput = Omit<MomPackageGood, 'id' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>;
 
 /**
+ * 打印记录
+ */
+export interface MomPrintLog {
+  /**
+   * id
+   */
+  id: number;
+  /**
+   * 打印机编码
+   */
+  code: string;
+  /**
+   * 打印内容
+   */
+  tasks?: Record<string, any>;
+  /**
+   * 创建时间
+   */
+  createdAt?: string;
+  /**
+   * 创建人
+   */
+  createdBy?: Partial<OcUser>;
+  /**
+   * 更新时间
+   */
+  updatedAt?: string;
+  /**
+   * 更新人
+   */
+  updatedBy?: Partial<OcUser>;
+  /**
+   * 删除时间
+   */
+  deletedAt?: string;
+  /**
+   * 删除人
+   */
+  deletedBy?: Partial<OcUser>;
+}
+
+/**
+ * 打印记录
+ */
+export type SaveMomPrintLogInput = Omit<MomPrintLog, 'id' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>;
+
+/**
  * 打印模版
  */
 export interface MomPrintTemplate {
@@ -10208,6 +10255,10 @@ export interface IotMachine {
    * 状态
    */
   state?: Partial<IotMachineState>;
+  /**
+   * 外部编号
+   */
+  externalCode?: string;
   /**
    * 创建时间
    */

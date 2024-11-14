@@ -16,7 +16,11 @@ import {replaceTemplatePlaceholder} from "~/app-extension/rocks/print-trigger/Pr
 import type PrinterService from "../../../../../rapid-plugins/printerService/PrinterService";
 import {CreatePrintTasksInput} from "../../../../../rapid-plugins/printerService/PrinterPluginTypes";
 import duration from "dayjs/plugin/duration";
+import utc from "dayjs/plugin/utc"
+import timezone from "dayjs/plugin/timezone"
 
+dayjs.extend(utc);
+dayjs.extend(timezone);
 dayjs.extend(duration);
 
 export default [
@@ -167,7 +171,8 @@ export default [
                       and time <= ${ (dayjs(workReport.actualFinishTime).unix()) * 1000 }`,
             }
 
-            if (workReport.process?.name === "发泡工序") {
+            // 发泡工序
+            if (workReport.process?.code === "12") {
               input = {
                 sql: `select last *
                       from root.huate.devices.reports.${ workReport.equipment?.machine?.code }
@@ -186,7 +191,7 @@ export default [
               if (workReport.equipment?.machine?.code === deviceCode && workReport?.duration) {
                 deviceMetricData["work_duration"] = [{
                   timestamp: dayjs().unix(),
-                  value: workReport.duration / 1000,
+                  value: workReport.duration,
                 }]
               }
 
@@ -223,7 +228,10 @@ export default [
                   }
 
                   let isOutSpecification = false;
-                  if (latestValue < (metricParameter?.lowerLimit || 0) + (metricParameter.nominal || 0) || latestValue > (metricParameter?.upperLimit || 0) - (metricParameter.nominal || 0)) {
+                  if (metricParameter?.lowerLimit && (latestValue < (metricParameter?.lowerLimit || 0) + (metricParameter.nominal || 0))) {
+                    isOutSpecification = true
+                  }
+                  if (metricParameter?.upperLimit && latestValue > (metricParameter?.upperLimit || 0) - (metricParameter.nominal || 0)) {
                     isOutSpecification = true
                   }
 
@@ -269,12 +277,15 @@ export default [
           }
 
           let latestValue = dayjs.duration(dayjs(workReport.actualFinishTime).diff(dayjs(workReport.actualStartTime))).asSeconds();
-          if (workReport.process?.name === "通风工序") {
+          if (workReport.process?.code === "14") { // 通风工序
             latestValue = dayjs.duration(dayjs(workReport.actualFinishTime).diff(dayjs(workReport.actualStartTime))).asHours();
           }
-          
+
           let isOutSpecification = false;
-          if (latestValue < (metricParameter?.lowerLimit || 0) + (metricParameter.nominal || 0) || latestValue > (metricParameter?.upperLimit || 0) - (metricParameter.nominal || 0)) {
+          if (metricParameter?.lowerLimit && (latestValue < (metricParameter?.lowerLimit || 0) + (metricParameter.nominal || 0))) {
+            isOutSpecification = true
+          }
+          if (metricParameter?.upperLimit && latestValue > (metricParameter?.upperLimit || 0) - (metricParameter.nominal || 0)) {
             isOutSpecification = true
           }
 
@@ -309,7 +320,7 @@ export default [
         filters: [
           { operator: "eq", field: "id", value: after?.id },
         ],
-        properties: ["id", "factory", "process", "workOrder", "material", "equipment", "actualStartTime", "actualFinishTime", "executionState"],
+        properties: ["id", "factory", "lotNum", "serialNum", "process", "workOrder", "material", "equipment", "actualStartTime", "actualFinishTime", "executionState", "duration"],
         relations: {
           workOrder: {
             properties: ["id", "code", "material", "executionState"]
@@ -347,16 +358,16 @@ export default [
           let input = {
             sql: `select last *
                   from root.huate.devices.reports.${ workReport.equipment?.machine?.code }
-                  where time >= ${ (dayjs(workReport.actualStartTime).unix() + 28800) * 1000 }
-                    and time <= ${ (dayjs(workReport.actualFinishTime).unix() + 28800) * 1000 }`,
+                  where time >= ${ (dayjs(workReport.actualStartTime).unix()) * 1000 }
+                    and time <= ${ (dayjs(workReport.actualFinishTime).unix()) * 1000 }`,
           }
 
-          if (workReport.process?.name === "发泡工序") {
+          if (workReport.process?.code === "12") {
             input = {
               sql: `select last *
                     from root.huate.devices.reports.${ workReport.equipment?.machine?.code }
-                    where time >= ${ (dayjs(workReport.actualStartTime).unix() + 28800) * 1000 }
-                      and time <= ${ (dayjs(workReport.actualFinishTime).add(-2, "minutes").unix() + 28800) * 1000 }`,
+                    where time >= ${ (dayjs(workReport.actualStartTime).unix()) * 1000 }
+                      and time <= ${ (dayjs(workReport.actualFinishTime).add(-2, "minutes").unix()) * 1000 }`,
             }
           }
 
@@ -370,7 +381,7 @@ export default [
             if (workReport.equipment?.machine?.code === deviceCode && workReport?.duration) {
               deviceMetricData["work_duration"] = [{
                 timestamp: dayjs().unix(),
-                value: workReport.duration / 1000,
+                value: workReport.duration,
               }]
             }
 
@@ -405,7 +416,10 @@ export default [
                 }
 
                 let isOutSpecification = false;
-                if (latestValue < (metricParameter?.lowerLimit || 0) + (metricParameter.nominal || 0) || latestValue > (metricParameter?.upperLimit || 0) - (metricParameter.nominal || 0)) {
+                if (metricParameter?.lowerLimit && (latestValue < (metricParameter?.lowerLimit || 0) + (metricParameter.nominal || 0))) {
+                  isOutSpecification = true
+                }
+                if (metricParameter?.upperLimit && latestValue > (metricParameter?.upperLimit || 0) - (metricParameter.nominal || 0)) {
                   isOutSpecification = true
                 }
 
@@ -452,7 +466,7 @@ export default [
               lotNum: workReport?.lotNum,
               serialNum: workReport?.serialNum,
               workOrderCode: workReport?.workOrder?.code,
-              printTime: dayjs().format("YYYY-MM-DDTHH:mm:ss[Z]"),
+              printTime: dayjs().tz("Asia/Shanghai").format("YYYY-MM-DD HH:mm:ss"),
               KT: workReport.workOrder?.material?.name === "B9" ? "KT" : ""
             },
           }

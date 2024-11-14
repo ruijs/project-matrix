@@ -26,6 +26,11 @@ export default {
         },
         {
           operator: "eq",
+          field: "equipment_id",
+          value: input.equipment
+        },
+        {
+          operator: "eq",
           field: "id",
           value: input.from
         },
@@ -42,6 +47,11 @@ export default {
         },
         {
           operator: "eq",
+          field: "equipment_id",
+          value: input.equipment
+        },
+        {
+          operator: "eq",
           field: "id",
           value: input.to
         },
@@ -50,7 +60,12 @@ export default {
     });
 
     if (!fromWorkReport || !toWorkReport) {
-      throw new Error("开始批号或结束批号不存在");
+      ctx.output = {
+        error: {
+          message: "开始批号或结束批号不存在"
+        },
+      };
+      return;
     }
 
     let timeFrom = fromWorkReport.createdAt
@@ -84,24 +99,44 @@ export default {
 
 
     for (const workReport of workReports) {
-      switch (workReport.process?.name) {
-        case "通风工序":
+      switch (workReport.process?.code) {
+        case "13": // 通风工序
           // 判断workReport.actualStartTime是否满足72H
           if (!workReport.actualStartTime) {
-            throw new Error("通风开始时间为空");
+            ctx.output = {
+              error: {
+                message: "通风开始时间为空"
+              },
+            };
+            return;
           }
 
           if (dayjs().diff(dayjs(workReport.actualStartTime), "hour") < 72) {
-            throw new Error("通风时间不满足72H");
+            ctx.output = {
+              error: {
+                message: "通风时间不满足72H"
+              },
+            };
+            return;
           }
           break;
-        case "烘烤工序":
+        case "14": // 烘烤工序
           if (!workReport.actualStartTime) {
-            throw new Error("烘烤开始时间为空");
+            ctx.output = {
+              error: {
+                message: "烘烤开始时间为空"
+              },
+            };
+            return;
           }
 
           if (dayjs().diff(dayjs(workReport.actualStartTime), "hour") < 4) {
-            throw new Error("烘烤时间不满足4H");
+            ctx.output = {
+              error: {
+                message: "烘烤时间不满足4H"
+              },
+            };
+            return;
           }
           break;
       }
