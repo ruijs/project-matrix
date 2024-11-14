@@ -15,6 +15,7 @@ import mom$MomInventoryOperation from '../models/entity-watchers/mom/MomInventor
 import mom$MomMaterialLot from '../models/entity-watchers/mom/MomMaterialLot';
 import mom$MomTransportOperation from '../models/entity-watchers/mom/MomTransportOperation';
 import mom$MomWorkFeed from '../models/entity-watchers/mom/MomWorkFeed';
+import mom$MomWorkFeedTask from '../models/entity-watchers/mom/MomWorkFeedTask';
 import mom$MomWorkOrder from '../models/entity-watchers/mom/MomWorkOrder';
 import mom$MomWorkReport from '../models/entity-watchers/mom/MomWorkReport';
 import mom$MomWorkReportMeasurments from '../models/entity-watchers/mom/MomWorkReportMeasurments';
@@ -37,6 +38,7 @@ export default [
   ...mom$MomMaterialLot,
   ...mom$MomTransportOperation,
   ...mom$MomWorkFeed,
+  ...mom$MomWorkFeedTask,
   ...mom$MomWorkOrder,
   ...mom$MomWorkReport,
   ...mom$MomWorkReportMeasurments,

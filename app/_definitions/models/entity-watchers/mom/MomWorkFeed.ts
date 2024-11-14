@@ -1,5 +1,6 @@
 import type {EntityWatcher, EntityWatchHandlerContext, IRpdServer} from "@ruiapp/rapid-core";
-import type {BaseLot, MomWorkOrder, SaveBaseLotInput} from "~/_definitions/meta/entity-types";
+import type {BaseLot, MomWorkFeedTask, MomWorkOrder, SaveBaseLotInput} from "~/_definitions/meta/entity-types";
+import dayjs from "dayjs";
 
 export default [
   {
@@ -28,6 +29,20 @@ export default [
         const lot = await server.getEntityManager("base_lot").findById(before.lot?.id || before.lot || before.lot_id);
         if (lot) {
           before.lotNum = lot.lotNum;
+        }
+      }
+
+      if (!before.hasOwnProperty("workFeedTask") && !before.hasOwnProperty("work_feed_task_id")) {
+        const workFeedTaskManager = server.getEntityManager<MomWorkFeedTask>("mom_work_feed_task");
+        const workFeedTask = await workFeedTaskManager.findEntity({
+          filters: [
+            { operator: "exists", field: "processes", filters: [{ operator: "eq", field: "id", value: before?.process?.id || before?.process || before.process_id }] },
+            // { operator: "eq", field: "equipment_id", value: before.equipment.id || before.equipment || before.equipment_id },
+            { operator: "eq", field: "executionState", value: 'processing' },
+          ],
+        });
+        if (workFeedTask) {
+          before.work_feed_task_id = workFeedTask.id;
         }
       }
 
