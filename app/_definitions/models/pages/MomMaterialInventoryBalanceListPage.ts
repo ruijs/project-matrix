@@ -18,26 +18,26 @@ const formConfig: Partial<RapidEntityFormConfig> = {
         ],
       },
     },
-    {
-      type: "auto",
-      code: "warehouse",
-    },
+    // {
+    //   type: "auto",
+    //   code: "warehouse",
+    // },
     {
       type: "auto",
       code: "unit",
     },
-    {
-      type: "auto",
-      code: "allocableQuantity",
-    },
+    // {
+    //   type: "auto",
+    //   code: "allocableQuantity",
+    // },
     {
       type: "auto",
       code: "onHandQuantity",
     },
-    {
-      type: "auto",
-      code: "allocatedQuantity",
-    },
+    // {
+    //   type: "auto",
+    //   code: "allocatedQuantity",
+    // },
   ],
 };
 
@@ -120,13 +120,13 @@ const page: RapidPage = {
             },
           },
         },
-        {
-          type: "auto",
-          code: "warehouse",
-          rendererProps: {
-            format: "{{code}}-{{name}}",
-          },
-        },
+        // {
+        //   type: "auto",
+        //   code: "warehouse",
+        //   rendererProps: {
+        //     format: "{{code}}-{{name}}",
+        //   },
+        // },
         {
           type: "auto",
           code: "unit",
@@ -135,18 +135,18 @@ const page: RapidPage = {
             format: "{{name}}",
           },
         },
-        {
-          type: "auto",
-          code: "allocableQuantity",
-        },
+        // {
+        //   type: "auto",
+        //   code: "allocableQuantity",
+        // },
         {
           type: "auto",
           code: "onHandQuantity",
         },
-        {
-          type: "auto",
-          code: "allocatedQuantity",
-        },
+        // {
+        //   type: "auto",
+        //   code: "allocatedQuantity",
+        // },
       ],
       actionsColumnWidth: "80px",
       actions: [

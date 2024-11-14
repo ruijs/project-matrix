@@ -1,5 +1,10 @@
 import type {EntityWatcher, EntityWatchHandlerContext} from "@ruiapp/rapid-core";
-import type {MomWorkFeedTask, MomWorkOrder} from "~/_definitions/meta/entity-types";
+import type {
+  MomRouteProcessParameter,
+  MomRouteProcessParameterMeasurement,
+  MomWorkFeedTask,
+  MomWorkOrder, SaveMomRouteProcessParameterMeasurementInput
+} from "~/_definitions/meta/entity-types";
 import dayjs from "dayjs";
 
 export default [
@@ -72,6 +77,79 @@ export default [
       if (changes.hasOwnProperty("executionState") && changes.executionState === 'completed') {
         changes.actualFinishTime = dayjs().format("YYYY-MM-DDTHH:mm:ss[Z]");
       }
+    }
+  },
+  {
+    eventName: "entity.create",
+    modelSingularCode: "mom_work_feed_task",
+    handler: async (ctx: EntityWatchHandlerContext<"entity.create">) => {
+      const { server, payload } = ctx;
+      let after = payload.after;
+
+      const tasks = await server.getEntityManager<MomWorkFeedTask>("mom_work_feed_task").findEntities({
+        filters: [
+          {
+            operator: "eq",
+            field: "process_id",
+            value: after?.process?.id || after?.process || after.process_id
+          },
+        ],
+        properties: ["id", "process", "equipment", "workOrder"],
+        orderBy: [{ field: "id", desc: true }],
+        pagination: { limit: 2, offset: 0 },
+      })
+
+      let latestValue: any;
+      if (tasks.length === 2) {
+        latestValue = dayjs.duration(dayjs(tasks[0].actualFinishTime).diff(dayjs(tasks[1].actualStartTime))).asHours();
+      }
+
+      if (latestValue) {
+        const workFeedTask = tasks[0];
+        const metricParameter = await server.getEntityManager<MomRouteProcessParameter>("mom_route_process_parameter").findEntity({
+          filters: [
+            {
+              operator: "exists",
+              field: "dimension",
+              filters: [{ operator: "eq", field: "code", value: "baking_time" }]
+            },
+            { operator: "eq", field: "process", value: tasks[0].process?.id },
+            { operator: "eq", field: "equipment", value: tasks[0].equipment?.id },
+          ],
+          properties: ["id", "upperLimit", "lowerLimit", "nominal", "dimension"],
+        })
+
+        if (!metricParameter) {
+          console.log("metricParameter not found");
+          return
+        }
+
+        let isOutSpecification = false;
+        if (metricParameter?.lowerLimit && (latestValue < (metricParameter?.lowerLimit || 0) + (metricParameter.nominal || 0))) {
+          isOutSpecification = true
+        }
+        if (metricParameter?.upperLimit && latestValue > (metricParameter?.upperLimit || 0) - (metricParameter.nominal || 0)) {
+          isOutSpecification = true
+        }
+
+        await server.getEntityManager<MomRouteProcessParameterMeasurement>("mom_route_process_parameter_measurement").createEntity({
+          entity: {
+            workOrder: workFeedTask.workOrder?.id,
+            workReport: workFeedTask.id,
+            process: workFeedTask.process?.id,
+            equipment: workFeedTask.equipment?.id,
+            factory: workFeedTask.factory?.id,
+            value: latestValue,
+            dimension: metricParameter?.dimension?.id,
+            upperLimit: metricParameter?.upperLimit,
+            lowerLimit: metricParameter?.lowerLimit,
+            nominal: metricParameter?.nominal,
+            isOutSpecification: isOutSpecification,
+            createdAt: dayjs(),
+          } as SaveMomRouteProcessParameterMeasurementInput
+        })
+      }
+
     }
   },
 ] satisfies EntityWatcher<any>[];
