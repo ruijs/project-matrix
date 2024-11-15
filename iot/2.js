@@ -7,7 +7,7 @@ function main(ctx) {
 // ctx.AttributeData
 //   1212305041 华谷注塑机
 //   2612305007 沈阳注塑机
-  if (ctx.Machine.Code === "1212305041" || ctx.Machine.Code === "2612305007") {
+  if (ctx.Machine.Code === "HT_2_6" || ctx.Machine.Code === "HT_2_7") {
     state = "stopped";
     if (ctx.AttributeData.Value === true) {
       state = "running";

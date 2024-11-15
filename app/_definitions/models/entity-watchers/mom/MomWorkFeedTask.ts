@@ -94,14 +94,14 @@ export default [
             value: after?.process?.id || after?.process || after.process_id
           },
         ],
-        properties: ["id", "process", "equipment", "workOrder"],
+        properties: ["id", "process", "equipment", "workOrder", "actualStartTime"],
         orderBy: [{ field: "id", desc: true }],
         pagination: { limit: 2, offset: 0 },
       })
 
       let latestValue: any;
       if (tasks.length === 2) {
-        latestValue = dayjs.duration(dayjs(tasks[0].actualFinishTime).diff(dayjs(tasks[1].actualStartTime))).asHours();
+        latestValue = dayjs.duration(dayjs(tasks[0].actualStartTime).diff(dayjs(tasks[1].actualStartTime))).asHours();
       }
 
       if (latestValue) {
@@ -135,7 +135,6 @@ export default [
         await server.getEntityManager<MomRouteProcessParameterMeasurement>("mom_route_process_parameter_measurement").createEntity({
           entity: {
             workOrder: workFeedTask.workOrder?.id,
-            workReport: workFeedTask.id,
             process: workFeedTask.process?.id,
             equipment: workFeedTask.equipment?.id,
             factory: workFeedTask.factory?.id,
