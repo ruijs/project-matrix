@@ -13,7 +13,7 @@ export default [
 
       const operation = await server.getEntityManager<HuateWarehouseOperation>("huate_warehouse_operation").findEntity({
         filters: [
-          { operator: "eq", field: "material_id", value: after?.material?.id || after?.material || after.material_id },
+          { operator: "eq", field: "id", value: after.id },
         ],
         properties: ["id", "material", "quantity"],
       })
@@ -50,12 +50,10 @@ export default [
         properties: ["id", "material", "onHandQuantity"],
       })
 
-      if (inventory && inventory.material?.safetyStockQuantity && inventory.material?.safetyStockQuantity > 0) {
-        if ((inventory?.onHandQuantity || 0) < inventory.material.safetyStockQuantity) {
+      if (inventory) {
           const yidaSDK = await new YidaHelper(server).NewAPIClient();
           const yidaAPI = new YidaApi(yidaSDK);
           await yidaAPI.uploadWarehouseInventory(inventory)
-        }
       }
 
     }
