@@ -11,7 +11,7 @@ export default [
       const { server, payload } = ctx;
       let after = payload.after;
 
-      const operation = await server.getEntityManager<HuateWarehouseOperation>("mom_material_inventory_balance").findEntity({
+      const operation = await server.getEntityManager<HuateWarehouseOperation>("huate_warehouse_operation").findEntity({
         filters: [
           { operator: "eq", field: "material_id", value: after?.material?.id || after?.material || after.material_id },
         ],
