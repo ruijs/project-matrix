@@ -36,7 +36,7 @@ export default [
         const workFeedTaskManager = server.getEntityManager<MomWorkFeedTask>("mom_work_feed_task");
         const workFeedTask = await workFeedTaskManager.findEntity({
           filters: [
-            { operator: "exists", field: "processes", filters: [{ operator: "eq", field: "id", value: before?.process?.id || before?.process || before.process_id }] },
+            { operator: "eq", field: "process_id", value: before?.process?.id || before?.process || before.process_id },
             // { operator: "eq", field: "equipment_id", value: before.equipment.id || before.equipment || before.equipment_id },
             { operator: "eq", field: "executionState", value: 'processing' },
           ],
