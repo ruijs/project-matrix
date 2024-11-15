@@ -61,7 +61,7 @@ export async function handleKisOperation(server: IRpdServer, input: CreateGoodTr
         value: inventoryOperation?.application?.id,
       },
     ],
-    properties: ["id", "supplier", "externalCode", "code", "contractNum", "customer", "businessType", "from", "to", "operationType", "createdBy", "biller", "fFManager", "fSManager", "fUse", "fPlanSn", "fPOStyle", "fSupplyID", "items", "fDeliveryCode", "express"],
+    properties: ["id", "applicant", "supplier", "externalCode", "code", "contractNum", "customer", "businessType", "from", "to", "operationType", "createdBy", "biller", "fFManager", "fSManager", "fUse", "fPlanSn", "fPOStyle", "fSupplyID", "items", "fDeliveryCode", "express"],
   });
 
   if (!inventoryApplication) {

@@ -7,7 +7,7 @@ import mom$createInventoryOperation from '../models/server-operations/mom/create
 import mom$deleteGoodInTransfers from '../models/server-operations/mom/deleteGoodInTransfers';
 import mom$downloadInspectSheet from '../models/server-operations/mom/downloadInspectSheet';
 import mom$exportExcel from '../models/server-operations/mom/exportExcel';
-import mom$fix from '../models/server-operations/mom/fix';
+import mom$handleKisOperation from '../models/server-operations/mom/handleKisOperation';
 import mom$listGoodCheckTransfer from '../models/server-operations/mom/listGoodCheckTransfer';
 import mom$listGoodInTransfer from '../models/server-operations/mom/listGoodInTransfer';
 import mom$listGoodOutTransfer from '../models/server-operations/mom/listGoodOutTransfer';
@@ -36,7 +36,7 @@ export default [
   mom$deleteGoodInTransfers,
   mom$downloadInspectSheet,
   mom$exportExcel,
-  mom$fix,
+  mom$handleKisOperation,
   mom$listGoodCheckTransfer,
   mom$listGoodInTransfer,
   mom$listGoodOutTransfer,
