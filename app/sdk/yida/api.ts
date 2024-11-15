@@ -1,6 +1,7 @@
 import YidaSDK from "~/sdk/yida/sdk";
 import {
-  MomInspectionMeasurement,
+  HuateWarehouseOperation,
+  MomInspectionMeasurement, MomMaterialWarehouseInventoryBalance,
   MomRouteProcessParameterMeasurement,
   MomTransportOperationItem,
   MomWorkFeed
@@ -454,7 +455,29 @@ class YidaApi {
     }
   }
 
+  public async uploadWarehouseInventory(input: MomMaterialWarehouseInventoryBalance) {
+    let formDataJson = {
+      textField_kocks567: input?.material?.name,// 物料
+      textField_m245vk9q: input.material?.safetyStockQuantity,// 安全库存
+      textField_m245vk9r: input.onHandQuantity,// 当前库存
+    }
 
+    let formDataJsonStr = JSON.stringify(formDataJson);
+
+    let dingtalkUserId = input?.createdBy?.dingtalkUserId || "68282452959857472"
+
+    let payload = {
+      language: "zh_CN",
+      formUuid: "FORM-E53DDB7DAD344410AB53826F04074EC1LHIN",
+      appType: "APP_MV044H55941SP5OMR0PI",
+      formDataJson: formDataJsonStr,
+      systemToken: "9FA66WC107APIRYWEES29D6BYQHM23FRS812MWB",
+      userId: dingtalkUserId
+    }
+
+    const resp = await this.api.PostResourceRequest("/v1.0/yida/forms/instances", payload)
+    console.log(resp.data)
+  }
 }
 
 export default YidaApi;
