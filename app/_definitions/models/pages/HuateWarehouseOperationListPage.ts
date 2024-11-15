@@ -86,22 +86,22 @@ const page: RapidPage = {
           width: "150px",
         },
       ],
-      actions: [
-        {
-          $type: "sonicRecordActionEditEntity",
-          code: "edit",
-          actionType: "edit",
-          actionText: "修改",
-        },
-        {
-          $type: "sonicRecordActionDeleteEntity",
-          code: "delete",
-          actionType: "delete",
-          actionText: "删除",
-          dataSourceCode: "list",
-          entityCode: "HuateWarehouseOperation",
-        },
-      ],
+      // actions: [
+      //   {
+      //     $type: "sonicRecordActionEditEntity",
+      //     code: "edit",
+      //     actionType: "edit",
+      //     actionText: "修改",
+      //   },
+      //   {
+      //     $type: "sonicRecordActionDeleteEntity",
+      //     code: "delete",
+      //     actionType: "delete",
+      //     actionText: "删除",
+      //     dataSourceCode: "list",
+      //     entityCode: "HuateWarehouseOperation",
+      //   },
+      // ],
       newForm: cloneDeep(formConfig),
       editForm: cloneDeep(formConfig),
     },

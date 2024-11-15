@@ -18,42 +18,42 @@ const formConfig: Partial<RapidEntityFormConfig> = {
         ],
       },
     },
-    {
-      type: "auto",
-      code: "tags",
-    },
-    {
-      type: "auto",
-      code: "unit",
-    },
-    {
-      type: "auto",
-      code: "allocableQuantity",
-    },
-    {
-      type: "auto",
-      code: "availableQuantity",
-    },
-    {
-      type: "auto",
-      code: "onOrderQuantity",
-    },
-    {
-      type: "auto",
-      code: "intransitQuantity",
-    },
+    // {
+    //   type: "auto",
+    //   code: "tags",
+    // },
+    // {
+    //   type: "auto",
+    //   code: "unit",
+    // },
+    // {
+    //   type: "auto",
+    //   code: "allocableQuantity",
+    // },
+    // {
+    //   type: "auto",
+    //   code: "availableQuantity",
+    // },
+    // {
+    //   type: "auto",
+    //   code: "onOrderQuantity",
+    // },
+    // {
+    //   type: "auto",
+    //   code: "intransitQuantity",
+    // },
     {
       type: "auto",
       code: "onHandQuantity",
     },
-    {
-      type: "auto",
-      code: "reservedQuantity",
-    },
-    {
-      type: "auto",
-      code: "allocatedQuantity",
-    },
+    // {
+    //   type: "auto",
+    //   code: "reservedQuantity",
+    // },
+    // {
+    //   type: "auto",
+    //   code: "allocatedQuantity",
+    // },
   ],
 };
 
@@ -65,7 +65,7 @@ const page: RapidPage = {
   view: [
     {
       $type: "sonicEntityList",
-      entityCode: "MomMaterialInventory",
+      entityCode: "MomMaterialInventoryBalance",
       viewMode: "table",
       selectionMode: "none",
       listActions: [
@@ -136,53 +136,53 @@ const page: RapidPage = {
             },
           },
         },
-        {
-          type: "auto",
-          code: "tags",
-        },
-        {
-          type: "auto",
-          code: "unit",
-          width: "50px",
-          rendererProps: {
-            format: "{{name}}",
-          },
-        },
-        {
-          type: "auto",
-          code: "allocableQuantity",
-          width: "100px",
-        },
-        {
-          type: "auto",
-          code: "availableQuantity",
-          width: "100px",
-        },
-        {
-          type: "auto",
-          code: "onOrderQuantity",
-          width: "100px",
-        },
-        {
-          type: "auto",
-          code: "intransitQuantity",
-          width: "100px",
-        },
+        // {
+        //   type: "auto",
+        //   code: "tags",
+        // },
+        // {
+        //   type: "auto",
+        //   code: "unit",
+        //   width: "50px",
+        //   rendererProps: {
+        //     format: "{{name}}",
+        //   },
+        // },
+        // {
+        //   type: "auto",
+        //   code: "allocableQuantity",
+        //   width: "100px",
+        // },
+        // {
+        //   type: "auto",
+        //   code: "availableQuantity",
+        //   width: "100px",
+        // },
+        // {
+        //   type: "auto",
+        //   code: "onOrderQuantity",
+        //   width: "100px",
+        // },
+        // {
+        //   type: "auto",
+        //   code: "intransitQuantity",
+        //   width: "100px",
+        // },
         {
           type: "auto",
           code: "onHandQuantity",
           width: "100px",
         },
-        {
-          type: "auto",
-          code: "reservedQuantity",
-          width: "100px",
-        },
-        {
-          type: "auto",
-          code: "allocatedQuantity",
-          width: "100px",
-        },
+        // {
+        //   type: "auto",
+        //   code: "reservedQuantity",
+        //   width: "100px",
+        // },
+        // {
+        //   type: "auto",
+        //   code: "allocatedQuantity",
+        //   width: "100px",
+        // },
       ],
       actionsColumnWidth: "80px",
       actions: [
@@ -198,7 +198,7 @@ const page: RapidPage = {
           actionType: "delete",
           actionText: "删除",
           dataSourceCode: "list",
-          entityCode: "MomMaterialInventory",
+          entityCode: "MomMaterialInventoryBalance",
         },
       ],
       newForm: cloneDeep(formConfig) as RapidEntityFormConfig,
