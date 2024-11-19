@@ -42,6 +42,11 @@ import BlockRerenderRock from "./block-rerender-rock/BlockRerenderRock";
 // prod
 import RawMaterialSelector from "./raw-material-selector/RawMaterialSelector";
 
+import CreateBatchNumberAction from "./create-batch-number-action/CreateBatchNumberAction";
+import CreateBatchTrigger from "./create-batch-trigger/CreateBatchTrigger";
+
+// import NewBatchNumber from "./new-batch-number/newBatchNumber";
+
 export default [
   Link,
   MaterialLabelRenderer,
@@ -86,4 +91,7 @@ export default [
 
   //prod
   RawMaterialSelector,
+  // NewBatchNumber,
+  CreateBatchNumberAction,
+  CreateBatchTrigger,
 ];

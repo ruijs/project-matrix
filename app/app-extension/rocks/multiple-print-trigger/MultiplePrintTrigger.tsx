@@ -1,4 +1,4 @@
-import { IPage, Page, RuiEvent, type Rock, type RockConfig } from "@ruiapp/move-style";
+import type { Page, RuiEvent, IPage, type Rock, type RockConfig } from "@ruiapp/move-style";
 import { renderRock } from "@ruiapp/react-renderer";
 import MultiplePrintTriggerMeta from "./MultiplePrintTriggerMeta";
 import type { MultiplePrintTriggerRockConfig } from "./multiple-print-trigger-types";
@@ -40,7 +40,7 @@ export default {
           await rapidApi.post(`/svc/printer/printers/${formData.code}/tasks`, {
             tasks: (dataSource || [])
               .map((record) => {
-                const templateCode = record.templateCode || "rawMaterialIdentificationCard";
+                const templateCode = record.templateCode || "rawMaterialIdentificationCard" || "injectionMoldingCard";
                 const printTemplate = templateCode && find(printTemplateStoreData, (item) => item.code === templateCode);
                 return {
                   type: "zpl-label",

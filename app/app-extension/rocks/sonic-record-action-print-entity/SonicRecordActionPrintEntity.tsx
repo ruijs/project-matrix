@@ -1,4 +1,6 @@
-import { MoveStyleUtils, RockChildrenConfig, type Rock } from "@ruiapp/move-style";
+import { MoveStyleUtils } from "@ruiapp/move-style";
+import type { RockChildrenConfig, type Rock } from "@ruiapp/move-style";
+
 import { renderRock, renderRockChildren } from "@ruiapp/react-renderer";
 import SonicRecordActionPrintEntityMeta from "./SonicRecordActionPrintEntityMeta";
 import type { SonicRecordActionPrintEntityRockConfig } from "./sonic-record-action-print-entity-types";
