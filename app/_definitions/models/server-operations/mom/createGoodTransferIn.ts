@@ -61,11 +61,11 @@ async function createGoodTransferIn(server: IRpdServer, input: CreateGoodTransfe
   const [inventoryOperation, material] = await Promise.all([
     inventoryOperationManager.findEntity({
       filters: [{ operator: "eq", field: "id", value: input.operationId }],
-      properties: ["id", "category", "businessType", "isInspectionFree"],
+      properties: ["id", "category", "businessType"],
     }),
     materialManager.findEntity({
       filters: [{ operator: "eq", field: "id", value: input?.material }],
-      properties: ["id", "code", "defaultUnit", "qualityGuaranteePeriod"],
+      properties: ["id", "code", "defaultUnit", "qualityGuaranteePeriod", "isInspectionFree"],
     }),
   ]);
 
