@@ -46,7 +46,7 @@ export default {
             entities,
           });
           setVisible(false);
-
+          location.reload();
           if (page) {
             page.sendComponentMessage(`${props.$id}_create_batch_print_form`, { name: "resetFields" });
           }
