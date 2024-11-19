@@ -350,7 +350,14 @@ const page: RapidPage = {
         },
         {
           type: "auto",
-          code: "process",
+          code: "processes",
+          rendererProps: {
+            item: {
+              $type: "rapidObjectRenderer",
+              format: "{{name}}",
+            },
+          },
+          width: "100px",
         },
         // {
         //   type: "auto",
@@ -380,7 +387,6 @@ const page: RapidPage = {
               $type: "sonicEntityList",
               entityCode: "MomWorkReport",
               viewMode: "table",
-              selectionMode: "none",
               fixedFilters: [
                 {
                   field: "workOrder",
@@ -410,6 +416,54 @@ const page: RapidPage = {
                   actionStyle: "primary",
                   $exps: {
                     _hidden: "_.get(_.first(_.get($stores.detail, 'data.list')), 'executionState') === 'completed'",
+                  },
+                },
+                // {
+                //   $type: "sonicToolbarNewEntityButton",
+                //   text: "新建批次号",
+                //   $permissionCheck: "tysProduction.manage",
+                //   actionStyle: "primary",
+                //   $exps: {
+                //     _hidden: "_.get(_.first(_.get($stores.detail, 'data.list')), 'executionState') === 'completed'",
+                //   },
+                // },
+                {
+                  $type: "createBatchNumberAction",
+                  title: "批量新建",
+                  $permissionCheck: "tysProduction.manage",
+                  $exps: {
+                    disabled: "_.get(_.first(_.get($stores.detail, 'data.list')), 'executionState') === 'completed'",
+                    _hidden: "!($page.getStore('detail').data?.list?.[0]?.processes[0]?.name.includes('注塑'))",
+                  },
+                },
+                {
+                  $type: "batchPrintAction",
+                  title: "补打二维码",
+                  dataSourceAdapter: `
+                    const createdAt = _.get(record, "good.createdAt");
+                    const validityDate = _.get(record, "good.validityDate");
+                    const dictionaries = rapidAppDefinition.getDataDictionaries();
+                    const dictionary = _.find(dictionaries, function(d) { return d.code === 'QualificationState'; });
+                    const qualificationStateInfo = _.find(_.get(dictionary, 'entries'), function(e){ return e.value === _.get(record, "lot.qualificationState") });
+
+                    return {
+                      templateCode: "injectionMoldingCard",
+                      taskData: _.merge({}, record, {
+                        materialName: _.get(record, "material.name"),
+                        materialCode: _.get(record, "material.code"),
+                        materialSpecification: _.get(record, "material.specification"),
+                        lotNum: _.get(record, 'lot.lotNum'),
+                        createdAt: createdAt && dayjs(createdAt).format("YYYY-MM-DDTHH:mm:ss[Z]"),
+                        validityDate: validityDate && dayjs(validityDate).format("YYYY-MM-DD"),
+                        currentTime: dayjs().format("YYYY-MM-DDTHH:mm:ss[Z]"),
+                        unit: _.get(record, "unit.name"),
+                        qualificationState: _.get(qualificationStateInfo, 'name')
+                      })
+                    };
+                  `,
+                  $exps: {
+                    disabled: "_.get(_.first(_.get($stores.detail, 'data.list')), 'executionState') === 'completed'",
+                    _hidden: "!($page.getStore('detail').data?.list?.[0]?.processes[0]?.name.includes('注塑'))",
                   },
                 },
                 // {
@@ -500,10 +554,51 @@ const page: RapidPage = {
                     disabled: "_.get(_.first(_.get($stores.detail, 'data.list')), 'executionState') === 'completed'",
                   },
                 },
+                {
+                  $type: "sonicRecordActionPrintEntity",
+                  code: "print",
+                  actionType: "print",
+                  actionText: "补打",
+                  dataSourceAdapter: `
+                    return _.map(data, function(item){
+                      const createdAt = _.get(item, "good.createdAt");
+                      const validityDate = _.get(item, "good.validityDate");
+                      const dictionaries = rapidAppDefinition.getDataDictionaries();
+                      const dictionary = _.find(dictionaries, function(d) { return d.code === 'QualificationState'; });
+                      const qualificationStateInfo = _.find(_.get(dictionary, 'entries'), function(e){ return e.value === _.get(item, "lot.qualificationState") });
+                      return {
+                        templateCode: "injectionMoldingCard",
+                        taskData: _.merge({}, item, {
+                          materialName: _.get(item, "material.name"),
+                          materialCode: _.get(item, "material.code"),
+                          materialSpecification: _.get(item, "material.specification"),
+                          lotNum: _.get(item, 'lot.lotNum'),
+                          createdAt: createdAt && dayjs(createdAt).format("YYYY-MM-DDTHH:mm:ss[Z]"),
+                          validityDate: validityDate && dayjs(validityDate).format("YYYY-MM-DD"),
+                          currentTime: dayjs().format("YYYY-MM-DDTHH:mm:ss[Z]"),
+                          unit: _.get(item, "unit.name"),
+                          qualificationState: _.get(qualificationStateInfo, 'name')
+                        })
+                      }
+                    });
+                  `,
+                  $exps: {
+                    disabled: "_.get(_.first(_.get($stores.detail, 'data.list')), 'executionState') === 'completed'",
+                    _hidden: "!($page.getStore('detail').data?.list?.[0]?.processes[0]?.name.includes('注塑'))",
+                  },
+                },
               ],
               newForm: cloneDeep(reportFormConfig),
               editForm: cloneDeep(reportFormConfig),
-
+              onSelectedIdsChange: [
+                {
+                  $action: "setVars",
+                  $exps: {
+                    "vars.selectedIds": "$event.args[0].selectedIds",
+                    "vars.selectedRecords": "$event.args[0].selectedRecords",
+                  },
+                },
+              ],
               $exps: {
                 "fixedFilters[0].filters[0].value": "$rui.parseQuery().id",
                 "newForm.defaultFormFields.work_order_id": "$rui.parseQuery().id",

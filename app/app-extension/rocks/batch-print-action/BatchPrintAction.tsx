@@ -1,4 +1,5 @@
-import { RockChildrenConfig, type Rock } from "@ruiapp/move-style";
+import type { RockChildrenConfig, type Rock } from "@ruiapp/move-style";
+
 import { renderRockChildren } from "@ruiapp/react-renderer";
 import BatchPrintActionMeta from "./BatchPrintActionMeta";
 import type { BatchPrintActionRockConfig } from "./batch-print-action-types";
@@ -8,7 +9,6 @@ import { parseRockExpressionFunc } from "~/utils/func-util";
 export default {
   Renderer(context, props) {
     const selectedRecords = get(context.scope.vars, "selectedRecords") || [];
-
     const getDataSource = () => {
       return selectedRecords.map((record: any) => {
         let data = record;
