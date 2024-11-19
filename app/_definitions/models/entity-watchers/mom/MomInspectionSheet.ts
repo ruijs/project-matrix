@@ -92,45 +92,29 @@ export default [
       if (operationTarget?.gcmsReportFile && operationTarget?.material?.name === "石蜡油" && operationTarget?.gcmsReportFile.key.endsWith(".xlsx")) {
         const items = await readGCMSFile(server, operationTarget?.gcmsReportFile?.key)
         if (items) {
-          const gcmsItems = await server.getEntityManager<HuateGCMS>("huate_gcms").findEntities({
-            filters: [{
-              operator: "eq",
-              field: "enabled",
-              value: true
-            }]
-          });
-          if (gcmsItems && gcmsItems.length > 0) {
-            //   check if all items in gcmsItems
+          //   check if all items in gcmsItems
 
-            let gcmsPassed = true
-            for (const item of items) {
-              const gcmsItem = gcmsItems.find((gcmsItem) => {
-                return item === gcmsItem.code
-              })
+          let gcmsFailed = items.some((item) => {
+            return item === "4253-90-1" || item === "110-06-5"
+          })
 
-              if (!gcmsItem) {
-                gcmsPassed = false
-              }
-
-              await server.getEntityManager<HuateGCMS>("huate_gcms").createEntity({
-                entity: {
-                  material: after?.material?.id || after?.material || after?.material_id,
-                  momInspectionSheetId: after.id,
-                  code: item,
-                  enabled: !!gcmsItem,
-                  needInspect: !gcmsItem,
-                } as SaveHuateGCMSInput
-              })
-            }
-
-            await server.getEntityManager<MomInspectionSheet>("mom_inspection_sheet").updateEntityById({
-              routeContext: ctx.routerContext,
-              id: after.id,
-              entityToSave: {
-                gcmsPassed: gcmsPassed,
-              }
+          for (const item of items) {
+            await server.getEntityManager<HuateGCMS>("huate_gcms").createEntity({
+              entity: {
+                material: after?.material?.id || after?.material || after?.material_id,
+                momInspectionSheetId: after.id,
+                code: item,
+              } as SaveHuateGCMSInput
             })
           }
+
+          await server.getEntityManager<MomInspectionSheet>("mom_inspection_sheet").updateEntityById({
+            routeContext: ctx.routerContext,
+            id: after.id,
+            entityToSave: {
+              gcmsPassed: !gcmsFailed,
+            }
+          })
         }
       }
     },
@@ -172,45 +156,27 @@ export default [
       if (changes.hasOwnProperty('gcmsReportFile') && operationTarget?.material?.name === "石蜡油" && changes?.gcmsReportFile.key.endsWith(".xlsx")) {
         const items = await readGCMSFile(server, after?.gcmsReportFile?.key)
         if (items) {
-          const gcmsItems = await server.getEntityManager<HuateGCMS>("huate_gcms").findEntities({
-            filters: [{
-              operator: "eq",
-              field: "enabled",
-              value: true
-            }]
-          });
-          if (gcmsItems && gcmsItems.length > 0) {
-            //   check if all items in gcmsItems
+          let gcmsFailed = items.some((item) => {
+            return item === "4253-90-1" || item === "110-06-5"
+          })
 
-            let gcmsPassed = true
-            for (const item of items) {
-              const gcmsItem = gcmsItems.find((gcmsItem) => {
-                return item === gcmsItem.code
-              })
-
-              if (!gcmsItem) {
-                gcmsPassed = false
-              }
-
-              await server.getEntityManager<HuateGCMS>("huate_gcms").createEntity({
-                entity: {
-                  material: after?.material?.id || after?.material || after?.material_id,
-                  momInspectionSheetId: after.id,
-                  code: item,
-                  enabled: !!gcmsItem,
-                  needInspect: !gcmsItem,
-                } as SaveHuateGCMSInput
-              })
-            }
-
-            await server.getEntityManager<MomInspectionSheet>("mom_inspection_sheet").updateEntityById({
-              routeContext: ctx.routerContext,
-              id: after.id,
-              entityToSave: {
-                gcmsPassed: gcmsPassed,
-              }
+          for (const item of items) {
+            await server.getEntityManager<HuateGCMS>("huate_gcms").createEntity({
+              entity: {
+                material: after?.material?.id || after?.material || after?.material_id,
+                momInspectionSheetId: after.id,
+                code: item,
+              } as SaveHuateGCMSInput
             })
           }
+
+          await server.getEntityManager<MomInspectionSheet>("mom_inspection_sheet").updateEntityById({
+            routeContext: ctx.routerContext,
+            id: after.id,
+            entityToSave: {
+              gcmsPassed: !gcmsFailed,
+            }
+          })
         }
       }
 
@@ -313,38 +279,22 @@ export default [
         if (changes.hasOwnProperty('gcmsReportFile') && changes?.gcmsReportFile.key.endsWith(".xlsx")) {
           const items = await readGCMSFile(server, after.gcmsReportFile.key)
           if (items) {
-            const gcmsItems = await server.getEntityManager<HuateGCMS>("huate_gcms").findEntities({
-              filters: [{
-                operator: "eq",
-                field: "enabled",
-                value: true
-              }]
-            });
-            if (gcmsItems && gcmsItems.length > 0) {
-              //   check if all items in gcmsItems
+            //   check if all items in gcmsItems
 
-              for (const item of items) {
-                const gcmsItem = gcmsItems.find((gcmsItem) => {
-                  return item === gcmsItem.code
-                })
-
-                await server.getEntityManager<HuateGCMS>("huate_gcms").createEntity({
-                  entity: {
-                    material: after?.material?.id || after?.material || after?.material_id,
-                    momInspectionSheetId: after.id,
-                    code: item,
-                    enabled: !!gcmsItem,
-                    needInspect: !gcmsItem,
-                  } as SaveHuateGCMSInput
-                })
-              }
+            for (const item of items) {
+              await server.getEntityManager<HuateGCMS>("huate_gcms").createEntity({
+                entity: {
+                  material: after?.material?.id || after?.material || after?.material_id,
+                  momInspectionSheetId: after.id,
+                  code: item,
+                } as SaveHuateGCMSInput
+              })
             }
           }
         }
       } catch (error) {
         console.error(error)
       }
-
 
 
     }

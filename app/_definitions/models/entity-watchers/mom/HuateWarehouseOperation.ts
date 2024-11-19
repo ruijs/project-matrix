@@ -42,20 +42,6 @@ export default [
           }
         })
       }
-
-      inventory = await server.getEntityManager<MomMaterialInventoryBalance>("mom_material_inventory_balance").findEntity({
-        filters: [
-          { operator: "eq", field: "material_id", value: operation?.material?.id },
-        ],
-        properties: ["id", "material", "onHandQuantity"],
-      })
-
-      if (inventory) {
-          const yidaSDK = await new YidaHelper(server).NewAPIClient();
-          const yidaAPI = new YidaApi(yidaSDK);
-          await yidaAPI.uploadWarehouseInventory(inventory)
-      }
-
     }
 
   },

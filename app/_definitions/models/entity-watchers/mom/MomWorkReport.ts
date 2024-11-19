@@ -278,7 +278,7 @@ export default [
           }
 
           let latestValue = dayjs.duration(dayjs(workReport.actualFinishTime).diff(dayjs(workReport.actualStartTime))).asSeconds();
-          if (workReport.process?.code === "14") { // 通风工序
+          if (workReport.process?.code === "13" || workReport.process?.code === "14") { // 通风工序 & 烘烤工序
             latestValue = dayjs.duration(dayjs(workReport.actualFinishTime).diff(dayjs(workReport.actualStartTime))).asHours();
           }
 
@@ -341,7 +341,7 @@ export default [
         return;
       }
 
-      if (workReport.process?.code === "14") { // 通风工序
+      if (workReport.process?.code === "13") { // 通风工序
         const inventory = await server.getEntityManager<MomMaterialInventoryBalance>("mom_material_inventory_balance").findEntity({
           filters: [
             { operator: "eq", field: "material_id", value: workReport.workOrder?.material?.id },
@@ -381,99 +381,102 @@ export default [
       }
 
 
-      try {
+      if (workReport && workReport.executionState === "completed") {
+        try {
 
-        const iotDBSDK = await new IotDBHelper(server).NewAPIClient();
+          const iotDBSDK = await new IotDBHelper(server).NewAPIClient();
 
-        let input = {
-          sql: `select last *
-                from root.huate.devices.reports.${ workReport.equipment?.machine?.code }
-                where time >= ${ (dayjs(workReport.actualStartTime).unix()) * 1000 }
-                  and time <= ${ (dayjs(workReport.actualFinishTime).unix()) * 1000 }`,
-        }
-
-        if (workReport.process?.code === "12") {
-          input = {
+          let input = {
             sql: `select last *
                   from root.huate.devices.reports.${ workReport.equipment?.machine?.code }
                   where time >= ${ (dayjs(workReport.actualStartTime).unix()) * 1000 }
-                    and time <= ${ (dayjs(workReport.actualFinishTime).add(-2, "minutes").unix()) * 1000 }`,
-          }
-        }
-
-        const tsResponse = await iotDBSDK.PostResourceRequest("http://10.0.0.3:6670/rest/v2/query", input, true)
-        const data = ParseLastDeviceData(tsResponse.data);
-
-        for (let deviceCode in data) {
-          const deviceMetricData = data[deviceCode];
-          // append work duration to device metric
-
-          if (workReport.equipment?.machine?.code === deviceCode && workReport?.duration) {
-            deviceMetricData["work_duration"] = [{
-              timestamp: dayjs().unix(),
-              value: workReport.duration,
-            }]
+                    and time <= ${ (dayjs(workReport.actualFinishTime).unix()) * 1000 }`,
           }
 
-
-          for (let metricCode in deviceMetricData) {
-            const metricData = deviceMetricData[metricCode];
-            for (let i = 0; i < metricData.length; i++) {
-              const item = metricData[i];
-              const latestTimestamp = item.timestamp;
-              const latestValue = item.value;
-              // isOutSpecification
-              const metricParameter = await server.getEntityManager<MomRouteProcessParameter>("mom_route_process_parameter").findEntity({
-                filters: [
-                  {
-                    operator: "exists",
-                    field: "dimension",
-                    filters: [{ operator: "eq", field: "code", value: metricCode }]
-                  },
-                  { operator: "eq", field: "process", value: workReport.process?.id },
-                  { operator: "eq", field: "equipment", value: workReport.equipment?.id },
-                ],
-                properties: ["id", "upperLimit", "lowerLimit", "nominal", "dimension"],
-              })
-
-
-              if (!metricParameter) {
-                continue
-              }
-
-              if (!latestValue) {
-                continue
-              }
-
-              let isOutSpecification = false;
-              if (metricParameter?.lowerLimit && (latestValue < (metricParameter?.lowerLimit || 0) + (metricParameter.nominal || 0))) {
-                isOutSpecification = true
-              }
-              if (metricParameter?.upperLimit && latestValue > (metricParameter?.upperLimit || 0) - (metricParameter.nominal || 0)) {
-                isOutSpecification = true
-              }
-
-              await server.getEntityManager<MomRouteProcessParameterMeasurement>("mom_route_process_parameter_measurement").createEntity({
-                entity: {
-                  workOrder: workReport.workOrder?.id,
-                  workReport: workReport.id,
-                  process: workReport.process?.id,
-                  equipment: workReport.equipment?.id,
-                  factory: workReport.factory?.id,
-                  value: latestValue,
-                  dimension: metricParameter?.dimension?.id,
-                  upperLimit: metricParameter?.upperLimit,
-                  lowerLimit: metricParameter?.lowerLimit,
-                  nominal: metricParameter?.nominal,
-                  isOutSpecification: isOutSpecification,
-                  createdAt: latestTimestamp,
-                } as SaveMomRouteProcessParameterMeasurementInput
-              })
+          // 发泡工序
+          if (workReport.process?.code === "12") {
+            input = {
+              sql: `select last *
+                    from root.huate.devices.reports.${ workReport.equipment?.machine?.code }
+                    where time >= ${ (dayjs(workReport.actualStartTime).unix()) * 1000 }
+                      and time <= ${ (dayjs(workReport.actualFinishTime).add(-2, "minutes").unix()) * 1000 }`,
             }
           }
+
+          const tsResponse = await iotDBSDK.PostResourceRequest("http://10.0.0.3:6670/rest/v2/query", input, true)
+          const data = ParseLastDeviceData(tsResponse.data);
+
+          for (let deviceCode in data) {
+            const deviceMetricData = data[deviceCode];
+            // append work duration to device metric
+
+            if (workReport.equipment?.machine?.code === deviceCode && workReport?.duration) {
+              deviceMetricData["work_duration"] = [{
+                timestamp: dayjs().unix(),
+                value: workReport.duration,
+              }]
+            }
+
+
+            for (let metricCode in deviceMetricData) {
+              const metricData = deviceMetricData[metricCode];
+              for (let i = 0; i < metricData.length; i++) {
+                const item = metricData[i];
+                const latestTimestamp = item.timestamp;
+                const latestValue = item.value;
+                // isOutSpecification
+                const metricParameter = await server.getEntityManager<MomRouteProcessParameter>("mom_route_process_parameter").findEntity({
+                  filters: [
+                    {
+                      operator: "exists",
+                      field: "dimension",
+                      filters: [{ operator: "eq", field: "code", value: metricCode }]
+                    },
+                    { operator: "eq", field: "process", value: workReport.process?.id },
+                    { operator: "eq", field: "equipment", value: workReport.equipment?.id },
+                  ],
+                  properties: ["id", "upperLimit", "lowerLimit", "nominal", "dimension"],
+                })
+
+
+                if (!metricParameter) {
+                  continue
+                }
+
+                if (!latestValue) {
+                  continue
+                }
+
+                let isOutSpecification = false;
+                if (metricParameter?.lowerLimit && (latestValue < (metricParameter?.lowerLimit || 0) + (metricParameter.nominal || 0))) {
+                  isOutSpecification = true
+                }
+                if (metricParameter?.upperLimit && latestValue > (metricParameter?.upperLimit || 0) - (metricParameter.nominal || 0)) {
+                  isOutSpecification = true
+                }
+
+                await server.getEntityManager<MomRouteProcessParameterMeasurement>("mom_route_process_parameter_measurement").createEntity({
+                  entity: {
+                    workOrder: workReport.workOrder?.id,
+                    workReport: workReport.id,
+                    process: workReport.process?.id,
+                    equipment: workReport.equipment?.id,
+                    factory: workReport.factory?.id,
+                    value: latestValue,
+                    dimension: metricParameter?.dimension?.id,
+                    upperLimit: metricParameter?.upperLimit,
+                    lowerLimit: metricParameter?.lowerLimit,
+                    nominal: metricParameter?.nominal,
+                    isOutSpecification: isOutSpecification,
+                    createdAt: latestTimestamp,
+                  } as SaveMomRouteProcessParameterMeasurementInput
+                })
+              }
+            }
+          }
+        } catch (e) {
+          console.log(e)
         }
-      } catch (e) {
-        console.log(e)
       }
 
 
