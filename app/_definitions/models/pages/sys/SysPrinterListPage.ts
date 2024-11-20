@@ -118,8 +118,8 @@ const page: RapidPage = {
                 },
               ],
               $exps: {
-                url: `"/api/svc/printer/printers/" + $event.args[0].code + "/tasks"`,
-                "data.tasks[0].data": `"^XA^CFA,30^FO30,30^FDTest Label^FS^FO30,70^FD" + $event.args[0].code + "^FS^XZ"`,
+                url: `"/api/svc/printer/printers/" + $event.args[0].record.code + "/tasks"`,
+                "data.tasks[0].data": `"^XA^CFA,30^FO30,30^FDTest Label^FS^FO30,70^FD" + $event.args[0].record.code + "^FS^XZ"`,
               },
             },
           ],
