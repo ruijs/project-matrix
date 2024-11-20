@@ -459,7 +459,7 @@ const page: RapidPage = {
           actionText: "修改",
           $permissionCheck: "htInspectionAssemblyStockOut.manage",
           $exps: {
-            disabled: "$slot.record.approvalState !== 'approving' && $slot.record.approvalState !== 'uninitiated'",
+            disabled: "$slot.record.approvalState !== 'approving' || $slot.record.approvalState !== 'uninitiated'",
           },
         },
         {
@@ -471,7 +471,7 @@ const page: RapidPage = {
           entityCode: "MomInspectionSheet",
           $permissionCheck: "htInspectionAssemblyStockOut.manage",
           $exps: {
-            disabled: "$slot.record.approvalState !== 'approving' && $slot.record.approvalState !== 'uninitiated'",
+            disabled: "$slot.record.approvalState !== 'approving' || $slot.record.approvalState !== 'uninitiated'",
           },
         },
         {
