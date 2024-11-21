@@ -281,11 +281,11 @@ export default [
             });
           }
 
-          try {
-            await handleKisOperation(server, { operationId: after.id })
-          } catch (e) {
-            console.log()
-          }
+          // try {
+          //   await handleKisOperation(server, { operationId: after.id })
+          // } catch (e) {
+          //   console.log()
+          // }
 
 
           updateInventoryBalance(server)

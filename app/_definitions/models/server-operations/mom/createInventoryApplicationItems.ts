@@ -48,17 +48,19 @@ export async function createInventoryApplicationItems(
     throw new Error("Inventory application not found.");
   }
 
-  const warehouseStrategy = await getWarehouseStrategy(
-    server,
-    material.category?.id,
-    inventoryApplication?.businessType?.id
-  );
+  // const warehouseStrategy = await getWarehouseStrategy(
+  //   server,
+  //   material.category?.id,
+  //   inventoryApplication?.businessType?.id
+  // );
 
-  if (warehouseStrategy?.strategy === "fifo" || warehouseStrategy?.strategy === "fdfo") {
-    await handleFifoFdfoStrategy(server, input, material, warehouseStrategy);
-  } else {
-    await handleOtherStrategies(server, input, inventoryApplication, material);
-  }
+  // if (warehouseStrategy?.strategy === "fifo" || warehouseStrategy?.strategy === "fdfo") {
+  //   await handleFifoFdfoStrategy(server, input, material, warehouseStrategy);
+  // } else {
+  //   await handleOtherStrategies(server, input, inventoryApplication, material);
+  // }
+
+  await handleOtherStrategies(server, input, inventoryApplication, material);
 }
 
 async function getInventoryApplication(server: IRpdServer, applicationId: number) {
@@ -167,9 +169,9 @@ function getWarehouseStrategyStatement(strategy?: string): string {
 
 function getStrategyFilter(warehouseStrategy: MomWarehouseStrategy): string {
   let strategyFilter = "";
-  if (warehouseStrategy?.qualifiedFilter) {
-    strategyFilter += " AND mg.qualified = true";
-  }
+  // if (warehouseStrategy?.qualifiedFilter) {
+  //   strategyFilter += " AND mg.qualified = true";
+  // }
   if (warehouseStrategy?.validityFilter) {
     strategyFilter += " AND mg.validity_date >= now()";
   }

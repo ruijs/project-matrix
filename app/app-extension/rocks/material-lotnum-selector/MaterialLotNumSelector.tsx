@@ -126,7 +126,7 @@ export default {
 
     let orderBy: { field: string; desc?: boolean }[] = [];
     if (currentStrategy?.strategy === "fifo") {
-      orderBy = [{ field: "createdAt", desc: true }];
+      orderBy = [{ field: "createdAt", desc: false }];
     }
     // } else if (currentStrategy?.strategy === "fdfo") {
     //   orderBy = [{ field: "lot.validityDate", desc: true }];
