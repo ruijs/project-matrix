@@ -1,13 +1,13 @@
 import YidaSDK from "~/sdk/yida/sdk";
 import {
-  HuateWarehouseOperation,
-  MomInspectionMeasurement, MomMaterialWarehouseInventoryBalance,
+  MomInspectionMeasurement,
+  MomMaterialWarehouseInventoryBalance,
   MomRouteProcessParameterMeasurement,
   MomTransportOperationItem,
   MomWorkFeed
 } from "~/_definitions/meta/entity-types";
 import {fmtCharacteristicNorminal} from "~/utils/fmt";
-import {isNumber} from "lodash";
+import {isNumeric} from "~/utils/isNumeric";
 
 class YidaApi {
   private api!: YidaSDK;
@@ -87,26 +87,48 @@ class YidaApi {
     return resp.data;
   }
 
+
   public async uploadInspectionMeasurements(inputs: MomInspectionMeasurement[]) {
+
     for (const input of inputs) {
 
       let upperLimit: any;
-      if (isNumber(input.characteristic?.upperLimit)) {
-        upperLimit = input.characteristic?.upperLimit
-      }
-
       let lowerLimit: any;
-      if (isNumber(input.characteristic?.lowerLimit)) {
-        lowerLimit = input.characteristic?.lowerLimit
-      }
 
-      if (input.characteristic?.norminal && input.characteristic?.upperTol && input.characteristic?.lowerTol) {
-        if (isNumber(input.characteristic?.norminal) && isNumber(input.characteristic?.upperTol)) {
-          upperLimit = input.characteristic?.norminal + input.characteristic?.upperTol
+      if (input.characteristic?.determineType === "inLimit") {
+        if (isNumeric(input.characteristic?.upperLimit)) {
+          upperLimit = input.characteristic?.upperLimit
         }
 
-        if (isNumber(input.characteristic?.norminal) && isNumber(input.characteristic?.lowerTol)) {
-          lowerLimit = input.characteristic?.norminal + input.characteristic?.lowerTol
+        if (isNumeric(input.characteristic?.lowerLimit)) {
+          lowerLimit = input.characteristic?.lowerLimit
+        }
+      }
+
+      if (input.characteristic?.determineType === "inTolerance") {
+        if (input.characteristic?.norminal && input.characteristic?.upperTol) {
+          if (isNumeric(input.characteristic?.norminal) && isNumeric(input.characteristic?.upperTol)) {
+            upperLimit = input.characteristic?.norminal + input.characteristic?.upperTol
+          }
+        }
+
+        if (input.characteristic?.norminal && input.characteristic?.lowerTol) {
+          if (isNumeric(input.characteristic?.norminal) && isNumeric(input.characteristic?.lowerTol)) {
+            lowerLimit = input.characteristic?.norminal + input.characteristic?.lowerTol
+          }
+        }
+      }
+
+
+      if (input.characteristic?.determineType === "ge" || input.characteristic?.determineType === "gt") {
+        if (isNumeric(input.characteristic?.norminal)) {
+          lowerLimit = input.characteristic?.norminal
+        }
+      }
+
+      if (input.characteristic?.determineType === "le" || input.characteristic?.determineType === "lt") {
+        if (isNumeric(input.characteristic?.norminal)) {
+          upperLimit = input.characteristic?.norminal
         }
       }
 
@@ -121,8 +143,8 @@ class YidaApi {
         textField_m245vk9m: input.characteristic?.name,// 检验特性
         textField_m245vk9q: fmtCharacteristicNorminal(input.characteristic!), // 标准值
         textField_m245vk9r: input.qualitativeValue || input.quantitativeValue,// 检验值
-        textField_m3flq4hm: isNumber(upperLimit) ? upperLimit.toString() : "",
-        textField_m3flq4hn: isNumber(lowerLimit) ? lowerLimit.toString() : "",
+        textField_m3flq4hm: isNumeric(upperLimit) ? upperLimit.toString() : "",
+        textField_m3flq4hn: isNumeric(lowerLimit) ? lowerLimit.toString() : "",
       }
 
       let formDataJsonStr = JSON.stringify(formDataJson);
@@ -313,7 +335,7 @@ class YidaApi {
     // convert json to string
     let formDataJsonStr = JSON.stringify(formDataJson);
 
-    let dingtalkUserId = workOrder?.createdBy?.dingtalkUserId || "68282452959857472"
+    let dingtalkUserId = workOrder?.createdBy?.dingtalkUserId || "036025480920111923"
 
     let payload =
       {
@@ -353,7 +375,7 @@ class YidaApi {
 
       let formDataJsonStr = JSON.stringify(formDataJson);
 
-      let dingtalkUserId = input.workOrder?.createdBy?.dingtalkUserId || "68282452959857472"
+      let dingtalkUserId = input.workOrder?.createdBy?.dingtalkUserId || "036025480920111923"
 
       let payload = {
         language: "zh_CN",
@@ -464,7 +486,7 @@ class YidaApi {
 
     let formDataJsonStr = JSON.stringify(formDataJson);
 
-    let dingtalkUserId = input?.createdBy?.dingtalkUserId || "68282452959857472"
+    let dingtalkUserId = input?.createdBy?.dingtalkUserId || "036025480920111923"
 
     let payload = {
       language: "zh_CN",
