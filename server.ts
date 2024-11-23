@@ -2,11 +2,11 @@ import process from "process";
 import path from "path";
 import express from "express";
 import compression from "compression";
-import {format, transports} from "winston";
+import winston, { format, transports } from "winston";
 import expressWinston from "express-winston";
-import {createRequestHandler} from "@remix-run/express";
-import {createProxyMiddleware} from "http-proxy-middleware";
-import {consoleFormat, createAppLogger} from "./rapid-logger";
+import { createRequestHandler } from "@remix-run/express";
+import { createProxyMiddleware } from "http-proxy-middleware";
+import { consoleFormat, createAppLogger } from "./rapid-logger";
 import DatabaseAccessor from "./database-accessor";
 import {
   RapidServer,
@@ -23,8 +23,9 @@ import {
   EntityAccessControlPlugin,
   SettingPlugin,
   LicensePlugin,
+  RapidPlugin,
 } from "@ruiapp/rapid-core";
-import {createRapidRequestHandler} from "@ruiapp/rapid-express";
+import { createRapidRequestHandler } from "@ruiapp/rapid-express";
 
 import serverOperations from "./app/_definitions/meta/server-operations";
 import entityWatchers from "./app/_definitions/meta/entity-watchers";
@@ -33,16 +34,49 @@ import cronJobs from "./app/_definitions/meta/cron-jobs";
 import "dotenv/config";
 import PrinterPlugin from "rapid-plugins/printerService/PrinterPlugin";
 import BpmPlugin from "rapid-plugins/bpm/BpmPlugin";
-import {getRapidAppDefinitionFromRapidServer} from "~/utils/app-definition-utility";
+import { getRapidAppDefinitionFromRapidServer } from "~/utils/app-definition-utility";
+import { startMqttServer } from "mqtt-server";
+import IotPlugin from "rapid-plugins/iot/IotPlugin";
 
 const isDevelopmentEnv = process.env.NODE_ENV === "development";
 
 const BUILD_DIR = path.join(process.cwd(), "build");
 
+export interface EnvReader {
+  get: (name: string, defaultValue?: any) => string;
+}
+
+const envFromProcess = process.env;
+const env: EnvReader = {
+  get: (name: string, defaultValue = "") => {
+    return envFromProcess[name] || defaultValue;
+  },
+};
+
+export interface StartRapidServerOptions {
+  logger: winston.Logger;
+  env: EnvReader;
+  plugins?: RapidPlugin[];
+}
+
 export async function startServer() {
   const logger = createAppLogger({
     level: isDevelopmentEnv ? "debug" : "info",
   });
+
+  const iotPlugin = new IotPlugin();
+
+  if (!env.get("DISABLE_RAPID_SERVER", false)) {
+    await startRapidServer({ logger, env, plugins: [iotPlugin] });
+  }
+  if (!env.get("DISABLE_MQTT_SERVER", false)) {
+    await startMqttServer({ logger, iotPlugin });
+  }
+}
+
+export async function startRapidServer(options: StartRapidServerOptions) {
+  const { logger, plugins } = options;
+
   const app = express();
 
   app.use(compression());
@@ -83,13 +117,6 @@ export async function startServer() {
       },
     }),
   );
-
-  const envFromProcess = process.env;
-  const env = {
-    get: (name: string, defaultValue = "") => {
-      return envFromProcess[name] || defaultValue;
-    },
-  };
 
   const defaultJWTKey =
     "DyYR1em73ZR5s3rUV32ek3FCZBMxE0YMjuPCvpyQKn+MhCQwlwCiN+8ghgTYcoijtLhKX4G93DPxsJOIuf/ub5qRi0lx5AnHEYGQ8c2zpxJ873viF7marKQ7k5dtBU83f0Oki3aeugSeAfYbOzeK49+LopkgjDeQikgLMyC4JFo=";
@@ -154,6 +181,7 @@ export async function startServer() {
       new LicensePlugin({
         encryptionKey: env.get("RAPID_LICENSE_ENCRYPTION_KEY", ""),
       }),
+      ...(plugins || []),
     ],
     entityWatchers,
   });
@@ -168,9 +196,9 @@ export async function startServer() {
     "*",
     isDevelopmentEnv
       ? (req, res, next) => {
-        purgeRequireCache();
-        return createRemixRequestHandler(rapidServer)(req, res, next);
-      }
+          purgeRequireCache();
+          return createRemixRequestHandler(rapidServer)(req, res, next);
+        }
       : createRemixRequestHandler(rapidServer),
   );
   const port = process.env.PORT || 3000;

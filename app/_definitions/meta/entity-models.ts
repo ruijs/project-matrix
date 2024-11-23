@@ -141,6 +141,12 @@ import bpm$BpmProcess from '../models/entities/bpm/BpmProcess';
 import bpm$BpmProcessCategory from '../models/entities/bpm/BpmProcessCategory';
 import bpm$BpmProcessRevision from '../models/entities/bpm/BpmProcessRevision';
 import iot$DataSource from '../models/entities/iot/DataSource';
+import iot$IotAttribute from '../models/entities/iot/IotAttribute';
+import iot$IotGateway from '../models/entities/iot/IotGateway';
+import iot$IotMeasurement from '../models/entities/iot/IotMeasurement';
+import iot$IotRule from '../models/entities/iot/IotRule';
+import iot$IotThing from '../models/entities/iot/IotThing';
+import iot$IotType from '../models/entities/iot/IotType';
 import iot$Machine from '../models/entities/iot/Machine';
 import iot$MachineAttribute from '../models/entities/iot/MachineAttribute';
 import iot$MachineAttributeBind from '../models/entities/iot/MachineAttributeBind';
@@ -311,6 +317,12 @@ const entityDefinitions = [
   bpm$BpmProcessCategory,
   bpm$BpmProcessRevision,
   iot$DataSource,
+  iot$IotAttribute,
+  iot$IotGateway,
+  iot$IotMeasurement,
+  iot$IotRule,
+  iot$IotThing,
+  iot$IotType,
   iot$Machine,
   iot$MachineAttribute,
   iot$MachineAttributeBind,
@@ -481,6 +493,12 @@ const configuredEntities:TRapidEntity[] = [
   autoConfigureRapidEntity(bpm$BpmProcessCategory, entityDefinitions),
   autoConfigureRapidEntity(bpm$BpmProcessRevision, entityDefinitions),
   autoConfigureRapidEntity(iot$DataSource, entityDefinitions),
+  autoConfigureRapidEntity(iot$IotAttribute, entityDefinitions),
+  autoConfigureRapidEntity(iot$IotGateway, entityDefinitions),
+  autoConfigureRapidEntity(iot$IotMeasurement, entityDefinitions),
+  autoConfigureRapidEntity(iot$IotRule, entityDefinitions),
+  autoConfigureRapidEntity(iot$IotThing, entityDefinitions),
+  autoConfigureRapidEntity(iot$IotType, entityDefinitions),
   autoConfigureRapidEntity(iot$Machine, entityDefinitions),
   autoConfigureRapidEntity(iot$MachineAttribute, entityDefinitions),
   autoConfigureRapidEntity(iot$MachineAttributeBind, entityDefinitions),

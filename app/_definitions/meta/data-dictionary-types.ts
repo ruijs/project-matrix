@@ -658,15 +658,45 @@ export type WarehouseStrategy =
   ;
 
 /**
- * IoT数据类型
+ * 属性数据类型
  */
-export type IotDataType =
+export type IotAttributeDataType =
+  | 'integer'
+  | 'long'
+  | 'float'
+  | 'double'
+  | 'text'
+  | 'boolean'
+  | 'date'
+  | 'datetime'
+  | 'json'
+  ;
+
+/**
+ * 测量数据类型
+ */
+export type IotMeasurementDataType =
   | 'integer'
   | 'long'
   | 'float'
   | 'double'
   | 'boolean'
-  | 'text'
+  ;
+
+/**
+ * IoT TDengine 数据类型
+ */
+export type IotTdengineDataType =
+  | 'smallint'
+  | 'int'
+  | 'long'
+  | 'float'
+  | 'double'
+  | 'varchar'
+  | 'nchar'
+  | 'boolean'
+  | 'timestamp'
+  | 'json'
   ;
 
 /**
