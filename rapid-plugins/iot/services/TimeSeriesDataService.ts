@@ -6,10 +6,12 @@ import type { IRpdServer, Logger } from "@ruiapp/rapid-core";
 export default class TimeSeriesDataService {
   #server: IRpdServer;
   #logger: Logger;
+  #tDEngineAccessor: TDengineAccessor;
 
-  constructor(server: IRpdServer) {
+  constructor(server: IRpdServer, tDEngineAccessor: TDengineAccessor) {
     this.#server = server;
     this.#logger = server.getLogger();
+    this.#tDEngineAccessor = tDEngineAccessor;
   }
 
   async createTelemetryValuesOfDevices(telemetryValuesOfDevices: TelemetryValuesOfDevices) {
@@ -41,11 +43,8 @@ export default class TimeSeriesDataService {
     const values = keys.map((key) => telemetryValues[key]);
 
     const sql = `INSERT INTO ${tableName} (ts, ${keys.join(",")}) VALUES (NOW, ${values.join(",")})`;
-    this.#logger.debug(`Executing sql: ${sql}`);
+    this.#logger.debug(`Executing sql in tdengine: ${sql}`);
 
-    const accessor = new TDengineAccessor(this.#logger);
-    await accessor.connect();
-    await accessor.exec(sql);
-    await accessor.disconnect();
+    await this.#tDEngineAccessor.exec(sql);
   }
 }

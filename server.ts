@@ -36,7 +36,7 @@ import PrinterPlugin from "rapid-plugins/printerService/PrinterPlugin";
 import BpmPlugin from "rapid-plugins/bpm/BpmPlugin";
 import { getRapidAppDefinitionFromRapidServer } from "~/utils/app-definition-utility";
 import { startMqttServer } from "mqtt-server";
-import IotPlugin from "rapid-plugins/iot/IotPlugin";
+import { IotPlugin, TDengineAccessor } from "rapid-plugins/iot";
 
 const isDevelopmentEnv = process.env.NODE_ENV === "development";
 
@@ -64,7 +64,15 @@ export async function startServer() {
     level: isDevelopmentEnv ? "debug" : "info",
   });
 
-  const iotPlugin = new IotPlugin();
+  const accessor = new TDengineAccessor(logger, {
+    url: env.get("TDENGINE_URL"),
+    userName: env.get("TDENGINE_USERNAME"),
+    password: env.get("TDENGINE_PASSWORD"),
+    databaseName: env.get("TDENGINE_DATABASE_NAME"),
+  });
+  await accessor.connect();
+  await accessor.disconnect();
+  const iotPlugin = new IotPlugin(accessor);
 
   if (!env.get("DISABLE_RAPID_SERVER", false)) {
     await startRapidServer({ logger, env, plugins: [iotPlugin] });

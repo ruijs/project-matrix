@@ -16,12 +16,15 @@ import pluginModels from "./models";
 import pluginRoutes from "./routes";
 import TimeSeriesDataService from "./services/TimeSeriesDataService";
 import MqttMessageHandler from "./MqttMessageHandler";
+import TDengineAccessor from "./TDengineAccessor";
 
 class IotPlugin implements RapidPlugin {
   #mqttMessageHandler: MqttMessageHandler;
   #timeSeriesDataService!: TimeSeriesDataService;
+  #tDEngineAccessor: TDengineAccessor;
 
-  constructor() {
+  constructor(tDEngineAccessor: TDengineAccessor) {
+    this.#tDEngineAccessor = tDEngineAccessor;
     this.#mqttMessageHandler = new MqttMessageHandler(this);
   }
 
@@ -60,7 +63,7 @@ class IotPlugin implements RapidPlugin {
   }
 
   async configureServices(server: IRpdServer, applicationConfig: RpdApplicationConfig): Promise<any> {
-    this.#timeSeriesDataService = new TimeSeriesDataService(server);
+    this.#timeSeriesDataService = new TimeSeriesDataService(server, this.#tDEngineAccessor);
     server.registerService("timeSeriesDataService", this.#timeSeriesDataService);
   }
 
