@@ -73,6 +73,34 @@ class YidaSDK {
     this.accessTokenExpireIn = Date.now() / 1000 + data.expireIn;
   }
 
+  public async PostDingtalkResourceRequest(resourceUrl: string, payload: object, debug: boolean = false): Promise<AxiosResponse<any>> {
+    await this.ensureTokensAreValid();
+
+    const config: AxiosRequestConfig = {
+      baseURL: 'https://oapi.dingtalk.com',
+      url: `${ resourceUrl }?access_token=${this.accessToken}`,
+      method: 'POST',
+      headers: {
+        'x-acs-dingtalk-access-token': this.accessToken,
+      },
+      data: payload,
+    };
+
+    if (debug) {
+      // 打印请求和响应日志
+      this.axiosInstance.interceptors.request.use(request => {
+        console.log('Starting Request', JSON.stringify(request, null, 2))
+        return request
+      })
+
+      this.axiosInstance.interceptors.response.use(response => {
+        console.log('Response:', JSON.stringify(response.data, null, 2))
+        return response
+      })
+    }
+    return this.request<any>(config);
+  }
+
   public async PostResourceRequest(resourceUrl: string, payload: object, debug: boolean = false): Promise<AxiosResponse<any>> {
     await this.ensureTokensAreValid();
 
@@ -84,6 +112,7 @@ class YidaSDK {
       },
       data: payload,
     };
+
     if (debug) {
       // 打印请求和响应日志
       this.axiosInstance.interceptors.request.use(request => {
@@ -101,7 +130,7 @@ class YidaSDK {
 
   public async GetResourceRequest(resourceUrl: string, payload: object, debug: boolean = false): Promise<AxiosResponse<any>> {
     await this.ensureTokensAreValid();
-    
+
     const queryParams = new URLSearchParams(payload as any).toString();
     const separator = resourceUrl.includes('?') ? '&' : '?';
 

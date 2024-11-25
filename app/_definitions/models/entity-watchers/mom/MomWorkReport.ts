@@ -19,6 +19,7 @@ import {CreatePrintTasksInput} from "../../../../../rapid-plugins/printerService
 import duration from "dayjs/plugin/duration";
 import utc from "dayjs/plugin/utc"
 import timezone from "dayjs/plugin/timezone"
+import SequenceService, {GenerateSequenceNumbersInput} from "@ruiapp/rapid-core/src/plugins/sequence/SequenceService";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -76,12 +77,22 @@ export default [
 
         if (workTask && workTask.process) {
           if (workTask?.process?.config?.reportLotNumAutoGenerate) {
+            const sequenceService = server.getService<SequenceService>("sequenceService");
+            const lotNums = await sequenceService.generateSn(server, {
+              ruleCode: "mom_work_report.lotNum",
+              amount: 1,
+              parameters: {
+                plantCode: workTask?.factory?.code,
+              }
+            } as GenerateSequenceNumbersInput)
+
             const lot = await saveMaterialLotInfo(server, {
               material: { id: workTask?.material?.id },
               sourceType: "selfMade",
               qualificationState: "qualified",
               isAOD: false,
               state: "normal",
+              lotNum: lotNums[0],
             });
             if (lot) {
               before.lot = { id: lot.id };

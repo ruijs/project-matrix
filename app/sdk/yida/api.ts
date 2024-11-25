@@ -16,6 +16,47 @@ class YidaApi {
     this.api = api;
   }
 
+  public async getUsers() {
+    const fetchUsersFromDept = async (deptId: string) => {
+      let users: any[] = [];
+      const payload = {
+        dept_id: deptId,
+        cursor: 0,
+        size: 100
+      };
+
+      const resp = await this.api.PostDingtalkResourceRequest("/topapi/v2/user/list", payload);
+      if (resp.data && resp.data.result.list) {
+        users.push(...resp.data.result.list);
+      }
+
+      return users;
+    };
+
+    try {
+      // 获取顶层部门用户
+      const departmentPayload = { language: "zh_CN", dept_id: 1 };
+      const departmentResp = await this.api.PostDingtalkResourceRequest("/topapi/v2/department/listsub", departmentPayload);
+      const allUsers: any[] = [];
+
+      let users = await fetchUsersFromDept("1");
+      allUsers.push(...users);
+
+      if (departmentResp.data && departmentResp.data.result) {
+        // 获取每个子部门的用户
+        for (const department of departmentResp.data.result) {
+          users = await fetchUsersFromDept(department.dept_id);
+          allUsers.push(...users);
+        }
+      }
+
+      return allUsers;
+    } catch (error) {
+      console.error("Error fetching users:", error);
+      return [];
+    }
+  }
+
   public async uploadTransmitAudit(inputs: MomTransportOperationItem[]) {
     let items = inputs.map((item: MomTransportOperationItem) => {
       let payload: any = {
@@ -139,7 +180,7 @@ class YidaApi {
         textField_kocks567: input.sheet?.material?.name,// 物料
         textField_kpc0di1l: input.sheet?.rule?.name,// 检验规则
         textField_kpc0di1i: input.sheet?.lotNum,// 批次
-        textField_m245vk9o: input.sheet?.result === 'qualified' ? '合格' : '不合格',// 结果
+        textField_m245vk9o: input?.isQualified ? '合格' : '不合格',// 结果
         textField_m245vk9m: input.characteristic?.name,// 检验特性
         textField_m245vk9q: fmtCharacteristicNorminal(input.characteristic!), // 标准值
         textField_m245vk9r: input.qualitativeValue || input.quantitativeValue,// 检验值
