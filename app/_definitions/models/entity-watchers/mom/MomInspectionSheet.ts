@@ -69,56 +69,56 @@ export default [
       }
     },
   },
-  {
-    eventName: "entity.create",
-    modelSingularCode: "mom_inspection_sheet",
-    handler: async (ctx: EntityWatchHandlerContext<"entity.create">) => {
-      const { server, payload } = ctx;
-
-      let after = payload.after
-
-      const operationTarget = await server.getEntityManager<MomInspectionSheet>("mom_inspection_sheet").findEntity({
-        filters: [
-          {
-            operator: "eq",
-            field: "id",
-            value: after.id,
-          },
-        ],
-        properties: ["id", "material", "code", "gcmsReportFile"],
-      });
-
-
-      if (operationTarget?.gcmsReportFile && operationTarget?.material?.name === "石蜡油" && operationTarget?.gcmsReportFile.key.endsWith(".xlsx")) {
-        const items = await readGCMSFile(server, operationTarget?.gcmsReportFile?.key)
-        if (items) {
-          //   check if all items in gcmsItems
-
-          let gcmsFailed = items.some((item) => {
-            return item === "4253-90-1" || item === "110-06-5"
-          })
-
-          for (const item of items) {
-            await server.getEntityManager<HuateGCMS>("huate_gcms").createEntity({
-              entity: {
-                material: after?.material?.id || after?.material || after?.material_id,
-                momInspectionSheetId: after.id,
-                code: item,
-              } as SaveHuateGCMSInput
-            })
-          }
-
-          await server.getEntityManager<MomInspectionSheet>("mom_inspection_sheet").updateEntityById({
-            routeContext: ctx.routerContext,
-            id: after.id,
-            entityToSave: {
-              gcmsPassed: !gcmsFailed,
-            }
-          })
-        }
-      }
-    },
-  },
+  // {
+  //   eventName: "entity.create",
+  //   modelSingularCode: "mom_inspection_sheet",
+  //   handler: async (ctx: EntityWatchHandlerContext<"entity.create">) => {
+  //     const { server, payload } = ctx;
+  //
+  //     let after = payload.after
+  //
+  //     const operationTarget = await server.getEntityManager<MomInspectionSheet>("mom_inspection_sheet").findEntity({
+  //       filters: [
+  //         {
+  //           operator: "eq",
+  //           field: "id",
+  //           value: after.id,
+  //         },
+  //       ],
+  //       properties: ["id", "material", "code", "gcmsReportFile"],
+  //     });
+  //
+  //
+  //     if (operationTarget?.gcmsReportFile && operationTarget?.material?.name === "石蜡油" && operationTarget?.gcmsReportFile.key.endsWith(".xlsx")) {
+  //       const items = await readGCMSFile(server, operationTarget?.gcmsReportFile?.key)
+  //       if (items) {
+  //         //   check if all items in gcmsItems
+  //
+  //         let gcmsFailed = items.some((item) => {
+  //           return item === "4253-90-1" || item === "110-06-5"
+  //         })
+  //
+  //         for (const item of items) {
+  //           await server.getEntityManager<HuateGCMS>("huate_gcms").createEntity({
+  //             entity: {
+  //               material: after?.material?.id || after?.material || after?.material_id,
+  //               momInspectionSheetId: after.id,
+  //               code: item,
+  //             } as SaveHuateGCMSInput
+  //           })
+  //         }
+  //
+  //         await server.getEntityManager<MomInspectionSheet>("mom_inspection_sheet").updateEntityById({
+  //           routeContext: ctx.routerContext,
+  //           id: after.id,
+  //           entityToSave: {
+  //             gcmsPassed: !gcmsFailed,
+  //           }
+  //         })
+  //       }
+  //     }
+  //   },
+  // },
   {
     eventName: "entity.update",
     modelSingularCode: "mom_inspection_sheet",
@@ -153,32 +153,32 @@ export default [
         }
       }
 
-      if (changes.hasOwnProperty('gcmsReportFile') && operationTarget?.material?.name === "石蜡油" && changes?.gcmsReportFile.key.endsWith(".xlsx")) {
-        const items = await readGCMSFile(server, after?.gcmsReportFile?.key)
-        if (items) {
-          let gcmsFailed = items.some((item) => {
-            return item === "4253-90-1" || item === "110-06-5"
-          })
-
-          for (const item of items) {
-            await server.getEntityManager<HuateGCMS>("huate_gcms").createEntity({
-              entity: {
-                material: after?.material?.id || after?.material || after?.material_id,
-                momInspectionSheetId: after.id,
-                code: item,
-              } as SaveHuateGCMSInput
-            })
-          }
-
-          await server.getEntityManager<MomInspectionSheet>("mom_inspection_sheet").updateEntityById({
-            routeContext: ctx.routerContext,
-            id: after.id,
-            entityToSave: {
-              gcmsPassed: !gcmsFailed,
-            }
-          })
-        }
-      }
+      // if (changes.hasOwnProperty('gcmsReportFile') && operationTarget?.material?.name === "石蜡油" && changes?.gcmsReportFile.key.endsWith(".xlsx")) {
+      //   const items = await readGCMSFile(server, after?.gcmsReportFile?.key)
+      //   if (items) {
+      //     let gcmsFailed = items.some((item) => {
+      //       return item === "4253-90-1" || item === "110-06-5"
+      //     })
+      //
+      //     for (const item of items) {
+      //       await server.getEntityManager<HuateGCMS>("huate_gcms").createEntity({
+      //         entity: {
+      //           material: after?.material?.id || after?.material || after?.material_id,
+      //           momInspectionSheetId: after.id,
+      //           code: item,
+      //         } as SaveHuateGCMSInput
+      //       })
+      //     }
+      //
+      //     await server.getEntityManager<MomInspectionSheet>("mom_inspection_sheet").updateEntityById({
+      //       routeContext: ctx.routerContext,
+      //       id: after.id,
+      //       entityToSave: {
+      //         gcmsPassed: !gcmsFailed,
+      //       }
+      //     })
+      //   }
+      // }
 
       if (changes.hasOwnProperty('state') && changes.state === 'inspected') {
         const measurements = await server.getEntityManager<MomInspectionMeasurement>("mom_inspection_measurement").findEntities(
@@ -275,26 +275,26 @@ export default [
 
       //   TODO: 处理GCMS文件
 
-      try {
-        if (changes.hasOwnProperty('gcmsReportFile') && changes?.gcmsReportFile.key.endsWith(".xlsx")) {
-          const items = await readGCMSFile(server, after.gcmsReportFile.key)
-          if (items) {
-            //   check if all items in gcmsItems
-
-            for (const item of items) {
-              await server.getEntityManager<HuateGCMS>("huate_gcms").createEntity({
-                entity: {
-                  material: after?.material?.id || after?.material || after?.material_id,
-                  momInspectionSheetId: after.id,
-                  code: item,
-                } as SaveHuateGCMSInput
-              })
-            }
-          }
-        }
-      } catch (error) {
-        console.error(error)
-      }
+      // try {
+      //   if (changes.hasOwnProperty('gcmsReportFile') && changes?.gcmsReportFile.key.endsWith(".xlsx")) {
+      //     const items = await readGCMSFile(server, after.gcmsReportFile.key)
+      //     if (items) {
+      //       //   check if all items in gcmsItems
+      //
+      //       for (const item of items) {
+      //         await server.getEntityManager<HuateGCMS>("huate_gcms").createEntity({
+      //           entity: {
+      //             material: after?.material?.id || after?.material || after?.material_id,
+      //             momInspectionSheetId: after.id,
+      //             code: item,
+      //           } as SaveHuateGCMSInput
+      //         })
+      //       }
+      //     }
+      //   }
+      // } catch (error) {
+      //   console.error(error)
+      // }
 
 
     }

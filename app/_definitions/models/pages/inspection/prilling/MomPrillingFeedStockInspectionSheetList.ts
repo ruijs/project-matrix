@@ -115,6 +115,14 @@ const formConfig: Partial<RapidEntityFormConfig> = {
       },
     },
     {
+      code: "gcmsPassed",
+      type: "auto",
+      $exps: {
+        // _hidden:"$scope.vars.active_rule_id "
+        _hidden: "!$scope.vars.active_hidden",
+      },
+    },
+    {
       code: "invoiceReportFile",
       label: "月度发票",
       required: true,
