@@ -105,15 +105,15 @@ export default {
                 }),
               };
             });
-            if (Info.round === r.round) {
-              update({
-                id: r.measurementsId,
-                round: r.round,
-                isQualified: calculateInspectionResult(r, v),
-                qualitativeValue: r.kind === "qualitative" ? v : "",
-                quantitativeValue: r.kind === "quantitative" ? v : "",
-              });
-            }
+            // if (Info.round === r.round) {
+            //   update({
+            //     id: r.measurementsId,
+            //     round: r.round,
+            //     isQualified: calculateInspectionResult(r, v),
+            //     qualitativeValue: r.kind === "qualitative" ? v : "",
+            //     quantitativeValue: r.kind === "quantitative" ? v : "",
+            //   });
+            // }
             setState({
               inspection: changedInspection,
             });
@@ -127,6 +127,18 @@ export default {
                   disabled={r.locked}
                   style={{ width: "100%", maxWidth: 260 }}
                   value={r.measuredValue}
+                  onBlur={(value) => {
+                    const v = value.target.value;
+                    if (Info.round === r.round) {
+                      update({
+                        id: r.measurementsId,
+                        round: r.round,
+                        isQualified: calculateInspectionResult(r, v),
+                        qualitativeValue: r.kind === "qualitative" ? v : "",
+                        quantitativeValue: r.kind === "quantitative" ? v : "",
+                      });
+                    }
+                  }}
                   onChange={(v) => {
                     onRecordChange(v);
                   }}
@@ -143,6 +155,18 @@ export default {
                   placeholder="请选择"
                   style={{ width: "100%", maxWidth: 260 }}
                   value={r.measuredValue}
+                  onBlur={(value) => {
+                    const v = value;
+                    if (Info.round === r.round) {
+                      update({
+                        id: r.measurementsId,
+                        round: r.round,
+                        isQualified: calculateInspectionResult(r, v),
+                        qualitativeValue: r.kind === "qualitative" ? v : "",
+                        quantitativeValue: r.kind === "quantitative" ? v : "",
+                      });
+                    }
+                  }}
                   onChange={(v) => {
                     onRecordChange(v);
                   }}
@@ -290,7 +314,6 @@ export default {
               disabled={unSkippableArr.length > 0}
               onClick={() => {
                 form.validateFields().then(async (res) => {
-                  // const { treatment } = res;
                   try {
                     await rapidApi
                       .patch(`/mom/mom_inspection_sheets/${Info?.id}`, {
@@ -357,24 +380,6 @@ export default {
                 );
               })}
             </div>
-            {/*<Form form={form}>*/}
-            {/*  <Form.Item*/}
-            {/*    label="处理结果"*/}
-            {/*    name="treatment"*/}
-            {/*    rules={[*/}
-            {/*      {*/}
-            {/*        required: true,*/}
-            {/*      },*/}
-            {/*    ]}*/}
-            {/*  >*/}
-            {/*    <Select*/}
-            {/*      options={[*/}
-            {/*        { label: "特采", value: "special", color: "orange" },*/}
-            {/*        { label: "退货", value: "withdraw", color: "red" },*/}
-            {/*      ]}*/}
-            {/*    />*/}
-            {/*  </Form.Item>*/}
-            {/*</Form>*/}
           </>
         ) : (
           <></>
@@ -388,18 +393,11 @@ export default {
       return res;
     };
 
-    // const reCheckRecord = (arr: any) => {
-    //   const items = arr.map((item: any) => item.items).flat();
-    //   const res = items.every((it: any) => it.locked && (it.qualitativeValue || it.quantitativeValue)&&it);
-    //   return res;
-    // };
-
     return (
       <div className="pm_inspection-input-sectioN">
         <Spin spinning={loading || false}>
           {inspection &&
             inspection.map((item: any, index) => {
-              console.log(item, "item888");
               return (
                 <div key={index}>
                   <div className="inspection_measurement--title">第{item.round}轮次检验:</div>
@@ -467,7 +465,6 @@ export default {
                         <Space>
                           <Button
                             type="primary"
-                            // style={Info.state !== "inspected" ? { display: "none" } : {}}
                             disabled={Info.state === "inspected" && selected.length === 0}
                             onClick={async () => {
                               const res = inspection.filter((i) => i.round === Info.round + 1);
@@ -773,7 +770,7 @@ function useCreateInspectionMeasurement(options: { sheetId: string; round: numbe
 function useUpdateInspectionMeasurement(options: { sheetId: string; onSuccess: () => void }) {
   const [submitting, setSubmitting] = useState<boolean>(false);
 
-  const update = async (inspectionItem: any) => {
+  const update = async (inspectionItem: any, retryCount: number = 3) => {
     if (submitting) {
       return;
     }
@@ -786,17 +783,18 @@ function useUpdateInspectionMeasurement(options: { sheetId: string; onSuccess: (
       qualitativeValue: inspectionItem.qualitativeValue || null,
     };
 
-    await rapidApi
-      .patch(`/mom/mom_inspection_measurements/${inspectionItem.id}`, params)
-      .then((res) => {
-        if (res.status >= 200 && res.status < 400) {
-          options.onSuccess?.();
-        }
-        setSubmitting(false);
-      })
-      .catch(() => {
-        setSubmitting(false);
-      });
+    try {
+      const res = await rapidApi.patch(`/mom/mom_inspection_measurements/${inspectionItem.id}`, params);
+      if (res.status >= 200 && res.status < 400) {
+        options.onSuccess?.();
+      }
+    } catch (e) {
+      if (retryCount > 0) {
+        await update(inspectionItem, retryCount - 1);
+      }
+    } finally {
+      setSubmitting(false);
+    }
   };
   return { submitting, update };
 }
