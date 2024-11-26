@@ -75,7 +75,7 @@ export default {
         dataIndex: "norminal",
         width: 180,
         render: (_, r) => {
-          return fmtCharacteristicNorminal(r);
+          return fmtCharacteristicNorminal(r) || "-";
         },
       },
       {
@@ -250,8 +250,6 @@ export default {
       if (res.length > 0) {
         return setValidateOpen(true);
       } else {
-        // const items = arr.map((it: any) => it.items).flat();
-        // const isQualified = items.filter((it: any) => !it.skippable).every((it: any) => calculateInspectionResult(it, it.measuredValue));
         const res = arr
           .map((item: any) => {
             const unQualifiedArr = item.items.filter((it: any) => !it.skippable).filter((it: any) => !calculateInspectionResult(it, it.measuredValue));
