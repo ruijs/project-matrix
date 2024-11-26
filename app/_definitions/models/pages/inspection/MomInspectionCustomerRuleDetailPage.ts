@@ -247,6 +247,17 @@ const page: RapidPage = {
                   ],
                 },
               ],
+              extraProperties: [
+                "determineType",
+                "kind",
+                "mustPass",
+                "qualitativeDetermineType",
+                "skippable",
+                "upperLimit",
+                "upperTol",
+                "lowerLimit",
+                "lowerTol",
+              ],
               listActions: [
                 {
                   $type: "sonicToolbarNewEntityButton",
