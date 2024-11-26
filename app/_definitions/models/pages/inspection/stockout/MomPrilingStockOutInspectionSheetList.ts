@@ -84,18 +84,24 @@ const formConfig: Partial<RapidEntityFormConfig> = {
       code: "lotNum",
       required: true,
       label: "批次号",
-      formControlType: "lotNumSelector",
-      formControlProps: {
-        $exps: {
-          disabled: "!($self.form.getFieldValue('rule')&&$self.form.getFieldValue('material'))",
-        },
-      },
-      $exps: {
-        // _hidden: "!$scope.vars.active_hidden",
-        "formControlProps.materialId": "$self.form.getFieldValue('material')",
-        "formControlProps.materialCategoryId": "$self.form.getFieldValue('materialCategoryId')",
-      },
     },
+    // {
+    //   type: "auto",
+    //   code: "lotNum",
+    //   required: true,
+    //   label: "批次号",
+    //   formControlType: "lotNumSelector",
+    //   formControlProps: {
+    //     $exps: {
+    //       disabled: "!($self.form.getFieldValue('rule')&&$self.form.getFieldValue('material'))",
+    //     },
+    //   },
+    //   $exps: {
+    //     // _hidden: "!$scope.vars.active_hidden",
+    //     "formControlProps.materialId": "$self.form.getFieldValue('material')",
+    //     "formControlProps.materialCategoryId": "$self.form.getFieldValue('materialCategoryId')",
+    //   },
+    // },
     {
       code: "reportFile",
       label: "检验报告",
@@ -482,7 +488,7 @@ const page: RapidPage = {
           actionText: "修改",
           $permissionCheck: "xzyInspectionStockOut.manage",
           $exps: {
-            disabled: "$slot.record.approvalState !== 'approving' || $slot.record.approvalState !== 'uninitiated'",
+            disabled: "$slot.record.approvalState === 'approving'|| $slot.record.approvalState === 'approved'",
           },
         },
         {
@@ -494,7 +500,7 @@ const page: RapidPage = {
           entityCode: "MomInspectionSheet",
           $permissionCheck: "xzyInspectionStockOut.manage",
           $exps: {
-            disabled: "$slot.record.approvalState !== 'approving' || $slot.record.approvalState !== 'uninitiated'",
+            disabled: "$slot.record.approvalState === 'approving'|| $slot.record.approvalState === 'approved'",
           },
         },
         {
