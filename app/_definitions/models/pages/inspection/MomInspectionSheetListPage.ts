@@ -278,7 +278,7 @@ const page: RapidPage = {
         {
           type: "link",
           code: "code",
-          width: "200px",
+          width: "160px",
           fixed: "left",
           rendererType: "link",
           rendererProps: {
@@ -289,6 +289,7 @@ const page: RapidPage = {
           type: "auto",
           code: "material",
           fixed: "left",
+          width: "260px",
           rendererType: "anchor",
           rendererProps: {
             children: {
@@ -317,6 +318,7 @@ const page: RapidPage = {
         {
           code: "rule",
           type: "auto",
+          width: "260px",
           rendererProps: {
             format: "{{name}}",
           },
@@ -342,7 +344,7 @@ const page: RapidPage = {
         {
           type: "auto",
           code: "result",
-          width: "150px",
+          width: "100px",
         },
         {
           type: "auto",
