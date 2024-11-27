@@ -1,3 +1,4 @@
+/* eslint-disable no-empty */
 /* eslint-disable array-callback-return */
 import { type Rock } from "@ruiapp/move-style";
 import type { TableProps } from "antd";
@@ -50,6 +51,36 @@ export default {
 
     const { modal, actionPop } = useConfigForm({ sheetId: Info?.id, onOk: () => {} });
 
+    const batchupdateInspectionMeasurement = (inspection: any, id: string) => {
+      const currentData = inspection.find((item: any) => item.round === Info?.round)?.data || [];
+      const res = currentData
+        ?.map((item: any) => {
+          return {
+            ...item,
+            items: item.items
+              ?.filter((i: any) => i.id === id)
+              .map((it: any) => {
+                return {
+                  id: it.measurementsId,
+                  round: item.round,
+                  isQualified: calculateInspectionResult(it, it.measuredValue),
+                  qualitativeValue: it.kind === "qualitative" ? it.measuredValue : "",
+                  quantitativeValue: it.kind === "quantitative" ? it.measuredValue : "",
+                };
+              })
+              .filter((i: any) => i.qualitativeValue || i.quantitativeValue),
+          };
+        })
+        .map((item: any) => item.items)
+        .flat(Infinity);
+      try {
+        res.map((item: any) => {
+          update(item);
+        });
+      } finally {
+      }
+    };
+
     const tableColumns: TableProps<any>["columns"] = [
       {
         title: "样本号",
@@ -90,7 +121,18 @@ export default {
                   return {
                     ...item,
                     items: item.items.map((i: any) => {
-                      if (i.uuid === r.uuid) {
+                      if (r.isfirst) {
+                        if (r.id === i.id) {
+                          return {
+                            ...i,
+                            measuredValue: v,
+                            qualitativeValue: r.kind === "qualitative" ? v : "",
+                            quantitativeValue: r.kind === "quantitative" ? v : "",
+                          };
+                        } else {
+                          return i;
+                        }
+                      } else if (i.uuid === r.uuid) {
                         return {
                           ...i,
                           measuredValue: v,
@@ -105,15 +147,6 @@ export default {
                 }),
               };
             });
-            // if (Info.round === r.round) {
-            //   update({
-            //     id: r.measurementsId,
-            //     round: r.round,
-            //     isQualified: calculateInspectionResult(r, v),
-            //     qualitativeValue: r.kind === "qualitative" ? v : "",
-            //     quantitativeValue: r.kind === "quantitative" ? v : "",
-            //   });
-            // }
             setState({
               inspection: changedInspection,
             });
@@ -129,7 +162,9 @@ export default {
                   value={r.measuredValue}
                   onBlur={(value) => {
                     const v = value.target.value;
-                    if (Info.round === r.round) {
+                    if (r.isfirst) {
+                      batchupdateInspectionMeasurement(inspection, r.id);
+                    } else if (Info.round === r.round) {
                       update({
                         id: r.measurementsId,
                         round: r.round,
@@ -240,15 +275,16 @@ export default {
           isQualified: calculateInspectionResult(item.items[0], v),
           items: item.items
             .map((it: any) => {
-              const v = it.kind === "quantitative" ? it.quantitativeValue : it.qualitativeValue;
+              const v = it?.kind === "quantitative" ? it?.quantitativeValue : it?.qualitativeValue;
               return {
-                parentCode: item.code,
-                round: item.round,
+                parentCode: item?.code,
+                isfirst: item?.isfirst,
+                round: item?.round,
                 isQualified: calculateInspectionResult(it, v),
                 ...it,
               };
             })
-            .slice(1, item.items.lenght),
+            .slice(1, item?.items?.lenght),
         };
       });
 
@@ -388,8 +424,8 @@ export default {
     );
 
     const checkRecord = (arr: any) => {
-      const items = arr.map((item: any) => item.items).flat();
-      const res = items.every((it: any) => it.locked);
+      const items = arr.map((item: any) => item?.items).flat();
+      const res = items.every((it: any) => it?.locked);
       return res;
     };
 
@@ -669,11 +705,12 @@ function useInspectionMeasurement(props: { ruleId: string; round: number; sheetI
           return {
             round: item.round,
             data:
-              item?.data?.map((it: any) => {
+              item?.data?.map((it: any, index: any) => {
                 return {
                   code: it.code,
                   id: it.id,
                   sheetId: sheetId,
+                  isfirst: index === 0 ? true : false,
                   round: it.round,
                   items: it.measurements.map((i: any) => {
                     return {
@@ -796,6 +833,7 @@ function useUpdateInspectionMeasurement(options: { sheetId: string; onSuccess: (
       setSubmitting(false);
     }
   };
+
   return { submitting, update };
 }
 
