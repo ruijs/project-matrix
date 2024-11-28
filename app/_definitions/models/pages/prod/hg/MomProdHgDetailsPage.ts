@@ -744,6 +744,7 @@ const page: RapidPage = {
                   value: "",
                 },
               ],
+              extraProperties: ["dimension"],
               orderBy: [
                 {
                   field: "id",
@@ -751,6 +752,14 @@ const page: RapidPage = {
                 },
               ],
               columns: [
+                {
+                  type: "auto",
+                  code: "dimension",
+                  width: "150px",
+                  rendererProps: {
+                    format: "{{name}}",
+                  },
+                },
                 {
                   type: "auto",
                   code: "nominal",

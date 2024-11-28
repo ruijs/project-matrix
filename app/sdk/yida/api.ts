@@ -110,6 +110,8 @@ class YidaApi {
 
     let formDataJsonStr = JSON.stringify(formDataJson);
 
+    const dingtalkUserId = transportOperation?.createdBy?.dingtalkUserId || "036025480920111923"
+
     let payload =
       {
         noExecuteExpression: true,
@@ -120,7 +122,7 @@ class YidaApi {
         appType: "APP_MV044H55941SP5OMR0PI",
         formDataJson: formDataJsonStr,
         systemToken: "9FA66WC107APIRYWEES29D6BYQHM23FRS812MWB",
-        userId: transportOperation?.createdBy?.dingtalkUserId,
+        userId: dingtalkUserId,
         departmentId: "1"
       }
     const resp = await this.api.PostResourceRequest("/v2.0/yida/processes/instances/start", payload)
@@ -191,13 +193,15 @@ class YidaApi {
 
       let formDataJsonStr = JSON.stringify(formDataJson);
 
+      let dingtalkUserId =  input.sheet?.createdBy?.dingtalkUserId || "036025480920111923"
+
       let payload = {
         language: "zh_CN",
         formUuid: "FORM-83F40CCD44614D4788A06E61D9765C1D4SDE",
         appType: "APP_MV044H55941SP5OMR0PI",
         formDataJson: formDataJsonStr,
         systemToken: "9FA66WC107APIRYWEES29D6BYQHM23FRS812MWB",
-        userId: input.sheet?.createdBy?.dingtalkUserId,
+        userId: dingtalkUserId,
       }
 
       const resp = await this.api.PostResourceRequest("/v1.0/yida/forms/instances", payload)
@@ -221,13 +225,15 @@ class YidaApi {
 
         let formDataJsonStr = JSON.stringify(formDataJson);
 
+        let dingtalkUserId =  input.sheet?.createdBy?.dingtalkUserId || "036025480920111923"
+
         let payload = {
           language: "zh_CN",
           formUuid: "FORM-83F40CCD44614D4788A06E61D9765C1D4SDE",
           appType: "APP_MV044H55941SP5OMR0PI",
           formDataJson: formDataJsonStr,
           systemToken: "9FA66WC107APIRYWEES29D6BYQHM23FRS812MWB",
-          userId: input.sheet?.createdBy?.dingtalkUserId,
+          userId: dingtalkUserId,
         }
 
         const resp = await this.api.PostResourceRequest("/v1.0/yida/forms/instances", payload)
@@ -325,6 +331,8 @@ class YidaApi {
     // convert json to string
     let formDataJsonStr = JSON.stringify(formDataJson);
 
+    let dingtalkUserId = inspectionSheet?.createdBy?.dingtalkUserId || "036025480920111923"
+
     let payload =
       {
         noExecuteExpression: true,
@@ -335,7 +343,7 @@ class YidaApi {
         appType: "APP_MV044H55941SP5OMR0PI",
         formDataJson: formDataJsonStr,
         systemToken: "9FA66WC107APIRYWEES29D6BYQHM23FRS812MWB",
-        userId: inspectionSheet?.createdBy?.dingtalkUserId,
+        userId: dingtalkUserId,
         departmentId: "1"
       }
     const resp = await this.api.PostResourceRequest("/v2.0/yida/processes/instances/start", payload)
@@ -505,13 +513,15 @@ class YidaApi {
 
       let formDataJsonStr = JSON.stringify(formDataJson);
 
+      const dingtalkUserId = input?.workOrder?.createdBy?.dingtalkUserId || "036025480920111923"
+
       let payload = {
         language: "zh_CN",
         formUuid: "FORM-1F700B466FE248F48DD0A16D3EF884C87V8I",
         appType: "APP_MV044H55941SP5OMR0PI",
         formDataJson: formDataJsonStr,
         systemToken: "9FA66WC107APIRYWEES29D6BYQHM23FRS812MWB",
-        userId: input?.workOrder?.createdBy?.dingtalkUserId
+        userId: dingtalkUserId
       }
 
       const resp = await this.api.PostResourceRequest("/v1.0/yida/forms/instances", payload)
@@ -589,7 +599,7 @@ class YidaApi {
           numberField_l3plle2x: input.value,// 参数值
           numberField_l3plle2y: input.lowerLimit,// 下公差
           numberField_l3plle2z: input.upperLimit,// 上公差
-          dateField_l3plle30: dayjs().unix()*1000,
+          dateField_l3plle30: dayjs().unix() * 1000,
           textField_l3plle2h: input.isOutSpecification ? "不合格" : "合格",
           textField_l3plle2m: input.process?.partManager,// 零件负责人
           textField_l3plle2o: input.value,// 参数值
@@ -601,6 +611,148 @@ class YidaApi {
         let formDataJsonStr = JSON.stringify(formDataJson);
 
         let dingtalkUserId = input?.createdBy?.dingtalkUserId || "036025480920111923"
+
+        let payload =
+          {
+            noExecuteExpression: true,
+            language: "zh_CN",
+            formUuid: "FORM-E9116BD087B44F1AB0DFC7F86FFB74E2YCGB",
+            processCode: "TPROC--9KA66MC17WBQBV2S9T39V5JN6J9Z227G15I3M0",
+            searchCondition: "[]",
+            appType: "APP_VKCHKCFNQUQZW2R3HFVC",
+            formDataJson: formDataJsonStr,
+            systemToken: "F2766O91D3BQXRJGCE0387JGX2582G7G15I3M6W3",
+            userId: dingtalkUserId,
+            departmentId: "1"
+          }
+        const resp = await this.api.PostResourceRequest("/v2.0/yida/processes/instances/start", payload)
+        console.log(resp.data)
+      }
+    }
+  }
+
+  public async uploadFAWInspectionMeasurements(inputs: MomInspectionMeasurement[]) {
+    for (const input of inputs) {
+      let upperLimit: any;
+      let lowerLimit: any;
+      let inspectValue: any;
+
+      if (input.characteristic?.determineType === "inLimit") {
+        if (isNumeric(input.characteristic?.upperLimit)) {
+          upperLimit = input.characteristic?.upperLimit
+        }
+
+        if (isNumeric(input.characteristic?.lowerLimit)) {
+          lowerLimit = input.characteristic?.lowerLimit
+        }
+      }
+
+      if (input.characteristic?.determineType === "inTolerance") {
+        if (input.characteristic?.norminal && input.characteristic?.upperTol) {
+          if (isNumeric(input.characteristic?.norminal) && isNumeric(input.characteristic?.upperTol)) {
+            upperLimit = input.characteristic?.norminal + input.characteristic?.upperTol
+          }
+        }
+
+        if (input.characteristic?.norminal && input.characteristic?.lowerTol) {
+          if (isNumeric(input.characteristic?.norminal) && isNumeric(input.characteristic?.lowerTol)) {
+            lowerLimit = input.characteristic?.norminal + input.characteristic?.lowerTol
+          }
+        }
+      }
+
+
+      if (input.characteristic?.determineType === "ge" || input.characteristic?.determineType === "gt") {
+        if (isNumeric(input.characteristic?.norminal)) {
+          lowerLimit = input.characteristic?.norminal
+        }
+      }
+
+      if (input.characteristic?.determineType === "le" || input.characteristic?.determineType === "lt") {
+        if (isNumeric(input.characteristic?.norminal)) {
+          upperLimit = input.characteristic?.norminal
+        }
+      }
+
+
+      // TODO: 处理定性情况下的数据上报
+      if (input.characteristic?.kind === 'qualitative') {
+        upperLimit = '0'
+        lowerLimit = '0'
+        inspectValue = input?.isQualified ? 0 : 1
+      } else {
+        inspectValue = input.quantitativeValue
+      }
+
+      let formDataJson = {
+        textField_l3plle21: "5RD",// 供应商代码
+        textField_l3plle22: "上海华特企业集团股份有限公司",// 供应商名称
+        textField_l3plle23: input.sheet?.rule?.carModel,// 车型
+        textField_l3plle24: input.sheet?.rule?.partNumber,// 零件号
+        textField_l3plle25: input.sheet?.rule?.partName,// 零件名
+        textField_l3plle26: input.sheet?.rule?.conf,// 配置
+        textField_l3plle27: input.sheet?.rule?.category?.name,// 工位
+        textField_l3plle29: input.characteristic?.name,// 参数名
+        numberField_l3plle2x: inspectValue,// 参数值
+        numberField_l3plle2y: lowerLimit,// 下公差
+        numberField_l3plle2z: upperLimit,// 上公差
+        dateField_l3plle30: dayjs().unix() * 1000,
+        textField_l3plle2h: input?.isQualified ? "合格" : "不合格",
+        textField_l3plle2m: input.sheet?.rule?.partManager,// 零件负责人
+        textField_l3plle2o: inspectValue,// 参数值
+        textField_l3plle2q: lowerLimit,// 下公差
+        textField_l3plle2s: upperLimit,// 上公差
+        textField_l3plle2u: input.sheet?.lotNum,// intime
+      }
+
+      let formDataJsonStr = JSON.stringify(formDataJson);
+
+      let dingtalkUserId = input.sheet?.createdBy?.dingtalkUserId || "036025480920111923"
+
+      let payload =
+        {
+          noExecuteExpression: true,
+          language: "zh_CN",
+          formUuid: "FORM-E9116BD087B44F1AB0DFC7F86FFB74E2YCGB",
+          processCode: "TPROC--9KA66MC17WBQBV2S9T39V5JN6J9Z227G15I3M0",
+          searchCondition: "[]",
+          appType: "APP_VKCHKCFNQUQZW2R3HFVC",
+          formDataJson: formDataJsonStr,
+          systemToken: "F2766O91D3BQXRJGCE0387JGX2582G7G15I3M6W3",
+          userId: dingtalkUserId,
+          departmentId: "1"
+        }
+      const resp = await this.api.PostResourceRequest("/v2.0/yida/processes/instances/start", payload)
+      console.log(resp.data)
+    }
+
+    if (inputs.length > 0) {
+      const input = inputs[0];
+      if (input?.sheet?.gcmsReportFile) {
+        let formDataJson = {
+          textField_l3plle21: "5RD",// 供应商代码
+          textField_l3plle22: "上海华特企业集团股份有限公司",// 供应商名称
+          textField_l3plle23: input.sheet?.rule?.carModel,// 车型
+          textField_l3plle24: input.sheet?.rule?.partNumber,// 零件号
+          textField_l3plle25: input.sheet?.rule?.partName,// 零件名
+          textField_l3plle26: input.sheet?.rule?.conf,// 配置
+          textField_l3plle27: input.sheet?.rule?.category?.name,// 工位
+          textField_l3plle29: "GCMS报告",// 参数名
+          numberField_l3plle2x: input.sheet.gcmsPassed ? 0 : 1,// 参数值
+          numberField_l3plle2y: 0,// 下公差
+          numberField_l3plle2z: 0,// 上公差
+          dateField_l3plle30: dayjs().unix() * 1000,
+          textField_l3plle2h: input.sheet.gcmsPassed ? "合格" : "不合格",
+          textField_l3plle2m: input.sheet?.rule?.partManager,// 零件负责人
+          textField_l3plle2o: input.sheet.gcmsPassed ? 0 : 1,// 参数值
+          textField_l3plle2q: 0,// 下公差
+          textField_l3plle2s: 0,// 上公差
+          textField_l3plle2u: input.sheet?.lotNum,// intime
+        }
+
+        let formDataJsonStr = JSON.stringify(formDataJson);
+
+        let dingtalkUserId = input.sheet?.createdBy?.dingtalkUserId || "036025480920111923"
 
         let payload =
           {

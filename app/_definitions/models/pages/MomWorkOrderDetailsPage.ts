@@ -715,6 +715,7 @@ const page: RapidPage = {
                   value: "",
                 },
               ],
+              extraProperties: ["dimension"],
               listActions: [
                 {
                   $type: "sonicToolbarNewEntityButton",

@@ -34,8 +34,9 @@ export default {
             properties: ["id", "material", "code", "yidaId", "createdBy"],
           });
 
-          if (transportOperation && transportOperation.yidaId && transportOperation?.createdBy?.dingtalkUserId) {
-            const yidaResp = await yidaAPI.getAuditDetail(transportOperation.yidaId, transportOperation?.createdBy?.dingtalkUserId, input.kind)
+          if (transportOperation && transportOperation.yidaId) {
+            const dingtalkUserId = transportOperation?.createdBy?.dingtalkUserId || "036025480920111923"
+            const yidaResp = await yidaAPI.getAuditDetail(transportOperation.yidaId, dingtalkUserId, input.kind)
 
             await server.getEntityManager<MomTransportOperation>("mom_transport_operation").updateEntityById({
               routeContext: ctx.routerContext,
@@ -59,8 +60,9 @@ export default {
             properties: ["id", "material", "code", "yidaId", "createdBy"],
           });
 
-          if (inspectSheet && inspectSheet.yidaId && inspectSheet?.createdBy?.dingtalkUserId) {
-            const yidaResp = await yidaAPI.getAuditDetail(inspectSheet.yidaId, inspectSheet?.createdBy?.dingtalkUserId, input.kind)
+          if (inspectSheet && inspectSheet.yidaId) {
+            const dingtalkUserId = inspectSheet?.createdBy?.dingtalkUserId || "036025480920111923"
+            const yidaResp = await yidaAPI.getAuditDetail(inspectSheet.yidaId, dingtalkUserId, input.kind)
 
             await server.getEntityManager<MomInspectionSheet>("mom_inspection_sheet").updateEntityById({
               routeContext: ctx.routerContext,
