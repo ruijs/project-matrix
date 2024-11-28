@@ -61,6 +61,31 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
       targetSingularCode: "mom_factory",
       targetIdColumnName: "factory_id",
     },
+    {
+      code: "carModel",
+      name: "车型",
+      type: "text",
+    },
+    {
+      code: "partNumber",
+      name: "零件号",
+      type: "text",
+    },
+    {
+      code: "partName",
+      name: "零件名",
+      type: "text",
+    },
+    {
+      code: "conf",
+      name: "配置",
+      type: "text",
+    },
+    {
+      code: "partManager",
+      name: "零件负责人",
+      type: "text",
+    },
   ],
   // indexes: [
   //   {

@@ -180,6 +180,36 @@ export default [
       //   }
       // }
 
+      if (changes.hasOwnProperty('approvalState') && changes.approvalState === 'approved') {
+        const measurements = await server.getEntityManager<MomInspectionMeasurement>("mom_inspection_measurement").findEntities(
+          {
+            filters: [
+              { operator: "eq", field: "sheet_id", value: after.id },
+            ],
+            properties: ["id", "sheet", "characteristic", "qualitativeValue", "quantitativeValue", "isQualified"],
+            relations: {
+              characteristic: {
+                relations: {
+                  method: true,
+                },
+              },
+              sheet: {
+                properties: ["id", "code", "lotNum", "material", "rule", "result", "reportFile", "gcmsReportFile", "invoiceReportFile", "normalReportFile", "qualityReportFile", "createdBy", "gcmsPassed"],
+                relations: {
+                  rule: {
+                    properties: ["id", "name", "category", "carModel", "partNumber", "partName", "conf", "partManager"],
+                  },
+                },
+              },
+            }
+          }
+        );
+        const yidaSDK = await new YidaHelper(server).NewAPIClient();
+        const yidaAPI = new YidaApi(yidaSDK);
+
+        await yidaAPI.uploadFAWInspectionMeasurements(measurements)
+      }
+
       if (changes.hasOwnProperty('state') && changes.state === 'inspected') {
         const measurements = await server.getEntityManager<MomInspectionMeasurement>("mom_inspection_measurement").findEntities(
           {

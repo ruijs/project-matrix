@@ -30,6 +30,26 @@ const formConfig: Partial<RapidEntityFormConfig> = {
       code: "category",
       required: true,
     },
+    {
+      type: "auto",
+      code: "carModel",
+    },
+    {
+      type: "auto",
+      code: "partNumber",
+    },
+    {
+      type: "auto",
+      code: "partName",
+    },
+    {
+      type: "auto",
+      code: "conf",
+    },
+    {
+      type: "auto",
+      code: "partManager",
+    },
     // {
     //   type: "auto",
     //   code: "customer",
