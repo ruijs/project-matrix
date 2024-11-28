@@ -83,6 +83,30 @@ class KingdeeSDK {
     }
   }
 
+  public async getAccessToken(code :string): Promise<void> {
+    const config: AxiosRequestConfig = {
+      url: `/koas/oauth2/access_token`,
+      method: 'POST',
+      headers: {
+        'Kis-State': this.machineId,
+        'Kis-Timestamp': `${ Math.floor(Date.now() / 1000) }`,
+        'Kis-Traceid': uuidv4(),
+        'Kis-Ver': '1.0',
+      },
+      data: {
+        code: code,
+      },
+    };
+
+    const response = await this.axiosInstance.request<any>(config);
+    const data = response.data.data;
+
+    this.accessToken = data.access_token;
+    this.accessTokenExpireIn = data.access_token_expire_in;
+    this.sessionId = data.session_id;
+    this.sessionIdExpireIn = data.session_id_expire_in;
+  }
+
   public async refreshAccessToken(): Promise<void> {
     const config: AxiosRequestConfig = {
       url: `/koas/user/refresh_login_access_token?access_token=${ this.accessToken }`,

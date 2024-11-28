@@ -133,6 +133,7 @@ async function createGoodTransferIn(server: IRpdServer, input: CreateGoodTransfe
     const inspectRule = await inspectRuleManager.findEntity({
       filters: [
         { operator: "eq", field: "material_id", value: material.id },
+        { operator: "null", field: "customer_id" },
         { operator: "eq", field: "category_id", value: inventoryOperation?.businessType?.config?.inspectionCategoryId },
       ],
       properties: ["id"],
