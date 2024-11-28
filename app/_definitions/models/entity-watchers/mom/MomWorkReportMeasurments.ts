@@ -31,6 +31,8 @@ export default [
 
         await yidaAPI.uploadProductionMeasurements(measurements)
 
+        await yidaAPI.uploadFAWProcessMeasurement(measurements)
+
         if (measurements) {
           let isOutSpecification = false
           for (const measurement of measurements) {

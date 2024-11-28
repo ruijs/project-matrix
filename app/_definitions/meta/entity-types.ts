@@ -6831,6 +6831,26 @@ export interface MomProcess {
    */
   config?: Record<string, any>;
   /**
+   * 车型
+   */
+  carModel?: string;
+  /**
+   * 零件号
+   */
+  partNumber?: string;
+  /**
+   * 零件名
+   */
+  partName?: string;
+  /**
+   * 配置
+   */
+  conf?: string;
+  /**
+   * 零件负责人
+   */
+  partManager?: string;
+  /**
    * 创建时间
    */
   createdAt?: string;
