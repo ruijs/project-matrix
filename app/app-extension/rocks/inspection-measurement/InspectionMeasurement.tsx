@@ -192,7 +192,9 @@ export default {
                   value={r.measuredValue}
                   onBlur={(value) => {
                     const v = value;
-                    if (Info.round === r.round) {
+                    if (r.isfirst) {
+                      batchupdateInspectionMeasurement(inspection, r.id);
+                    } else if (Info.round === r.round) {
                       update({
                         id: r.measurementsId,
                         round: r.round,
@@ -271,6 +273,7 @@ export default {
         return {
           code: item.code,
           ...item.items[0],
+          isfirst: item?.isfirst,
           round: item.round,
           isQualified: calculateInspectionResult(item.items[0], v),
           items: item.items
