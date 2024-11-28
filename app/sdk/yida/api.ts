@@ -8,6 +8,7 @@ import {
 } from "~/_definitions/meta/entity-types";
 import {fmtCharacteristicNorminal} from "~/utils/fmt";
 import {isNumeric} from "~/utils/isNumeric";
+import dayjs from "dayjs";
 
 class YidaApi {
   private api!: YidaSDK;
@@ -540,6 +541,84 @@ class YidaApi {
 
     const resp = await this.api.PostResourceRequest("/v1.0/yida/forms/instances", payload)
     console.log(resp.data)
+  }
+
+  public async uploadFeeds(input: MomWorkFeed) {
+    let formDataJson = {
+      textField_m3wfkrg6: 1, // 工厂
+      textField_m3wfkrg5: 11, // 工单
+      textField_m3wfkrg7: 11, // 产出物料
+      textField_m3wfkrg8: 11, // 批号
+      textField_m3wfkrg9: 11, // 工序
+      textField_m3wfkrgb: 11, // 原材料
+      textField_m3wfkrgc: 11, // 原材料批号
+    }
+
+    let formDataJsonStr = JSON.stringify(formDataJson);
+
+    let dingtalkUserId = input?.createdBy?.dingtalkUserId || "036025480920111923"
+
+    let payload = {
+      language: "zh_CN",
+      formUuid: "FORM-7A87DE6777214CD0B6C88B98A76670C04699",
+      appType: "APP_MV044H55941SP5OMR0PI",
+      formDataJson: formDataJsonStr,
+      systemToken: "9FA66WC107APIRYWEES29D6BYQHM23FRS812MWB",
+      userId: dingtalkUserId
+    }
+
+    const resp = await this.api.PostResourceRequest("/v1.0/yida/forms/instances", payload)
+    console.log(resp.data)
+  }
+
+  public async uploadFAWProcessMeasurement(inputs: MomRouteProcessParameterMeasurement[]) {
+    for (const input of inputs) {
+      if (input.isOutSpecification) {
+        continue;
+      }
+      if (input.process && input.process?.partNumber && input.process?.partName && input.process?.partManager) {
+        let formDataJson = {
+          textField_l3plle21: "5RD",// 供应商代码
+          textField_l3plle22: "上海华特企业集团股份有限公司",// 供应商名称
+          textField_l3plle23: input.process?.carModel,// 车型
+          textField_l3plle24: input.process?.partNumber,// 零件号
+          textField_l3plle25: input.process?.partName,// 零件名
+          textField_l3plle26: input.process?.conf,// 配置
+          textField_l3plle27: input.process?.name,// 工位
+          textField_l3plle29: input.dimension?.name,// 参数名
+          numberField_l3plle2x: input.value,// 参数值
+          numberField_l3plle2y: input.lowerLimit,// 下公差
+          numberField_l3plle2z: input.upperLimit,// 上公差
+          dateField_l3plle30: dayjs().unix()*1000,
+          textField_l3plle2h: input.isOutSpecification ? "不合格" : "合格",
+          textField_l3plle2m: input.process?.partManager,// 零件负责人
+          textField_l3plle2o: input.value,// 参数值
+          textField_l3plle2q: input.lowerLimit,// 下公差
+          textField_l3plle2s: input.upperLimit,// 上公差
+          textField_l3plle2u: input.workReport?.lotNum,// intime
+        }
+
+        let formDataJsonStr = JSON.stringify(formDataJson);
+
+        let dingtalkUserId = input?.createdBy?.dingtalkUserId || "036025480920111923"
+
+        let payload =
+          {
+            noExecuteExpression: true,
+            language: "zh_CN",
+            formUuid: "FORM-E9116BD087B44F1AB0DFC7F86FFB74E2YCGB",
+            processCode: "TPROC--9KA66MC17WBQBV2S9T39V5JN6J9Z227G15I3M0",
+            searchCondition: "[]",
+            appType: "APP_VKCHKCFNQUQZW2R3HFVC",
+            formDataJson: formDataJsonStr,
+            systemToken: "F2766O91D3BQXRJGCE0387JGX2582G7G15I3M6W3",
+            userId: dingtalkUserId,
+            departmentId: "1"
+          }
+        const resp = await this.api.PostResourceRequest("/v2.0/yida/processes/instances/start", payload)
+        console.log(resp.data)
+      }
+    }
   }
 }
 
