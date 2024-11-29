@@ -1,0 +1,20 @@
+.pm-table-selector {
+}
+
+.pm-table-selector--toolbar {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 8px;
+  padding-bottom: 15px;
+}
+
+.pm-table-row {
+  cursor: pointer;
+}
+.pm-modal-selector-wrapple {
+  .ant-modal-body {
+    padding-top: 10px;
+  }
+}
