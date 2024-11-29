@@ -334,13 +334,14 @@ function getFormConfig(formType: "newForm" | "editForm") {
       {
         type: "auto",
         code: "lotNum",
-        formControlType: "materialLotNumSelector",
+        formControlType: "filterMaterialLotNumSelector",
         formControlProps: {},
         $exps: {
           _hidden: "_.get($page.scope.stores, 'detail.data.list[0].operationType') === 'in'",
           "formControlProps.materialId": "$self.form.getFieldValue('material')",
           "formControlProps.materialCategoryId": "$self.form.getFieldValue('materialCategoryId')",
           "formControlProps.businessTypeId": "_.get($page.scope.stores, 'detail.data.list[0].businessType.id')",
+          "formControlProps.customerId": "_.get($page.scope.stores, 'detail.data.list[0].customer.id')",
         },
       },
       // {
@@ -380,7 +381,7 @@ function getFormConfig(formType: "newForm" | "editForm") {
 
   return formConfig;
 }
-
+// WAITE TO DO
 const operationDataExp = `_.first(_.get($page.getScope('applicationItemList-scope')?.getStore('operationList'), 'data.list'))`;
 const page: RapidPage = {
   code: "mom_inventory_application_details",

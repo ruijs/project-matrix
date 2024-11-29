@@ -42,6 +42,9 @@ import InspectionPrintAction from "./inspection-print-action/InspectionPrintActi
 import BlockRerenderRock from "./block-rerender-rock/BlockRerenderRock";
 import CustomTextRenderer from "./custom-text-renderer/CustomTextRenderer";
 
+//filter
+import filterMaterialLotNumSelector from "./filter-material-lotnum-selector/FilterMaterialLotNumSelector";
+
 export default [
   Link,
   MaterialLabelRenderer,
@@ -86,4 +89,7 @@ export default [
   // render
   BlockRerenderRock,
   CustomTextRenderer,
+
+  //fitler
+  filterMaterialLotNumSelector,
 ];
