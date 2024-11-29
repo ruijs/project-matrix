@@ -19,13 +19,12 @@ import MqttMessageHandler from "./MqttMessageHandler";
 import TDengineAccessor from "./TDengineAccessor";
 
 class IotPlugin implements RapidPlugin {
-  #mqttMessageHandler: MqttMessageHandler;
+  #mqttMessageHandler?: MqttMessageHandler;
   #timeSeriesDataService!: TimeSeriesDataService;
   #tDEngineAccessor: TDengineAccessor;
 
   constructor(tDEngineAccessor: TDengineAccessor) {
     this.#tDEngineAccessor = tDEngineAccessor;
-    this.#mqttMessageHandler = new MqttMessageHandler(this);
   }
 
   get code(): string {
@@ -71,14 +70,16 @@ class IotPlugin implements RapidPlugin {
     server.appendApplicationConfig({ routes: pluginRoutes });
   }
 
-  async onApplicationLoaded(server: IRpdServer, applicationConfig: RpdApplicationConfig) {}
+  async onApplicationLoaded(server: IRpdServer, applicationConfig: RpdApplicationConfig) {
+    this.#mqttMessageHandler = new MqttMessageHandler(server, this);
+  }
 
   get timeSeriesDataService() {
     return this.#timeSeriesDataService;
   }
 
   get mqttMessageHandler() {
-    return this.#mqttMessageHandler;
+    return this.#mqttMessageHandler!;
   }
 }
 

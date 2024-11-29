@@ -12,6 +12,7 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
       code: "type",
       name: "类型",
       type: "relation",
+      required: true,
       targetSingularCode: "iot_type",
       targetIdColumnName: "type_id",
     },

@@ -23,8 +23,8 @@ import type {
   InspectionDetermineType,
   InspectionKind,
   InspectionResult,
-  IotAttributeDataType,
-  IotMeasurementDataType,
+  IotPropertyDataType,
+  IotPropertyStorageType,
   IotTriggerEventType,
   MaterialSourceType,
   MomApplicationSource,
@@ -10444,77 +10444,6 @@ export interface IotDataSource {
 export type SaveIotDataSourceInput = Omit<IotDataSource, 'id' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>;
 
 /**
- * 属性
- */
-export interface IotAttribute {
-  /**
-   * id
-   */
-  id: number;
-  /**
-   * 所属类型
-   */
-  type?: Partial<IotType>;
-  /**
-   * 数据类型
-   */
-  dataType: IotAttributeDataType;
-  /**
-   * 数据标签
-   */
-  isDataTag: boolean;
-  /**
-   * 编码
-   */
-  code: string;
-  /**
-   * 名称
-   */
-  name: string;
-  /**
-   * 描述
-   */
-  description?: string;
-  /**
-   * 状态
-   */
-  state: EnabledDisabledState;
-  /**
-   * 排序号
-   */
-  orderNum: number;
-  /**
-   * 创建时间
-   */
-  createdAt?: string;
-  /**
-   * 创建人
-   */
-  createdBy?: Partial<OcUser>;
-  /**
-   * 更新时间
-   */
-  updatedAt?: string;
-  /**
-   * 更新人
-   */
-  updatedBy?: Partial<OcUser>;
-  /**
-   * 删除时间
-   */
-  deletedAt?: string;
-  /**
-   * 删除人
-   */
-  deletedBy?: Partial<OcUser>;
-}
-
-/**
- * 属性
- */
-export type SaveIotAttributeInput = Omit<IotAttribute, 'id' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>;
-
-/**
  * 网关
  */
 export interface IotGateway {
@@ -10582,9 +10511,9 @@ export interface IotGateway {
 export type SaveIotGatewayInput = Omit<IotGateway, 'id' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>;
 
 /**
- * 测量指标
+ * 属性
  */
-export interface IotMeasurement {
+export interface IotProperty {
   /**
    * id
    */
@@ -10594,9 +10523,17 @@ export interface IotMeasurement {
    */
   type?: Partial<IotType>;
   /**
+   * 存储类型
+   */
+  storageType: IotPropertyStorageType;
+  /**
    * 数据类型
    */
-  dataType: IotMeasurementDataType;
+  dataType: IotPropertyDataType;
+  /**
+   * 数据标签
+   */
+  isDataTag: boolean;
   /**
    * 编码
    */
@@ -10609,14 +10546,6 @@ export interface IotMeasurement {
    * 描述
    */
   description?: string;
-  /**
-   * 长度
-   */
-  dataLength: number;
-  /**
-   * 计量单位
-   */
-  unit?: string;
   /**
    * 状态
    */
@@ -10652,9 +10581,9 @@ export interface IotMeasurement {
 }
 
 /**
- * 测量指标
+ * 属性
  */
-export type SaveIotMeasurementInput = Omit<IotMeasurement, 'id' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>;
+export type SaveIotPropertyInput = Omit<IotProperty, 'id' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>;
 
 /**
  * 规则
@@ -10726,7 +10655,7 @@ export interface IotThing {
   /**
    * 类型
    */
-  type?: Partial<IotType>;
+  type: Partial<IotType>;
   /**
    * 编号
    */
@@ -10813,11 +10742,7 @@ export interface IotType {
   /**
    * 属性
    */
-  attributes?: any;
-  /**
-   * 测量指标
-   */
-  measurements?: any;
+  properties?: any;
   /**
    * 创建时间
    */
@@ -10943,7 +10868,7 @@ export interface IotMachineAttribute {
   /**
    * 数据类型
    */
-  dataType: IotAttributeDataType;
+  dataType: IotPropertyDataType;
   /**
    * 已配机器类型
    */
@@ -11061,7 +10986,7 @@ export interface IotMachineField {
   /**
    * 数据类型
    */
-  dataType: IotAttributeDataType;
+  dataType: IotPropertyDataType;
   /**
    * 已配机器类型
    */

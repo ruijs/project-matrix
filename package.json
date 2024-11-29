@@ -38,7 +38,7 @@
     "@ruiapp/echarts-extension": "~0.1.28",
     "@ruiapp/monaco-extension": "~0.1.29",
     "@ruiapp/move-style": "~0.3.11",
-    "@ruiapp/rapid-core": "~0.3.2",
+    "@ruiapp/rapid-core": "~0.3.3",
     "@ruiapp/rapid-express": "~0.2.0",
     "@ruiapp/rapid-extension": "~0.3.36",
     "@ruiapp/react-renderer": "~0.3.5",

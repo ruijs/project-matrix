@@ -1,3 +1,4 @@
+import { IRpdServer, RouteContext } from "@ruiapp/rapid-core";
 import IotPlugin from "./IotPlugin";
 
 export interface MqttMessage {
@@ -6,16 +7,20 @@ export interface MqttMessage {
 }
 
 export default class MqttMessageHandler {
+  #server: IRpdServer;
   #iotPlugin: IotPlugin;
 
-  constructor(iotPlugin: IotPlugin) {
+  constructor(server: IRpdServer, iotPlugin: IotPlugin) {
+    this.#server = server;
     this.#iotPlugin = iotPlugin;
   }
 
   async onPublish(message: MqttMessage) {
     const { topic, payload } = message;
     if (topic === "v1/gateway/telemetry") {
-      await this.#iotPlugin.timeSeriesDataService.createTelemetryValuesOfDevices(payload as any);
+      // TODO: permission check
+      const routeContext = new RouteContext(this.#server);
+      await this.#iotPlugin.timeSeriesDataService.createTelemetryValuesOfThings(routeContext, payload as any);
     }
   }
 }

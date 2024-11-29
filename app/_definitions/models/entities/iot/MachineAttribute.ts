@@ -34,7 +34,7 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
       name: "数据类型",
       type: "option",
       required: true,
-      dataDictionary: "IotAttributeDataType",
+      dataDictionary: "IotPropertyDataType",
     },
     {
       code: "machines",

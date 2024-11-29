@@ -1,29 +1,35 @@
-export type DeviceName = string;
+export * from "./types/IotModelsTypes";
 
-export type TelemetryValuesOfDevices = Record<DeviceName, DeviceTelemetryValuesEntry[]>;
+export type ThingCode = string;
 
-export type DeviceTelemetryValues = Record<string, DeviceTelemetryDataPointValueType>;
+export type PropertyCode = string;
 
-export type DeviceTelemetryValuesEntry =
-  | DeviceTelemetryValues
+export type TelemetryValuesOfThings = Record<ThingCode, ThingTelemetryValuesEntry[]>;
+
+export type ThingTelemetryValues = Record<PropertyCode, ThingTelemetryPropertyValueType>;
+
+export type ThingTelemetryValuesEntry =
+  | ThingTelemetryValues
   | {
       ts: number;
-      values: DeviceTelemetryValues;
+      values: ThingTelemetryValues;
     };
 
-export type DeviceTelemetryDataPoint = {
+export type ThingTelemetryValueEntry = {
   ts: number;
   name: string;
-  value: DeviceTelemetryDataPointValueType;
+  value: ThingTelemetryPropertyValueType;
 };
 
-export type DeviceTelemetryDataPointValueType = string | number | boolean | Record<string, any>;
+export type ThingTelemetryPropertyValueType = string | number | boolean | Record<string, any>;
 
-export type RuleTriggerConfig = {
-  eventType: "measurement_change";
+export type RuleTriggerConfig = RulePropertyValueChangeTriggerConfig;
+
+export type RulePropertyValueChangeTriggerConfig = {
+  eventType: "property_value_change";
   sourceType: "type" | "thing";
   sourceCodes: string[];
-  measurementCodes: string[];
+  propertyCodes: string[];
 };
 
 export type RuleReactionConfig = {

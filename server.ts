@@ -71,7 +71,6 @@ export async function startServer() {
     databaseName: env.get("TDENGINE_DATABASE_NAME"),
   });
   await accessor.connect();
-  await accessor.disconnect();
   const iotPlugin = new IotPlugin(accessor);
 
   if (!env.get("DISABLE_RAPID_SERVER", false)) {

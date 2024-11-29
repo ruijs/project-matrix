@@ -34,18 +34,21 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
       defaultValue: "'enabled'",
     },
     {
-      code: "attributes",
+      code: "properties",
       name: "属性",
       type: "relation[]",
-      targetSingularCode: "iot_attribute",
+      targetSingularCode: "iot_property",
       selfIdColumnName: "type_id",
     },
+  ],
+  indexes: [
     {
-      code: "measurements",
-      name: "测量指标",
-      type: "relation[]",
-      targetSingularCode: "iot_measurement",
-      selfIdColumnName: "type_id",
+      properties: [
+        {
+          code: "code",
+        },
+      ],
+      unique: true,
     },
   ],
 };

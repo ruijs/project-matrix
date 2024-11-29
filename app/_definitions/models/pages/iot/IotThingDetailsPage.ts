@@ -14,7 +14,7 @@ const page: RapidPage = {
       relations: {
         type: {
           relations: {
-            measurements: true,
+            properties: true,
           },
         },
       },
@@ -53,7 +53,7 @@ const page: RapidPage = {
               },
 
               $exps: {
-                dataSource: "_.get(_.first(_.get($stores.detail, 'data.list')), 'type.measurements')",
+                dataSource: "_.filter(_.get(_.first(_.get($stores.detail, 'data.list')), 'type.properties'), (item) => item.storageType === 'measurement')",
               },
             },
           ],
