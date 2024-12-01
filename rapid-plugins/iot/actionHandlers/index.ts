@@ -1,3 +1,4 @@
 import type { IPluginActionHandler } from "@ruiapp/rapid-core";
+import * as saveTelemetryValuesFromGateway from "./saveTelemetryValuesFromGateway";
 
-export default [] satisfies IPluginActionHandler[];
+export default [saveTelemetryValuesFromGateway as any] satisfies IPluginActionHandler[];

@@ -1,1 +1,3 @@
-export default [];
+import saveTelemetryValuesFromGateway from "./saveTelemetryValuesFromGateway";
+
+export default [saveTelemetryValuesFromGateway];
