@@ -1,5 +1,9 @@
 import type {EntityWatcher, EntityWatchHandlerContext} from "@ruiapp/rapid-core";
-import type {MomRouteProcessParameterMeasurement} from "~/_definitions/meta/entity-types";
+import type {
+  MomMaterialInventoryBalance,
+  MomRouteProcessParameterMeasurement,
+  MomWorkReport
+} from "~/_definitions/meta/entity-types";
 import YidaHelper from "~/sdk/yida/helper";
 import YidaApi from "~/sdk/yida/api";
 
@@ -35,8 +39,8 @@ export default [
 
         if (measurements) {
           let isOutSpecification = false
+          let workReportId;
           for (const measurement of measurements) {
-
             if (measurement.process?.config?.notifyEnabled)  {
               notifyEnabled = true
             }
@@ -44,6 +48,19 @@ export default [
             if (measurement.isOutSpecification) {
               isOutSpecification = true
             }
+
+            if (measurement?.workReport?.id) {
+              workReportId = measurement.workReport.id
+            }
+          }
+
+          if (isOutSpecification && workReportId) {
+            await server.getEntityManager<MomWorkReport>("mom_work_report").updateEntityById({
+              id: workReportId,
+              entityToSave: {
+                isOutSpecification: true,
+              }
+            })
           }
           if (isOutSpecification && notifyEnabled) {
             await yidaAPI.uploadProductionMeasurementsAudit(measurements)

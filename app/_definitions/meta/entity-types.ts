@@ -8535,6 +8535,10 @@ export interface MomWorkReport {
    */
   executionState?: MomWorkTaskExecutionState;
   /**
+   * 是否超标
+   */
+  isOutSpecification?: boolean;
+  /**
    * 序列号
    */
   serialNum?: string;

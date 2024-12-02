@@ -2208,6 +2208,7 @@ const entityFieldCodes = {
     'lot',
     'binNum',
     'executionState',
+    'isOutSpecification',
     'serialNum',
     'createdAt',
     'createdBy',
