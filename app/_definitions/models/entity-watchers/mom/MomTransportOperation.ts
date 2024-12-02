@@ -29,6 +29,7 @@ export default [
             const yidaAPI = new YidaApi(yidaSDK);
 
             const yidaResp = await yidaAPI.uploadTransmitAudit(transportItems);
+            await yidaAPI.uploadFAWTYSTransportMeasurement(transportItems)
 
             if (yidaResp && yidaResp.result) {
               await server.getEntityManager<MomTransportOperation>("mom_transport_operation").updateEntityById({

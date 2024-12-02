@@ -81,6 +81,12 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
       type: "text",
     },
     {
+      code: "manufacturerMatch",
+      name: "厂家/是否一致",
+      type: "boolean",
+      defaultValue: "false"
+    },
+    {
       code: "deliveryOrderFile",
       name: "送货委托单",
       type: "file",
@@ -94,6 +100,18 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
       code: "sealNumPicture",
       name: "铅封号照片",
       type: "image",
+    },
+    {
+      code: "sealNumMatch",
+      name: "铅封号/是否一致",
+      type: "boolean",
+      defaultValue: "false"
+    },
+    {
+      code: "binNumMatch",
+      name: "罐号/是否一致",
+      type: "boolean",
+      defaultValue: "false"
     },
   ],
 };
