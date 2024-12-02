@@ -164,6 +164,12 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
       defaultValue: "processing"
     },
     {
+      code: "isOutSpecification",
+      name: "是否超标",
+      type: "boolean",
+      defaultValue: "false",
+    },
+    {
       code: "serialNum",
       name: "序列号",
       type: "text",
