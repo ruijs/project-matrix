@@ -827,14 +827,14 @@ class YidaApi {
         textField_l3plle27: "泰洋圣生产",// 工位
         textField_l3plle29: "搅拌罐编号",// 参数名
         numberField_l3plle2x: (input.tankNumber === "B01") ? 1 : 0,// 参数值
-        numberField_l3plle2y: 55,// 下公差
-        numberField_l3plle2z: 65,// 上公差
+        numberField_l3plle2y: 1,// 下公差
+        numberField_l3plle2z: 1,// 上公差
         dateField_l3plle30: dayjs().unix() * 1000,
         textField_l3plle2h: (input.tankNumber === "B01") ? "合格" : "不合格",
         textField_l3plle2m: "/",// 零件负责人
         textField_l3plle2o: (input.tankNumber === "B01"),// 参数值
-        textField_l3plle2q: 55,// 下公差
-        textField_l3plle2s: 65,// 上公差
+        textField_l3plle2q: 1,// 下公差
+        textField_l3plle2s: 1,// 上公差
         textField_l3plle2u: input?.lotNum,// intime
       }
 
