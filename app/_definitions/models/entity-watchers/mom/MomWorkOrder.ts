@@ -215,31 +215,48 @@ export default [
       try {
 
         if (changes.hasOwnProperty("executionState") && changes.executionState === "completed") {
+          const workOrderManager = server.getEntityManager<MomWorkOrder>("mom_work_order");
+          const workOrder = await workOrderManager.findEntity({
+            filters: [
+              {
+                operator: "eq",
+                field: "id",
+                value: after.id
+              }
+            ],
+            properties: ["id", "processes", "code", "lotNum", "quantity", "factory", "material", "oilMixtureRatio", "paraffinQuantity", "stirringTime", "stirringPressure", "tankNumber", "unloadingVideo", "dcsPicture", "createdBy"]
+          });
 
-        }
+          if (workOrder?.material?.code === "ITEM003" || workOrder?.material?.name === "石蜡油") {
+            const workFeedManager = server.getEntityManager<MomWorkFeed>("mom_work_feed");
+            const workFeeds = await workFeedManager.findEntities({
+              filters: [
+                { operator: "eq", field: "work_order_id", value: after.id },
+              ],
+              properties: ["id", "workOrder", "rawMaterial", "quantity", "lotNum", "process", "equipment", "instoreTankNumber"],
+              relations: {
+                workOrder: {
+                  properties: ["id", "processes", "code", "lotNum", "quantity", "factory", "material", "oilMixtureRatio", "paraffinQuantity", "stirringTime", "stirringPressure", "tankNumber", "unloadingVideo", "dcsPicture", "createdBy"]
+                }
+              }
+            });
 
-        const workFeedManager = server.getEntityManager<MomWorkFeed>("mom_work_feed");
-        const workFeeds = await workFeedManager.findEntities({
-          filters: [
-            { operator: "eq", field: "work_order_id", value: after.id },
-          ],
-          properties: ["id", "workOrder", "rawMaterial", "quantity", "lotNum", "process", "equipment", "instoreTankNumber"],
-          relations: {
-            workOrder: {
-              properties: ["id", "processes", "code", "lotNum", "quantity", "factory", "material", "oilMixtureRatio", "paraffinQuantity", "stirringTime", "stirringPressure", "tankNumber", "unloadingVideo", "dcsPicture", "createdBy"]
+
+            const yidaSDK = await new YidaHelper(server).NewAPIClient();
+            const yidaAPI = new YidaApi(yidaSDK);
+
+            if (workFeeds) {
+              // 泰洋圣上报宜搭
+              await yidaAPI.uploadTYSProductionRecords(workFeeds)
+            }
+
+            if (workOrder) {
+              workOrder.feeds = workFeeds
+              await yidaAPI.uploadFAWTYSProductionMeasurement(workOrder)
             }
           }
-        });
 
-        if (workFeeds) {
-          // 泰洋圣上报宜搭
-          const yidaSDK = await new YidaHelper(server).NewAPIClient();
-          const yidaAPI = new YidaApi(yidaSDK);
-
-          await yidaAPI.uploadTYSProductionRecords(workFeeds)
         }
-
-
 
       } catch (error) {
         console.error(error);

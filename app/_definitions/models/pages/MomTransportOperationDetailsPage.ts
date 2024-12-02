@@ -35,10 +35,24 @@ const formConfig: Partial<RapidEntityFormConfig> = {
     {
       type: "auto",
       code: "binNum",
+      required: true,
+    },
+    {
+      type: "auto",
+      code: "binNumMatch",
+      defaultValue: false,
+      required: true,
     },
     {
       type: "auto",
       code: "manufacturer",
+      required: true,
+    },
+    {
+      type: "auto",
+      code: "manufacturerMatch",
+      defaultValue: false,
+      required: true,
     },
     {
       type: "auto",
@@ -68,6 +82,11 @@ const formConfig: Partial<RapidEntityFormConfig> = {
       type: "auto",
       code: "sealNumPicture",
       label: "铅封号照片",
+      required: true,
+    },
+    {
+      type: "auto",
+      code: "sealNumMatch",
       required: true,
     },
   ],

@@ -137,7 +137,11 @@ const formConfig: Partial<RapidEntityFormConfig> = {
       code: "lotNum",
     },
     {
-      code: "oilMixtureRatio",
+      code: "oilMixtureRatio1",
+      type: "auto",
+    },
+    {
+      code: "oilMixtureRatio2",
       type: "auto",
     },
     {
@@ -377,7 +381,11 @@ const page: RapidPage = {
           code: "lotNum",
         },
         {
-          code: "oilMixtureRatio",
+          code: "oilMixtureRatio1",
+          type: "auto",
+        },
+        {
+          code: "oilMixtureRatio2",
           type: "auto",
         },
         {

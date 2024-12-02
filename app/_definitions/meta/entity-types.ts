@@ -7817,6 +7817,10 @@ export interface MomTransportOperationItem {
    */
   manufacturer?: string;
   /**
+   * 厂家/是否一致
+   */
+  manufacturerMatch?: boolean;
+  /**
    * 送货委托单
    */
   deliveryOrderFile?: any;
@@ -7828,6 +7832,14 @@ export interface MomTransportOperationItem {
    * 铅封号照片
    */
   sealNumPicture?: any;
+  /**
+   * 铅封号/是否一致
+   */
+  sealNumMatch?: boolean;
+  /**
+   * 罐号/是否一致
+   */
+  binNumMatch?: boolean;
   /**
    * 创建时间
    */
@@ -8351,6 +8363,14 @@ export interface MomWorkOrder {
    * 混油比例
    */
   oilMixtureRatio?: string;
+  /**
+   * 100#油比例(%)
+   */
+  oilMixtureRatio1?: number;
+  /**
+   * 150BS油比例(%)
+   */
+  oilMixtureRatio2?: number;
   /**
    * 石蜡油数量(kg)
    */

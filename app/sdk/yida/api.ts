@@ -2,9 +2,9 @@ import YidaSDK from "~/sdk/yida/sdk";
 import {
   MomInspectionMeasurement,
   MomMaterialWarehouseInventoryBalance,
-  MomRouteProcessParameterMeasurement,
+  MomRouteProcessParameterMeasurement, MomTransportOperation,
   MomTransportOperationItem,
-  MomWorkFeed
+  MomWorkFeed, MomWorkOrder
 } from "~/_definitions/meta/entity-types";
 import {fmtCharacteristicNorminal} from "~/utils/fmt";
 import {isNumeric} from "~/utils/isNumeric";
@@ -67,9 +67,9 @@ class YidaApi {
         textField_m25kjno9: item.quantity, // 数量
         textField_m2yavq1n: item.manufacturer, // 厂家
         textField_m2yavq1m: item.binNum, // 罐号
-        textField_m33uqlqa: "是", // 厂家/是否一致
-        textField_m33uqlqb: "是", // 罐号/是否一致
-        textField_m33uqlqc: "是", // 铅封号/是否一致
+        textField_m33uqlqa: item.manufacturerMatch ? "是" : "否", // 厂家/是否一致
+        textField_m33uqlqb: item.binNumMatch ? "是" : "否", // 罐号/是否一致
+        textField_m33uqlqc: item.sealNumMatch ? "是" : "否", // 铅封号/是否一致
       }
       if (item.sealNumPicture) {
         payload.attachmentField_m25kjnod = [ // 铅封号照片
@@ -766,6 +766,323 @@ class YidaApi {
         console.log(resp.data)
       }
     }
+  }
+
+  public async uploadFAWTYSProductionMeasurement(input: MomWorkOrder) {
+
+    // input.oilMixtureRatio
+
+    if (input?.oilMixtureRatio1 && input?.oilMixtureRatio2) {
+      const oilMixtureRatio = input.oilMixtureRatio1 / input?.oilMixtureRatio2
+      let formDataJson = {
+        textField_l3plle21: "5RD",// 供应商代码
+        textField_l3plle22: "上海华特企业集团股份有限公司",// 供应商名称
+        textField_l3plle23: "/",// 车型
+        textField_l3plle24: "/",// 零件号
+        textField_l3plle25: "/",// 零件名
+        textField_l3plle26: "/",// 配置
+        textField_l3plle27: "泰洋圣生产",// 工位
+        textField_l3plle29: "混油比例",// 参数名
+        numberField_l3plle2x: oilMixtureRatio,// 参数值
+        numberField_l3plle2y: 2.27868852,// 下公差
+        numberField_l3plle2z: 2.38983051,// 上公差
+        dateField_l3plle30: dayjs().unix() * 1000,
+        textField_l3plle2h: (oilMixtureRatio < 2.27868852 || oilMixtureRatio > 2.38983051) ? "不合格" : "合格",
+        textField_l3plle2m: "/",// 零件负责人
+        textField_l3plle2o: oilMixtureRatio,// 参数值
+        textField_l3plle2q: 2.27868852,// 下公差
+        textField_l3plle2s: 2.38983051,// 上公差
+        textField_l3plle2u: input?.lotNum,// intime
+      }
+
+      let formDataJsonStr = JSON.stringify(formDataJson);
+
+      let dingtalkUserId = input?.createdBy?.dingtalkUserId || "036025480920111923"
+
+      let payload =
+        {
+          noExecuteExpression: true,
+          language: "zh_CN",
+          formUuid: "FORM-E9116BD087B44F1AB0DFC7F86FFB74E2YCGB",
+          processCode: "TPROC--9KA66MC17WBQBV2S9T39V5JN6J9Z227G15I3M0",
+          searchCondition: "[]",
+          appType: "APP_VKCHKCFNQUQZW2R3HFVC",
+          formDataJson: formDataJsonStr,
+          systemToken: "F2766O91D3BQXRJGCE0387JGX2582G7G15I3M6W3",
+          userId: dingtalkUserId,
+          departmentId: "1"
+        }
+      const resp = await this.api.PostResourceRequest("/v2.0/yida/processes/instances/start", payload)
+      console.log(resp.data)
+    }
+
+    if (input?.stirringTime) {
+      let formDataJson = {
+        textField_l3plle21: "5RD",// 供应商代码
+        textField_l3plle22: "上海华特企业集团股份有限公司",// 供应商名称
+        textField_l3plle23: "/",// 车型
+        textField_l3plle24: "/",// 零件号
+        textField_l3plle25: "/",// 零件名
+        textField_l3plle26: "/",// 配置
+        textField_l3plle27: "泰洋圣生产",// 工位
+        textField_l3plle29: "搅拌时间",// 参数名
+        numberField_l3plle2x: input.stirringTime,// 参数值
+        numberField_l3plle2y: 55,// 下公差
+        numberField_l3plle2z: 65,// 上公差
+        dateField_l3plle30: dayjs().unix() * 1000,
+        textField_l3plle2h: (input.stirringTime < 55 || input.stirringTime > 65) ? "不合格" : "合格",
+        textField_l3plle2m: "/",// 零件负责人
+        textField_l3plle2o: input.stirringTime,// 参数值
+        textField_l3plle2q: 55,// 下公差
+        textField_l3plle2s: 65,// 上公差
+        textField_l3plle2u: input?.lotNum,// intime
+      }
+
+      let formDataJsonStr = JSON.stringify(formDataJson);
+
+      let dingtalkUserId = input?.createdBy?.dingtalkUserId || "036025480920111923"
+
+      let payload =
+        {
+          noExecuteExpression: true,
+          language: "zh_CN",
+          formUuid: "FORM-E9116BD087B44F1AB0DFC7F86FFB74E2YCGB",
+          processCode: "TPROC--9KA66MC17WBQBV2S9T39V5JN6J9Z227G15I3M0",
+          searchCondition: "[]",
+          appType: "APP_VKCHKCFNQUQZW2R3HFVC",
+          formDataJson: formDataJsonStr,
+          systemToken: "F2766O91D3BQXRJGCE0387JGX2582G7G15I3M6W3",
+          userId: dingtalkUserId,
+          departmentId: "1"
+        }
+      const resp = await this.api.PostResourceRequest("/v2.0/yida/processes/instances/start", payload)
+      console.log(resp.data)
+    }
+
+    if (input?.stirringPressure) {
+      let formDataJson = {
+        textField_l3plle21: "5RD",// 供应商代码
+        textField_l3plle22: "上海华特企业集团股份有限公司",// 供应商名称
+        textField_l3plle23: "/",// 车型
+        textField_l3plle24: "/",// 零件号
+        textField_l3plle25: "/",// 零件名
+        textField_l3plle26: "/",// 配置
+        textField_l3plle27: "泰洋圣生产",// 工位
+        textField_l3plle29: "搅拌压力",// 参数名
+        numberField_l3plle2x: input.stirringPressure,// 参数值
+        numberField_l3plle2y: 0.6,// 下公差
+        numberField_l3plle2z: 0.85,// 上公差
+        dateField_l3plle30: dayjs().unix() * 1000,
+        textField_l3plle2h: (input.stirringPressure < 0.6 || input.stirringPressure > 0.85) ? "不合格" : "合格",
+        textField_l3plle2m: "/",// 零件负责人
+        textField_l3plle2o: input.stirringTime,// 参数值
+        textField_l3plle2q: 0.6,// 下公差
+        textField_l3plle2s: 0.85,// 上公差
+        textField_l3plle2u: input?.lotNum,// intime
+      }
+
+      let formDataJsonStr = JSON.stringify(formDataJson);
+
+      let dingtalkUserId = input?.createdBy?.dingtalkUserId || "036025480920111923"
+
+      let payload =
+        {
+          noExecuteExpression: true,
+          language: "zh_CN",
+          formUuid: "FORM-E9116BD087B44F1AB0DFC7F86FFB74E2YCGB",
+          processCode: "TPROC--9KA66MC17WBQBV2S9T39V5JN6J9Z227G15I3M0",
+          searchCondition: "[]",
+          appType: "APP_VKCHKCFNQUQZW2R3HFVC",
+          formDataJson: formDataJsonStr,
+          systemToken: "F2766O91D3BQXRJGCE0387JGX2582G7G15I3M6W3",
+          userId: dingtalkUserId,
+          departmentId: "1"
+        }
+      const resp = await this.api.PostResourceRequest("/v2.0/yida/processes/instances/start", payload)
+      console.log(resp.data)
+    }
+
+    for (const feed of input.feeds) {
+      if (feed?.instoreTankNumber) {
+        let formDataJson = {
+          textField_l3plle21: "5RD",// 供应商代码
+          textField_l3plle22: "上海华特企业集团股份有限公司",// 供应商名称
+          textField_l3plle23: "/",// 车型
+          textField_l3plle24: "/",// 零件号
+          textField_l3plle25: "/",// 零件名
+          textField_l3plle26: "/",// 配置
+          textField_l3plle27: "泰洋圣生产",// 工位
+          textField_l3plle29: "存油罐编号",// 参数名
+          numberField_l3plle2x: (feed.instoreTankNumber === "A5" || feed.instoreTankNumber === "A6") ? 1 : 0,// 参数值
+          numberField_l3plle2y: 1,// 下公差
+          numberField_l3plle2z: 1,// 上公差
+          dateField_l3plle30: dayjs().unix() * 1000,
+          textField_l3plle2h: (feed.instoreTankNumber === "A5" || feed.instoreTankNumber === "A6") ? "合格" : "不合格",
+          textField_l3plle2m: "/",// 零件负责人
+          textField_l3plle2o: (feed.instoreTankNumber === "A5" || feed.instoreTankNumber === "A6") ? 1 : 0,// 参数值
+          textField_l3plle2q: 1,// 下公差
+          textField_l3plle2s: 1,// 上公差
+          textField_l3plle2u: input?.lotNum,// intime
+        }
+
+        let formDataJsonStr = JSON.stringify(formDataJson);
+
+        let dingtalkUserId = input?.createdBy?.dingtalkUserId || "036025480920111923"
+
+        let payload =
+          {
+            noExecuteExpression: true,
+            language: "zh_CN",
+            formUuid: "FORM-E9116BD087B44F1AB0DFC7F86FFB74E2YCGB",
+            processCode: "TPROC--9KA66MC17WBQBV2S9T39V5JN6J9Z227G15I3M0",
+            searchCondition: "[]",
+            appType: "APP_VKCHKCFNQUQZW2R3HFVC",
+            formDataJson: formDataJsonStr,
+            systemToken: "F2766O91D3BQXRJGCE0387JGX2582G7G15I3M6W3",
+            userId: dingtalkUserId,
+            departmentId: "1"
+          }
+        const resp = await this.api.PostResourceRequest("/v2.0/yida/processes/instances/start", payload)
+        console.log(resp.data)
+      }
+    }
+  }
+
+
+  public async uploadFAWTYSTransportMeasurement(inputs: MomTransportOperationItem[]) {
+
+    // input.oilMixtureRatio
+    for (const input of inputs) {
+      if (input?.sealNumMatch) {
+        let formDataJson = {
+          textField_l3plle21: "5RD",// 供应商代码
+          textField_l3plle22: "上海华特企业集团股份有限公司",// 供应商名称
+          textField_l3plle23: "/",// 车型
+          textField_l3plle24: "/",// 零件号
+          textField_l3plle25: "/",// 零件名
+          textField_l3plle26: "/",// 配置
+          textField_l3plle27: "泰洋圣运输",// 工位
+          textField_l3plle29: "铅封号/是否一致",// 参数名
+          numberField_l3plle2x: input.sealNumMatch ? 1 : 0,// 参数值
+          numberField_l3plle2y: 1,// 下公差
+          numberField_l3plle2z: 1,// 上公差
+          dateField_l3plle30: dayjs().unix() * 1000,
+          textField_l3plle2h: input.sealNumMatch ? "合格" : "不合格",
+          textField_l3plle2m: "/",// 零件负责人
+          textField_l3plle2o: input.sealNumMatch ? 1 : 0,// 参数值
+          textField_l3plle2q: 1,// 下公差
+          textField_l3plle2s: 1,// 上公差
+          textField_l3plle2u: input?.lotNum,// intime
+        }
+
+        let formDataJsonStr = JSON.stringify(formDataJson);
+
+        let dingtalkUserId = input?.createdBy?.dingtalkUserId || "036025480920111923"
+
+        let payload =
+          {
+            noExecuteExpression: true,
+            language: "zh_CN",
+            formUuid: "FORM-E9116BD087B44F1AB0DFC7F86FFB74E2YCGB",
+            processCode: "TPROC--9KA66MC17WBQBV2S9T39V5JN6J9Z227G15I3M0",
+            searchCondition: "[]",
+            appType: "APP_VKCHKCFNQUQZW2R3HFVC",
+            formDataJson: formDataJsonStr,
+            systemToken: "F2766O91D3BQXRJGCE0387JGX2582G7G15I3M6W3",
+            userId: dingtalkUserId,
+            departmentId: "1"
+          }
+        const resp = await this.api.PostResourceRequest("/v2.0/yida/processes/instances/start", payload)
+        console.log(resp.data)
+      }
+
+      if (input?.binNumMatch) {
+        let formDataJson = {
+          textField_l3plle21: "5RD",// 供应商代码
+          textField_l3plle22: "上海华特企业集团股份有限公司",// 供应商名称
+          textField_l3plle23: "/",// 车型
+          textField_l3plle24: "/",// 零件号
+          textField_l3plle25: "/",// 零件名
+          textField_l3plle26: "/",// 配置
+          textField_l3plle27: "泰洋圣运输",// 工位
+          textField_l3plle29: "罐号/是否一致",// 参数名
+          numberField_l3plle2x: input.binNumMatch ? 1 : 0,// 参数值
+          numberField_l3plle2y: 1,// 下公差
+          numberField_l3plle2z: 1,// 上公差
+          dateField_l3plle30: dayjs().unix() * 1000,
+          textField_l3plle2h: input.binNumMatch ? "合格" : "不合格",
+          textField_l3plle2m: "/",// 零件负责人
+          textField_l3plle2o: input.binNumMatch ? 1 : 0,// 参数值
+          textField_l3plle2q: 1,// 下公差
+          textField_l3plle2s: 1,// 上公差
+          textField_l3plle2u: input?.lotNum,// intime
+        }
+
+        let formDataJsonStr = JSON.stringify(formDataJson);
+
+        let dingtalkUserId = input?.createdBy?.dingtalkUserId || "036025480920111923"
+
+        let payload =
+          {
+            noExecuteExpression: true,
+            language: "zh_CN",
+            formUuid: "FORM-E9116BD087B44F1AB0DFC7F86FFB74E2YCGB",
+            processCode: "TPROC--9KA66MC17WBQBV2S9T39V5JN6J9Z227G15I3M0",
+            searchCondition: "[]",
+            appType: "APP_VKCHKCFNQUQZW2R3HFVC",
+            formDataJson: formDataJsonStr,
+            systemToken: "F2766O91D3BQXRJGCE0387JGX2582G7G15I3M6W3",
+            userId: dingtalkUserId,
+            departmentId: "1"
+          }
+        const resp = await this.api.PostResourceRequest("/v2.0/yida/processes/instances/start", payload)
+        console.log(resp.data)
+      }
+
+      if (input?.manufacturerMatch) {
+        let formDataJson = {
+          textField_l3plle21: "5RD",// 供应商代码
+          textField_l3plle22: "上海华特企业集团股份有限公司",// 供应商名称
+          textField_l3plle23: "/",// 车型
+          textField_l3plle24: "/",// 零件号
+          textField_l3plle25: "/",// 零件名
+          textField_l3plle26: "/",// 配置
+          textField_l3plle27: "泰洋圣运输",// 工位
+          textField_l3plle29: "厂家/是否一致",// 参数名
+          numberField_l3plle2x: input.manufacturerMatch ? 1 : 0,// 参数值
+          numberField_l3plle2y: 1,// 下公差
+          numberField_l3plle2z: 1,// 上公差
+          dateField_l3plle30: dayjs().unix() * 1000,
+          textField_l3plle2h: input.manufacturerMatch ? "合格" : "不合格",
+          textField_l3plle2m: "/",// 零件负责人
+          textField_l3plle2o: input.manufacturerMatch ? 1 : 0,// 参数值
+          textField_l3plle2q: 1,// 下公差
+          textField_l3plle2s: 1,// 上公差
+          textField_l3plle2u: input?.lotNum,// intime
+        }
+
+        let formDataJsonStr = JSON.stringify(formDataJson);
+
+        let dingtalkUserId = input?.createdBy?.dingtalkUserId || "036025480920111923"
+
+        let payload =
+          {
+            noExecuteExpression: true,
+            language: "zh_CN",
+            formUuid: "FORM-E9116BD087B44F1AB0DFC7F86FFB74E2YCGB",
+            processCode: "TPROC--9KA66MC17WBQBV2S9T39V5JN6J9Z227G15I3M0",
+            searchCondition: "[]",
+            appType: "APP_VKCHKCFNQUQZW2R3HFVC",
+            formDataJson: formDataJsonStr,
+            systemToken: "F2766O91D3BQXRJGCE0387JGX2582G7G15I3M6W3",
+            userId: dingtalkUserId,
+            departmentId: "1"
+          }
+        const resp = await this.api.PostResourceRequest("/v2.0/yida/processes/instances/start", payload)
+        console.log(resp.data)
+      }
+    }
+
   }
 }
 

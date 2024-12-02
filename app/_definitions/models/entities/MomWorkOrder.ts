@@ -330,6 +330,16 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
       type: "text",
     },
     {
+      code: "oilMixtureRatio1",
+      name: "100#油比例(%)",
+      type: "float",
+    },
+    {
+      code: "oilMixtureRatio2",
+      name: "150BS油比例(%)",
+      type: "float",
+    },
+    {
       code: "paraffinQuantity",
       name: "石蜡油数量(kg)",
       type: "integer",
