@@ -816,6 +816,49 @@ class YidaApi {
       console.log(resp.data)
     }
 
+    if (input?.tankNumber) {
+      let formDataJson = {
+        textField_l3plle21: "5RD",// 供应商代码
+        textField_l3plle22: "上海华特企业集团股份有限公司",// 供应商名称
+        textField_l3plle23: "/",// 车型
+        textField_l3plle24: "/",// 零件号
+        textField_l3plle25: "/",// 零件名
+        textField_l3plle26: "/",// 配置
+        textField_l3plle27: "泰洋圣生产",// 工位
+        textField_l3plle29: "搅拌罐编号",// 参数名
+        numberField_l3plle2x: (input.tankNumber === "B01") ? 1 : 0,// 参数值
+        numberField_l3plle2y: 55,// 下公差
+        numberField_l3plle2z: 65,// 上公差
+        dateField_l3plle30: dayjs().unix() * 1000,
+        textField_l3plle2h: (input.tankNumber === "B01") ? "合格" : "不合格",
+        textField_l3plle2m: "/",// 零件负责人
+        textField_l3plle2o: (input.tankNumber === "B01"),// 参数值
+        textField_l3plle2q: 55,// 下公差
+        textField_l3plle2s: 65,// 上公差
+        textField_l3plle2u: input?.lotNum,// intime
+      }
+
+      let formDataJsonStr = JSON.stringify(formDataJson);
+
+      let dingtalkUserId = input?.createdBy?.dingtalkUserId || "036025480920111923"
+
+      let payload =
+        {
+          noExecuteExpression: true,
+          language: "zh_CN",
+          formUuid: "FORM-E9116BD087B44F1AB0DFC7F86FFB74E2YCGB",
+          processCode: "TPROC--9KA66MC17WBQBV2S9T39V5JN6J9Z227G15I3M0",
+          searchCondition: "[]",
+          appType: "APP_VKCHKCFNQUQZW2R3HFVC",
+          formDataJson: formDataJsonStr,
+          systemToken: "F2766O91D3BQXRJGCE0387JGX2582G7G15I3M6W3",
+          userId: dingtalkUserId,
+          departmentId: "1"
+        }
+      const resp = await this.api.PostResourceRequest("/v2.0/yida/processes/instances/start", payload)
+      console.log(resp.data)
+    }
+
     if (input?.stirringTime) {
       let formDataJson = {
         textField_l3plle21: "5RD",// 供应商代码
