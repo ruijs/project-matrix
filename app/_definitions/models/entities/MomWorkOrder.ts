@@ -352,7 +352,7 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
     {
       code: "stirringPressure",
       name: "搅拌压力(MP)",
-      type: "integer",
+      type: "float",
     },
     {
       code: "tankNumber",
