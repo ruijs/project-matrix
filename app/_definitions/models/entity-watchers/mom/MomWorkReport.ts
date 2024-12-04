@@ -225,7 +225,7 @@ export default [
                       { operator: "eq", field: "process", value: workReport.process?.id },
                       { operator: "eq", field: "equipment", value: workReport.equipment?.id },
                     ],
-                    properties: ["id", "upperLimit", "lowerLimit", "nominal", "dimension"],
+                    properties: ["id", "upperLimit", "lowerLimit", "nominal", "dimension", "fawCode"],
                   })
 
 
@@ -259,6 +259,7 @@ export default [
                       upperLimit: metricParameter?.upperLimit,
                       lowerLimit: metricParameter?.lowerLimit,
                       nominal: metricParameter?.nominal,
+                      fawCode: metricParameter?.fawCode,
                       isOutSpecification: isOutSpecification,
                       createdAt: latestTimestamp,
                     } as SaveMomRouteProcessParameterMeasurementInput
@@ -280,7 +281,7 @@ export default [
               { operator: "eq", field: "process", value: workReport.process?.id },
               { operator: "eq", field: "equipment", value: workReport.equipment?.id },
             ],
-            properties: ["id", "upperLimit", "lowerLimit", "nominal", "dimension"],
+            properties: ["id", "upperLimit", "lowerLimit", "nominal", "dimension", "fawCode"],
           })
 
           if (!metricParameter) {
@@ -313,6 +314,7 @@ export default [
               upperLimit: metricParameter?.upperLimit,
               lowerLimit: metricParameter?.lowerLimit,
               nominal: metricParameter?.nominal,
+              fawCode: metricParameter?.fawCode,
               isOutSpecification: isOutSpecification,
               createdAt: dayjs(),
             } as SaveMomRouteProcessParameterMeasurementInput
@@ -446,7 +448,7 @@ export default [
                     { operator: "eq", field: "process", value: workReport.process?.id },
                     { operator: "eq", field: "equipment", value: workReport.equipment?.id },
                   ],
-                  properties: ["id", "upperLimit", "lowerLimit", "nominal", "dimension"],
+                  properties: ["id", "upperLimit", "lowerLimit", "nominal", "dimension", "fawCode"],
                 })
 
 
@@ -478,6 +480,7 @@ export default [
                     upperLimit: metricParameter?.upperLimit,
                     lowerLimit: metricParameter?.lowerLimit,
                     nominal: metricParameter?.nominal,
+                    fawCode: metricParameter?.fawCode,
                     isOutSpecification: isOutSpecification,
                     createdAt: latestTimestamp,
                   } as SaveMomRouteProcessParameterMeasurementInput

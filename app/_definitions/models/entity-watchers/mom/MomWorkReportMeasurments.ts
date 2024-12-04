@@ -28,23 +28,10 @@ export default [
           }
         });
 
-        let notifyEnabled = false;
-
-        const yidaSDK = await new YidaHelper(server).NewAPIClient();
-        const yidaAPI = new YidaApi(yidaSDK);
-
-        await yidaAPI.uploadProductionMeasurements(measurements)
-
-        await yidaAPI.uploadFAWProcessMeasurement(measurements)
-
         if (measurements) {
           let isOutSpecification = false
           let workReportId;
           for (const measurement of measurements) {
-            if (measurement.process?.config?.notifyEnabled)  {
-              notifyEnabled = true
-            }
-
             if (measurement.isOutSpecification) {
               isOutSpecification = true
             }
@@ -61,9 +48,6 @@ export default [
                 isOutSpecification: true,
               }
             })
-          }
-          if (isOutSpecification && notifyEnabled) {
-            await yidaAPI.uploadProductionMeasurementsAudit(measurements)
           }
         }
 

@@ -78,6 +78,11 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
       name: "下限值",
       type: "double",
     },
+    {
+      code: "fawCode",
+      name: "配置",
+      type: "text",
+    },
   ],
 };
 

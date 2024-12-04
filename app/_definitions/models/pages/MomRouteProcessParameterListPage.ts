@@ -34,7 +34,7 @@ const formConfig: Partial<RapidEntityFormRockConfig> = {
     },
     {
       type: "auto",
-      code: "config",
+      code: "fawCode",
     },
   ],
 };
@@ -132,6 +132,10 @@ const page: RapidPage = {
                   rendererProps: {
                     format: "{{name}}",
                   },
+                },
+                {
+                  type: "auto",
+                  code: "fawCode",
                 },
                 {
                   type: "auto",

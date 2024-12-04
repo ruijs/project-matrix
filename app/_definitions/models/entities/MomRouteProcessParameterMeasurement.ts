@@ -81,6 +81,17 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
       name: "是否超标",
       type: "boolean",
     },
+    {
+      code: "isReported",
+      name: "是否已上报Yida",
+      type: "boolean",
+      defaultValue: "false"
+    },
+    {
+      code: "fawCode",
+      name: "配置",
+      type: "text",
+    },
   ],
 };
 

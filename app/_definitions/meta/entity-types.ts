@@ -3643,6 +3643,10 @@ export interface MomInspectionCharacteristic {
    */
   factory?: Partial<MomFactory>;
   /**
+   * 配置
+   */
+  fawCode?: string;
+  /**
    * 创建时间
    */
   createdAt?: string;
@@ -7277,6 +7281,10 @@ export interface MomRouteProcessParameter {
    */
   lowerLimit?: number;
   /**
+   * 配置
+   */
+  fawCode?: string;
+  /**
    * 创建时间
    */
   createdAt?: string;
@@ -7363,6 +7371,14 @@ export interface MomRouteProcessParameterMeasurement {
    * 是否超标
    */
   isOutSpecification?: boolean;
+  /**
+   * 是否已上报Yida
+   */
+  isReported?: boolean;
+  /**
+   * 配置
+   */
+  fawCode?: string;
   /**
    * 创建时间
    */

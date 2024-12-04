@@ -477,7 +477,7 @@ class YidaApi {
         textField_kocks567: input?.workOrder?.material?.name,// 物料
         textField_kpc0di1i: input?.workOrder?.lotNum,// 批号
         textField_m25kshxg: input?.workOrder?.code,// 工单号
-        textField_m32dy4v0: input?.workOrder?.oilMixtureRatio,// 混油比例
+        textField_m32dy4v0: `100# {${input?.workOrder?.oilMixtureRatio1}%:150BS {${input?.workOrder?.oilMixtureRatio2}%`,// 混油比例
         textField_m32dy4v5: input?.workOrder?.stirringPressure,// 搅拌压力(MP)
         textField_m32dy4v1: input?.workOrder?.paraffinQuantity,// 石蜡油数量(kg)
         textField_m32dy4v6: input?.workOrder?.tankNumber, // 搅拌罐编号,
@@ -589,7 +589,7 @@ class YidaApi {
         textField_l3plle23: input.process?.carModel,// 车型
         textField_l3plle24: input.process?.partNumber,// 零件号
         textField_l3plle25: input.process?.partName,// 零件名
-        textField_l3plle26: input.process?.conf,// 配置
+        textField_l3plle26: input?.fawCode,// 配置
         textField_l3plle27: input.process?.name,// 工位
         textField_l3plle29: input.dimension?.name,// 参数名
         numberField_l3plle2x: input.value,// 参数值
@@ -685,7 +685,7 @@ class YidaApi {
         textField_l3plle23: input.sheet?.rule?.carModel,// 车型
         textField_l3plle24: input.sheet?.rule?.partNumber,// 零件号
         textField_l3plle25: input.sheet?.rule?.partName,// 零件名
-        textField_l3plle26: input.sheet?.rule?.conf,// 配置
+        textField_l3plle26: input.characteristic?.fawCode,// 配置
         textField_l3plle27: input.sheet?.rule?.category?.name,// 工位
         textField_l3plle29: input.characteristic?.name,// 参数名
         numberField_l3plle2x: inspectValue,// 参数值
