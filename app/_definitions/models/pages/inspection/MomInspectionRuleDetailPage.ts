@@ -26,6 +26,10 @@ const formConfig: Partial<RapidEntityFormConfig> = {
     },
     {
       type: "auto",
+      code: "fawCode",
+    },
+    {
+      type: "auto",
       code: "instrumentCategory",
     },
     {
@@ -285,6 +289,10 @@ const page: RapidPage = {
                   rendererProps: {
                     format: "{{name}}",
                   },
+                },
+                {
+                  type: "auto",
+                  code: "fawCode",
                 },
                 {
                   type: "auto",

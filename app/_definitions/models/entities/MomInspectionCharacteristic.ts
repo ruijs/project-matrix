@@ -114,6 +114,11 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
       targetSingularCode: "mom_factory",
       targetIdColumnName: "factory_id",
     },
+    {
+      code: "fawCode",
+      name: "配置",
+      type: "text",
+    },
   ],
 };
 

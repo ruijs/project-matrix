@@ -63,6 +63,10 @@ const formConfig: Partial<RapidEntityFormConfig> = {
       type: "auto",
       code: "lowerLimit",
     },
+    {
+      type: "auto",
+      code: "fawCode",
+    },
   ],
 };
 
