@@ -4,8 +4,8 @@ import type { RapidEntity } from "@ruiapp/rapid-extension";
 
 const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
   namespace: "app",
-  code: "IotMeasurement",
-  name: "测量指标",
+  code: "IotProperty",
+  name: "属性",
   description: "",
   fields: [
     {
@@ -16,11 +16,26 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
       targetIdColumnName: "type_id",
     },
     {
+      code: "storageType",
+      name: "存储类型",
+      required: true,
+      type: "option",
+      dataDictionary: "IotPropertyStorageType",
+      defaultValue: "'measurement'",
+    },
+    {
       code: "dataType",
       name: "数据类型",
       type: "option",
-      dataDictionary: "IotMeasurementDataType",
+      dataDictionary: "IotPropertyDataType",
       required: true,
+    },
+    {
+      code: "isDataTag",
+      name: "数据标签",
+      type: "boolean",
+      required: true,
+      defaultValue: "false",
     },
     {
       code: "code",
@@ -40,18 +55,6 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
       type: "text",
     },
     {
-      code: "dataLength",
-      name: "长度",
-      type: "integer",
-      required: true,
-      defaultValue: "0",
-    },
-    {
-      code: "unit",
-      name: "计量单位",
-      type: "text",
-    },
-    {
       code: "state",
       name: "状态",
       required: true,
@@ -65,6 +68,16 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
       type: "integer",
       required: true,
       defaultValue: "0",
+    },
+  ],
+  indexes: [
+    {
+      properties: [
+        {
+          code: "code",
+        },
+      ],
+      unique: true,
     },
   ],
 };

@@ -1,13 +1,7 @@
-import type {
-  RapidEntityFormConfig,
-  RapidEntityFormRockConfig,
-  RapidPage,
-  SonicEntityDetailsRockConfig,
-  SonicEntityListRockConfig,
-} from "@ruiapp/rapid-extension";
+import type { RapidEntityFormConfig, RapidPage, SonicEntityDetailsRockConfig, SonicEntityListRockConfig } from "@ruiapp/rapid-extension";
 import { cloneDeep } from "lodash";
 
-const attributeFormConfig: Partial<RapidEntityFormConfig> = {
+const propertyFormConfig: Partial<RapidEntityFormConfig> = {
   items: [
     {
       type: "auto",
@@ -27,7 +21,7 @@ const attributeFormConfig: Partial<RapidEntityFormConfig> = {
     },
     {
       type: "auto",
-      code: "isDataTag",
+      code: "storageType",
     },
     {
       type: "auto",
@@ -39,47 +33,8 @@ const attributeFormConfig: Partial<RapidEntityFormConfig> = {
     },
   ],
   defaultFormFields: {
-    dataType: "text",
-    state: "enabled",
-    orderNum: 0,
-  },
-};
-
-const measurementFormConfig: Partial<RapidEntityFormConfig> = {
-  items: [
-    {
-      type: "auto",
-      code: "dataType",
-    },
-    {
-      type: "auto",
-      code: "code",
-    },
-    {
-      type: "auto",
-      code: "name",
-    },
-    {
-      type: "textarea",
-      code: "description",
-    },
-    {
-      type: "auto",
-      code: "dataLength",
-      required: true,
-    },
-    {
-      type: "auto",
-      code: "state",
-    },
-    {
-      type: "auto",
-      code: "orderNum",
-    },
-  ],
-  defaultFormFields: {
-    dataType: "double",
-    dataLength: 0,
+    dataType: "float",
+    storageType: "measurement",
     state: "enabled",
     orderNum: 0,
   },
@@ -111,6 +66,102 @@ const page: RapidPage = {
     {
       $type: "antdTabs",
       items: [
+        {
+          key: "properties",
+          label: "属性",
+          children: [
+            {
+              $type: "sonicEntityList",
+              entityCode: "IotProperty",
+              viewMode: "table",
+              selectionMode: "none",
+              pageSize: -1,
+              fixedFilters: [
+                {
+                  field: "type_id",
+                  operator: "eq",
+                  value: "",
+                },
+              ],
+              orderBy: [
+                {
+                  field: "orderNum",
+                },
+              ],
+              listActions: [
+                {
+                  $type: "sonicToolbarNewEntityButton",
+                  text: "新建",
+                  icon: "PlusOutlined",
+                  actionStyle: "primary",
+                },
+              ],
+              columns: [
+                {
+                  type: "auto",
+                  code: "orderNum",
+                  width: "100px",
+                },
+                {
+                  type: "auto",
+                  code: "dataType",
+                  width: "100px",
+                },
+                {
+                  type: "auto",
+                  code: "code",
+                  width: "250px",
+                },
+                {
+                  type: "auto",
+                  code: "name",
+                  width: "250px",
+                },
+                {
+                  type: "auto",
+                  code: "description",
+                },
+                {
+                  type: "auto",
+                  code: "storageType",
+                  width: "100px",
+                },
+                {
+                  type: "auto",
+                  code: "state",
+                  width: "100px",
+                },
+                {
+                  type: "auto",
+                  code: "createdAt",
+                  width: "160px",
+                },
+              ],
+              actions: [
+                {
+                  $type: "sonicRecordActionEditEntity",
+                  code: "edit",
+                  actionType: "edit",
+                  actionText: "修改",
+                },
+                {
+                  $type: "sonicRecordActionDeleteEntity",
+                  code: "delete",
+                  actionType: "delete",
+                  actionText: "删除",
+                  dataSourceCode: "list",
+                  entityCode: "IotProperty",
+                },
+              ],
+              newForm: cloneDeep(propertyFormConfig),
+              editForm: cloneDeep(propertyFormConfig),
+              $exps: {
+                "fixedFilters[0].value": "$rui.parseQuery().id",
+                "newForm.fixedFields.type_id": "$rui.parseQuery().id",
+              },
+            } satisfies SonicEntityListRockConfig,
+          ],
+        },
         {
           key: "things",
           label: "物品",
@@ -180,198 +231,6 @@ const page: RapidPage = {
               ],
               $exps: {
                 "fixedFilters[0].filters[0].value": "$rui.parseQuery().id",
-              },
-            } satisfies SonicEntityListRockConfig,
-          ],
-        },
-        {
-          key: "properties",
-          label: "属性",
-          children: [
-            {
-              $type: "sonicEntityList",
-              entityCode: "IotAttribute",
-              viewMode: "table",
-              selectionMode: "none",
-              pageSize: -1,
-              fixedFilters: [
-                {
-                  field: "type_id",
-                  operator: "eq",
-                  value: "",
-                },
-              ],
-              orderBy: [
-                {
-                  field: "orderNum",
-                },
-              ],
-              listActions: [
-                {
-                  $type: "sonicToolbarNewEntityButton",
-                  text: "新建",
-                  icon: "PlusOutlined",
-                  actionStyle: "primary",
-                },
-              ],
-              columns: [
-                {
-                  type: "auto",
-                  code: "orderNum",
-                  width: "100px",
-                },
-                {
-                  type: "auto",
-                  code: "dataType",
-                  width: "100px",
-                },
-                {
-                  type: "auto",
-                  code: "code",
-                  width: "250px",
-                },
-                {
-                  type: "auto",
-                  code: "name",
-                  width: "250px",
-                },
-                {
-                  type: "auto",
-                  code: "description",
-                },
-                {
-                  type: "auto",
-                  code: "isDataTag",
-                  width: "80px",
-                },
-                {
-                  type: "auto",
-                  code: "state",
-                  width: "100px",
-                },
-                {
-                  type: "auto",
-                  code: "createdAt",
-                  width: "160px",
-                },
-              ],
-              actions: [
-                {
-                  $type: "sonicRecordActionEditEntity",
-                  code: "edit",
-                  actionType: "edit",
-                  actionText: "修改",
-                },
-                {
-                  $type: "sonicRecordActionDeleteEntity",
-                  code: "delete",
-                  actionType: "delete",
-                  actionText: "删除",
-                  dataSourceCode: "list",
-                  entityCode: "IotAttribute",
-                },
-              ],
-              newForm: cloneDeep(attributeFormConfig),
-              editForm: cloneDeep(attributeFormConfig),
-              $exps: {
-                "fixedFilters[0].value": "$rui.parseQuery().id",
-                "newForm.fixedFields.type_id": "$rui.parseQuery().id",
-              },
-            } satisfies SonicEntityListRockConfig,
-          ],
-        },
-        {
-          key: "measurements",
-          label: "监控指标",
-          children: [
-            {
-              $type: "sonicEntityList",
-              entityCode: "IotMeasurement",
-              viewMode: "table",
-              selectionMode: "none",
-              pageSize: -1,
-              fixedFilters: [
-                {
-                  field: "type_id",
-                  operator: "eq",
-                  value: "",
-                },
-              ],
-              orderBy: [
-                {
-                  field: "orderNum",
-                },
-              ],
-              listActions: [
-                {
-                  $type: "sonicToolbarNewEntityButton",
-                  text: "新建",
-                  icon: "PlusOutlined",
-                  actionStyle: "primary",
-                },
-              ],
-              columns: [
-                {
-                  type: "auto",
-                  code: "orderNum",
-                  width: "100px",
-                },
-                {
-                  type: "auto",
-                  code: "dataType",
-                  width: "100px",
-                },
-                {
-                  type: "auto",
-                  code: "code",
-                  width: "250px",
-                },
-                {
-                  type: "auto",
-                  code: "name",
-                  width: "250px",
-                },
-                {
-                  type: "auto",
-                  code: "description",
-                },
-                {
-                  type: "auto",
-                  code: "dataLength",
-                  width: "100px",
-                },
-                {
-                  type: "auto",
-                  code: "state",
-                  width: "100px",
-                },
-                {
-                  type: "auto",
-                  code: "createdAt",
-                  width: "160px",
-                },
-              ],
-              actions: [
-                {
-                  $type: "sonicRecordActionEditEntity",
-                  code: "edit",
-                  actionType: "edit",
-                  actionText: "修改",
-                },
-                {
-                  $type: "sonicRecordActionDeleteEntity",
-                  code: "delete",
-                  actionType: "delete",
-                  actionText: "删除",
-                  dataSourceCode: "list",
-                  entityCode: "IotMeasurement",
-                },
-              ],
-              newForm: cloneDeep(measurementFormConfig),
-              editForm: cloneDeep(measurementFormConfig),
-              $exps: {
-                "fixedFilters[0].value": "$rui.parseQuery().id",
-                "newForm.fixedFields.type_id": "$rui.parseQuery().id",
               },
             } satisfies SonicEntityListRockConfig,
           ],

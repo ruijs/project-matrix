@@ -66,8 +66,9 @@ import UndeletedDeletedState from '../models/data-dictionaries/UndeletedDeletedS
 import UnitType from '../models/data-dictionaries/UnitType';
 import UserSecretLevel from '../models/data-dictionaries/UserSecretLevel';
 import WarehouseStrategy from '../models/data-dictionaries/WarehouseStrategy';
-import iot$IotAttributeDataType from '../models/data-dictionaries/iot/IotAttributeDataType';
 import iot$IotMeasurementDataType from '../models/data-dictionaries/iot/IotMeasurementDataType';
+import iot$IotPropertyDataType from '../models/data-dictionaries/iot/IotPropertyDataType';
+import iot$IotPropertyStorageType from '../models/data-dictionaries/iot/IotPropertyStorageType';
 import iot$IotTdengineDataType from '../models/data-dictionaries/iot/IotTdengineDataType';
 import iot$IotTriggerEventType from '../models/data-dictionaries/iot/IotTriggerEventType';
 import setting$SettingItemType from '../models/data-dictionaries/setting/SettingItemType';
@@ -140,8 +141,9 @@ export default [
   UnitType,
   UserSecretLevel,
   WarehouseStrategy,
-  iot$IotAttributeDataType,
   iot$IotMeasurementDataType,
+  iot$IotPropertyDataType,
+  iot$IotPropertyStorageType,
   iot$IotTdengineDataType,
   iot$IotTriggerEventType,
   setting$SettingItemType,

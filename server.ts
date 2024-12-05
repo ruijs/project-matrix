@@ -36,7 +36,7 @@ import PrinterPlugin from "rapid-plugins/printerService/PrinterPlugin";
 import BpmPlugin from "rapid-plugins/bpm/BpmPlugin";
 import { getRapidAppDefinitionFromRapidServer } from "~/utils/app-definition-utility";
 import { startMqttServer } from "mqtt-server";
-import IotPlugin from "rapid-plugins/iot/IotPlugin";
+import { IotPlugin, TDengineAccessor } from "rapid-plugins/iot";
 
 const isDevelopmentEnv = process.env.NODE_ENV === "development";
 
@@ -64,13 +64,25 @@ export async function startServer() {
     level: isDevelopmentEnv ? "debug" : "info",
   });
 
-  const iotPlugin = new IotPlugin();
+  const accessor = new TDengineAccessor(logger, {
+    url: env.get("TDENGINE_URL"),
+    userName: env.get("TDENGINE_USERNAME"),
+    password: env.get("TDENGINE_PASSWORD"),
+    databaseName: env.get("TDENGINE_DATABASE_NAME"),
+  });
+  await accessor.connect();
+  const iotPlugin = new IotPlugin(accessor);
+
+  let rapidServer: RapidServer | undefined;
 
   if (!env.get("DISABLE_RAPID_SERVER", false)) {
-    await startRapidServer({ logger, env, plugins: [iotPlugin] });
+    rapidServer = await startRapidServer({ logger, env, plugins: [iotPlugin] });
   }
   if (!env.get("DISABLE_MQTT_SERVER", false)) {
-    await startMqttServer({ logger, iotPlugin });
+    if (!rapidServer) {
+      throw new Error("MQTT server can not been started when Rapid server is not started.");
+    }
+    await startMqttServer({ rapidServer, logger, iotPlugin });
   }
 }
 
@@ -206,6 +218,8 @@ export async function startRapidServer(options: StartRapidServerOptions) {
   app.listen(port, () => {
     logger.info("Express server listening on port %d", port);
   });
+
+  return rapidServer;
 }
 
 function createRemixRequestHandler(rapidServer: RapidServer) {

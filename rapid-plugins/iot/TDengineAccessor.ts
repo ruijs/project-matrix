@@ -1,21 +1,30 @@
 import type { Logger } from "@ruiapp/rapid-core";
 import * as taos from "@tdengine/websocket";
 
+export interface TDengineAccessorConfig {
+  url: string;
+  userName: string;
+  password: string;
+  databaseName: string;
+}
+
 export default class TDengineAccessor {
   #conn: taos.WsSql | undefined;
   #logger: Logger;
+  #config: TDengineAccessorConfig;
 
-  constructor(logger: Logger) {
+  constructor(logger: Logger, config: TDengineAccessorConfig) {
     this.#logger = logger;
+    this.#config = config;
   }
 
   async connect() {
-    let dsn = "ws://localhost:6041";
+    const dsn = this.#config.url || "ws://localhost:6041";
     try {
       let conf = new taos.WSConfig(dsn);
-      conf.setUser("root");
-      conf.setPwd("taosdata");
-      conf.setDb("rapid_iot");
+      conf.setUser(this.#config.userName || "root");
+      conf.setPwd(this.#config.password || "taosdata");
+      conf.setDb(this.#config.databaseName || "rapid_iot");
 
       this.#conn = await taos.sqlConnect(conf);
       this.#logger.info("Connected to " + dsn + " successfully.");

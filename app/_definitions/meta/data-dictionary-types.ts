@@ -658,14 +658,38 @@ export type WarehouseStrategy =
   ;
 
 /**
+ * 测量属性数据类型
+ */
+export type IotMeasurementDataType =
+  | 'tiny'
+  | 'unsigned_tiny'
+  | 'small'
+  | 'unsigned_small'
+  | 'integer'
+  | 'unsigned_integer'
+  | 'long'
+  | 'unsigned_long'
+  | 'float'
+  | 'double'
+  | 'boolean'
+  ;
+
+/**
  * 属性数据类型
  */
-export type IotAttributeDataType =
+export type IotPropertyDataType =
+  | 'tiny'
+  | 'unsigned_tiny'
+  | 'small'
+  | 'unsigned_small'
   | 'integer'
+  | 'unsigned_integer'
   | 'long'
+  | 'unsigned_long'
   | 'float'
   | 'double'
   | 'text'
+  | 'ntext'
   | 'boolean'
   | 'date'
   | 'datetime'
@@ -673,28 +697,31 @@ export type IotAttributeDataType =
   ;
 
 /**
- * 测量数据类型
+ * 属性存储类型
  */
-export type IotMeasurementDataType =
-  | 'integer'
-  | 'long'
-  | 'float'
-  | 'double'
-  | 'boolean'
+export type IotPropertyStorageType =
+  | 'measurement'
+  | 'dataTag'
+  | 'normal'
   ;
 
 /**
  * IoT TDengine 数据类型
  */
 export type IotTdengineDataType =
+  | 'tinyint'
+  | 'tinyint unsigned'
   | 'smallint'
+  | 'smallint unsigned'
   | 'int'
+  | 'int unsigned'
   | 'long'
+  | 'long unsigned'
   | 'float'
   | 'double'
   | 'varchar'
   | 'nchar'
-  | 'boolean'
+  | 'bool'
   | 'timestamp'
   | 'json'
   ;
