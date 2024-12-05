@@ -64,24 +64,24 @@ export async function startServer() {
     level: isDevelopmentEnv ? "debug" : "info",
   });
 
-  const accessor = new TDengineAccessor(logger, {
-    url: env.get("TDENGINE_URL"),
-    userName: env.get("TDENGINE_USERNAME"),
-    password: env.get("TDENGINE_PASSWORD"),
-    databaseName: env.get("TDENGINE_DATABASE_NAME"),
-  });
-  await accessor.connect();
-  const iotPlugin = new IotPlugin(accessor);
+  const plugins: RapidPlugin[] = [];
+  let iotPlugin: IotPlugin | undefined;
 
-  let rapidServer: RapidServer | undefined;
-
-  if (!env.get("DISABLE_RAPID_SERVER", false)) {
-    rapidServer = await startRapidServer({ logger, env, plugins: [iotPlugin] });
+  if (env.get("ENABLE_IOT_PLUGIN")) {
+    const accessor = new TDengineAccessor(logger, {
+      url: env.get("TDENGINE_URL"),
+      userName: env.get("TDENGINE_USERNAME"),
+      password: env.get("TDENGINE_PASSWORD"),
+      databaseName: env.get("TDENGINE_DATABASE_NAME"),
+    });
+    await accessor.connect();
+    iotPlugin = new IotPlugin(accessor);
+    plugins.push(iotPlugin);
   }
-  if (!env.get("DISABLE_MQTT_SERVER", false)) {
-    if (!rapidServer) {
-      throw new Error("MQTT server can not been started when Rapid server is not started.");
-    }
+
+  let rapidServer: RapidServer = await startRapidServer({ logger, env, plugins });
+
+  if (env.get("ENABLE_MQTT_SERVER", false) && iotPlugin) {
     await startMqttServer({ rapidServer, logger, iotPlugin });
   }
 }
