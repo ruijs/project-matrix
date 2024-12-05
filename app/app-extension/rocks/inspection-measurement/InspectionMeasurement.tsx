@@ -75,6 +75,7 @@ export default {
       },
       {
         title: "实测值",
+        width: 260,
         dataIndex: "measuredValue",
         render: (_, r, idx) => {
           const onRecordChange = (v: any) => {
