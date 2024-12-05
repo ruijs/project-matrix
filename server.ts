@@ -73,11 +73,16 @@ export async function startServer() {
   await accessor.connect();
   const iotPlugin = new IotPlugin(accessor);
 
+  let rapidServer: RapidServer | undefined;
+
   if (!env.get("DISABLE_RAPID_SERVER", false)) {
-    await startRapidServer({ logger, env, plugins: [iotPlugin] });
+    rapidServer = await startRapidServer({ logger, env, plugins: [iotPlugin] });
   }
   if (!env.get("DISABLE_MQTT_SERVER", false)) {
-    await startMqttServer({ logger, iotPlugin });
+    if (!rapidServer) {
+      throw new Error("MQTT server can not been started when Rapid server is not started.");
+    }
+    await startMqttServer({ rapidServer, logger, iotPlugin });
   }
 }
 
@@ -213,6 +218,8 @@ export async function startRapidServer(options: StartRapidServerOptions) {
   app.listen(port, () => {
     logger.info("Express server listening on port %d", port);
   });
+
+  return rapidServer;
 }
 
 function createRemixRequestHandler(rapidServer: RapidServer) {

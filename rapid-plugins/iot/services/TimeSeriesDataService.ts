@@ -1,5 +1,5 @@
 import dayjs from "dayjs";
-import type { ThingTelemetryValuesEntry, ThingTelemetryValues, TelemetryValuesOfThings, ThingCode } from "../IotPluginTypes";
+import type { ThingTelemetryValuesEntry, ThingTelemetryValues, TelemetryValuesOfThings } from "../IotPluginTypes";
 import type TDengineAccessor from "rapid-plugins/iot/TDengineAccessor";
 import type { IRpdServer, Logger, RouteContext } from "@ruiapp/rapid-core";
 import type { IotMeasurementDataType, IotProperty, IotThing, IotType } from "../types/IotModelsTypes";
@@ -77,12 +77,12 @@ CREATE TABLE IF NOT EXISTS
       const thingId = thing.id;
       const telemetryValuesEntries = telemetryValuesOfThings[thingCode];
       for (const telemetryValuesEntry of telemetryValuesEntries) {
-        await this.createTelemetryValuesOfThing(thingId, telemetryValuesEntry);
+        await this.saveTelemetryValuesOfThing(thingId, telemetryValuesEntry);
       }
     }
   }
 
-  async createTelemetryValuesOfThing(thingId: number, entry: ThingTelemetryValuesEntry) {
+  async saveTelemetryValuesOfThing(thingId: number, entry: ThingTelemetryValuesEntry) {
     let ts: number;
     let telemetryValues: ThingTelemetryValues;
     if (entry.ts && entry.values) {

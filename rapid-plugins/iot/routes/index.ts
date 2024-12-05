@@ -1,3 +1,4 @@
 import saveTelemetryValuesFromGateway from "./saveTelemetryValuesFromGateway";
+import saveTelemetryValuesFromThing from "./saveTelemetryValuesFromThing";
 
-export default [saveTelemetryValuesFromGateway];
+export default [saveTelemetryValuesFromGateway, saveTelemetryValuesFromThing];
