@@ -4,6 +4,18 @@
 @import "@ruiapp/rapid-extension/dist/mod.css";
 @import "@ruiapp/designer-extension/dist/mod.css";
 
+.ant-modal-mask,
+.ant-modal-wrap {
+  left: 0;
+  top: 0;
+}
+
+.ant-modal-mask,
+.ant-modal-wrap {
+  right: 0;
+  bottom: 0;
+}
+
 .branch-title {
   color: #fff;
   line-height: 2em;
