@@ -1,6 +1,6 @@
 import YidaSDK from "~/sdk/yida/sdk";
 import {
-  MomInspectionMeasurement,
+  MomInspectionMeasurement, type MomMaterialInventoryBalance,
   MomMaterialWarehouseInventoryBalance,
   MomRouteProcessParameterMeasurement, MomTransportOperation,
   MomTransportOperationItem,
@@ -477,7 +477,7 @@ class YidaApi {
         textField_kocks567: input?.workOrder?.material?.name,// 物料
         textField_kpc0di1i: input?.workOrder?.lotNum,// 批号
         textField_m25kshxg: input?.workOrder?.code,// 工单号
-        textField_m32dy4v0: `100# {${input?.workOrder?.oilMixtureRatio1}%:150BS {${input?.workOrder?.oilMixtureRatio2}%`,// 混油比例
+        textField_m32dy4v0: `100# {${ input?.workOrder?.oilMixtureRatio1 }%:150BS {${ input?.workOrder?.oilMixtureRatio2 }%`,// 混油比例
         textField_m32dy4v5: input?.workOrder?.stirringPressure,// 搅拌压力(MP)
         textField_m32dy4v1: input?.workOrder?.paraffinQuantity,// 石蜡油数量(kg)
         textField_m32dy4v6: input?.workOrder?.tankNumber, // 搅拌罐编号,
@@ -595,7 +595,7 @@ class YidaApi {
         numberField_l3plle2x: input.value,// 参数值
         numberField_l3plle2y: input.lowerLimit,// 下公差
         numberField_l3plle2z: input.upperLimit,// 上公差
-        dateField_l3plle30: dayjs().unix() * 1000,
+        dateField_l3plle30: dayjs(input.createdAt).unix() * 1000,
         textField_l3plle2h: input.isOutSpecification ? "不合格" : "合格",
         textField_l3plle2m: input.process?.partManager,// 零件负责人
         textField_l3plle2o: input.value,// 参数值
@@ -1125,7 +1125,49 @@ class YidaApi {
         console.log(resp.data)
       }
     }
+  }
 
+  public async uploadFAWStock(input: MomMaterialInventoryBalance) {
+    let formDataJson = {
+      textField_l3plle21: "5RD",// 供应商代码
+      textField_l3plle22: "上海华特企业集团股份有限公司",// 供应商名称
+      textField_l3plle23: "/",// 车型
+      textField_l3plle24: "/",// 零件号
+      textField_l3plle25: "/",// 零件名
+      textField_l3plle26: "/",// 配置
+      textField_l3plle27: "/",// 工位
+      textField_l3plle29: "计件库存",// 参数名
+      numberField_l3plle2x: input?.onHandQuantity || 0,// 参数值
+      numberField_l3plle2y: input.material?.safetyStockQuantity || 0,// 下公差
+      // numberField_l3plle2z: input.upperLimit,// 上公差
+      dateField_l3plle30: dayjs().unix() * 1000,
+      textField_l3plle2h: ((input.onHandQuantity || 0) > (input.material?.safetyStockQuantity || 0)) ? "不合格" : "合格",
+      textField_l3plle2m: "/",// 零件负责人
+      textField_l3plle2o: input?.onHandQuantity,// 参数值
+      textField_l3plle2q: input.material?.safetyStockQuantity,// 下公差
+      // textField_l3plle2s: input.upperLimit,// 上公差
+      textField_l3plle2u: "/",// intime
+    }
+
+    let formDataJsonStr = JSON.stringify(formDataJson);
+
+    let dingtalkUserId = input?.createdBy?.dingtalkUserId || "036025480920111923"
+
+    let payload =
+      {
+        noExecuteExpression: true,
+        language: "zh_CN",
+        formUuid: "FORM-E9116BD087B44F1AB0DFC7F86FFB74E2YCGB",
+        processCode: "TPROC--9KA66MC17WBQBV2S9T39V5JN6J9Z227G15I3M0",
+        searchCondition: "[]",
+        appType: "APP_VKCHKCFNQUQZW2R3HFVC",
+        formDataJson: formDataJsonStr,
+        systemToken: "F2766O91D3BQXRJGCE0387JGX2582G7G15I3M6W3",
+        userId: dingtalkUserId,
+        departmentId: "1"
+      }
+    const resp = await this.api.PostResourceRequest("/v2.0/yida/processes/instances/start", payload)
+    console.log(resp.data)
   }
 }
 

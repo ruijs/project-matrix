@@ -21,6 +21,7 @@ export default {
       const yidaSDK = await new YidaHelper(server).NewAPIClient();
       const yidaAPI = new YidaApi(yidaSDK);
       await yidaAPI.uploadWarehouseInventory(inventory)
+      await yidaAPI.uploadFAWStock(inventory)
     }
 
     logger.info("Finished uploadHuateInventory job...");
