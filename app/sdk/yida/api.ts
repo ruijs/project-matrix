@@ -1131,9 +1131,9 @@ class YidaApi {
     let formDataJson = {
       textField_l3plle21: "5RD",// 供应商代码
       textField_l3plle22: "上海华特企业集团股份有限公司",// 供应商名称
-      textField_l3plle23: "/",// 车型
-      textField_l3plle24: "/",// 零件号
-      textField_l3plle25: "/",// 零件名
+      textField_l3plle23: "AudiA4L",// 车型
+      textField_l3plle24: "8WD863947A",// 零件号
+      textField_l3plle25: "前围隔音垫",// 零件名
       textField_l3plle26: "/",// 配置
       textField_l3plle27: "/",// 工位
       textField_l3plle29: "计件库存",// 参数名
