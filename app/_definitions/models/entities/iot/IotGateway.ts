@@ -45,7 +45,7 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
       type: "text",
     },
     {
-      code: "mqtt_client_id",
+      code: "mqttClientId",
       name: "MQTT客户端id",
       type: "text",
     },

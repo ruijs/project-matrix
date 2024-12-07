@@ -1,10 +1,20 @@
 import dayjs from "dayjs";
-import type { ThingTelemetryValuesEntry, ThingTelemetryValues, TelemetryValuesOfThings } from "../IotPluginTypes";
+import type { ThingTelemetryValuesEntry, ThingTelemetryValues, TelemetryValuesOfThings, ThingTelemetryTimestampValuePair } from "../IotPluginTypes";
 import type TDengineAccessor from "rapid-plugins/iot/TDengineAccessor";
 import type { IRpdServer, Logger, RouteContext } from "@ruiapp/rapid-core";
 import type { IotMeasurementDataType, IotProperty, IotThing, IotType } from "../types/IotModelsTypes";
 import { formatValueToSqlLiteral } from "../QueryBuilder";
 import { mapTypePropertyDataTypeToTDEngineDataType, mapTypeMeasurementDataTypeToTDEngineDataType } from "../utils/DataTypeMapper";
+
+export interface ListTelemetryValuesOfPropertyOptions {
+  thingId: number;
+  propertyCode: string;
+  limit: number;
+}
+
+export type ListTelemetryValuesOfPropertyResult = {
+  list: ThingTelemetryTimestampValuePair[];
+};
 
 export default class TimeSeriesDataService {
   #server: IRpdServer;
@@ -105,5 +115,29 @@ CREATE TABLE IF NOT EXISTS
     this.#logger.debug(`Executing sql in tdengine: ${sql}`);
 
     await this.#tDEngineAccessor.exec(sql);
+  }
+
+  async listTelemetryValuesOfProperty(options: ListTelemetryValuesOfPropertyOptions): Promise<ListTelemetryValuesOfPropertyResult> {
+    const { thingId, propertyCode, limit } = options;
+    const tableName = `thing_${thingId}`;
+
+    const sql = `SELECT ts, ${propertyCode} from ${tableName} limit ${limit || 100};`;
+    const result = await this.#tDEngineAccessor.exec(sql);
+
+    const data = (result.getData() || []) as [Number, any][];
+
+    const entries: ThingTelemetryTimestampValuePair[] = [];
+    for (const item of data) {
+      const [ts, value] = item;
+      const entry: ThingTelemetryTimestampValuePair = [
+        Number(ts), // timestamp is less than Number.MAX_SAFE_INTEGER
+        value === "NULL" ? null : value,
+      ];
+      entries.push(entry);
+    }
+
+    return {
+      list: entries,
+    };
   }
 }

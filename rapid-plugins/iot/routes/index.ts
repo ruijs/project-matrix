@@ -1,4 +1,5 @@
-import saveTelemetryValuesFromGateway from "./saveTelemetryValuesFromGateway";
-import saveTelemetryValuesFromThing from "./saveTelemetryValuesFromThing";
+import iotListTelemetryValuesOfProperty from "./iotListTelemetryValuesOfProperty";
+import iotSaveTelemetryValuesFromGateway from "./iotSaveTelemetryValuesFromGateway";
+import iotSaveTelemetryValuesFromThing from "./iotSaveTelemetryValuesFromThing";
 
-export default [saveTelemetryValuesFromGateway, saveTelemetryValuesFromThing];
+export default [iotListTelemetryValuesOfProperty, iotSaveTelemetryValuesFromGateway, iotSaveTelemetryValuesFromThing];

@@ -21,6 +21,9 @@ const page: RapidPage = {
       statePropertyCode: "state",
       descriptionItems: [
         {
+          code: "gateway",
+        },
+        {
           code: "accessToken",
         },
         {
@@ -47,8 +50,23 @@ const page: RapidPage = {
               },
               item: {
                 $type: "antdCard",
+                bodyStyle: {
+                  padding: "10px",
+                },
+                children: [
+                  {
+                    $type: "iotPropertyValueTendencyChart",
+                    height: "150px",
+                    $exps: {
+                      thingId: "$rui.parseQuery().id",
+                      propertyCode: "$slot.item.code",
+                      step: "$slot.item.dataType == 'boolean'",
+                      dataType: "$slot.item.dataType",
+                    },
+                  },
+                ],
                 $exps: {
-                  title: "$self.value.name + ' - ' + $self.value.code",
+                  title: "$slot.item.name + ' - ' + $slot.item.code",
                 },
               },
 
