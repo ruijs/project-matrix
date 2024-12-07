@@ -10478,7 +10478,7 @@ export interface IotGateway {
   /**
    * MQTT客户端id
    */
-  mqtt_client_id?: string;
+  mqttClientId?: string;
   /**
    * 创建时间
    */
@@ -10683,7 +10683,7 @@ export interface IotThing {
   /**
    * MQTT客户端id
    */
-  mqtt_client_id?: string;
+  mqttClientId?: string;
   /**
    * 创建时间
    */

@@ -1,5 +1,10 @@
 import type { IPluginActionHandler } from "@ruiapp/rapid-core";
-import * as saveTelemetryValuesFromGateway from "./saveTelemetryValuesFromGateway";
-import * as saveTelemetryValuesFromThing from "./saveTelemetryValuesFromThing";
+import * as iotListTelemetryValuesOfProperty from "./iotListTelemetryValuesOfProperty";
+import * as iotSaveTelemetryValuesFromGateway from "./iotSaveTelemetryValuesFromGateway";
+import * as iotSaveTelemetryValuesFromThing from "./iotSaveTelemetryValuesFromThing";
 
-export default [saveTelemetryValuesFromGateway as any, saveTelemetryValuesFromThing as any] satisfies IPluginActionHandler[];
+export default [
+  iotListTelemetryValuesOfProperty as any,
+  iotSaveTelemetryValuesFromGateway as any,
+  iotSaveTelemetryValuesFromThing as any,
+] satisfies IPluginActionHandler[];

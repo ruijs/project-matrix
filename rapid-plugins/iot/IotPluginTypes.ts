@@ -4,6 +4,8 @@ export type ThingCode = string;
 
 export type PropertyCode = string;
 
+export type Timestamp = number;
+
 export type TelemetryValuesOfThings = Record<ThingCode, ThingTelemetryValuesEntry[]>;
 
 export type ThingTelemetryValues = Record<PropertyCode, ThingTelemetryPropertyValueType>;
@@ -11,15 +13,17 @@ export type ThingTelemetryValues = Record<PropertyCode, ThingTelemetryPropertyVa
 export type ThingTelemetryValuesEntry =
   | ThingTelemetryValues
   | {
-      ts: number;
+      ts: Timestamp;
       values: ThingTelemetryValues;
     };
 
 export type ThingTelemetryValueEntry = {
-  ts: number;
+  ts: Timestamp;
   name: string;
   value: ThingTelemetryPropertyValueType;
 };
+
+export type ThingTelemetryTimestampValuePair = [Timestamp, ThingTelemetryPropertyValueType];
 
 export type ThingTelemetryPropertyValueType = string | number | boolean | Record<string, any>;
 

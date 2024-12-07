@@ -18,6 +18,7 @@ import dataDictionaryModels from "~/_definitions/meta/data-dictionary-models";
 import entityModels from "~/_definitions/meta/entity-models";
 import pageModels from "~/_definitions/meta/page-models";
 
+import IotExtension from "~/iot-extension/mod";
 import AppExtension from "~/app-extension/mod";
 
 import indexStyles from "~/styles/index.css";
@@ -53,6 +54,7 @@ framework.loadExtension(AntdExtension);
 framework.loadExtension(MonacoExtension);
 framework.loadExtension(DesignerExtension);
 framework.loadExtension(RapidExtension);
+framework.loadExtension(IotExtension);
 framework.loadExtension(AppExtension);
 
 RapidExtensionSetting.setDefaultRendererPropsOfRendererType("rapidCurrencyRenderer", {

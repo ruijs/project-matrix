@@ -6,7 +6,7 @@ export default {
   code: "svc.iot.saveTelemetryValuesFromGateway",
   type: "RESTful",
   method: "POST",
-  endpoint: "/svc/iot/v1/gateway/telemetry",
+  endpoint: "/svc/iot/gateway/telemetry",
   actions: [
     {
       code: "iotSaveTelemetryValuesFromGateway",
