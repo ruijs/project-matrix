@@ -171,6 +171,11 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
       type: "text",
     },
     {
+      code: "fUseDepartment",
+      name: "领料部门",
+      type: "text",
+    },
+    {
       code: "fPlanSn",
       name: "生产计划单编号",
       type: "text",
@@ -201,6 +206,11 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
       type: "relation",
       targetSingularCode: "base_partner",
       targetIdColumnName: "express_id",
+    },
+    {
+      code: "depositDate",
+      name: "出库日期",
+      type: "date",
     },
   ],
 };

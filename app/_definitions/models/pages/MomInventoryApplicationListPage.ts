@@ -35,6 +35,13 @@ const formConfig: Partial<RapidEntityFormConfig> = {
     },
     {
       type: "auto",
+      code: "depositDate",
+      $exps: {
+        _hidden: "$self.form.getFieldValue('operationType') === 'in'",
+      },
+    },
+    {
+      type: "auto",
       code: "biller",
       required: true,
     },
@@ -44,7 +51,7 @@ const formConfig: Partial<RapidEntityFormConfig> = {
       code: "fFManager",
       required: true,
       $exps: {
-        _hidden: "$self.form.getFieldValue('operationType') !== 'in'",
+        _hidden: "$self.form.getFieldValue('operationType') !== 'in' || $self.form.getFieldValue('businessType')?.name === '生产退料入库'",
       },
     },
     {
@@ -53,7 +60,7 @@ const formConfig: Partial<RapidEntityFormConfig> = {
       label: "保管",
       required: true,
       $exps: {
-        _hidden: "$self.form.getFieldValue('operationType') !== 'in'",
+        _hidden: "$self.form.getFieldValue('operationType') !== 'in' || $self.form.getFieldValue('businessType')?.name === '生产退料入库'",
       },
     },
     {
@@ -62,7 +69,7 @@ const formConfig: Partial<RapidEntityFormConfig> = {
       code: "fFManager",
       required: true,
       $exps: {
-        _hidden: "$self.form.getFieldValue('operationType') !== 'out'",
+        _hidden: "$self.form.getFieldValue('operationType') !== 'out' && $self.form.getFieldValue('businessType')?.name !== '生产退料入库'",
       },
     },
     {
@@ -71,7 +78,15 @@ const formConfig: Partial<RapidEntityFormConfig> = {
       label: "领料",
       required: true,
       $exps: {
-        _hidden: "$self.form.getFieldValue('operationType') !== 'out'",
+        _hidden: "$self.form.getFieldValue('operationType') !== 'out' && $self.form.getFieldValue('businessType')?.name !== '生产退料入库'",
+      },
+    },
+    {
+      type: "auto",
+      code: "fUseDepartment",
+      label: "领料部门",
+      $exps: {
+        _hidden: "$self.form.getFieldValue('operationType') !== 'out' && $self.form.getFieldValue('businessType')?.name !== '生产退料入库'",
       },
     },
     {
@@ -79,7 +94,7 @@ const formConfig: Partial<RapidEntityFormConfig> = {
       code: "fUse",
       label: "领料用途",
       $exps: {
-        _hidden: "$self.form.getFieldValue('operationType') !== 'out'",
+        _hidden: "$self.form.getFieldValue('operationType') !== 'out' && $self.form.getFieldValue('businessType')?.name !== '生产退料入库'",
       },
     },
     {
@@ -517,6 +532,11 @@ const page: RapidPage = {
           rendererProps: {
             format: "{{name}}",
           },
+        },
+        {
+          type: "auto",
+          code: "depositDate",
+          fieldType: "date",
         },
         {
           type: "auto",
