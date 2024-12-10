@@ -4468,6 +4468,10 @@ export interface MomInventoryApplication {
    */
   fUse?: string;
   /**
+   * 领料部门
+   */
+  fUseDepartment?: string;
+  /**
    * 生产计划单编号
    */
   fPlanSn?: string;
@@ -4491,6 +4495,10 @@ export interface MomInventoryApplication {
    * KIS物流公司
    */
   express?: Partial<BasePartner>;
+  /**
+   * 出库日期
+   */
+  depositDate?: string;
   /**
    * 创建时间
    */

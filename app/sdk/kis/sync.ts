@@ -562,6 +562,53 @@ class KisDataSync {
     const partnerMap = new Map(partners.map(partner => [partner.externalCode, partner]));
 
     const syncFunctions = [
+      // 委外加工出库红字
+      // this.createListSyncFunction({
+      //   url: "/koas/app007104/api/subcontractdelivery/list",
+      //   singularCode: "mom_inventory_application",
+      //   mapToEntity: async (item: any) => {
+      //     const { Entry, Head } = item;
+      //
+      //     const mapEntryToEntity = (entry: any) => {
+      //       const material = materialMap.get(String(entry.FItemID));
+      //       return {
+      //         material,
+      //         lotNum: entry.FBatchNo,
+      //         quantity: entry.Fauxqty,
+      //         unit: { id: material?.defaultUnit?.id },
+      //         remark: entry?.Fnote,
+      //         orderNum: 1,
+      //       } as SaveMomInventoryApplicationItemInput;
+      //     };
+      //
+      //     const entities = Entry.map(mapEntryToEntity);
+      //
+      //     return {
+      //       code: Head.FBillNo,
+      //       contractNum: Head.FHeadSelfP0338,
+      //       businessType: { id: 20 }, // 委外加工出库退货入库
+      //       supplier: { id: partnerMap.get(String(Head.FSupplyID))?.id },
+      //       applicant: { id: employeeMap.get(String(Head.FEmpID))?.id },
+      //       operationType: 'in',
+      //       state: 'approved',
+      //       operationState: 'pending',
+      //       items: entities,
+      //       externalCode: Head.FInterID,
+      //       source: 'kis',
+      //       fPOStyle: Head.FPOStyle,
+      //       fSupplyID: Head.FSupplyID,
+      //     } as SaveMomInventoryApplicationInput;
+      //   },
+      //   payload: {
+      //     OrderBy: {
+      //       Property: "FCheckDate",
+      //       Type: "Desc",
+      //     },
+      //   },
+      //   syncAll: false,
+      //   filter: (item: any) => item.Head.FCheckDate !== null,
+      //   pageSize: 50,
+      // }),
       // 采购入库通知单
       this.createListSyncFunction({
         url: "/koas/app007140/api/materialreceiptnotice/list",
