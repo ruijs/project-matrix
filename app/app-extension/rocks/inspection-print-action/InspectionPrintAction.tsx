@@ -113,11 +113,13 @@ export default {
       const result = res?.result === "unqualified" ? false : true;
       const samples = res?.samples;
       const temp = countCharacteristics(samples);
+
       const formattedResult = Object.keys(temp).map((name) => ({
         name,
         appearances: temp[name].appearances,
         values: temp[name].values,
       }));
+
       const formateMeasurements =
         res?.samples[0]?.measurements
           ?.filter((item: any) => item?.characteristic != null)
