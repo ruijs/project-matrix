@@ -1,12 +1,12 @@
-import type {ActionHandlerContext, IRpdServer, ServerOperation} from "@ruiapp/rapid-core";
+import type { ActionHandlerContext, IRpdServer, ServerOperation } from "@ruiapp/rapid-core";
 
 export type QueryInput = {
   limit: number;
   offset: number;
+  keyword: string;
 };
 
 export type QueryOutput = {};
-
 
 export default {
   code: "listRawMaterialInspections",
@@ -16,10 +16,11 @@ export default {
     const input: QueryInput = ctx.input;
 
     if (input.limit === undefined || input.limit <= 0) {
-      input.limit = 100
+      input.limit = 100;
     }
+
     if (input.offset == undefined || input.offset < 0) {
-      input.offset = 0
+      input.offset = 0;
     }
 
     const transferOutputs = await listRawMaterialInspections(server, input);
@@ -29,7 +30,6 @@ export default {
 } satisfies ServerOperation;
 
 async function listRawMaterialInspections(server: IRpdServer, input: QueryInput) {
-
   const totalCount = await server.queryDatabaseObject(
     `
       with measurement_window_cte AS (select mim.sheet_id,
@@ -63,8 +63,10 @@ async function listRawMaterialInspections(server: IRpdServer, input: QueryInput)
              LEFT JOIN oc_users ou ON mis.inspector_id = ou.id
              INNER JOIN base_lots bl ON mis.lot_id = bl.id
              INNER JOIN measurements_cte mc ON mis.id = mc.sheet_id
-      WHERE bmc.name = '原材料';
+      WHERE bmc.name = '原材料'
+       ${input.keyword ? `AND (bm.code ~ $1 OR bm.name ~ $1 OR bm.specification ~ $1)` : ""};
     `,
+    input.keyword ? [input.keyword] : [],
   );
 
   const results = await server.queryDatabaseObject(
@@ -93,7 +95,7 @@ async function listRawMaterialInspections(server: IRpdServer, input: QueryInput)
                                 group by sheet_id)
       SELECT mis.id,
              DATE(mis.created_at)                                              AS inspection_date,
-             concat(bm.code, '-', bm.code, '-', bm.specification)              AS material_name,
+             concat(bm.code, '-', bm.name, '-', bm.specification)              AS material_name,
              mis.lot_num                                                       AS lot_num,
              CASE WHEN mis.result = 'qualified' THEN '合格' ELSE '不合格' END  AS result,
              CASE
@@ -118,9 +120,11 @@ async function listRawMaterialInspections(server: IRpdServer, input: QueryInput)
              LEFT JOIN oc_users ou ON mis.inspector_id = ou.id
              INNER JOIN base_lots bl ON mis.lot_id = bl.id
              INNER JOIN measurements_cte mc ON mis.id = mc.sheet_id
-      WHERE bmc.name = '原材料' LIMIT $1 OFFSET $2;
+      WHERE bmc.name = '原材料'
+      ${input.keyword ? `AND (bm.code ~ $3 OR bm.name ~ $3 OR bm.specification ~ $3)` : ""}
+      LIMIT $1 OFFSET $2;
     `,
-    [input.limit, input.offset]
+    input.keyword ? [input.limit, input.offset, input.keyword] : [input.limit, input.offset],
   );
 
   const items = results.map((item) => {

@@ -1,15 +1,17 @@
 /* eslint-disable array-callback-return */
 import { type Rock } from "@ruiapp/move-style";
-import { useSetState } from "ahooks";
-import { Table } from "antd";
+import { useDebounce, useSetState } from "ahooks";
+import { Input, Pagination } from "antd";
 import dayjs from "dayjs";
-import { CSSProperties, useEffect, useState } from "react";
+import type { CSSProperties } from "react";
+import { useEffect, useState } from "react";
 import rapidApi from "~/rapidApi";
 import { sortedUniq } from "lodash";
 import { AntdVirtualTable } from "@ruiapp/rapid-extension";
 
 const DEFAULT_LIMIT = 20;
 
+const { Search } = Input;
 export default {
   $type: "inspectionFinishedStockList",
 
@@ -21,10 +23,13 @@ export default {
     const [pageNum, setPageNum] = useState<number>(1);
 
     const { inspectionFeedStockData, dataSource, extraColumns, total, loading } = useInspectionFeedStockData();
+    const [keyword, setKeyword] = useState<string>("");
+
+    const debouncedKeyword = useDebounce(keyword, { wait: 500 });
 
     useEffect(() => {
-      inspectionFeedStockData();
-    }, []);
+      inspectionFeedStockData(1, debouncedKeyword);
+    }, [debouncedKeyword]);
 
     const scrollStyle: CSSProperties = {
       overflow: "auto",
@@ -37,61 +42,48 @@ export default {
         dataIndex: "lotNum",
         width: 160,
         fixed: "left",
-        render: (_: any) => <div style={scrollStyle}>{_ || ""}</div>,
+        render: (_: any) => <div style={{ padding: "8px 0" }}>{_ || ""}</div>,
       },
       {
         title: "产品",
         dataIndex: "materialName",
         width: 160,
         fixed: "left",
-        render: (_: any) => <div style={scrollStyle}>{_ || ""}</div>,
+        render: (_: any) => <div style={{ padding: "8px 0" }}>{_ || ""}</div>,
       },
-      //   {
-      //     title: "产品属性",
-      //     dataIndex: "",
-      //     width: 120,
-      //     render: (_: any) => _ || "",
-      //   },
       {
         title: "成品送样时间",
         dataIndex: "inspectionDate",
         width: 140,
         fixed: "left",
-        render: (_: any) => dayjs(_).format("YYYY年MM月DD日") || "",
+        render: (_: any) => <div style={{ padding: "8px 0" }}>{dayjs(_).format("YYYY年MM月DD日") || ""}</div>,
       },
       {
         title: "检测进度",
         dataIndex: "state",
         width: 120,
         fixed: "left",
-        render: (_: any) => <div style={scrollStyle}>{_ || ""}</div>,
+        render: (_: any) => <div style={{ padding: "8px 0" }}>{_ || ""}</div>,
       },
       {
         title: "成品检测时间",
         dataIndex: "inspected_at",
         width: 140,
         fixed: "left",
-        render: (_: any) => dayjs(_).format("YYYY年MM月DD日") || "",
+        render: (_: any) => <div style={{ padding: "8px 0" }}>{dayjs(_).format("YYYY年MM月DD日") || ""}</div>,
       },
       {
         title: "判定",
         dataIndex: "result",
         width: 120,
         fixed: "left",
-        render: (_: any) => <div style={scrollStyle}>{_ || ""}</div>,
+        render: (_: any) => <div style={{ padding: "8px 0" }}>{_ || ""}</div>,
       },
-      //   {
-      //     title: "异常项目描述",
-      //     dataIndex: "",
-      //     width: 120,
-      //     render: (_: any) => _ || "",
-      //   },
       {
         title: "备注",
         dataIndex: "remark",
         width: 180,
-        fixed: "left",
-        render: (_: any) => <div style={scrollStyle}>{_ || ""}</div>,
+        render: (_: any) => <div style={{ padding: "8px 0" }}>{_ || "-"}</div>,
       },
     ];
 
@@ -105,27 +97,44 @@ export default {
     });
 
     const tableWidth = (extraCol || []).reduce((s, col) => col.width + s, 1000);
-    const tableHeight = (dataSource?.length || 0) * 81;
+    // Const Tableheight = (Datasource?.Length || 0) * 81;
 
+    const onSearch = (value: string) => {
+      setKeyword(value);
+    };
     return (
       <div className="pm_inspection-input-sectioN">
-        <div className="pm_inspection-title">成品检测数据列表：</div>
-        <AntdVirtualTable
-          loading={loading}
-          scroll={{ x: tableWidth, y: tableHeight || 200 }}
-          columns={columns.concat(extraCol) as any}
-          dataSource={dataSource}
-          rowHeight={80}
-          pagination={{
-            pageSize: DEFAULT_LIMIT,
-            current: pageNum,
-            total: total || 0,
-            onChange(page, pageSize) {
+        <div className="pm_inspection-title">
+          <div>成品检测数据列表：</div>
+          <div>
+            <Search placeholder="请输入规格、名称、编号" allowClear enterButton size="middle" onSearch={onSearch} />
+          </div>
+        </div>
+        <div style={{ height: 850, overflow: "auto" }}>
+          <AntdVirtualTable
+            loading={loading}
+            scroll={{
+              x: tableWidth,
+              scrollToFirstRowOnChange: true,
+            }}
+            columns={columns.concat(extraCol as any) as any}
+            dataSource={dataSource}
+            rowHeight={80}
+            pagination={false}
+          />
+        </div>
+        <div style={{ height: 50, marginTop: 10, display: "flex", justifyContent: "flex-end" }}>
+          <Pagination
+            current={pageNum}
+            pageSize={DEFAULT_LIMIT}
+            total={total || 0}
+            onChange={(page, pageSize) => {
               setPageNum(page);
-              inspectionFeedStockData(page);
-            },
-          }}
-        />
+              inspectionFeedStockData(page, debouncedKeyword);
+            }}
+          />
+        </div>
+
         {/* <Table scroll={{ x: tableWidth }} columns={columns.concat(extraCol)} dataSource={dataSource} /> */}
       </div>
     );
@@ -146,7 +155,22 @@ function useInspectionFeedStockData() {
     extraColumns: [],
   });
 
-  const inspectionFeedStockData = async (page: number = 1) => {
+  function convertArrayToString(arr: any) {
+    // 检查数组是否至少有两个元素
+    if (arr.length < 2) {
+      return arr[0];
+    }
+
+    // 获取数组的第一个元素
+    const firstElement = arr[0];
+    // 获取数组中剩余的所有元素，并转换为字符串
+    const remainingElements = arr.slice(1).join("，");
+
+    // 返回格式化的字符串
+    return `${firstElement}(${remainingElements})`;
+  }
+
+  const inspectionFeedStockData = async (page: number = 1, keyword: string) => {
     if (loading) {
       return;
     }
@@ -157,6 +181,7 @@ function useInspectionFeedStockData() {
       .post("/app/listMaterialInspections", {
         limit: DEFAULT_LIMIT,
         offset: (page - 1) * DEFAULT_LIMIT,
+        keyword,
       })
       .then((res) => {
         const data = res.data?.items || [];
@@ -169,7 +194,8 @@ function useInspectionFeedStockData() {
         );
         const result = data.map((item: any) => {
           item.measurements.map((it: any) => {
-            obj[it.name] = it.value;
+            const res = it.value.split(",").map((item: any) => item.split("-")[1] || "-");
+            obj[it.name] = convertArrayToString(res);
           });
           return {
             ...item,

@@ -1,5 +1,49 @@
+.pm_inspection-input-sectioN {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
 .pm_inspection-title {
   font-weight: 700;
   font-size: large;
   margin: 10px 0;
+  display: flex;
+  justify-content: space-between;
+}
+
+.pm_inspection-input-sectioN .ant-table-cell-fix-left {
+  z-index: 2 !important;
+  background: #fff !important;
+}
+
+.pm_inspection-input-sectioN .ant-table-cell-fix-left::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 30px;
+  transform: translateX(100%);
+  transition: box-shadow 0.3s;
+  pointer-events: none;
+  box-shadow: inset 10px 0 8px -8px rgba(0, 0, 0, 0.15);
+}
+
+.pm_inspection-input-sectioN .ant-table-wrapper {
+  height: 100%;
+}
+
+.pm_inspection-input-sectioN .ant-spin-nested-loading {
+  height: 100%;
+}
+
+.pm_inspection-input-sectioN .ant-spin-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.pm_inspection-input-sectioN .ant-table {
+  flex: 1;
 }
