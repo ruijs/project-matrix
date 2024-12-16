@@ -1,5 +1,5 @@
-import type {ActionHandlerContext, CronJobConfiguration} from "@ruiapp/rapid-core";
-import type {OcUser, SaveOcUserInput} from "~/_definitions/meta/entity-types";
+import type { ActionHandlerContext, CronJobConfiguration } from "@ruiapp/rapid-core";
+import type { OcUser, SaveOcUserInput } from "~/_definitions/meta/entity-types";
 import YidaHelper from "~/sdk/yida/helper";
 import YidaApi from "~/sdk/yida/api";
 
@@ -21,16 +21,41 @@ export default {
 
     for (const user of users) {
       try {
-        await userManager.createEntity({
-          entity: {
-            name: user.name,
-            login: user.mobile,
-            dingtalkUserId: user.userid,
-            state: 'enabled',
-          } as SaveOcUserInput
-        })
+        const userInDb = await userManager.findEntity({
+          filters: [
+            {
+              operator: "eq",
+              field: "login",
+              value: user.mobile,
+            },
+          ],
+        });
+
+        if (!userInDb) {
+          await userManager.createEntity({
+            entity: {
+              name: user.name,
+              login: user.mobile,
+              dingtalkUserId: user.userid,
+              state: "enabled",
+            } as SaveOcUserInput,
+          });
+          continue;
+        }
+
+        if (userInDb.name !== user.name || userInDb.dingtalkUserId !== user.userid) {
+          await userManager.updateEntityById({
+            id: userInDb.id,
+            entityToSave: {
+              name: user.name,
+              login: user.mobile,
+              dingtalkUserId: user.userid,
+              state: "enabled",
+            } as SaveOcUserInput,
+          });
+        }
       } catch (e) {
-        console.log(e)
+        console.log(e);
       }
     }
 
