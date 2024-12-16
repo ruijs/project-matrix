@@ -55,6 +55,7 @@ export default {
           });
         }
       } catch (e) {
+        logger.error("同步钉钉用户失败。", { user });
         console.log(e);
       }
     }
