@@ -568,6 +568,7 @@ class YidaApi {
       };
 
       const resp = await this.api.PostResourceRequest("/v1.0/yida/forms/instances", payload);
+      console.log("uploadTYSProductionRecords response:");
       console.log(resp.data);
     }
   }
@@ -593,6 +594,7 @@ class YidaApi {
     };
 
     const resp = await this.api.PostResourceRequest("/v1.0/yida/forms/instances", payload);
+    console.log("uploadWarehouseInventory response:");
     console.log(resp.data);
   }
 
@@ -621,6 +623,7 @@ class YidaApi {
     };
 
     const resp = await this.api.PostResourceRequest("/v1.0/yida/forms/instances", payload);
+    console.log("uploadFeeds response:");
     console.log(resp.data);
   }
 
@@ -756,6 +759,7 @@ class YidaApi {
         departmentId: "1",
       };
       const resp = await this.api.PostResourceRequest("/v2.0/yida/processes/instances/start", payload);
+      console.log("uploadFAWInspectionMeasurements response:");
       console.log(resp.data);
     }
 
@@ -800,6 +804,7 @@ class YidaApi {
           departmentId: "1",
         };
         const resp = await this.api.PostResourceRequest("/v2.0/yida/processes/instances/start", payload);
+        console.log("uploadFAWInspectionMeasurements response:");
         console.log(resp.data);
       }
     }
@@ -848,6 +853,7 @@ class YidaApi {
         departmentId: "1",
       };
       const resp = await this.api.PostResourceRequest("/v2.0/yida/processes/instances/start", payload);
+      console.log("uploadFAWTYSProductionMeasurement response:");
       console.log(resp.data);
     }
 
@@ -890,6 +896,7 @@ class YidaApi {
         departmentId: "1",
       };
       const resp = await this.api.PostResourceRequest("/v2.0/yida/processes/instances/start", payload);
+      console.log("uploadFAWTYSProductionMeasurement response:");
       console.log(resp.data);
     }
 
@@ -932,6 +939,7 @@ class YidaApi {
         departmentId: "1",
       };
       const resp = await this.api.PostResourceRequest("/v2.0/yida/processes/instances/start", payload);
+      console.log("uploadFAWTYSProductionMeasurement response:");
       console.log(resp.data);
     }
 
@@ -974,6 +982,7 @@ class YidaApi {
         departmentId: "1",
       };
       const resp = await this.api.PostResourceRequest("/v2.0/yida/processes/instances/start", payload);
+      console.log("uploadFAWTYSProductionMeasurement response:");
       console.log(resp.data);
     }
 
@@ -1017,6 +1026,7 @@ class YidaApi {
           departmentId: "1",
         };
         const resp = await this.api.PostResourceRequest("/v2.0/yida/processes/instances/start", payload);
+        console.log("uploadFAWTYSProductionMeasurement response:");
         console.log(resp.data);
       }
     }
@@ -1064,6 +1074,7 @@ class YidaApi {
           departmentId: "1",
         };
         const resp = await this.api.PostResourceRequest("/v2.0/yida/processes/instances/start", payload);
+        console.log("uploadFAWTYSTransportMeasurement response:");
         console.log(resp.data);
       }
 
@@ -1106,6 +1117,7 @@ class YidaApi {
           departmentId: "1",
         };
         const resp = await this.api.PostResourceRequest("/v2.0/yida/processes/instances/start", payload);
+        console.log("uploadFAWTYSTransportMeasurement response:");
         console.log(resp.data);
       }
 
@@ -1148,6 +1160,7 @@ class YidaApi {
           departmentId: "1",
         };
         const resp = await this.api.PostResourceRequest("/v2.0/yida/processes/instances/start", payload);
+        console.log("uploadFAWTYSTransportMeasurement response:");
         console.log(resp.data);
       }
     }
@@ -1192,6 +1205,7 @@ class YidaApi {
       departmentId: "1",
     };
     const resp = await this.api.PostResourceRequest("/v2.0/yida/processes/instances/start", payload);
+    console.log("uploadFAWStock response:");
     console.log(resp.data);
   }
 }

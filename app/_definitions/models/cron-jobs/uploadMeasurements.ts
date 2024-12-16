@@ -17,6 +17,9 @@ export default {
     const { server, logger } = ctx;
     logger.info("Executing uploadHuateMeasurements job...");
 
+    const yidaSDK = await new YidaHelper(server).NewAPIClient();
+    const yidaAPI = new YidaApi(yidaSDK);
+
     while (true) {
       try {
         const measurements = await server.getEntityManager<MomRouteProcessParameterMeasurement>("mom_route_process_parameter_measurement").findEntities({
@@ -58,9 +61,6 @@ export default {
         }
 
         let notifyEnabled = false;
-
-        const yidaSDK = await new YidaHelper(server).NewAPIClient();
-        const yidaAPI = new YidaApi(yidaSDK);
 
         let isOutSpecification = false;
         for (const measurement of measurements) {
