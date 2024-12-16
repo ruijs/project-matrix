@@ -38,7 +38,7 @@ export default [
 
         let result = "qualified";
         // If any of the latest measurements is unqualified, the sheet is unqualified.
-        if (Object.values(latestMeasurement).some((item) => (item.characteristic?.mustPass || false) && item.isQualified !== undefined && !item.isQualified)) {
+        if (Object.values(latestMeasurement).some((item) => (item.characteristic?.mustPass && item.characteristic.mustPass) && item.isQualified !== undefined && !item.isQualified)) {
           result = "unqualified";
         }
 
@@ -62,48 +62,50 @@ export default [
       const after = payload.after;
       const changes = payload.changes;
 
-      if (changes.hasOwnProperty('isQualified')) {
-        const momInspectionMeasurementManager = server.getEntityManager<MomInspectionMeasurement>("mom_inspection_measurement");
-        const momInspectionMeasurement = await momInspectionMeasurementManager.findEntities({
-          filters: [
-            { operator: "eq", field: "sheet_id", value: after.sheet_id },
-          ],
-          properties: ["id", "characteristic", "isQualified", "createdAt", "qualitativeValue", "quantitativeValue"],
-        });
 
-        // Get the latest measurement for each characteristic.
-        const latestMeasurement = momInspectionMeasurement.reduce((acc, item) => {
-          if (item.characteristic?.id && item.createdAt) {
-            const characteristicId = item.characteristic.id;
+      const momInspectionMeasurementManager = server.getEntityManager<MomInspectionMeasurement>("mom_inspection_measurement");
+      const momInspectionMeasurement = await momInspectionMeasurementManager.findEntities({
+        filters: [
+          { operator: "eq", field: "sheet_id", value: after.sheet_id },
+        ],
+        properties: ["id", "characteristic", "isQualified", "createdAt", "qualitativeValue", "quantitativeValue"],
+      });
 
-            // @ts-ignore
-            if (!acc[characteristicId] || acc[characteristicId].createdAt < item.createdAt) {
-              acc[characteristicId] = item;
-            }
+      // Get the latest measurement for each characteristic.
+      const latestMeasurement = momInspectionMeasurement.reduce((acc, item) => {
+        if (item.characteristic?.id && item.createdAt) {
+          const characteristicId = item.characteristic.id;
+
+          // @ts-ignore
+          if (!acc[characteristicId] || acc[characteristicId].createdAt < item.createdAt) {
+            acc[characteristicId] = item;
           }
-
-          return acc;
-        }, {} as Record<string, MomInspectionMeasurement>);
-
-
-        const momInspectionSheetManager = server.getEntityManager<MomInspectionSheet>("mom_inspection_sheet");
-
-
-        let result = "qualified";
-        // If any of the latest measurements is unqualified, the sheet is unqualified.
-        if (Object.values(latestMeasurement).some((item) => (item.characteristic?.mustPass || false) && !item.isQualified)) {
-          result = "unqualified";
         }
 
-        await momInspectionSheetManager.updateEntityById({
-          routeContext: ctx.routerContext,
-          id: after.sheet_id,
-          entityToSave: {
-            result: result,
-            state: "inspecting"
-          },
-        });
+        return acc;
+      }, {} as Record<string, MomInspectionMeasurement>);
 
+
+      const momInspectionSheetManager = server.getEntityManager<MomInspectionSheet>("mom_inspection_sheet");
+
+
+      let result = "qualified";
+      // If any of the latest measurements is unqualified, the sheet is unqualified.
+      if (Object.values(latestMeasurement).some((item) => (item.characteristic?.mustPass && item.characteristic.mustPass) && !item.isQualified)) {
+        result = "unqualified";
+      }
+
+      await momInspectionSheetManager.updateEntityById({
+        routeContext: ctx.routerContext,
+        id: after.sheet_id,
+        entityToSave: {
+          result: result,
+          state: "inspecting"
+        },
+      });
+
+
+      if (changes.hasOwnProperty('isQualified')) {
         const operationTarget = await server.getEntityManager<MomInspectionMeasurement>("mom_inspection_measurement").findEntity({
           filters: [
             {
