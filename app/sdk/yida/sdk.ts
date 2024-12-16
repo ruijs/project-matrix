@@ -49,7 +49,7 @@ class YidaSDK {
       await this.refreshAccessToken();
     }
 
-    await this.refreshAccessToken();
+    // await this.refreshAccessToken();
   }
 
   public async refreshAccessToken(): Promise<void> {
