@@ -1,3 +1,4 @@
+import process from "process";
 import Aedes, { AuthenticateError } from "aedes";
 import { createServer } from "net";
 import type IotPlugin from "rapid-plugins/iot/IotPlugin";
@@ -28,7 +29,7 @@ const clientManager = {
 export function startMqttServer(options: StartMqttServerOptions) {
   const { logger, iotPlugin } = options;
 
-  const port = 1883;
+  const port = parseInt(process.env.MQTT_PORT || "", 10) || 1883;
 
   const aedes = new Aedes();
   const mqttServer = createServer(aedes.handle);
