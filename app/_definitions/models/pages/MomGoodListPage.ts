@@ -1,4 +1,4 @@
-import { cloneDeep, filter } from "lodash";
+import { cloneDeep } from "lodash";
 import type { RapidPage, RapidEntityFormConfig } from "@ruiapp/rapid-extension";
 import { materialFormatStrTemplate } from "~/utils/fmt";
 
@@ -101,6 +101,9 @@ const page: RapidPage = {
         {
           $type: "antdButton",
           href: `/api/app/exportExcel?type=goods`,
+          $exps: {
+            href: "'/api/app/exportExcel?type=goods&lotNum=' + $scope.vars.lotNum + '&binNum=' + $scope.vars.binNum + '&material=' + $scope.vars.material + '&warehouse=' + $scope.vars.warehouse + '&warehouseArea=' + $scope.vars.warehouseArea + '&location=' + $scope.vars.location + '&state=' + $scope.vars.state",
+          },
           children: [
             {
               $type: "text",
@@ -339,6 +342,30 @@ const page: RapidPage = {
             $action: "script",
             script: `
               const changedValues = event.args[0] || {};
+              if(changedValues.hasOwnProperty('lotNum')){
+                event.scope.setVars({
+                  lotNum: changedValues?.lotNum,
+                }, true);
+              }
+
+              if(changedValues.hasOwnProperty('binNum')){
+                event.scope.setVars({
+                  binNum: changedValues?.binNum,
+                }, true);
+              }
+
+              if(changedValues.hasOwnProperty('state')) {
+                event.scope.setVars({
+                  state: changedValues?.state,
+                }, true);
+              }
+
+              if(changedValues.hasOwnProperty('material')) {
+                event.scope.setVars({
+                  material: changedValues?.material,
+                }, true);
+              }
+
               if(changedValues.hasOwnProperty('warehouse')) {
                 event.page.sendComponentMessage(event.sender.$id, {
                   name: "setFieldsValue",
@@ -357,6 +384,10 @@ const page: RapidPage = {
                 event.page.sendComponentMessage('goodEntityList-searchForm-rapidForm-item-warehouseArea-input', {
                   name: "refreshData",
                 });
+
+                event.scope.setVars({
+                  warehouse: changedValues?.warehouse,
+                }, true);
               }else if(changedValues.hasOwnProperty('warehouseArea')){
                 event.page.sendComponentMessage(event.sender.$id, {
                   name: "setFieldsValue",
@@ -374,6 +405,18 @@ const page: RapidPage = {
                 event.page.sendComponentMessage('goodEntityList-searchForm-rapidForm-item-location-input', {
                   name: "refreshData",
                 });
+              }
+
+              if(changedValues.hasOwnProperty('warehouseArea')){
+                event.scope.setVars({
+                  warehouseArea: changedValues?.warehouseArea,
+                }, true);
+              }
+
+              if(changedValues.hasOwnProperty('location')){
+                event.scope.setVars({
+                  location: changedValues?.location,
+                }, true);
               }
             `,
           },

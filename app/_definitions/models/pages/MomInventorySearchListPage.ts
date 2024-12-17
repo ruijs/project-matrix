@@ -19,6 +19,9 @@ const page: RapidPage = {
         {
           $type: "antdButton",
           href: `/api/app/exportExcel?type=inventory`,
+          $exps: {
+            href: "'/api/app/exportExcel?type=inventory&materialCategory=' + $scope.vars.materialCategory",
+          },
           children: [
             {
               $type: "text",
@@ -95,6 +98,19 @@ const page: RapidPage = {
                 ],
               },
             ],
+          },
+        ],
+        onValuesChange: [
+          {
+            $action: "script",
+            script: `
+              const changedValues = event.args[0] || {};
+              if(changedValues.hasOwnProperty('materialCategory')){
+                event.scope.setVars({
+                  materialCategory: changedValues?.materialCategory,
+                }, true);
+              }
+            `,
           },
         ],
       },

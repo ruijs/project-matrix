@@ -130,6 +130,9 @@ const page: RapidPage = {
         {
           $type: "antdButton",
           href: `/api/app/exportExcel?type=inspection`,
+          $exps: {
+            href: "'/api/app/exportExcel?type=inspection&material=' + $scope.vars.material + '&lotNum=' + $scope.vars.lotNum + '&state=' + $scope.vars.state + '&approvalState=' + $scope.vars.approvalState + '&result=' + $scope.vars.result + '&inspector=' + $scope.vars.inspector + '&materialCategory=' + $scope.vars.materialCategory",
+          },
           children: [
             {
               $type: "text",
@@ -245,6 +248,49 @@ const page: RapidPage = {
                 ],
               },
             ],
+          },
+        ],
+        onValuesChange: [
+          {
+            $action: "script",
+            script: `
+              const changedValues = event.args[0] || {};
+              if(changedValues.hasOwnProperty('state')){
+                event.scope.setVars({
+                  state: changedValues?.state,
+                }, true);
+              }
+
+              if(changedValues.hasOwnProperty('approvalState')){
+                event.scope.setVars({
+                  approvalState: changedValues?.approvalState,
+                }, true);
+              }
+
+              if(changedValues.hasOwnProperty('result')){
+                event.scope.setVars({
+                  result: changedValues?.result,
+                }, true);
+              }
+
+              if(changedValues.hasOwnProperty('inspector')){
+                event.scope.setVars({
+                  inspector: changedValues?.inspector,
+                }, true);
+              }
+
+               if(changedValues.hasOwnProperty('materialCategory')){
+                event.scope.setVars({
+                  materialCategory: changedValues?.materialCategory,
+                }, true);
+              }
+
+              if(changedValues.hasOwnProperty('material')){
+                event.scope.setVars({
+                  material: changedValues?.material,
+                }, true);
+              }
+            `,
           },
         ],
       },
