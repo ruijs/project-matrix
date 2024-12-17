@@ -58,6 +58,16 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
       type: "text",
     },
   ],
+  indexes: [
+    {
+      properties: [
+        {
+          code: "code",
+        },
+      ],
+      unique: true,
+    },
+  ],
 };
 
 export default entity;

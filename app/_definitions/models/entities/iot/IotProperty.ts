@@ -74,6 +74,9 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
     {
       properties: [
         {
+          code: "type",
+        },
+        {
           code: "code",
         },
       ],
