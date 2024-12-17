@@ -180,6 +180,11 @@ const createOperationFormConfig: Partial<RapidEntityFormConfig> = {
         ],
       },
     },
+    {
+      type: "auto",
+      code: "extraCount",
+      formControlType: "extraCount",
+    },
   ],
   // onSaveSuccess: [
   //   {
