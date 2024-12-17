@@ -15,6 +15,36 @@ const formConfig: Partial<RapidEntityFormConfig> = {
       type: "auto",
       code: "config",
     },
+    {
+      type: "auto",
+      code: "orderNum",
+    },
+  ],
+};
+
+const roleFormConfig: Partial<RapidEntityFormConfig> = {
+  items: [
+    {
+      type: "auto",
+      code: "code",
+    },
+    {
+      type: "auto",
+      code: "name",
+    },
+    {
+      type: "auto",
+      code: "users",
+    },
+    {
+      type: "auto",
+      code: "orderNum",
+    },
+    // {
+    //   type: "auto",
+    //   code: "businessType",
+    //   hidden: true,
+    // },
   ],
 };
 
@@ -25,63 +55,152 @@ const page: RapidPage = {
   permissionCheck: { any: [] },
   view: [
     {
-      $type: "sonicEntityList",
-      entityCode: "MomInventoryBusinessType",
-      viewMode: "table",
-      selectionMode: "none",
-      listActions: [
+      $type: "sonicMainSecondaryLayout",
+      mainTitle: "库存业务类型",
+      mainColSpan: 8,
+      secondaryTitle: "角色",
+      secondaryColSpan: 16,
+      main: {
+        $type: "sonicEntityList",
+        entityCode: "MomInventoryBusinessType",
+        viewMode: "table",
+        selectionMode: "single",
+        selectOnClickRow: true,
+        listActions: [
+          {
+            $type: "sonicToolbarNewEntityButton",
+            text: "新建",
+            icon: "PlusOutlined",
+            actionStyle: "primary",
+          },
+        ],
+        extraActions: [
+          {
+            $type: "sonicToolbarFormItem",
+            formItemType: "search",
+            placeholder: "搜索名称",
+            actionEventName: "onSearch",
+            filterMode: "contains",
+            filterFields: ["name"],
+          },
+        ],
+        orderBy: [
+          {
+            field: "name",
+          },
+        ],
+        pageSize: 20,
+        columns: [
+          {
+            type: "auto",
+            code: "operationType",
+            width: "100px",
+          },
+          {
+            type: "auto",
+            code: "name",
+          },
+        ],
+        actions: [
+          {
+            $type: "sonicRecordActionEditEntity",
+            code: "edit",
+            actionType: "edit",
+            actionText: "修改",
+          },
+          {
+            $type: "sonicRecordActionDeleteEntity",
+            code: "delete",
+            actionType: "delete",
+            actionText: "删除",
+            dataSourceCode: "list",
+            entityCode: "MomInventoryBusinessType",
+          },
+        ],
+        newForm: cloneDeep(formConfig),
+        editForm: cloneDeep(formConfig),
+      },
+      secondary: [
         {
-          $type: "sonicToolbarNewEntityButton",
-          text: "新建",
-          icon: "PlusOutlined",
-          actionStyle: "primary",
+          $type: "sonicEntityList",
+          entityCode: "BusinessTypeOcRole",
+          viewMode: "table",
+          selectionMode: "none",
+          fixedFilters: [
+            {
+              field: "businessType",
+              operator: "eq",
+              value: "",
+            },
+          ],
+          listActions: [
+            {
+              $type: "sonicToolbarNewEntityButton",
+              text: "新建",
+              icon: "PlusOutlined",
+              actionStyle: "primary",
+            },
+          ],
+          extraActions: [
+            {
+              $type: "sonicToolbarFormItem",
+              formItemType: "search",
+              placeholder: "搜索名称",
+              actionEventName: "onSearch",
+              filterMode: "contains",
+              filterFields: ["name"],
+            },
+          ],
+          orderBy: [
+            {
+              field: "name",
+            },
+          ],
+          pageSize: 20,
+          columns: [
+            {
+              type: "auto",
+              code: "code",
+              width: "100px",
+            },
+            {
+              type: "auto",
+              code: "name",
+            },
+            {
+              type: "auto",
+              code: "users",
+            },
+            {
+              type: "auto",
+              code: "orderNum",
+            },
+          ],
+          actions: [
+            {
+              $type: "sonicRecordActionEditEntity",
+              code: "edit",
+              actionType: "edit",
+              actionText: "修改",
+            },
+            {
+              $type: "sonicRecordActionDeleteEntity",
+              code: "delete",
+              actionType: "delete",
+              actionText: "删除",
+              dataSourceCode: "list",
+              entityCode: "BusinessTypeOcRole",
+            },
+          ],
+          newForm: cloneDeep(roleFormConfig),
+          editForm: cloneDeep(roleFormConfig),
+          $exps: {
+            _hidden: "!$scope.vars.activeId",
+            "fixedFilters[0].value": "$scope.vars.activeId",
+            "newForm.fixedFields.businessType": "$scope.vars.activeId",
+          },
         },
       ],
-      extraActions: [
-        {
-          $type: "sonicToolbarFormItem",
-          formItemType: "search",
-          placeholder: "搜索名称",
-          actionEventName: "onSearch",
-          filterMode: "contains",
-          filterFields: ["name"],
-        },
-      ],
-      orderBy: [
-        {
-          field: "name",
-        },
-      ],
-      pageSize: 20,
-      columns: [
-        {
-          type: "auto",
-          code: "operationType",
-          width: "100px",
-        },
-        {
-          type: "auto",
-          code: "name",
-        },
-      ],
-      actions: [
-        {
-          $type: "sonicRecordActionEditEntity",
-          code: "edit",
-          actionType: "edit",
-          actionText: "修改",
-        },
-        {
-          $type: "sonicRecordActionDeleteEntity",
-          code: "delete",
-          actionType: "delete",
-          actionText: "删除",
-          dataSourceCode: "list",
-          entityCode: "MomInventoryBusinessType",
-        },
-      ],
-      newForm: cloneDeep(formConfig),
-      editForm: cloneDeep(formConfig),
     },
   ],
 };

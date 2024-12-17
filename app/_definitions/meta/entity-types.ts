@@ -1232,6 +1232,65 @@ export interface BaseUnitCategory {
 export type SaveBaseUnitCategoryInput = Omit<BaseUnitCategory, 'id' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>;
 
 /**
+ * 业务类型角色
+ */
+export interface BusinessTypeOcRole {
+  /**
+   * id
+   */
+  id: number;
+  /**
+   * 编码
+   */
+  code: string;
+  /**
+   * 名称
+   */
+  name: string;
+  /**
+   * 排序
+   */
+  orderNum: number;
+  /**
+   * 用户
+   */
+  users: any;
+  /**
+   * 业务类型
+   */
+  businessType: Partial<MomInventoryBusinessType>;
+  /**
+   * 创建时间
+   */
+  createdAt?: string;
+  /**
+   * 创建人
+   */
+  createdBy?: Partial<OcUser>;
+  /**
+   * 更新时间
+   */
+  updatedAt?: string;
+  /**
+   * 更新人
+   */
+  updatedBy?: Partial<OcUser>;
+  /**
+   * 删除时间
+   */
+  deletedAt?: string;
+  /**
+   * 删除人
+   */
+  deletedBy?: Partial<OcUser>;
+}
+
+/**
+ * 业务类型角色
+ */
+export type SaveBusinessTypeOcRoleInput = Omit<BusinessTypeOcRole, 'id' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>;
+
+/**
  * 合同
  */
 export interface CbsContract {
@@ -4665,6 +4724,10 @@ export interface MomInventoryBusinessType {
    * 配置
    */
   config?: Record<string, any>;
+  /**
+   * 业务类型
+   */
+  businessType: any;
   /**
    * 创建时间
    */
