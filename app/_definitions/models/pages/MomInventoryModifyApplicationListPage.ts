@@ -306,6 +306,9 @@ const page: RapidPage = {
         {
           $type: "antdButton",
           href: `/api/app/exportExcel?type=application`,
+          $exps: {
+            href: "'/api/app/exportExcel?type=application&applicant=' + $scope.vars.applicant + '&createdAt=' + $scope.vars.createdAt + '&endAt=' + $scope.vars.endAt + '&operationState=' + $scope.vars.operationState",
+          },
           children: [
             {
               $type: "text",
@@ -407,6 +410,30 @@ const page: RapidPage = {
             code: "operationState",
             filterMode: "in",
             itemType: "text",
+          },
+        ],
+        onValuesChange: [
+          {
+            $action: "script",
+            script: `
+              const changedValues = event.args[0] || {};
+              if(changedValues.hasOwnProperty('applicant')){
+                event.scope.setVars({
+                  applicant: changedValues?.applicant,
+                }, true);
+              }
+              if(changedValues.hasOwnProperty('createdAt')){
+                event.scope.setVars({
+                  createdAt: changedValues?.createdAt[0],
+                  endAt: changedValues?.createdAt[1],
+                }, true);
+              }
+              if(changedValues.hasOwnProperty('operationState')){
+                event.scope.setVars({
+                  operationState: changedValues?.operationState,
+                }, true);
+              }
+            `,
           },
         ],
       },
