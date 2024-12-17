@@ -350,13 +350,7 @@ const page: RapidPage = {
         },
         {
           type: "auto",
-          code: "processes",
-          rendererProps: {
-            item: {
-              $type: "rapidObjectRenderer",
-              format: "{{name}}",
-            },
-          },
+          code: "process",
           width: "100px",
         },
         // {
@@ -529,6 +523,11 @@ const page: RapidPage = {
                   type: "auto",
                   code: "executionState",
                   width: "150px",
+                },
+                {
+                  type: "auto",
+                  code: "isOutSpecification",
+                  width: "100px",
                 },
               ],
               actions: [

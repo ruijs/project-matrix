@@ -8551,9 +8551,13 @@ export interface MomWorkReport {
    */
   executionState?: MomWorkTaskExecutionState;
   /**
-   * 是否超标
+   * 是否超差
    */
   isOutSpecification?: boolean;
+  /**
+   * 投料记录
+   */
+  feeds?: any;
   /**
    * 序列号
    */

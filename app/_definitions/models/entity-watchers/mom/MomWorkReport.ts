@@ -5,6 +5,8 @@ import type {
   MomPrintTemplate,
   MomRouteProcessParameter,
   MomRouteProcessParameterMeasurement,
+  MomWorkFeed,
+  MomWorkFeedTask,
   MomWorkReport,
   MomWorkTask,
   SaveBaseLotInput,
@@ -20,6 +22,8 @@ import duration from "dayjs/plugin/duration";
 import utc from "dayjs/plugin/utc"
 import timezone from "dayjs/plugin/timezone"
 import SequenceService, {GenerateSequenceNumbersInput} from "@ruiapp/rapid-core/src/plugins/sequence/SequenceService";
+import YidaHelper from "~/sdk/yida/helper";
+import YidaApi from "~/sdk/yida/api";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -76,8 +80,9 @@ export default [
         });
 
         if (workTask && workTask.process) {
+          const sequenceService = server.getService<SequenceService>("sequenceService");
+
           if (workTask?.process?.config?.reportLotNumAutoGenerate) {
-            const sequenceService = server.getService<SequenceService>("sequenceService");
             const lotNums = await sequenceService.generateSn(server, {
               ruleCode: "mom_work_report.lotNum",
               amount: 1,
@@ -99,6 +104,18 @@ export default [
               before.lotNum = lot.lotNum;
             }
           }
+
+          const serialNums = await sequenceService.generateSn(server, {
+            ruleCode: "mom_work_report.serialNum",
+            amount: 1,
+            parameters: {
+              plantCode: workTask?.factory?.code,
+            }
+          } as GenerateSequenceNumbersInput)
+
+          if (serialNums && serialNums.length > 0) {
+            before.serialNum = serialNums[0];
+          }
         }
 
         if (workTask) {
@@ -116,6 +133,27 @@ export default [
         });
         if (lot) {
           before.lot = lot;
+        }
+      }
+
+      // 获取最近的投料单，并关联到报工单，投料记录分多轮投料，仅获取最新一轮的投料单对应的投料记录
+      const workFeedTasks = await server.getEntityManager<MomWorkFeedTask>("mom_work_feed_task").findEntities({
+        filters: [
+          { operator: "eq", field: "work_order_id", value: before.workOrder.id },
+        ],
+        orderBy: [{ field: "id", desc: true }],
+        pagination: { limit: 1, offset: 0 },
+      });
+      // 根据投料单获取投料记录
+      if (workFeedTasks.length > 0) {
+        const workFeeds = await server.getEntityManager<MomWorkFeed>("mom_work_feed").findEntities({
+          filters: [
+            { operator: "eq", field: "work_feed_task_id", value: workFeedTasks[0].id },
+          ],
+        });
+
+      if (workFeeds.length > 0) {
+          before.feeds = workFeeds;
         }
       }
     }
@@ -184,7 +222,7 @@ export default [
             }
 
             // 发泡工序
-            if (workReport.process?.code === "12") {
+            if (workReport.process?.code === "12" || workReport.process?.code === "21") {
               input = {
                 sql: `select last *
                       from root.huate.devices.reports.${ workReport.equipment?.machine?.code }
@@ -240,10 +278,11 @@ export default [
                   }
 
                   let isOutSpecification = false;
-                  if (metricParameter?.lowerLimit && (latestValue < (metricParameter?.lowerLimit || 0) + (metricParameter.nominal || 0))) {
+                  const numericValue = Number(latestValue);
+                  if (metricParameter?.lowerLimit && (numericValue < (metricParameter?.lowerLimit || 0) + (metricParameter.nominal || 0))) {
                     isOutSpecification = true
                   }
-                  if (metricParameter?.upperLimit && latestValue > (metricParameter?.upperLimit || 0) - (metricParameter.nominal || 0)) {
+                  if (metricParameter?.upperLimit && numericValue > (metricParameter?.upperLimit || 0) - (metricParameter.nominal || 0)) {
                     isOutSpecification = true
                   }
 
@@ -290,15 +329,16 @@ export default [
           }
 
           let latestValue = dayjs.duration(dayjs(workReport.actualFinishTime).diff(dayjs(workReport.actualStartTime))).asSeconds();
-          if (workReport.process?.code === "13" || workReport.process?.code === "14") { // 通风工序 & 烘烤工序
+          if (workReport.process?.code === "13" || workReport.process?.code === "22" || workReport.process?.code === "14" || workReport.process?.code === "23") { // 通风工序 & 烘烤工序
             latestValue = dayjs.duration(dayjs(workReport.actualFinishTime).diff(dayjs(workReport.actualStartTime))).asHours();
           }
 
           let isOutSpecification = false;
-          if (metricParameter?.lowerLimit && (latestValue < (metricParameter?.lowerLimit || 0) + (metricParameter.nominal || 0))) {
+          const numericValue = Number(latestValue);
+          if (metricParameter?.lowerLimit && (numericValue < (metricParameter?.lowerLimit || 0) + (metricParameter.nominal || 0))) {
             isOutSpecification = true
           }
-          if (metricParameter?.upperLimit && latestValue > (metricParameter?.upperLimit || 0) - (metricParameter.nominal || 0)) {
+          if (metricParameter?.upperLimit && numericValue > (metricParameter?.upperLimit || 0) - (metricParameter.nominal || 0)) {
             isOutSpecification = true
           }
 
@@ -334,7 +374,7 @@ export default [
         filters: [
           { operator: "eq", field: "id", value: after?.id },
         ],
-        properties: ["id", "factory", "lotNum", "serialNum", "process", "workOrder", "material", "equipment", "actualStartTime", "actualFinishTime", "executionState", "duration"],
+        properties: ["id", "factory", "lotNum", "serialNum", "process", "workOrder", "equipment", "actualStartTime", "actualFinishTime", "executionState", "duration", "feeds"],
         relations: {
           workOrder: {
             properties: ["id", "code", "material", "executionState"]
@@ -346,6 +386,9 @@ export default [
             properties: [
               "id", "code", "name", "machine"
             ]
+          },
+          feeds: {
+            properties: ["id", "material", "lotNum", "createdAt"]
           }
         }
       })
@@ -354,7 +397,7 @@ export default [
         return;
       }
 
-      if (workReport.process?.code === "13") { // 通风工序
+      if (workReport.process?.code === "13" || workReport.process?.code === "22") { // 通风工序
         const inventory = await server.getEntityManager<MomMaterialInventoryBalance>("mom_material_inventory_balance").findEntity({
           filters: [
             { operator: "eq", field: "material_id", value: workReport.workOrder?.material?.id },
@@ -407,7 +450,7 @@ export default [
           }
 
           // 发泡工序
-          if (workReport.process?.code === "12") {
+          if (workReport.process?.code === "12" || workReport.process?.code === "21") {
             input = {
               sql: `select last *
                     from root.huate.devices.reports.${ workReport.equipment?.machine?.code }
@@ -461,10 +504,11 @@ export default [
                 }
 
                 let isOutSpecification = false;
-                if (metricParameter?.lowerLimit && (latestValue < (metricParameter?.lowerLimit || 0) + (metricParameter.nominal || 0))) {
+                const numericValue = Number(latestValue);
+                if (metricParameter?.lowerLimit && (numericValue < (metricParameter?.lowerLimit || 0) + (metricParameter.nominal || 0))) {
                   isOutSpecification = true
                 }
-                if (metricParameter?.upperLimit && latestValue > (metricParameter?.upperLimit || 0) - (metricParameter.nominal || 0)) {
+                if (metricParameter?.upperLimit && numericValue > (metricParameter?.upperLimit || 0) - (metricParameter.nominal || 0)) {
                   isOutSpecification = true
                 }
 
@@ -490,6 +534,13 @@ export default [
           }
         } catch (e) {
           console.log(e)
+        }
+
+        if (workReport?.feeds && workReport?.feeds?.length > 0) {
+          // 上报宜搭投料记录
+          const yidaSDK = await new YidaHelper(server).NewAPIClient();
+          const yidaAPI = new YidaApi(yidaSDK);
+          await yidaAPI.uploadFAWProductionRecord(workReport);
         }
       }
 

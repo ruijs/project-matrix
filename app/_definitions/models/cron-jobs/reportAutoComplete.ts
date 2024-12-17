@@ -17,7 +17,15 @@ export default {
         {
           operator: "exists",
           field: "process",
-          filters: [{ operator: "eq", field: "code", value: "12" }]
+          filters: [
+            {
+              operator: "or",
+              filters: [
+                { operator: "eq", field: "code", value: "12" },
+                { operator: "eq", field: "code", value: "21" },
+              ],
+            },
+          ]
         },
         {
           operator: "ne",
