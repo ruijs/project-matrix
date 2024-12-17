@@ -18,6 +18,7 @@ import BasePartner from '../models/entities/BasePartner';
 import BasePartnerCategory from '../models/entities/BasePartnerCategory';
 import BaseUnit from '../models/entities/BaseUnit';
 import BaseUnitCategory from '../models/entities/BaseUnitCategory';
+import BusinessTypeOcRole from '../models/entities/BusinessTypeOcRole';
 import CbsContract from '../models/entities/CbsContract';
 import CbsContractFile from '../models/entities/CbsContractFile';
 import CbsContractFundingBudget from '../models/entities/CbsContractFundingBudget';
@@ -169,6 +170,7 @@ const entityDefinitions = [
   BasePartnerCategory,
   BaseUnit,
   BaseUnitCategory,
+  BusinessTypeOcRole,
   CbsContract,
   CbsContractFile,
   CbsContractFundingBudget,
@@ -320,6 +322,7 @@ const configuredEntities:TRapidEntity[] = [
   autoConfigureRapidEntity(BasePartnerCategory, entityDefinitions),
   autoConfigureRapidEntity(BaseUnit, entityDefinitions),
   autoConfigureRapidEntity(BaseUnitCategory, entityDefinitions),
+  autoConfigureRapidEntity(BusinessTypeOcRole, entityDefinitions),
   autoConfigureRapidEntity(CbsContract, entityDefinitions),
   autoConfigureRapidEntity(CbsContractFile, entityDefinitions),
   autoConfigureRapidEntity(CbsContractFundingBudget, entityDefinitions),

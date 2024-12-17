@@ -26,6 +26,14 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
       name: "配置",
       type: "json",
     },
+    {
+      code: "businessType",
+      name: "业务类型",
+      type: "relation[]",
+      required: true,
+      targetSingularCode: "business_type_oc_role",
+      selfIdColumnName: "business_type_id",
+    },
   ],
 };
 
