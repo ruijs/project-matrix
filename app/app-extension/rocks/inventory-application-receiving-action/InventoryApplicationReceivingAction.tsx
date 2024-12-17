@@ -29,6 +29,7 @@ export default {
     });
 
     const openCreateModal = async () => {
+      const applicationDetail: any = first(get(context.page.getStore("detail"), "data.list"));
       context.page.getScope("goodTransferList_records-scope").setVars({
         "modal-newEntity-open": true,
       });
@@ -46,6 +47,7 @@ export default {
         name: "setFieldsValue",
         payload: {
           ...props.record,
+          manufactureDate: applicationDetail?.businessType?.id == "2" ? get(props.record, "lotNum")?.split("-")[0] : null,
           material: get(props.record, "material.id"),
         },
       });
