@@ -322,7 +322,7 @@ const page: RapidPage = {
           $type: "antdButton",
           href: `/api/app/exportExcel?type=application`,
           $exps: {
-            href: "'/api/app/exportExcel?type=application&businessType=' + $scope.vars.businessType + '&applicant=' + $scope.vars.applicant + '&createdAt=' + $scope.vars.createdAt + '&endAt=' + $scope.vars.endAt + '&operationState=' + $scope.vars.operationState",
+            href: "'/api/app/exportExcel?type=application&businessType=' + $scope.vars.businessType + '&applicant=' + $scope.vars.applicant + '&createdAt=' + $scope.vars.createdAt + '&endAt=' + $scope.vars.endAt + '&operationState=' + $scope.vars.operationState + '&material=' + $scope.vars.material + '&lotNum=' + $scope.vars.lotNum + '&biller=' + $scope.vars.biller",
           },
           children: [
             {
@@ -389,6 +389,7 @@ const page: RapidPage = {
         entityCode: "MomInventoryApplication",
         formDataAdapter: `
           const createdAt = _.get(data, "createdAt");
+          console.log(data,"data66")
           if(_.isArray(createdAt) && !_.isEmpty(createdAt)){
             return {
               ...data,
@@ -403,6 +404,92 @@ const page: RapidPage = {
         items: [
           {
             type: "auto",
+            label: "物品",
+            code: "items",
+            formControlType: "rapidTableSelect",
+            formControlProps: {
+              allowClear: true,
+              dropdownMatchSelectWidth: 500,
+              listTextFormat: "{{code}} {{name}}（{{specification}}）",
+              listValueFieldName: "id",
+              listFilterFields: ["name", "code", "specification"],
+              searchPlaceholder: "搜索物料规格、批次号",
+              columns: [
+                {
+                  title: "物品",
+                  code: "material",
+                  format: "{{code}} {{name}}（{{specification}}）",
+                  width: 260,
+                },
+              ],
+              requestConfig: {
+                url: `/app/base_materials/operations/find`,
+                params: {
+                  properties: ["id", "name", "code", "specification"],
+                },
+              },
+              onSelectedRecord: [
+                {
+                  $action: "script",
+                  script: `
+                  const info = event.args[0] || {};
+                  console.log(info,"info")
+                  const _ = event.framework.getExpressionVars()._;
+                  console.log(_.get(info, 'id'),"id")
+                  event.page.sendComponentMessage('inventoryApplicationList-searchForm', {
+                    name: "setFieldsValue",
+                    payload: {
+                      items: info[0]?.id,
+                    }
+                  });
+                `,
+                },
+              ],
+            },
+            filterFields: [
+              {
+                field: "items",
+                operator: "exists",
+                filters: [
+                  {
+                    field: "material",
+                    operator: "exists",
+                    filters: [
+                      {
+                        field: "id",
+                        operator: "eq",
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            type: "auto",
+            label: "批号",
+            code: "lotNum",
+            formControlType: "rapidTableSelect",
+            formControlProps: {
+              allowClear: true,
+            },
+
+            filterMode: "contains",
+            filterFields: [
+              {
+                field: "items",
+                operator: "exists",
+                filters: [
+                  {
+                    field: "lotNum",
+                    operator: "eq",
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            type: "auto",
             code: "businessType",
             filterMode: "in",
             filterFields: ["business_id"],
@@ -412,6 +499,12 @@ const page: RapidPage = {
             code: "applicant",
             filterMode: "in",
             filterFields: ["applicant_id"],
+          },
+          {
+            type: "auto",
+            code: "biller",
+            filterMode: "in",
+            filterFields: ["biller_id"],
           },
           {
             type: "dateRange",
@@ -434,6 +527,18 @@ const page: RapidPage = {
             script: `
               const changedValues = event.args[0] || {};
               console.log(changedValues,"999");
+
+              if(changedValues.hasOwnProperty('material')){
+                event.scope.setVars({
+                  material: changedValues?.material,
+                }, true);
+              }
+
+              if(changedValues.hasOwnProperty('lotNum')){
+                event.scope.setVars({
+                  lotNum: changedValues?.lotNum,
+                }, true);
+              }
             
               if(changedValues.hasOwnProperty('businessType')){
                 event.scope.setVars({
@@ -445,6 +550,14 @@ const page: RapidPage = {
                   applicant: changedValues?.applicant,
                 }, true);
               }
+
+              if(changedValues.hasOwnProperty('biller')){
+                event.scope.setVars({
+                  biller: changedValues?.biller,
+                }, true);
+              }
+
+
               if(changedValues.hasOwnProperty('createdAt')){
                 event.scope.setVars({
                   createdAt: changedValues?.createdAt[0],
@@ -456,6 +569,16 @@ const page: RapidPage = {
                   operationState: changedValues?.operationState,
                 }, true);
               }
+            `,
+          },
+        ],
+        onSearch: [
+          {
+            $action: "script",
+            script: `
+              event.scope.setVars({
+                searchText: event.args[0],
+              }, true);
             `,
           },
         ],

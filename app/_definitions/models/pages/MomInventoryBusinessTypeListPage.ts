@@ -34,18 +34,21 @@ const roleFormConfig: Partial<RapidEntityFormConfig> = {
     },
     {
       type: "auto",
-      code: "users",
+      code: "roles",
     },
     {
       type: "auto",
       code: "orderNum",
     },
-    // {
-    //   type: "auto",
-    //   code: "businessType",
-    //   hidden: true,
-    // },
+    {
+      type: "auto",
+      code: "businessType",
+      hidden: true,
+    },
   ],
+  defaultFormFields: {
+    businessType: "",
+  },
 };
 
 const page: RapidPage = {
@@ -169,7 +172,7 @@ const page: RapidPage = {
             },
             {
               type: "auto",
-              code: "users",
+              code: "roles",
             },
             {
               type: "auto",
@@ -198,6 +201,7 @@ const page: RapidPage = {
             _hidden: "!$scope.vars.activeId",
             "fixedFilters[0].value": "$scope.vars.activeId",
             "newForm.fixedFields.businessType": "$scope.vars.activeId",
+            "newForm.defaultFormFields.businessType": "$scope.vars.activeId",
           },
         },
       ],
