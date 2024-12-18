@@ -85,6 +85,13 @@ const page: RapidPage = {
           $permissionCheck: "inventoryOperation.manage",
         },
       ],
+      relations: {
+        businessType: {
+          relations: {
+            businessTypeRoles: true,
+          },
+        },
+      },
       fixedFilters: [
         {
           operator: "eq",
@@ -166,6 +173,10 @@ const page: RapidPage = {
           actionType: "edit",
           actionText: "修改",
           $permissionCheck: "inventoryOperation.manage",
+          $exps: {
+            _hidden:
+              "!$slot.record?.businessType?.businessTypeRoles?.find((item) => item.name === '修改')?.businessTypeRoles.map((item) => item.id).some(id => me?.profile?.roles?.map(r => r.id).includes(id))",
+          },
         },
         {
           $type: "sonicRecordActionDeleteEntity",
@@ -175,6 +186,10 @@ const page: RapidPage = {
           dataSourceCode: "list",
           entityCode: "MomInventoryOperation",
           $permissionCheck: "inventoryOperation.manage",
+          $exps: {
+            _hidden:
+              "!$slot.record?.businessType?.businessTypeRoles?.find((item) => item.name === '删除')?.businessTypeRoles.map((item) => item.id).some(id => me?.profile?.roles?.map(r => r.id).includes(id))",
+          },
         },
       ],
       newForm: cloneDeep(formConfig),

@@ -353,7 +353,9 @@ const page: RapidPage = {
           actionText: "修改",
           $permissionCheck: "inventoryOperation.manage",
           $exps: {
-            _hidden: "$slot.record.state !== 'processing'",
+            disabled: "$slot.record.state !== 'processing'",
+            _hidden:
+              "!$slot.record?.businessType?.businessTypeRoles?.find((item) => item.name === '修改')?.businessTypeRoles.map((item) => item.id).some(id => me?.profile?.roles?.map(r => r.id).includes(id))",
           },
         },
         {
@@ -365,13 +367,24 @@ const page: RapidPage = {
           entityCode: "MomInventoryOperation",
           $permissionCheck: "inventoryOperation.manage",
           $exps: {
-            _hidden: "$slot.record.state !== 'processing'",
+            disabled: "$slot.record.state !== 'processing'",
+            _hidden:
+              "!$slot.record?.businessType?.businessTypeRoles?.find((item) => item.name === '删除')?.businessTypeRoles.map((item) => item.id).some(id => me?.profile?.roles?.map(r => r.id).includes(id))",
           },
         },
       ],
       relations: {
         transfers: {
           properties: ["id", "material", "lotNum", "quantity", "unit"],
+        },
+        businessType: {
+          relations: {
+            businessTypeRoles: {
+              relations: {
+                businessTypeRoles: true,
+              },
+            },
+          },
         },
       },
       expandedRow: {
