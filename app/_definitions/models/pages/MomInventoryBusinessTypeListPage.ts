@@ -15,10 +15,6 @@ const formConfig: Partial<RapidEntityFormConfig> = {
       type: "auto",
       code: "config",
     },
-    {
-      type: "auto",
-      code: "orderNum",
-    },
   ],
 };
 
@@ -34,7 +30,7 @@ const roleFormConfig: Partial<RapidEntityFormConfig> = {
     },
     {
       type: "auto",
-      code: "roles",
+      code: "businessTypeRoles",
     },
     {
       type: "auto",
@@ -42,7 +38,7 @@ const roleFormConfig: Partial<RapidEntityFormConfig> = {
     },
     {
       type: "auto",
-      code: "businessType",
+      code: "businessTypeRoles_id",
       hidden: true,
     },
   ],
@@ -156,7 +152,7 @@ const page: RapidPage = {
           ],
           orderBy: [
             {
-              field: "name",
+              field: "orderNum",
             },
           ],
           pageSize: 20,
@@ -164,7 +160,6 @@ const page: RapidPage = {
             {
               type: "auto",
               code: "code",
-              width: "100px",
             },
             {
               type: "auto",
@@ -172,7 +167,7 @@ const page: RapidPage = {
             },
             {
               type: "auto",
-              code: "roles",
+              code: "businessTypeRoles",
             },
             {
               type: "auto",

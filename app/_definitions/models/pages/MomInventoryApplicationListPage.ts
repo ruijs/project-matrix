@@ -277,31 +277,7 @@ const page: RapidPage = {
           dataSource: "_.get($slot.record, 'items')",
         },
       },
-      // filterForm: {
-      //   column: 3,
-      //   items: [
-      //     {
-      //       type: "auto",
-      //       code: "code",
-      //     },
-      //     {
-      //       type: "auto",
-      //       code: "operationType",
-      //     },
-      //     {
-      //       type: "auto",
-      //       code: "businessType",
-      //     },
-      //   ],
-      // },
       listActions: [
-        // {
-        //   $type: "sonicToolbarNewEntityButton",
-        //   text: "新建",
-        //   icon: "PlusOutlined",
-        //   actionStyle: "primary",
-        //   $permissionCheck: "inventoryApplication.manage",
-        // },
         {
           $type: "antdButton",
           icon: {
@@ -335,6 +311,15 @@ const page: RapidPage = {
       relations: {
         items: {
           properties: ["id", "material", "lotNum", "quantity", "unit", "remark", "good", "lot", "acceptQuantity"],
+        },
+        businessType: {
+          relations: {
+            businessTypeRoles: {
+              relations: {
+                businessTypeRoles: true,
+              },
+            },
+          },
         },
       },
       extraProperties: ["operationType", "items", "to", "from"],
@@ -713,9 +698,10 @@ const page: RapidPage = {
           actionType: "edit",
           actionText: "修改",
           $permissionCheck: "inventoryApplication.manage",
-          // $exps: {
-          //   disabled: "$slot.record.operationState === 'done'",
-          // },
+          $exps: {
+            _hidden:
+              "!$slot.record?.businessType?.businessTypeRoles?.find((item) => item.name === '修改')?.businessTypeRoles.map((item) => item.id).some(id => me?.profile?.roles?.map(r => r.id).includes(id))",
+          },
         },
         {
           $type: "sonicRecordActionDeleteEntity",
@@ -727,6 +713,8 @@ const page: RapidPage = {
           $permissionCheck: "inventoryApplication.manage",
           $exps: {
             disabled: "$slot.record.operationState !== 'pending'",
+            _hidden:
+              "!$slot.record?.businessType?.businessTypeRoles?.find((item) => item.name === '删除')?.businessTypeRoles.map((item) => item.id).some(id => me?.profile?.roles?.map(r => r.id).includes(id))",
           },
         },
         {
@@ -735,7 +723,9 @@ const page: RapidPage = {
           actionText: "下发",
           $permissionCheck: "inventoryApplication.manage",
           $exps: {
-            disabled: "$slot.record.operationState !== 'pending' || $slot.record.operationType !== 'in'",
+            disabled: "($slot.record.operationState !== 'pending' || $slot.record.operationType !== 'in')",
+            _hidden:
+              "!$slot.record?.businessType?.businessTypeRoles?.find((item) => item.name === '下发')?.businessTypeRoles.map((item) => item.id).some(id => me?.profile?.roles?.map(r => r.id).includes(id))",
           },
           onAction: [
             {

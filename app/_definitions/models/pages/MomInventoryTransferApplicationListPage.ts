@@ -272,6 +272,8 @@ const page: RapidPage = {
           $permissionCheck: "inventoryApplication.manage",
           $exps: {
             disabled: "$slot.record.operationState !== 'pending'",
+            _hidden:
+              "!$slot.record?.businessType?.businessTypeRoles?.find((item) => item.name === '修改')?.businessTypeRoles.map((item) => item.id).some(id => me?.profile?.roles?.map(r => r.id).includes(id))",
           },
         },
         {
@@ -284,6 +286,8 @@ const page: RapidPage = {
           $permissionCheck: "inventoryApplication.manage",
           $exps: {
             disabled: "$slot.record.operationState !== 'pending'",
+            _hidden:
+              "!$slot.record?.businessType?.businessTypeRoles?.find((item) => item.name === '删除')?.businessTypeRoles.map((item) => item.id).some(id => me?.profile?.roles?.map(r => r.id).includes(id))",
           },
         },
         // {
@@ -324,6 +328,15 @@ const page: RapidPage = {
       relations: {
         items: {
           properties: ["id", "material", "lotNum", "quantity", "unit", "remark"],
+        },
+        businessType: {
+          relations: {
+            businessTypeRoles: {
+              relations: {
+                businessTypeRoles: true,
+              },
+            },
+          },
         },
       },
       expandedRow: {
