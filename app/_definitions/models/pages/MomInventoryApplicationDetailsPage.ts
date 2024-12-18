@@ -481,6 +481,14 @@ const page: RapidPage = {
             "rendererProps.text": "$self.form.getFieldValue('to')?.name || $self.form.getFieldValue('from')?.name",
           },
         },
+        {
+          type: "auto",
+          code: "depositDate",
+          fieldType: "date",
+          $exps: {
+            _hidden: "$self.form.getFieldValue('operationType') !== 'out'",
+          },
+        },
         // {
         //   type: "auto",
         //   code: "to",
@@ -674,6 +682,19 @@ const page: RapidPage = {
                   $exps: {
                     _hidden: `_.get(_.first(_.get($stores.detail, 'data.list')), 'operationType') !== 'in'`,
                   },
+                },
+                {
+                  title: "检验状态",
+                  type: "auto",
+                  code: "inspectState",
+                  rendererType: "rapidOptionFieldRenderer",
+                  rendererProps: {
+                    dictionaryCode: "QualificationState",
+                  },
+                },
+                {
+                  type: "金蝶传输",
+                  code: "externalCode",
                 },
                 {
                   type: "auto",

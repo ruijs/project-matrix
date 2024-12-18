@@ -127,6 +127,19 @@ export default [
           properties: ["id", "businessType", "from", "to", "operationType", "createdBy"],
         });
 
+        if (inventoryApplication) {
+          if (changes.hasOwnProperty("externalCode")) {
+            await server.getEntityManager<MomInventoryApplication>("mom_inventory_application").updateEntityById({
+              id: inventoryApplication.id,
+              entityToSave: {
+                externalCode: changes.externalCode
+              }
+            })
+          }
+        }
+
+
+
         if (changes.hasOwnProperty("approvalState") && changes.approvalState === "approved") {
 
           // 处理库存盘点

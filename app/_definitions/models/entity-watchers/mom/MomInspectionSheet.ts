@@ -1,5 +1,10 @@
 import type {EntityWatcher, EntityWatchHandlerContext} from "@ruiapp/rapid-core";
-import {BaseLot, MomInspectionMeasurement, MomInspectionSheet} from "~/_definitions/meta/entity-types";
+import {
+  BaseLot,
+  MomInspectionMeasurement,
+  MomInspectionSheet,
+  MomInventoryApplicationItem
+} from "~/_definitions/meta/entity-types";
 
 export default [
   {
@@ -82,7 +87,12 @@ export default [
             value: after.id,
           },
         ],
-        properties: ["id", "code", "lot", "material", "lotNum", "result"],
+        properties: ["id", "code", "lot", "material", "lotNum", "result", "inventoryOperation"],
+        relations: {
+          inventoryOperation: {
+            properties: ["id", "application"],
+          },
+        },
       });
 
       if (changes) {
@@ -98,6 +108,30 @@ export default [
             }
           })
         }
+      }
+
+      if (operationTarget?.inventoryOperation?.application && operationTarget?.lotNum && operationTarget?.result) {
+        const momInventoryApplicationItemManager = server.getEntityManager<MomInventoryApplicationItem>("mom_inventory_application_item");
+        const momInventoryApplicationItem = await momInventoryApplicationItemManager.findEntity({
+          filters: [
+            { operator: "eq", field: "lotNum", value: operationTarget.lotNum },
+            {
+              operator: "eq",
+              field: "operation_id",
+              value: operationTarget.inventoryOperation.application.id
+            }],
+          properties: ["id"],
+        });
+
+        if (momInventoryApplicationItem) {
+          await momInventoryApplicationItemManager.updateEntityById({
+            id: momInventoryApplicationItem.id,
+            entityToSave: {
+              inspectState: operationTarget.result,
+            }
+          })
+        }
+
       }
 
       if (changes.hasOwnProperty('state') && changes.state === 'inspected') {

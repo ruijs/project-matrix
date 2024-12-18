@@ -12,6 +12,22 @@ export type ExportExcelInput = {
   type: string;
   createdAtFrom: string;
   createdAtTo: string;
+  businessType: string;
+  applicant: string;
+  createdAt: string;
+  endAt: string;
+  operationState: string;
+  materialCategory: string;
+  lotNum: string;
+  binNum: string;
+  material: string;
+  warehouse: string;
+  warehouseArea: string;
+  location: string;
+  state: string;
+  approvalState: string;
+  result: string;
+  inspector: string;
 };
 
 
@@ -112,7 +128,7 @@ async function exportApplicationExcel(server: IRpdServer, input: ExportExcelInpu
 // Fetching Functions
 
 async function fetchInventory(server: IRpdServer, input: ExportExcelInput) {
-  let filters: EntityFilterOptions[] = [{ operator: "gt", field: "onHandQuantity", value: 0}];
+  let filters: EntityFilterOptions[] = [{ operator: "gt", field: "onHandQuantity", value: 0 }];
 
   if (input.createdAtFrom) {
     filters.push({ operator: "gte", field: "createdAt", value: input.createdAtFrom });
@@ -124,12 +140,12 @@ async function fetchInventory(server: IRpdServer, input: ExportExcelInput) {
   return server.getEntityManager<MomMaterialLotInventoryBalance>("mom_material_lot_inventory_balance").findEntities({
     filters: filters,
     properties: [
-      "id","material","lotNum","unit","onHandQuantity","lot"
+      "id", "material", "lotNum", "unit", "onHandQuantity", "lot"
     ],
     relations: {
       material: {
         properties: [
-          "id","code","name","specification","category"
+          "id", "code", "name", "specification", "category"
         ],
       },
     },
@@ -138,7 +154,7 @@ async function fetchInventory(server: IRpdServer, input: ExportExcelInput) {
 }
 
 async function fetchGoods(server: IRpdServer, input: ExportExcelInput) {
-  let filters: EntityFilterOptions[] = [{ operator: "ne", field: "state", value: "pending"}];
+  let filters: EntityFilterOptions[] = [{ operator: "ne", field: "state", value: "pending" }];
 
   if (input.createdAtFrom) {
     filters.push({ operator: "gte", field: "createdAt", value: input.createdAtFrom });
@@ -150,12 +166,12 @@ async function fetchGoods(server: IRpdServer, input: ExportExcelInput) {
   return server.getEntityManager<MomGood>("mom_good").findEntities({
     filters: filters,
     properties: [
-      "id","material","lotNum","binNum","quantity","unit","state","warehouse","location","lot","manufactureDate","validityDate","createdAt"
+      "id", "material", "lotNum", "binNum", "quantity", "unit", "state", "warehouse", "location", "lot", "manufactureDate", "validityDate", "createdAt"
     ],
     relations: {
       material: {
         properties: [
-          "id","code","name","specification","category"
+          "id", "code", "name", "specification", "category"
         ],
       },
     },
@@ -258,11 +274,14 @@ async function fetchApplicationItems(server: IRpdServer, input: ExportExcelInput
     field: "material"
   }];
 
-  if (input.createdAtFrom) {
+  if (input?.createdAtFrom) {
     filters.push({ operator: "gte", field: "createdAt", value: input.createdAtFrom });
   }
-  if (input.createdAtTo) {
+  if (input?.createdAtTo) {
     filters.push({ operator: "lte", field: "createdAt", value: input.createdAtTo });
+  }
+  if (input?.applicant) {
+
   }
 
   return server.getEntityManager<MomInventoryApplicationItem>("mom_inventory_application_item").findEntities({
@@ -402,7 +421,6 @@ function mapGoodState(state: string | undefined): string {
       return "待处理";
   }
 }
-
 
 
 // Excel Sheet Creation
