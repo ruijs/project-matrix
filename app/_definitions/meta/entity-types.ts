@@ -1252,9 +1252,9 @@ export interface BusinessTypeOcRole {
    */
   orderNum: number;
   /**
-   * 用户
+   * 角色
    */
-  users: any;
+  roles: any;
   /**
    * 业务类型
    */
