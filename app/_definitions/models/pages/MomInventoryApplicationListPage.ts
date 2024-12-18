@@ -389,7 +389,6 @@ const page: RapidPage = {
         entityCode: "MomInventoryApplication",
         formDataAdapter: `
           const createdAt = _.get(data, "createdAt");
-          console.log(data,"data66")
           if(_.isArray(createdAt) && !_.isEmpty(createdAt)){
             return {
               ...data,
@@ -539,7 +538,7 @@ const page: RapidPage = {
                   lotNum: changedValues?.lotNum,
                 }, true);
               }
-            
+
               if(changedValues.hasOwnProperty('businessType')){
                 event.scope.setVars({
                   businessType: changedValues?.businessType,
@@ -690,11 +689,6 @@ const page: RapidPage = {
           rendererProps: {
             format: "{{name}}",
           },
-        },
-        {
-          type: "auto",
-          code: "depositDate",
-          fieldType: "date",
         },
         {
           type: "auto",
