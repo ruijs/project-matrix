@@ -28,6 +28,7 @@ export type ExportExcelInput = {
   approvalState: string;
   result: string;
   inspector: string;
+  biller: string;
 };
 
 
@@ -63,8 +64,6 @@ async function handleExportByType(server: IRpdServer, input: ExportExcelInput) {
     case "operation":
       return exportOperationExcel(server, input);
     case "inspection":
-      return exportInspectionExcel(server, input);
-    case "organize":
       return exportInspectionExcel(server, input);
     default:
       throw new Error(`Unsupported type: ${ input.type }`);
@@ -136,6 +135,19 @@ async function fetchInventory(server: IRpdServer, input: ExportExcelInput) {
   if (input.createdAtTo) {
     filters.push({ operator: "lte", field: "createdAt", value: input.createdAtTo });
   }
+  if (input?.createdAt && input.createdAt !== "undefined") {
+    filters.push({ operator: "gte", field: "createdAt", value: input.createdAtFrom });
+  }
+  if (input?.endAt && input.endAt !== "undefined") {
+    filters.push({ operator: "lte", field: "createdAt", value: input.createdAtTo });
+  }
+  if (input?.materialCategory && input.materialCategory !== "undefined") {
+    filters.push({
+      operator: "exists",
+      field: "material",
+      filters: [{ operator: "in", field: "category", value: input.materialCategory.split(",") }]
+    });
+  }
 
   return server.getEntityManager<MomMaterialLotInventoryBalance>("mom_material_lot_inventory_balance").findEntities({
     filters: filters,
@@ -161,6 +173,61 @@ async function fetchGoods(server: IRpdServer, input: ExportExcelInput) {
   }
   if (input.createdAtTo) {
     filters.push({ operator: "lte", field: "createdAt", value: input.createdAtTo });
+  }
+  if (input?.createdAt && input.createdAt !== "undefined") {
+    filters.push({ operator: "gte", field: "createdAt", value: input.createdAtFrom });
+  }
+  if (input?.endAt && input.endAt !== "undefined") {
+    filters.push({ operator: "lte", field: "createdAt", value: input.createdAtTo });
+  }
+  if (input?.state && input.state !== "undefined") {
+    filters.push({
+      operator: "in",
+      field: "state",
+      value: input.state.split(","),
+      itemType: "text"
+    });
+  }
+  if (input?.materialCategory && input.materialCategory !== "undefined") {
+    filters.push({
+      operator: "exists",
+      field: "material",
+      filters: [{ operator: "in", field: "category", value: input.materialCategory.split(","), itemType: "text" }]
+    });
+  }
+  if (input?.warehouse && input.warehouse !== "undefined") {
+    filters.push({
+      operator: "in",
+      field: "warehouse_id",
+      value: input.warehouse.split(",")
+    });
+  }
+  if (input?.warehouseArea && input.warehouseArea !== "undefined") {
+    filters.push({
+      operator: "in",
+      field: "warehouse_area_id",
+      value: input.warehouseArea.split(",")
+    });
+  }
+  if (input?.location && input.location !== "undefined") {
+    filters.push({
+      operator: "in",
+      field: "location_id",
+      value: input.location.split(",")
+    });
+  }
+  if (input?.material && input.material !== "undefined") {
+    filters.push({
+      operator: "in",
+      field: "material_id",
+      value: input.material.split(",")
+    });
+  }
+  if (input?.lotNum && input.lotNum !== "undefined") {
+    filters.push({ operator: "eq", field: "lotNum", value: input.lotNum });
+  }
+  if (input?.binNum && input.binNum !== "undefined") {
+    filters.push({ operator: "eq", field: "binNum", value: input.binNum });
   }
 
   return server.getEntityManager<MomGood>("mom_good").findEntities({
@@ -241,11 +308,66 @@ async function fetchInspectionMeasurements(server: IRpdServer, input: ExportExce
     }
   ];
 
-  if (input.createdAtFrom) {
+  if (input?.createdAt && input.createdAt !== "undefined") {
     filters.push({ operator: "gte", field: "createdAt", value: input.createdAtFrom });
   }
-  if (input.createdAtTo) {
+  if (input?.endAt && input.endAt !== "undefined") {
     filters.push({ operator: "lte", field: "createdAt", value: input.createdAtTo });
+  }
+  if (input?.state && input.state !== "undefined") {
+    filters.push({
+      operator: "exists",
+      field: "sheet",
+      filters: [{ operator: "in", field: "state", value: input.state.split(","), itemType: "text" }]
+    });
+  }
+  if (input?.approvalState && input.approvalState !== "undefined") {
+    filters.push({
+      operator: "exists",
+      field: "sheet",
+      filters: [{ operator: "in", field: "approvalState", value: input.approvalState.split(","), itemType: "text" }]
+    });
+  }
+  if (input?.materialCategory && input.materialCategory !== "undefined") {
+    filters.push({
+      operator: "exists",
+      field: "material",
+      filters: [{ operator: "in", field: "category", value: input.materialCategory.split(",") }]
+    });
+  }
+  if (input?.warehouse && input.warehouse !== "undefined") {
+    filters.push({
+      operator: "in",
+      field: "warehouse_id",
+      value: input.warehouse.split(",")
+    });
+  }
+  if (input?.warehouseArea && input.warehouseArea !== "undefined") {
+    filters.push({
+      operator: "in",
+      field: "warehouse_area_id",
+      value: input.warehouseArea.split(",")
+    });
+  }
+  if (input?.location && input.location !== "undefined") {
+    filters.push({
+      operator: "in",
+      field: "location_id",
+      value: input.location.split(",")
+    });
+  }
+  if (input?.material && input.material !== "undefined") {
+    filters.push({
+      operator: "in",
+      field: "material_id",
+      value: input.material.split(",")
+    });
+  }
+  if (input?.lotNum && input.lotNum !== "undefined") {
+    filters.push({ operator: "eq", field: "lotNum", value: input.lotNum });
+  }
+  if (input?.binNum && input.binNum !== "undefined") {
+    filters.push({ operator: "eq", field: "binNum", value: input.binNum });
   }
 
   return server.getEntityManager<MomInspectionMeasurement>("mom_inspection_measurement").findEntities({
@@ -280,8 +402,45 @@ async function fetchApplicationItems(server: IRpdServer, input: ExportExcelInput
   if (input?.createdAtTo) {
     filters.push({ operator: "lte", field: "createdAt", value: input.createdAtTo });
   }
-  if (input?.applicant) {
-
+  if (input?.createdAt && input.createdAt !== "undefined") {
+    filters.push({ operator: "gte", field: "createdAt", value: input.createdAtFrom });
+  }
+  if (input?.endAt && input.endAt !== "undefined") {
+    filters.push({ operator: "lte", field: "createdAt", value: input.createdAtTo });
+  }
+  if (input?.businessType && input.businessType !== "undefined") {
+    filters.push({
+      operator: "exists",
+      field: "application",
+      filters: [{ operator: "in", field: "businessType", value: input.businessType.split(",") }]
+    });
+  }
+  if (input?.applicant && input.applicant !== "undefined") {
+    filters.push({
+      operator: "exists",
+      field: "application",
+      filters: [{ operator: "in", field: "applicant_id", value: input.applicant.split(",") }]
+    });
+  }
+  if (input?.biller && input.biller !== "undefined") {
+    filters.push({
+      operator: "exists",
+      field: "application",
+      filters: [{ operator: "in", field: "biller", value: input.biller.split(",") }]
+    });
+  }
+  if (input?.operationState && input.operationState !== "undefined") {
+    filters.push({
+      operator: "exists",
+      field: "application",
+      filters: [{ operator: "in", field: "operationState", value: input.operationState.split(","), itemType: "text" }]
+    });
+  }
+  if (input?.material && input.material !== "undefined") {
+    filters.push({ operator: "in", field: "material_id", value: input.material.split(",") });
+  }
+  if (input?.lotNum && input.lotNum !== "undefined") {
+    filters.push({ operator: "eq", field: "lotNum", value: input.lotNum });
   }
 
   return server.getEntityManager<MomInventoryApplicationItem>("mom_inventory_application_item").findEntities({
