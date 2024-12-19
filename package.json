@@ -40,7 +40,7 @@
     "@ruiapp/move-style": "~0.3.12",
     "@ruiapp/rapid-core": "~0.3.4",
     "@ruiapp/rapid-express": "~0.2.0",
-    "@ruiapp/rapid-extension": "~0.3.36",
+    "@ruiapp/rapid-extension": "~0.3.37",
     "@ruiapp/react-renderer": "~0.3.6",
     "@ruiapp/react-rocks": "~0.3.3",
     "@tdengine/websocket": "^3.1.1",
