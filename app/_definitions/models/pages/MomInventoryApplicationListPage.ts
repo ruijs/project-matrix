@@ -1,4 +1,4 @@
-import { cloneDeep } from "lodash";
+import { cloneDeep, multiply } from "lodash";
 import type { RapidPage, RapidEntityFormConfig } from "@ruiapp/rapid-extension";
 
 const formConfig: Partial<RapidEntityFormConfig> = {
@@ -389,15 +389,16 @@ const page: RapidPage = {
           {
             type: "auto",
             label: "物品",
-            code: "items",
+            code: "material",
             formControlType: "rapidTableSelect",
             formControlProps: {
               allowClear: true,
               dropdownMatchSelectWidth: 500,
+              multiply: false,
               listTextFormat: "{{code}} {{name}}（{{specification}}）",
               listValueFieldName: "id",
               listFilterFields: ["name", "code", "specification"],
-              searchPlaceholder: "搜索物料规格、批次号",
+              searchPlaceholder: "搜索物料编码、 名称、 规格",
               columns: [
                 {
                   title: "物品",
@@ -416,14 +417,11 @@ const page: RapidPage = {
                 {
                   $action: "script",
                   script: `
-                  const info = event.args[0] || {};
-                  console.log(info,"info")
-                  const _ = event.framework.getExpressionVars()._;
-                  console.log(_.get(info, 'id'),"id")
-                  event.page.sendComponentMessage('inventoryApplicationList-searchForm', {
+                  const info = event.args || {};
+                  event.page.sendComponentMessage(event.sender.$id, {
                     name: "setFieldsValue",
                     payload: {
-                      items: info[0]?.id,
+                       material: info[0]?.id,
                     }
                   });
                 `,
@@ -453,11 +451,9 @@ const page: RapidPage = {
             type: "auto",
             label: "批号",
             code: "lotNum",
-            formControlType: "rapidTableSelect",
             formControlProps: {
               allowClear: true,
             },
-
             filterMode: "contains",
             filterFields: [
               {
@@ -510,7 +506,8 @@ const page: RapidPage = {
             $action: "script",
             script: `
               const changedValues = event.args[0] || {};
-              console.log(changedValues,"999");
+
+              console.log(changedValues,"changedValues")
 
               if(changedValues.hasOwnProperty('material')){
                 event.scope.setVars({
