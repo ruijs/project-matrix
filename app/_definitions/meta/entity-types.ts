@@ -4674,6 +4674,10 @@ export interface MomInventoryApplicationItem {
    */
   fOrderType?: string;
   /**
+   * 检验结果
+   */
+  inspectState?: InspectionResult;
+  /**
    * 创建时间
    */
   createdAt?: string;

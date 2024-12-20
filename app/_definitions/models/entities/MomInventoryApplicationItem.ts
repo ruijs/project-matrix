@@ -114,6 +114,12 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
       name: "订单类型",
       type: "text",
     },
+    {
+      code: "inspectState",
+      name: "检验结果",
+      type: "option",
+      dataDictionary: "InspectionResult",
+    },
   ],
 };
 

@@ -603,7 +603,7 @@ const page: RapidPage = {
                   field: "orderNum",
                 },
               ],
-              extraProperties: ["binNum", "application"],
+              extraProperties: ["binNum", "application", "inspectState"],
               columns: [
                 // {
                 //   type: 'auto',
