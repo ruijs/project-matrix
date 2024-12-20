@@ -1257,6 +1257,7 @@ const entityFieldCodes = {
     'fSourceTranType',
     'fOrderBillNo',
     'fOrderType',
+    'inspectState',
     'createdAt',
     'createdBy',
     'updatedAt',
