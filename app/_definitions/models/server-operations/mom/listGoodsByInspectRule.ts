@@ -1,4 +1,4 @@
-import {ActionHandlerContext, IRpdServer, mapDbRowToEntity, ServerOperation} from "@ruiapp/rapid-core";
+import { ActionHandlerContext, IRpdServer, mapDbRowToEntity, RouteContext, ServerOperation } from "@ruiapp/rapid-core";
 
 export type ListLotsInput = {
   inspectRuleId: number;
@@ -6,22 +6,18 @@ export type ListLotsInput = {
   materialId: number;
 };
 
-
 export default {
   code: "listLotsByInspectRule",
   method: "POST",
   async handler(ctx: ActionHandlerContext) {
-    const {server} = ctx;
+    const { server, routerContext: routeContext } = ctx;
     const input: ListLotsInput = ctx.input;
 
-    ctx.output = await listLotsByInspectRule(server, input);
+    ctx.output = await listLotsByInspectRule(server, routeContext, input);
   },
 } satisfies ServerOperation;
 
-async function listLotsByInspectRule(server: IRpdServer, input: ListLotsInput) {
-
-
-
+async function listLotsByInspectRule(server: IRpdServer, routeContext: RouteContext, input: ListLotsInput) {
   const rows = await server.queryDatabaseObject(
     `
       with inspect_measurements_cte AS (select mim.sheet_id, mic.name, mim.qualitative_value, mim.quantitative_value
@@ -87,9 +83,10 @@ async function listLotsByInspectRule(server: IRpdServer, input: ListLotsInput) {
              inner join base_materials bm on lrc.material_id = bm.id;
     `,
     [input.inspectRuleId, input.customerId, input.materialId],
+    routeContext.getDbTransactionClient(),
   );
 
-  const model =  server.getModel({ singularCode: "mom_material_lot_inventory_balance" });
+  const model = server.getModel({ singularCode: "mom_material_lot_inventory_balance" });
 
   return rows.map((item) => mapDbRowToEntity(server, model!, item, false));
 }

@@ -1,16 +1,13 @@
-import type {EntityWatchHandlerContext, EntityWatcher} from "@ruiapp/rapid-core";
-import type {CbsOrder} from "~/_definitions/meta/entity-types";
-import {
-  createInventoryOperation,
-  type CreateInventoryOperationInput
-} from "../../server-operations/mom/createInventoryOperation";
+import type { EntityWatchHandlerContext, EntityWatcher } from "@ruiapp/rapid-core";
+import type { CbsOrder } from "~/_definitions/meta/entity-types";
+import { createInventoryOperation, type CreateInventoryOperationInput } from "../../server-operations/mom/createInventoryOperation";
 
 export default [
   {
     eventName: "entity.update",
     modelSingularCode: "cbs_order",
     handler: async (ctx: EntityWatchHandlerContext<"entity.update">) => {
-      const { server, routerContext, payload } = ctx;
+      const { server, routerContext: routeContext, payload } = ctx;
       const changes: Partial<CbsOrder> = payload.changes;
       const after: CbsOrder = payload.after;
       if (after.kind === "purchase") {
@@ -18,9 +15,13 @@ export default [
           return;
         }
 
-        const orderItems = await server.queryDatabaseObject(`select *
+        const orderItems = await server.queryDatabaseObject(
+          `select *
                                                              from cbs_order_items
-                                                             where order_id = $1;`, [after.id]);
+                                                             where order_id = $1;`,
+          [after.id],
+          routeContext.getDbTransactionClient(),
+        );
         const transfers: CreateInventoryOperationInput["transfers"] = [];
         for (const orderItem of orderItems) {
           transfers.push({
@@ -40,18 +41,19 @@ export default [
           },
           transfers,
         };
-        if (routerContext) {
-          await createInventoryOperation(server, routerContext, createOperationInput);
-        }
-
+        await createInventoryOperation(server, routeContext, createOperationInput);
       } else if (after.kind === "sale") {
         if (!changes.hasOwnProperty("state") || changes.state !== "fulfilled") {
           return;
         }
 
-        const orderItems = await server.queryDatabaseObject(`select *
+        const orderItems = await server.queryDatabaseObject(
+          `select *
                                                              from cbs_order_items
-                                                             where order_id = $1;`, [after.id]);
+                                                             where order_id = $1;`,
+          [after.id],
+          routeContext.getDbTransactionClient(),
+        );
         const transfers: CreateInventoryOperationInput["transfers"] = [];
         for (const orderItem of orderItems) {
           transfers.push({
@@ -70,8 +72,8 @@ export default [
           },
           transfers,
         };
-        if (routerContext) {
-          await createInventoryOperation(server, routerContext, createOperationInput);
+        if (routeContext) {
+          await createInventoryOperation(server, routeContext, createOperationInput);
         }
       }
     },

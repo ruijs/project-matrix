@@ -1,6 +1,6 @@
-import type {ActionHandlerContext, IRpdServer, RouteContext, ServerOperation} from "@ruiapp/rapid-core";
-import type {MomGood, SaveMomGoodInput,} from "~/_definitions/meta/entity-types";
-import SequenceService, {GenerateSequenceNumbersInput} from "@ruiapp/rapid-core/src/plugins/sequence/SequenceService";
+import type { ActionHandlerContext, IRpdServer, RouteContext, ServerOperation } from "@ruiapp/rapid-core";
+import type { MomGood, SaveMomGoodInput } from "~/_definitions/meta/entity-types";
+import SequenceService, { GenerateSequenceNumbersInput } from "@ruiapp/rapid-core/src/plugins/sequence/SequenceService";
 
 export type SplitGoodsInput = {
   originGoodId: number;
@@ -25,19 +25,22 @@ export default {
   },
 } satisfies ServerOperation;
 
-async function splitGoods(server: IRpdServer, ctx: RouteContext, input: SplitGoodsInput) {
+async function splitGoods(server: IRpdServer, routeContext: RouteContext, input: SplitGoodsInput) {
   const sequenceService = server.getService<SequenceService>("sequenceService");
 
   const goodManager = server.getEntityManager<MomGood>("mom_good");
 
   const originGood = await goodManager.findEntity({
-    filters: [{
-      operator: "and",
-      filters: [
-        { operator: "eq", field: "id", value: input.originGoodId },
-        { operator: "eq", field: "state", value: "normal" },
-      ]
-    }],
+    routeContext,
+    filters: [
+      {
+        operator: "and",
+        filters: [
+          { operator: "eq", field: "id", value: input.originGoodId },
+          { operator: "eq", field: "state", value: "normal" },
+        ],
+      },
+    ],
     properties: ["id", "lotNum", "binNum", "material", "location", "quantity", "manufactureDate", "validityDate", "unit", "putInTime", "lot"],
   });
 
@@ -64,7 +67,7 @@ async function splitGoods(server: IRpdServer, ctx: RouteContext, input: SplitGoo
   };
 
   if (originGood.lot) {
-    saveGoodInputBase.lot = originGood.lot
+    saveGoodInputBase.lot = originGood.lot;
   }
 
   if (!originGood.binNum) {
@@ -74,39 +77,39 @@ async function splitGoods(server: IRpdServer, ctx: RouteContext, input: SplitGoo
   let originBinNum = originGood.binNum;
   // 检查 originBinNum 中包含两个 '-'
   if ((originBinNum.match(/-/g) || []).length === 2) {
-    originBinNum = originBinNum.split('-').slice(0, 2).join('-');
+    originBinNum = originBinNum.split("-").slice(0, 2).join("-");
   }
 
-  const binNums = await sequenceService.generateSn(server, {
+  const binNums = await sequenceService.generateSn(routeContext, server, {
     ruleCode: "qixiang.binNum.split",
     amount: input.shelves.length,
     parameters: {
       originBinNum: originBinNum,
-    }
-  } as GenerateSequenceNumbersInput)
+    },
+  } as GenerateSequenceNumbersInput);
 
-  await Promise.all(input.shelves.map(async (shelve, index) => {
-    const saveGoodInput = {
-      ...saveGoodInputBase,
-      binNum: binNums[index],
-      quantity: shelve.weight,
-    };
+  await Promise.all(
+    input.shelves.map(async (shelve, index) => {
+      const saveGoodInput = {
+        ...saveGoodInputBase,
+        binNum: binNums[index],
+        quantity: shelve.weight,
+      };
 
-    await goodManager.createEntity({ entity: saveGoodInput });
-  }));
+      await goodManager.createEntity({ routeContext, entity: saveGoodInput });
+    }),
+  );
 
   await goodManager.updateEntityById({
-    routeContext: ctx,
+    routeContext,
     id: originGood.id,
     entityToSave: { state: "splitted" } as SaveMomGoodInput,
   });
 
-  await updateInventoryBalance(server);
+  await updateInventoryBalance(server, routeContext);
 }
 
-
-export async function updateInventoryBalance(server: IRpdServer) {
-
+export async function updateInventoryBalance(server: IRpdServer, routeContext: RouteContext) {
   await server.queryDatabaseObject(
     `
       WITH material_balance AS (SELECT material_id,
@@ -151,6 +154,8 @@ export async function updateInventoryBalance(server: IRpdServer) {
                           AND COALESCE(mbi.tags, '') = COALESCE(mb.tags, '')
                           AND mbi.unit_id = mb.unit_id);
     `,
+    [],
+    routeContext.getDbTransactionClient(),
   );
 
   await server.queryDatabaseObject(
@@ -204,6 +209,8 @@ export async function updateInventoryBalance(server: IRpdServer) {
                           AND mlb.lot_id = lb.lot_id
                           and mlb.unit_id = lb.unit_id);
     `,
+    [],
+    routeContext.getDbTransactionClient(),
   );
 
   await server.queryDatabaseObject(
@@ -262,6 +269,8 @@ export async function updateInventoryBalance(server: IRpdServer) {
                           AND mlwb.warehouse_id = lwb.warehouse_id
                           AND mlwb.unit_id = lwb.unit_id);
     `,
+    [],
+    routeContext.getDbTransactionClient(),
   );
 
   await server.queryDatabaseObject(
@@ -312,6 +321,8 @@ export async function updateInventoryBalance(server: IRpdServer) {
                           AND mwib.warehouse_id = wb.warehouse_id
                           AND mwib.unit_id = wb.unit_id);
     `,
+    [],
+    routeContext.getDbTransactionClient(),
   );
 
   await server.queryDatabaseObject(
@@ -367,5 +378,7 @@ export async function updateInventoryBalance(server: IRpdServer) {
                           AND mwlb.location_id = lb.location_id
                           AND mwlb.unit_id = lb.unit_id);
     `,
+    [],
+    routeContext.getDbTransactionClient(),
   );
 }

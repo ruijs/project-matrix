@@ -1,12 +1,13 @@
-import type {ActionHandlerContext, IRpdServer, ServerOperation} from "@ruiapp/rapid-core";
-import {utils, writeXLSX} from "xlsx";
+import type { ActionHandlerContext, IRpdServer, RouteContext, ServerOperation } from "@ruiapp/rapid-core";
+import { utils, writeXLSX } from "xlsx";
 import type {
   MomGood,
   MomGoodTransfer,
   MomInspectionMeasurement,
-  MomInventoryApplicationItem, MomMaterialLotInventoryBalance,
+  MomInventoryApplicationItem,
+  MomMaterialLotInventoryBalance,
 } from "~/_definitions/meta/entity-types";
-import {EntityFilterOptions} from "@ruiapp/rapid-extension/src/types/rapid-entity-types";
+import { EntityFilterOptions } from "@ruiapp/rapid-extension/src/types/rapid-entity-types";
 
 // 导出类型定义
 export type ExportExcelInput = {
@@ -37,8 +38,22 @@ const EXCEL_HEADERS = {
   inventory: ["物料编码", "物料名称", "物料规格", "物料类型", "批号", "数量"],
   goods: ["物料", "物料类型", "批号", "托盘号", "数量", "生产日期", "有效期", "状态", "仓库", "库位", "合格状态"],
   operation: ["操作单号", "操作类型", "物料", "批号", "托盘号", "数量", "生产日期", "有效期", "入库库位", "合格状态"],
-  inspection: ["检验单号", "检验单状态", "审核状态", "物料", "检验规则", "批号", "样本号", "检验轮次", "检验特征", "检验仪器", "实测值", "合格状态", "检验时间"],
-  application: ["申请单号", "操作类型", "物料", "批号", "数量"]
+  inspection: [
+    "检验单号",
+    "检验单状态",
+    "审核状态",
+    "物料",
+    "检验规则",
+    "批号",
+    "样本号",
+    "检验轮次",
+    "检验特征",
+    "检验仪器",
+    "实测值",
+    "合格状态",
+    "检验时间",
+  ],
+  application: ["申请单号", "操作类型", "物料", "批号", "数量"],
 };
 
 // 状态映射
@@ -46,17 +61,17 @@ const STATE_MAPPINGS = {
   qualificationState: {
     qualified: "合格",
     unqualified: "不合格",
-    default: "未检验"
+    default: "未检验",
   },
   inspectionState: {
     inspecting: "检验中",
     inspected: "检验完成",
-    default: "待检验"
+    default: "待检验",
   },
   approvalState: {
     approved: "已审核",
     rejected: "已驳回",
-    default: "未审核"
+    default: "未审核",
   },
   goodState: {
     normal: "正常",
@@ -64,8 +79,8 @@ const STATE_MAPPINGS = {
     merged: "已合并",
     transferred: "已转移",
     destroied: "已销毁",
-    default: "待处理"
-  }
+    default: "待处理",
+  },
 };
 
 export default {
@@ -73,7 +88,7 @@ export default {
   method: "GET",
   async handler(ctx: ActionHandlerContext) {
     try {
-      const { server } = ctx;
+      const { server, routerContext: routeContext } = ctx;
       const input: ExportExcelInput = ctx.input;
 
       // 验证输入类型
@@ -81,21 +96,15 @@ export default {
         throw new Error(`不支持的导出类型: ${input.type}`);
       }
 
-      const exportExcel = await handleExportByType(server, input);
-      const filename = `${input.type}_${new Date().toISOString().split('T')[0]}.xlsx`;
+      const exportExcel = await handleExportByType(routeContext, server, input);
+      const filename = `${input.type}_${new Date().toISOString().split("T")[0]}.xlsx`;
 
-      ctx.routerContext.response.headers.set(
-        "Content-Type",
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-      );
-      ctx.routerContext.response.headers.set(
-        "Content-Disposition",
-        `attachment; filename="${encodeURIComponent(filename)}"`
-      );
+      ctx.routerContext.response.headers.set("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+      ctx.routerContext.response.headers.set("Content-Disposition", `attachment; filename="${encodeURIComponent(filename)}"`);
       ctx.routerContext.response.body = exportExcel;
     } catch (error: unknown) {
-      console.error('Export Excel Error:', error);
-      throw new Error(`导出Excel失败: ${error instanceof Error ? error.message : '未知错误'}`);
+      console.error("Export Excel Error:", error);
+      throw new Error(`导出Excel失败: ${error instanceof Error ? error.message : "未知错误"}`);
     }
   },
 } satisfies ServerOperation;
@@ -103,20 +112,20 @@ export default {
 // 工具函数：构建日期过滤条件
 function buildDateFilters(input: ExportExcelInput): EntityFilterOptions[] {
   const filters: EntityFilterOptions[] = [];
-  
+
   if (input.createdAtFrom) {
     filters.push({ operator: "gte", field: "createdAt", value: input.createdAtFrom });
   }
   if (input.createdAtTo) {
     filters.push({ operator: "lte", field: "createdAt", value: input.createdAtTo });
   }
-  if (input.createdAt && input.createdAt !== 'undefined') {
+  if (input.createdAt && input.createdAt !== "undefined") {
     filters.push({ operator: "gte", field: "createdAt", value: input.createdAt });
   }
-  if (input.endAt && input.endAt !== 'undefined') {
+  if (input.endAt && input.endAt !== "undefined") {
     filters.push({ operator: "lte", field: "createdAt", value: input.endAt });
   }
-  
+
   return filters;
 }
 
@@ -124,84 +133,84 @@ function buildDateFilters(input: ExportExcelInput): EntityFilterOptions[] {
 function buildCommonFilters(input: ExportExcelInput): EntityFilterOptions[] {
   const filters: EntityFilterOptions[] = [];
 
-  if (input.materialCategory && input.materialCategory !== 'undefined') {
+  if (input.materialCategory && input.materialCategory !== "undefined") {
     filters.push({
       operator: "exists",
       field: "material",
-      filters: [{ operator: "in", field: "category", value: input.materialCategory.split(",") }]
+      filters: [{ operator: "in", field: "category", value: input.materialCategory.split(",") }],
     });
   }
 
-  if (input.material && input.material !== 'undefined') {
+  if (input.material && input.material !== "undefined") {
     filters.push({
       operator: "in",
       field: "material_id",
-      value: input.material.split(",")
+      value: input.material.split(","),
     });
   }
 
-  if (input.lotNum && input.lotNum !== 'undefined') {
+  if (input.lotNum && input.lotNum !== "undefined") {
     filters.push({ operator: "eq", field: "lotNum", value: input.lotNum });
   }
 
-  if (input.binNum && input.binNum !== 'undefined') {
+  if (input.binNum && input.binNum !== "undefined") {
     filters.push({ operator: "eq", field: "binNum", value: input.binNum });
   }
 
   return filters;
 }
 
-async function handleExportByType(server: IRpdServer, input: ExportExcelInput) {
+async function handleExportByType(routeContext: RouteContext, server: IRpdServer, input: ExportExcelInput) {
   switch (input.type) {
     case "application":
-      return exportApplicationExcel(server, input);
+      return exportApplicationExcel(routeContext, server, input);
     case "inventory":
-      return exportInventoryExcel(server, input);
+      return exportInventoryExcel(routeContext, server, input);
     case "goods":
-      return exportGoodsExcel(server, input);
+      return exportGoodsExcel(routeContext, server, input);
     case "operation":
-      return exportOperationExcel(server, input);
+      return exportOperationExcel(routeContext, server, input);
     case "inspection":
-      return exportInspectionExcel(server, input);
+      return exportInspectionExcel(routeContext, server, input);
     default:
-      throw new Error(`Unsupported type: ${ input.type }`);
+      throw new Error(`Unsupported type: ${input.type}`);
   }
 }
 
-async function exportInventoryExcel(server: IRpdServer, input: ExportExcelInput) {
-  const inventoryBalances = await fetchInventory(server, input);
+async function exportInventoryExcel(routeContext: RouteContext, server: IRpdServer, input: ExportExcelInput) {
+  const inventoryBalances = await fetchInventory(routeContext, server, input);
 
   const rows = inventoryBalances.map(flattenInventory);
 
   return createExcelSheet(rows, EXCEL_HEADERS.inventory);
 }
 
-async function exportGoodsExcel(server: IRpdServer, input: ExportExcelInput) {
-  const goodTransfers = await fetchGoods(server, input);
+async function exportGoodsExcel(routeContext: RouteContext, server: IRpdServer, input: ExportExcelInput) {
+  const goodTransfers = await fetchGoods(routeContext, server, input);
 
   const rows = goodTransfers.map(flattenGoods);
 
   return createExcelSheet(rows, EXCEL_HEADERS.goods);
 }
 
-async function exportOperationExcel(server: IRpdServer, input: ExportExcelInput) {
-  const goodTransfers = await fetchGoodTransfers(server, input);
+async function exportOperationExcel(routeContext: RouteContext, server: IRpdServer, input: ExportExcelInput) {
+  const goodTransfers = await fetchGoodTransfers(routeContext, server, input);
 
   const rows = goodTransfers.map(flattenGoodTransfer);
 
   return createExcelSheet(rows, EXCEL_HEADERS.operation);
 }
 
-async function exportInspectionExcel(server: IRpdServer, input: ExportExcelInput) {
-  const inspectionMeasurements = await fetchInspectionMeasurements(server, input);
+async function exportInspectionExcel(routeContext: RouteContext, server: IRpdServer, input: ExportExcelInput) {
+  const inspectionMeasurements = await fetchInspectionMeasurements(routeContext, server, input);
 
   const rows = inspectionMeasurements.map(flattenInspectionMeasurement);
 
   return createExcelSheet(rows, EXCEL_HEADERS.inspection);
 }
 
-async function exportApplicationExcel(server: IRpdServer, input: ExportExcelInput) {
-  const applicationItems = await fetchApplicationItems(server, input);
+async function exportApplicationExcel(routeContext: RouteContext, server: IRpdServer, input: ExportExcelInput) {
+  const applicationItems = await fetchApplicationItems(routeContext, server, input);
 
   const rows = applicationItems.map(flattenApplicationItem);
 
@@ -210,88 +219,86 @@ async function exportApplicationExcel(server: IRpdServer, input: ExportExcelInpu
 
 // Fetching Functions
 
-async function fetchInventory(server: IRpdServer, input: ExportExcelInput) {
-  const filters: EntityFilterOptions[] = [
-    { operator: "gt", field: "onHandQuantity", value: 0 },
-    ...buildDateFilters(input),
-    ...buildCommonFilters(input)
-  ];
+async function fetchInventory(routeContext: RouteContext, server: IRpdServer, input: ExportExcelInput) {
+  const filters: EntityFilterOptions[] = [{ operator: "gt", field: "onHandQuantity", value: 0 }, ...buildDateFilters(input), ...buildCommonFilters(input)];
 
   return server.getEntityManager<MomMaterialLotInventoryBalance>("mom_material_lot_inventory_balance").findEntities({
+    routeContext,
     filters,
-    properties: [
-      "id", "material", "lotNum", "unit", "onHandQuantity", "lot"
-    ],
+    properties: ["id", "material", "lotNum", "unit", "onHandQuantity", "lot"],
     relations: {
       material: {
-        properties: [
-          "id", "code", "name", "specification", "category"
-        ],
+        properties: ["id", "code", "name", "specification", "category"],
       },
     },
     orderBy: [{ field: "id", desc: false }],
   });
 }
 
-async function fetchGoods(server: IRpdServer, input: ExportExcelInput) {
-  const filters: EntityFilterOptions[] = [
-    { operator: "ne", field: "state", value: "pending" },
-    ...buildDateFilters(input),
-    ...buildCommonFilters(input)
-  ];
+async function fetchGoods(routeContext: RouteContext, server: IRpdServer, input: ExportExcelInput) {
+  const filters: EntityFilterOptions[] = [{ operator: "ne", field: "state", value: "pending" }, ...buildDateFilters(input), ...buildCommonFilters(input)];
 
-  if (input?.state && input.state !== 'undefined') {
+  if (input?.state && input.state !== "undefined") {
     filters.push({
       operator: "in",
       field: "state",
       value: input.state.split(","),
-      itemType: "text"
+      itemType: "text",
     });
   }
 
-  if (input?.warehouse && input.warehouse !== 'undefined') {
+  if (input?.warehouse && input.warehouse !== "undefined") {
     filters.push({
       operator: "in",
       field: "warehouse_id",
-      value: input.warehouse.split(",")
+      value: input.warehouse.split(","),
     });
   }
 
-  if (input?.warehouseArea && input.warehouseArea !== 'undefined') {
+  if (input?.warehouseArea && input.warehouseArea !== "undefined") {
     filters.push({
       operator: "in",
       field: "warehouse_area_id",
-      value: input.warehouseArea.split(",")
+      value: input.warehouseArea.split(","),
     });
   }
 
-  if (input?.location && input.location !== 'undefined') {
+  if (input?.location && input.location !== "undefined") {
     filters.push({
       operator: "in",
       field: "location_id",
-      value: input.location.split(",")
+      value: input.location.split(","),
     });
   }
 
   return server.getEntityManager<MomGood>("mom_good").findEntities({
+    routeContext,
     filters,
     properties: [
-      "id", "material", "lotNum", "binNum", "quantity", "unit", 
-      "state", "warehouse", "location", "lot", 
-      "manufactureDate", "validityDate", "createdAt"
+      "id",
+      "material",
+      "lotNum",
+      "binNum",
+      "quantity",
+      "unit",
+      "state",
+      "warehouse",
+      "location",
+      "lot",
+      "manufactureDate",
+      "validityDate",
+      "createdAt",
     ],
     relations: {
       material: {
-        properties: [
-          "id", "code", "name", "specification", "category"
-        ],
+        properties: ["id", "code", "name", "specification", "category"],
       },
     },
     orderBy: [{ field: "id", desc: false }],
   });
 }
 
-async function fetchGoodTransfers(server: IRpdServer, input: ExportExcelInput) {
+async function fetchGoodTransfers(routeContext: RouteContext, server: IRpdServer, input: ExportExcelInput) {
   let filters: EntityFilterOptions[] = [{ operator: "notNull", field: "to" }];
 
   if (input.createdAtFrom) {
@@ -302,19 +309,24 @@ async function fetchGoodTransfers(server: IRpdServer, input: ExportExcelInput) {
   }
 
   return server.getEntityManager<MomGoodTransfer>("mom_good_transfer").findEntities({
+    routeContext,
     filters: filters,
-    properties: [
-      "id", "operation", "lotNum", "binNum", "material",
-      "quantity", "packageNum", "manufactureDate",
-      "validityDate", "from", "to"
-    ],
+    properties: ["id", "operation", "lotNum", "binNum", "material", "quantity", "packageNum", "manufactureDate", "validityDate", "from", "to"],
     relations: {
       operation: {
         properties: [
-          "id", "code", "businessType", "applicant",
-          "application", "contractNum", "productionPlanSn",
-          "supplier", "customer", "shop", "department",
-          "finishedMaterial"
+          "id",
+          "code",
+          "businessType",
+          "applicant",
+          "application",
+          "contractNum",
+          "productionPlanSn",
+          "supplier",
+          "customer",
+          "shop",
+          "department",
+          "finishedMaterial",
         ],
       },
     },
@@ -322,7 +334,7 @@ async function fetchGoodTransfers(server: IRpdServer, input: ExportExcelInput) {
   });
 }
 
-async function fetchInspectionMeasurements(server: IRpdServer, input: ExportExcelInput) {
+async function fetchInspectionMeasurements(routeContext: RouteContext, server: IRpdServer, input: ExportExcelInput) {
   let filters: EntityFilterOptions[] = [
     {
       operator: "exists",
@@ -330,27 +342,27 @@ async function fetchInspectionMeasurements(server: IRpdServer, input: ExportExce
       filters: [
         {
           operator: "notNull",
-          field: "material"
+          field: "material",
         },
         {
           operator: "notNull",
-          field: "rule"
-        }
-      ]
+          field: "rule",
+        },
+      ],
     },
     {
       operator: "or",
       filters: [
         {
           operator: "notNull",
-          field: "qualitativeValue"
+          field: "qualitativeValue",
         },
         {
           operator: "notNull",
-          field: "quantitativeValue"
-        }
-      ]
-    }
+          field: "quantitativeValue",
+        },
+      ],
+    },
   ];
 
   if (input?.createdAt && input.createdAt !== "undefined") {
@@ -363,49 +375,49 @@ async function fetchInspectionMeasurements(server: IRpdServer, input: ExportExce
     filters.push({
       operator: "exists",
       field: "sheet",
-      filters: [{ operator: "in", field: "state", value: input.state.split(","), itemType: "text" }]
+      filters: [{ operator: "in", field: "state", value: input.state.split(","), itemType: "text" }],
     });
   }
   if (input?.approvalState && input.approvalState !== "undefined") {
     filters.push({
       operator: "exists",
       field: "sheet",
-      filters: [{ operator: "in", field: "approvalState", value: input.approvalState.split(","), itemType: "text" }]
+      filters: [{ operator: "in", field: "approvalState", value: input.approvalState.split(","), itemType: "text" }],
     });
   }
   if (input?.materialCategory && input.materialCategory !== "undefined") {
     filters.push({
       operator: "exists",
       field: "material",
-      filters: [{ operator: "in", field: "category", value: input.materialCategory.split(",") }]
+      filters: [{ operator: "in", field: "category", value: input.materialCategory.split(",") }],
     });
   }
   if (input?.warehouse && input.warehouse !== "undefined") {
     filters.push({
       operator: "in",
       field: "warehouse_id",
-      value: input.warehouse.split(",")
+      value: input.warehouse.split(","),
     });
   }
   if (input?.warehouseArea && input.warehouseArea !== "undefined") {
     filters.push({
       operator: "in",
       field: "warehouse_area_id",
-      value: input.warehouseArea.split(",")
+      value: input.warehouseArea.split(","),
     });
   }
   if (input?.location && input.location !== "undefined") {
     filters.push({
       operator: "in",
       field: "location_id",
-      value: input.location.split(",")
+      value: input.location.split(","),
     });
   }
   if (input?.material && input.material !== "undefined") {
     filters.push({
       operator: "in",
       field: "material_id",
-      value: input.material.split(",")
+      value: input.material.split(","),
     });
   }
   if (input?.lotNum && input.lotNum !== "undefined") {
@@ -416,30 +428,38 @@ async function fetchInspectionMeasurements(server: IRpdServer, input: ExportExce
   }
 
   return server.getEntityManager<MomInspectionMeasurement>("mom_inspection_measurement").findEntities({
+    routeContext,
     filters: filters,
     properties: [
-      "id", "sheet", "sampleCode", "characteristic",
-      "instrument", "inspector", "createdAt",
-      "qualitativeValue", "quantitativeValue",
-      "isQualified", "round"
+      "id",
+      "sheet",
+      "sampleCode",
+      "characteristic",
+      "instrument",
+      "inspector",
+      "createdAt",
+      "qualitativeValue",
+      "quantitativeValue",
+      "isQualified",
+      "round",
     ],
     relations: {
       sheet: {
-        properties: [
-          "id", "code", "state", "approvalState",
-          "material", "rule", "remark", "lotNum"
-        ],
+        properties: ["id", "code", "state", "approvalState", "material", "rule", "remark", "lotNum"],
       },
     },
     orderBy: [{ field: "id", desc: false }],
   });
 }
 
-async function fetchApplicationItems(server: IRpdServer, input: ExportExcelInput) {
-  let filters: EntityFilterOptions[] = [{ operator: "notNull", field: "application" }, {
-    operator: "notNull",
-    field: "material"
-  }];
+async function fetchApplicationItems(routeContext: RouteContext, server: IRpdServer, input: ExportExcelInput) {
+  let filters: EntityFilterOptions[] = [
+    { operator: "notNull", field: "application" },
+    {
+      operator: "notNull",
+      field: "material",
+    },
+  ];
 
   if (input?.createdAtFrom) {
     filters.push({ operator: "gte", field: "createdAt", value: input.createdAtFrom });
@@ -457,28 +477,28 @@ async function fetchApplicationItems(server: IRpdServer, input: ExportExcelInput
     filters.push({
       operator: "exists",
       field: "application",
-      filters: [{ operator: "in", field: "businessType", value: input.businessType.split(",") }]
+      filters: [{ operator: "in", field: "businessType", value: input.businessType.split(",") }],
     });
   }
   if (input?.applicant && input.applicant !== "undefined") {
     filters.push({
       operator: "exists",
       field: "application",
-      filters: [{ operator: "in", field: "applicant_id", value: input.applicant.split(",") }]
+      filters: [{ operator: "in", field: "applicant_id", value: input.applicant.split(",") }],
     });
   }
   if (input?.biller && input.biller !== "undefined") {
     filters.push({
       operator: "exists",
       field: "application",
-      filters: [{ operator: "in", field: "biller", value: input.biller.split(",") }]
+      filters: [{ operator: "in", field: "biller", value: input.biller.split(",") }],
     });
   }
   if (input?.operationState && input.operationState !== "undefined") {
     filters.push({
       operator: "exists",
       field: "application",
-      filters: [{ operator: "in", field: "operationState", value: input.operationState.split(","), itemType: "text" }]
+      filters: [{ operator: "in", field: "operationState", value: input.operationState.split(","), itemType: "text" }],
     });
   }
   if (input?.material && input.material !== "undefined") {
@@ -489,14 +509,12 @@ async function fetchApplicationItems(server: IRpdServer, input: ExportExcelInput
   }
 
   return server.getEntityManager<MomInventoryApplicationItem>("mom_inventory_application_item").findEntities({
+    routeContext,
     filters: filters,
-    properties: [
-      "id", "application", "lotNum", "binNum",
-      "material", "quantity", "material"
-    ],
+    properties: ["id", "application", "lotNum", "binNum", "material", "quantity", "material"],
     relations: {
       application: {
-        properties: ["id", "code", "businessType"]
+        properties: ["id", "code", "businessType"],
       },
     },
     orderBy: [{ field: "id", desc: false }],
@@ -506,10 +524,10 @@ async function fetchApplicationItems(server: IRpdServer, input: ExportExcelInput
 // Data Flattening Functions
 function flattenInventory(good: MomMaterialLotInventoryBalance) {
   return {
-    materialCode: `${ good.material?.code }`,
-    materialName: `${ good.material?.name }`,
-    materialSpecification: `${ good.material?.specification }`,
-    materialCategory: `${ good.material?.category?.name }`,
+    materialCode: `${good.material?.code}`,
+    materialName: `${good.material?.name}`,
+    materialSpecification: `${good.material?.specification}`,
+    materialCategory: `${good.material?.category?.name}`,
     lotNum: good.lotNum,
     quantity: good.onHandQuantity,
   };
@@ -517,8 +535,8 @@ function flattenInventory(good: MomMaterialLotInventoryBalance) {
 
 function flattenGoods(good: MomGood) {
   return {
-    material: `${ good.material?.code }-${ good.material?.name }-${ good.material?.specification }`,
-    materialCategory: `${ good.material?.category?.name }`,
+    material: `${good.material?.code}-${good.material?.name}-${good.material?.specification}`,
+    materialCategory: `${good.material?.category?.name}`,
     lotNum: good.lotNum,
     binNum: good.binNum,
     quantity: good.quantity,
@@ -535,7 +553,7 @@ function flattenGoodTransfer(goodTransfer: MomGoodTransfer) {
   return {
     code: goodTransfer.operation?.code,
     businessType: goodTransfer.operation?.businessType?.name,
-    material: `${ goodTransfer.material?.code }-${ goodTransfer.material?.name }-${ goodTransfer.material?.specification }`,
+    material: `${goodTransfer.material?.code}-${goodTransfer.material?.name}-${goodTransfer.material?.specification}`,
     lotNum: goodTransfer.lotNum,
     binNum: goodTransfer.binNum,
     quantity: goodTransfer.quantity,
@@ -551,7 +569,7 @@ function flattenInspectionMeasurement(measurement: MomInspectionMeasurement) {
     code: measurement.sheet?.code,
     state: mapInspectionState(measurement.sheet?.state),
     approvalState: mapApprovalState(measurement.sheet?.approvalState),
-    material: `${ measurement.sheet?.material?.code }-${ measurement.sheet?.material?.name }-${ measurement.sheet?.material?.specification }`,
+    material: `${measurement.sheet?.material?.code}-${measurement.sheet?.material?.name}-${measurement.sheet?.material?.specification}`,
     rule: measurement.sheet?.rule?.name,
     lotNum: measurement.sheet?.lotNum,
     sampleCode: measurement.sampleCode,
@@ -568,7 +586,7 @@ function flattenApplicationItem(item: MomInventoryApplicationItem) {
   return {
     code: item.application?.code,
     businessType: item.application?.businessType?.name,
-    material: `${ item.material?.code }-${ item.material?.name }-${ item.material?.specification }`,
+    material: `${item.material?.code}-${item.material?.name}-${item.material?.specification}`,
     lotNum: item.lotNum,
     quantity: item.quantity,
   };
@@ -578,32 +596,31 @@ function flattenApplicationItem(item: MomInventoryApplicationItem) {
 
 function mapState(state: string | undefined, type: keyof typeof STATE_MAPPINGS): string {
   const mapping = STATE_MAPPINGS[type];
-  return state ? (mapping[state as keyof typeof mapping] || mapping.default) : mapping.default;
+  return state ? mapping[state as keyof typeof mapping] || mapping.default : mapping.default;
 }
 
 function mapQualificationState(state: string | undefined): string {
-  return mapState(state, 'qualificationState');
+  return mapState(state, "qualificationState");
 }
 
 function mapInspectionState(state: string | undefined): string {
-  return mapState(state, 'inspectionState');
+  return mapState(state, "inspectionState");
 }
 
 function mapApprovalState(state: string | undefined): string {
-  return mapState(state, 'approvalState');
+  return mapState(state, "approvalState");
 }
 
 function mapGoodState(state: string | undefined): string {
-  return mapState(state, 'goodState');
+  return mapState(state, "goodState");
 }
-
 
 // Excel Sheet Creation
 
 function createExcelSheet(rows: any[], header: string[]) {
   try {
     const worksheet = utils.json_to_sheet(rows);
-    
+
     // 设置表头样式
     const headerRange = { s: { c: 0, r: 0 }, e: { c: header.length - 1, r: 0 } };
     for (let C = headerRange.s.c; C <= headerRange.e.c; ++C) {
@@ -611,7 +628,7 @@ function createExcelSheet(rows: any[], header: string[]) {
       if (worksheet[address]) {
         worksheet[address].s = {
           font: { bold: true },
-          alignment: { horizontal: 'center' }
+          alignment: { horizontal: "center" },
         };
       }
     }
@@ -619,11 +636,11 @@ function createExcelSheet(rows: any[], header: string[]) {
     utils.sheet_add_aoa(worksheet, [header], { origin: "A1" });
 
     const workbook = utils.book_new();
-    utils.book_append_sheet(workbook, worksheet, 'Sheet1');
+    utils.book_append_sheet(workbook, worksheet, "Sheet1");
 
     return writeXLSX(workbook, { type: "buffer", bookType: "xlsx" });
   } catch (error: unknown) {
-    console.error('Create Excel Sheet Error:', error);
-    throw new Error('创建Excel文件失败');
+    console.error("Create Excel Sheet Error:", error);
+    throw new Error("创建Excel文件失败");
   }
 }

@@ -2,12 +2,18 @@
  * Sequence plugin
  */
 
-import type { IRpdServer, RapidPlugin, RpdApplicationConfig, RpdConfigurationItemOptions, RpdServerPluginConfigurableTargetOptions, RpdServerPluginExtendingAbilities } from "@ruiapp/rapid-core";
+import type {
+  IRpdServer,
+  RapidPlugin,
+  RpdApplicationConfig,
+  RpdConfigurationItemOptions,
+  RpdServerPluginConfigurableTargetOptions,
+  RpdServerPluginExtendingAbilities,
+} from "@ruiapp/rapid-core";
 import pluginActionHandlers from "./actionHandlers";
 import pluginModels from "./models";
 import pluginRoutes from "./routes";
 import PrinterService from "./PrinterService";
-
 
 class PrinterPlugin implements RapidPlugin {
   #printerService!: PrinterService;
@@ -51,8 +57,7 @@ class PrinterPlugin implements RapidPlugin {
     server.appendApplicationConfig({ routes: pluginRoutes });
   }
 
-  async onApplicationLoaded(server: IRpdServer, applicationConfig: RpdApplicationConfig) {
-  }
+  async onApplicationLoaded(server: IRpdServer, applicationConfig: RpdApplicationConfig) {}
 
   get printerService() {
     return this.#printerService;

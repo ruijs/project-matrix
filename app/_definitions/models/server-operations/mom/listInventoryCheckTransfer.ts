@@ -1,5 +1,5 @@
-import type {ActionHandlerContext, IRpdServer, ServerOperation} from "@ruiapp/rapid-core";
-import type {BaseMaterial, MomGood,} from "~/_definitions/meta/entity-types";
+import type { ActionHandlerContext, IRpdServer, RouteContext, ServerOperation } from "@ruiapp/rapid-core";
+import type { BaseMaterial, MomGood } from "~/_definitions/meta/entity-types";
 
 export type QueryGoodOutTransferInput = {
   operationId: number;
@@ -17,20 +17,18 @@ export type QueryGoodOutTransferOutput = {
   profitGoods?: MomGood[];
 };
 
-
 export default {
   code: "listInventoryCheckTransfers",
   method: "POST",
   async handler(ctx: ActionHandlerContext) {
-    const {server} = ctx;
+    const { server, routerContext: routeContext } = ctx;
     const input: QueryGoodOutTransferInput = ctx.input;
 
-    ctx.output = await listGoodCheckTransfers(server, input);
+    ctx.output = await listGoodCheckTransfers(server, routeContext, input);
   },
 } satisfies ServerOperation;
 
-async function listGoodCheckTransfers(server: IRpdServer, input: QueryGoodOutTransferInput) {
-
+async function listGoodCheckTransfers(server: IRpdServer, routeContext: RouteContext, input: QueryGoodOutTransferInput) {
   const transfers = await server.queryDatabaseObject(
     `
       WITH inventory_checked_cte AS (SELECT mio.id                                                       AS operation_id,
@@ -130,6 +128,7 @@ async function listGoodCheckTransfers(server: IRpdServer, input: QueryGoodOutTra
                        ON icc.operation_id = plgc.operation_id AND icc.material_id = plgc.material_id;
     `,
     [input.operationId],
+    routeContext.getDbTransactionClient(),
   );
 
   return transfers.map((item) => {

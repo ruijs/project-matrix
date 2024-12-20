@@ -1,3 +1,4 @@
+import { RouteContext } from "@ruiapp/rapid-core";
 import type { BpmInstance, BpmJob } from "~/_definitions/meta/entity-types";
 
 export type PropertyBusinessProcessConfig = {
@@ -16,7 +17,7 @@ export type PropertyBusinessProcessConfig = {
    * 流程名称。如果不设置，则默认取实体名称。
    */
   name?: string;
-  
+
   /**
    * 流程配置。
    */
@@ -30,7 +31,7 @@ export type PropertyBusinessProcessConfig = {
 
 export type BusinessProcessFlowConfig = {
   nodes: FlowNode[];
-}
+};
 
 export type BusinessProcessListConfig = {
   listSummaryColumnRenderProps: {
@@ -39,7 +40,7 @@ export type BusinessProcessListConfig = {
       label: string;
     }[];
   };
-}
+};
 
 export type CreateProcessInstanceInput = {
   title: string;
@@ -50,40 +51,40 @@ export type CreateProcessInstanceInput = {
   formData: Record<string, any>;
   variables: Record<string, any>;
   state: string;
-}
+};
 
 export type StartProcessInstanceInput = {
   instanceId: number;
   processId: number;
-}
+};
 
 export type UpdateProcessInstanceOptions = Pick<BpmInstance, "id" | "formData" | "variables" | "currentJob">;
 
 export type FlowConfig = {
   nodes?: FlowNode[];
-}
+};
 
 export type FlowNodeTransfer = {
   operation: string;
   nextNodeId: string;
-}
+};
 
 export type StartActivityJobOptions = {
   job: BpmJob;
   activityNodeConfig: ActivityFlowNode;
   processInstance: BpmInstance;
-}
+};
 
 export type FinishActivityJobOptions = {
   job: any;
   activityNodeConfig: ActivityFlowNode;
   processInstance: BpmInstance;
   jobResolution?: ActivityJobResolution;
-}
+};
 
 export interface ActivityWorker {
-  startJob(options: StartActivityJobOptions): Promise<void>;
-  finishJob(options: FinishActivityJobOptions): Promise<void>;
+  startJob(routeContext: RouteContext, options: StartActivityJobOptions): Promise<void>;
+  finishJob(routeContext: RouteContext, options: FinishActivityJobOptions): Promise<void>;
 }
 
 export type FlowNode = StartEventFlowNode | EndEventFlowNode | ActivityFlowNode;
@@ -93,13 +94,13 @@ export type StartEventFlowNode = {
   nodeId: string;
   nodeTitle?: string;
   transfers: FlowNodeTransfer[];
-}
+};
 
 export type EndEventFlowNode = {
   nodeType: "endEvent";
   nodeId: string;
   nodeTitle?: string;
-}
+};
 
 export type ActivityFlowNode = ApprovalActivityFlowNode | UpdateEntityActivityFlowNode;
 
@@ -108,12 +109,12 @@ export type ActivityFlowNodeBase = {
   nodeId: string;
   nodeTitle?: string;
   transfers: FlowNodeTransfer[];
-}
+};
 
 export type ApprovalActivityFlowNode = ActivityFlowNodeBase & {
   activityType: "approval";
   activityConfig: ApprovalActivityConfig;
-}
+};
 
 export type ApprovalActivityConfig = {
   $exps?: Record<string, string>;
@@ -131,17 +132,17 @@ export type ApprovalActivityConfig = {
   /**
    * 审批人类型。specifiedUser 表示指定用户；specifiedRole 表示指定角色；initiator 表示发起人。
    */
-  approverType: "specifiedUser" | "specifiedRole" | "initiator",
+  approverType: "specifiedUser" | "specifiedRole" | "initiator";
   approverRange: {
     users?: number[];
     roles?: number[];
     roleCodes?: string[];
-  },
+  };
   /**
    * 多人审批策略。everyone表示会签，anyone表示或签，sequence表示串签/依次审批。
    */
   groupDecisionPolicy: "everyone" | "anyone" | "sequence";
-}
+};
 
 export type ActivityJobOperation = ServiceJobOperation | ApprovalJobOperation;
 
@@ -160,11 +161,11 @@ export type ApprovalTaskResolution = "approved" | "rejected" | "canceled" | "aut
 export type UpdateEntityActivityFlowNode = ActivityFlowNodeBase & {
   activityType: "updateEntity";
   activityConfig: UpdateEntityActivityConfig;
-}
+};
 
 export type UpdateEntityActivityConfig = {
   $exps?: Record<string, string>;
   entitySingularCode?: string;
   entityId?: number;
   entityToSave?: Record<string, any>;
-}
+};

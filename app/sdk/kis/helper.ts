@@ -1,6 +1,6 @@
-import {IRpdServer} from "@ruiapp/rapid-core";
+import { IRpdServer, RouteContext } from "@ruiapp/rapid-core";
 import KingdeeSDK from "~/sdk/kis/api";
-import {KisConfig} from "~/_definitions/meta/entity-types";
+import { KisConfig } from "~/_definitions/meta/entity-types";
 
 class KisHelper {
   private server: IRpdServer;
@@ -11,7 +11,8 @@ class KisHelper {
 
   public async NewAPIClient() {
     const kisConfigManager = this.server.getEntityManager<KisConfig>("kis_config");
-    const ksc = await kisConfigManager.findEntity({});
+    const routeContext = new RouteContext(this.server);
+    const ksc = await kisConfigManager.findEntity({ routeContext });
 
     if (!ksc) {
       throw new Error("Kis config not found");
@@ -31,7 +32,6 @@ class KisHelper {
       gatewayRouterAddr: ksc.gateway_router_addr,
     });
   }
-
 }
 
 export default KisHelper;

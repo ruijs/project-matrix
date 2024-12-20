@@ -1,4 +1,4 @@
-import type {ActionHandlerContext, ServerOperation} from "@ruiapp/rapid-core";
+import type { ActionHandlerContext, ServerOperation } from "@ruiapp/rapid-core";
 
 export default {
   code: "listMyAllowedSysActions",
@@ -6,7 +6,7 @@ export default {
   method: "GET",
 
   async handler(ctx: ActionHandlerContext) {
-    const {server} = ctx;
+    const { server, routerContext: routeContext } = ctx;
     const currentUserId = ctx.routerContext.state.userId;
 
     const actions = await server.queryDatabaseObject(
@@ -15,6 +15,7 @@ export default {
       inner join oc_role_user_links ru on ru.role_id = ra.role_id
       where ru.user_id = $1;`,
       [currentUserId],
+      routeContext.getDbTransactionClient(),
     );
 
     ctx.output = actions.map((item) => item.code);

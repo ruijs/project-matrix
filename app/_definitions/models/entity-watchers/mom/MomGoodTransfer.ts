@@ -1,10 +1,12 @@
-import type {EntityWatcher, EntityWatchHandlerContext, IRpdServer} from "@ruiapp/rapid-core";
+import type { EntityWatcher, EntityWatchHandlerContext, IRpdServer, RouteContext } from "@ruiapp/rapid-core";
 import {
   type BaseLot,
   type BaseMaterial,
   MomGood,
-  MomGoodTransfer, MomInspectionSheet,
-  MomInventoryApplication, MomInventoryApplicationItem,
+  MomGoodTransfer,
+  MomInspectionSheet,
+  MomInventoryApplication,
+  MomInventoryApplicationItem,
   type MomInventoryBusinessType,
   type MomInventoryOperation,
   type SaveBaseLotInput,
@@ -12,18 +14,18 @@ import {
   SaveMomInventoryOperationInput,
 } from "~/_definitions/meta/entity-types";
 import dayjs from "dayjs";
-import {updateInventoryBalance} from "~/_definitions/models/server-operations/mom/splitGoods";
-import {before} from "lodash";
+import { updateInventoryBalance } from "~/_definitions/models/server-operations/mom/splitGoods";
+import EntityManager from "@ruiapp/rapid-core/dist/dataAccess/entityManager";
 
 interface MaterialAcceptCountMap {
-  [materialId: number]: LotAcceptCountMap
+  [materialId: number]: LotAcceptCountMap;
 }
 
 interface LotAcceptCountMap {
   [lotNum: string]: {
     quantity: number;
     palletCount: number;
-  }
+  };
 }
 
 export default [
@@ -31,7 +33,7 @@ export default [
     eventName: "entity.beforeCreate",
     modelSingularCode: "mom_good_transfer",
     handler: async (ctx: EntityWatchHandlerContext<"entity.beforeCreate">) => {
-      const { server, payload } = ctx;
+      const { server, routerContext: routeContext, payload } = ctx;
       let before = payload.before;
       try {
         const goodManager = server.getEntityManager<MomGood>("mom_good");
@@ -39,18 +41,19 @@ export default [
         const inventoryOperationManager = server.getEntityManager<MomInventoryOperation>("mom_inventory_operation");
 
         const material = await materialManager.findEntity({
+          routeContext,
           filters: [{ operator: "eq", field: "id", value: before.material.id }],
           properties: ["id", "code", "defaultUnit", "qualityGuaranteePeriod", "isInspectionFree"],
-        })
+        });
 
         if (before.hasOwnProperty("lotNum") && before.hasOwnProperty("material")) {
-
           const inventoryOperation = await inventoryOperationManager.findEntity({
+            routeContext,
             filters: [{ operator: "eq", field: "id", value: before.operation_id }],
             properties: ["id", "businessType"],
-          })
+          });
 
-          const lot = await saveMaterialLotInfo(server, {
+          const lot = await saveMaterialLotInfo(server, routeContext, {
             lotNum: before.lotNum,
             material: before.material,
             sourceType: inventoryOperation?.businessType?.config?.defaultSourceType || null,
@@ -76,11 +79,10 @@ export default [
               unit: { id: material.defaultUnit?.id },
               state: "pending",
             } as SaveMomGoodInput;
-            const good = await findOrCreateGood(goodManager, goodInput);
+            const good = await findOrCreateGood(routeContext, goodManager, goodInput);
             before.good_id = good.id;
           }
         }
-
       } catch (e) {
         console.error(e);
       }
@@ -90,53 +92,54 @@ export default [
     eventName: "entity.create",
     modelSingularCode: "mom_good_transfer",
     handler: async (ctx: EntityWatchHandlerContext<"entity.create">) => {
-      const { server, payload } = ctx;
+      const { server, routerContext: routeContext, payload } = ctx;
       let after = payload.after;
 
-
       try {
-
         const inventoryOperationManager = server.getEntityManager<MomInventoryOperation>("mom_inventory_operation");
 
         const inventoryOperation = await inventoryOperationManager.findEntity({
+          routeContext,
           filters: [{ operator: "eq", field: "id", value: after.operation_id || after.operation.id }],
           properties: ["id", "application", "businessType", "operationType"],
-        })
+        });
 
-        let materialAcceptCountMap: MaterialAcceptCountMap = {}
+        let materialAcceptCountMap: MaterialAcceptCountMap = {};
         if (inventoryOperation?.operationType === "in") {
           const goodTransfers = await server.getEntityManager<MomGoodTransfer>("mom_good_transfer").findEntities({
+            routeContext,
             filters: [{ operator: "eq", field: "operation_id", value: inventoryOperation.id }],
-            properties: ["id", "lotNum", "lot", "material", "quantity"]
-          })
+            properties: ["id", "lotNum", "lot", "material", "quantity"],
+          });
 
           goodTransfers.forEach((goodTransfer) => {
             if (goodTransfer.material && goodTransfer.material.id && goodTransfer.lotNum && goodTransfer.quantity) {
               if (!materialAcceptCountMap[goodTransfer.material.id]) {
-                materialAcceptCountMap[goodTransfer.material.id] = {}
+                materialAcceptCountMap[goodTransfer.material.id] = {};
               }
 
               if (!materialAcceptCountMap[goodTransfer.material.id][goodTransfer.lotNum]) {
                 materialAcceptCountMap[goodTransfer.material.id][goodTransfer.lotNum] = {
                   quantity: 0,
-                  palletCount: 0
-                }
+                  palletCount: 0,
+                };
               }
-              materialAcceptCountMap[goodTransfer.material.id][goodTransfer.lotNum].quantity += goodTransfer.quantity
-              materialAcceptCountMap[goodTransfer.material.id][goodTransfer.lotNum].palletCount += 1
+              materialAcceptCountMap[goodTransfer.material.id][goodTransfer.lotNum].quantity += goodTransfer.quantity;
+              materialAcceptCountMap[goodTransfer.material.id][goodTransfer.lotNum].palletCount += 1;
             }
-          })
+          });
 
           for (let materialId in materialAcceptCountMap) {
-            let lotAcceptCountMap = materialAcceptCountMap[materialId]
+            let lotAcceptCountMap = materialAcceptCountMap[materialId];
             for (let lotNum in lotAcceptCountMap) {
               const applicationItems = await server.getEntityManager<MomInventoryApplicationItem>("mom_inventory_application_item").findEntities({
+                routeContext,
                 filters: [
                   { operator: "eq", field: "lotNum", value: lotNum },
                   { operator: "eq", field: "material_id", value: materialId },
                   { operator: "eq", field: "operation_id", value: inventoryOperation?.application?.id },
                 ],
-              })
+              });
 
               for (let applicationItem of applicationItems) {
                 await server.getEntityManager<MomInventoryApplicationItem>("mom_inventory_application_item").updateEntityById({
@@ -144,28 +147,29 @@ export default [
                   id: applicationItem.id,
                   entityToSave: {
                     acceptQuantity: lotAcceptCountMap[lotNum].quantity,
-                    acceptPalletCount: lotAcceptCountMap[lotNum].palletCount
-                  }
-                })
+                    acceptPalletCount: lotAcceptCountMap[lotNum].palletCount,
+                  },
+                });
               }
 
               const inspectionSheet = await server.getEntityManager<MomInspectionSheet>("mom_inspection_sheet").findEntity({
+                routeContext,
                 filters: [
                   { operator: "eq", field: "lotNum", value: lotNum },
                   { operator: "eq", field: "material_id", value: materialId },
                   { operator: "eq", field: "inventory_operation_id", value: inventoryOperation?.id },
                 ],
-              })
+              });
 
               if (inspectionSheet) {
                 await server.getEntityManager<MomInspectionSheet>("mom_inspection_sheet").updateEntityById({
-                  routeContext: ctx.routerContext,
+                  routeContext,
                   id: inspectionSheet.id,
                   entityToSave: {
                     acceptQuantity: lotAcceptCountMap[lotNum].quantity,
-                    acceptPalletCount: lotAcceptCountMap[lotNum].palletCount
-                  }
-                })
+                    acceptPalletCount: lotAcceptCountMap[lotNum].palletCount,
+                  },
+                });
               }
             }
           }
@@ -173,47 +177,49 @@ export default [
 
         if (inventoryOperation?.operationType === "out") {
           const goodTransfers = await server.getEntityManager<MomGoodTransfer>("mom_good_transfer").findEntities({
+            routeContext,
             filters: [{ operator: "eq", field: "operation_id", value: inventoryOperation.id }],
-            properties: ["id", "lotNum", "lot", "material", "quantity"]
-          })
+            properties: ["id", "lotNum", "lot", "material", "quantity"],
+          });
 
           goodTransfers.forEach((goodTransfer) => {
             if (goodTransfer.material && goodTransfer.material.id && goodTransfer.lotNum && goodTransfer.quantity) {
               if (!materialAcceptCountMap[goodTransfer.material.id]) {
-                materialAcceptCountMap[goodTransfer.material.id] = {}
+                materialAcceptCountMap[goodTransfer.material.id] = {};
               }
 
               if (!materialAcceptCountMap[goodTransfer.material.id][goodTransfer.lotNum]) {
                 materialAcceptCountMap[goodTransfer.material.id][goodTransfer.lotNum] = {
                   quantity: 0,
-                  palletCount: 0
-                }
+                  palletCount: 0,
+                };
               }
-              materialAcceptCountMap[goodTransfer.material.id][goodTransfer.lotNum].quantity += goodTransfer.quantity
-              materialAcceptCountMap[goodTransfer.material.id][goodTransfer.lotNum].palletCount += 1
+              materialAcceptCountMap[goodTransfer.material.id][goodTransfer.lotNum].quantity += goodTransfer.quantity;
+              materialAcceptCountMap[goodTransfer.material.id][goodTransfer.lotNum].palletCount += 1;
             }
-          })
+          });
 
           for (let materialId in materialAcceptCountMap) {
-            let lotAcceptCountMap = materialAcceptCountMap[materialId]
+            let lotAcceptCountMap = materialAcceptCountMap[materialId];
             for (let lotNum in lotAcceptCountMap) {
               const applicationItems = await server.getEntityManager<MomInventoryApplicationItem>("mom_inventory_application_item").findEntities({
+                routeContext,
                 filters: [
                   { operator: "eq", field: "lotNum", value: lotNum },
                   { operator: "eq", field: "material_id", value: materialId },
                   { operator: "eq", field: "operation_id", value: inventoryOperation?.application?.id },
                 ],
-              })
+              });
 
               for (let applicationItem of applicationItems) {
                 await server.getEntityManager<MomInventoryApplicationItem>("mom_inventory_application_item").updateEntityById({
-                  routeContext: ctx.routerContext,
+                  routeContext,
                   id: applicationItem.id,
                   entityToSave: {
                     acceptQuantity: lotAcceptCountMap[lotNum].quantity,
-                    acceptPalletCount: lotAcceptCountMap[lotNum].palletCount
-                  }
-                })
+                    acceptPalletCount: lotAcceptCountMap[lotNum].palletCount,
+                  },
+                });
               }
             }
           }
@@ -221,18 +227,19 @@ export default [
 
         if (inventoryOperation?.operationType === "organize" && after.good_id) {
           await server.getEntityManager<MomGood>("mom_good").updateEntityById({
-            routeContext: ctx.routerContext,
+            routeContext,
             id: after.good_id,
             entityToSave: {
               location: { id: after.to?.id || after.to_location_id },
               putInTime: dayjs().format("YYYY-MM-DD HH:mm:ss"),
             },
-          })
-          await updateInventoryBalance(server);
+          });
+          await updateInventoryBalance(server, routeContext);
         }
 
         if (inventoryOperation?.businessType?.operationType === "out") {
           const inventoryApplication = await server.getEntityManager<MomInventoryApplication>("mom_inventory_application").findEntity({
+            routeContext,
             filters: [
               {
                 operator: "eq",
@@ -243,9 +250,9 @@ export default [
             properties: ["id", "from", "to", "businessType"],
           });
 
-
           if (inventoryApplication?.businessType && inventoryApplication.businessType.name == "库存调拨") {
             const inventoryInOperation = await server.getEntityManager<MomInventoryOperation>("mom_inventory_operation").findEntity({
+              routeContext,
               filters: [
                 {
                   operator: "eq",
@@ -255,13 +262,14 @@ export default [
                 {
                   operator: "eq",
                   field: "operation_type",
-                  value: 'in',
+                  value: "in",
                 },
               ],
               properties: ["id", "from", "to", "businessType"],
             });
 
             const inventoryBusinessType = await server.getEntityManager<MomInventoryBusinessType>("mom_inventory_business_type").findEntity({
+              routeContext,
               filters: [
                 {
                   operator: "eq",
@@ -272,9 +280,9 @@ export default [
               properties: ["id", "operationType"],
             });
 
-
             if (inventoryInOperation) {
               const goodTransfer = await server.getEntityManager<MomGoodTransfer>("mom_good_transfer").findEntity({
+                routeContext,
                 filters: [
                   {
                     operator: "eq",
@@ -300,16 +308,14 @@ export default [
                   orderNum: 1,
                 } as MomGoodTransfer;
 
-                await server.getEntityManager<MomGoodTransfer>("mom_good_transfer").createEntity(
-                  {
-                    entity: transferInput,
-                  }
-                )
+                await server.getEntityManager<MomGoodTransfer>("mom_good_transfer").createEntity({
+                  routeContext,
+                  entity: transferInput,
+                });
               }
-
             } else {
-
               const goodTransfer = await server.getEntityManager<MomGoodTransfer>("mom_good_transfer").findEntity({
+                routeContext,
                 filters: [
                   {
                     operator: "eq",
@@ -326,7 +332,7 @@ export default [
                 state: "processing",
                 businessType: { id: inventoryBusinessType?.id },
                 warehouse: { id: inventoryApplication?.to?.id },
-              } as SaveMomInventoryOperationInput
+              } as SaveMomInventoryOperationInput;
 
               // convert goodTransfers to inventoryOperationInput.transfers
               let transfers = [];
@@ -345,11 +351,12 @@ export default [
                 } as MomGoodTransfer);
               }
 
-              inventoryOperationInput.transfers = transfers
+              inventoryOperationInput.transfers = transfers;
 
               await inventoryOperationManager.createEntity({
+                routeContext,
                 entity: inventoryOperationInput,
-              })
+              });
             }
           }
         }
@@ -362,10 +369,11 @@ export default [
     eventName: "entity.beforeDelete",
     modelSingularCode: "mom_good_transfer",
     handler: async (ctx: EntityWatchHandlerContext<"entity.beforeDelete">) => {
-      const { server, payload } = ctx;
+      const { server, routerContext: routeContext, payload } = ctx;
       const before = payload.before;
       try {
         const operationTarget = await server.getEntityManager<MomGoodTransfer>("mom_good_transfer").findEntity({
+          routeContext,
           filters: [
             {
               operator: "eq",
@@ -377,14 +385,15 @@ export default [
         });
         if (ctx?.routerContext?.state.userId) {
           await server.getEntityManager("sys_audit_log").createEntity({
+            routeContext,
             entity: {
               user: { id: ctx?.routerContext?.state.userId },
               targetSingularCode: "mom_inspection_sheet",
-              targetSingularName: `库存操作记录 - ${ operationTarget?.operation?.code } - ${ operationTarget?.material?.name } - ${ operationTarget?.binNum } - ${ operationTarget?.lotNum }`,
+              targetSingularName: `库存操作记录 - ${operationTarget?.operation?.code} - ${operationTarget?.material?.name} - ${operationTarget?.binNum} - ${operationTarget?.lotNum}`,
               method: "delete",
               before: before,
-            }
-          })
+            },
+          });
         }
       } catch (e) {
         console.error(e);
@@ -395,83 +404,87 @@ export default [
     eventName: "entity.delete",
     modelSingularCode: "mom_good_transfer",
     handler: async (ctx: EntityWatchHandlerContext<"entity.delete">) => {
-      const { server, payload } = ctx;
+      const { server, routerContext: routeContext, payload } = ctx;
       const changes = payload.before;
       try {
         const inventoryOperationManager = server.getEntityManager<MomInventoryOperation>("mom_inventory_operation");
 
         const inventoryOperation = await inventoryOperationManager.findEntity({
+          routeContext,
           filters: [{ operator: "eq", field: "id", value: changes.operation_id }],
           properties: ["id", "application", "businessType", "operationType"],
-        })
+        });
 
-        let lotAcceptCountMap: LotAcceptCountMap = {}
+        let lotAcceptCountMap: LotAcceptCountMap = {};
         if (inventoryOperation?.operationType === "in") {
           const goodTransfers = await server.getEntityManager<MomGoodTransfer>("mom_good_transfer").findEntities({
+            routeContext,
             filters: [{ operator: "eq", field: "operation_id", value: inventoryOperation.id }],
-          })
+          });
 
           goodTransfers.forEach((goodTransfer) => {
             if (goodTransfer.lotNum && goodTransfer.quantity) {
               if (!lotAcceptCountMap[goodTransfer.lotNum]) {
                 lotAcceptCountMap[goodTransfer.lotNum] = {
                   quantity: 0,
-                  palletCount: 0
-                }
+                  palletCount: 0,
+                };
               }
-              lotAcceptCountMap[goodTransfer.lotNum].quantity += goodTransfer.quantity
-              lotAcceptCountMap[goodTransfer.lotNum].palletCount += 1
+              lotAcceptCountMap[goodTransfer.lotNum].quantity += goodTransfer.quantity;
+              lotAcceptCountMap[goodTransfer.lotNum].palletCount += 1;
             }
-          })
+          });
 
           for (let lotNum in lotAcceptCountMap) {
             const applicationItems = await server.getEntityManager<MomInventoryApplicationItem>("mom_inventory_application_item").findEntities({
+              routeContext,
               filters: [
                 { operator: "eq", field: "lotNum", value: lotNum },
                 { operator: "eq", field: "operation_id", value: inventoryOperation?.application?.id },
               ],
-            })
+            });
 
             for (let applicationItem of applicationItems) {
               await server.getEntityManager<MomInventoryApplicationItem>("mom_inventory_application_item").updateEntityById({
-                routeContext: ctx.routerContext,
+                routeContext,
                 id: applicationItem.id,
                 entityToSave: {
                   acceptQuantity: lotAcceptCountMap[lotNum].quantity,
-                  acceptPalletCount: lotAcceptCountMap[lotNum].palletCount
-                }
-              })
+                  acceptPalletCount: lotAcceptCountMap[lotNum].palletCount,
+                },
+              });
             }
 
             const inspectionSheet = await server.getEntityManager<MomInspectionSheet>("mom_inspection_sheet").findEntity({
+              routeContext,
               filters: [
                 { operator: "eq", field: "lotNum", value: lotNum },
                 { operator: "eq", field: "inventory_operation_id", value: inventoryOperation?.id },
               ],
-            })
+            });
 
             if (inspectionSheet) {
               await server.getEntityManager<MomInspectionSheet>("mom_inspection_sheet").updateEntityById({
-                routeContext: ctx.routerContext,
+                routeContext,
                 id: inspectionSheet.id,
                 entityToSave: {
                   acceptQuantity: lotAcceptCountMap[lotNum].quantity,
-                  acceptPalletCount: lotAcceptCountMap[lotNum].palletCount
-                }
-              })
+                  acceptPalletCount: lotAcceptCountMap[lotNum].palletCount,
+                },
+              });
             }
           }
 
           if (changes.good_id) {
             const goodManager = server.getEntityManager<MomGood>("mom_good");
-            const good = await goodManager.findById(changes.good_id);
+            const good = await goodManager.findById({ routeContext, id: changes.good_id });
 
             if (good) {
               await goodManager.deleteById(good.id);
             }
           }
 
-          await updateInventoryBalance(server)
+          await updateInventoryBalance(server, routeContext);
         }
       } catch (e) {
         console.error(e);
@@ -482,11 +495,12 @@ export default [
     eventName: "entity.update",
     modelSingularCode: "mom_good_transfer",
     handler: async (ctx: EntityWatchHandlerContext<"entity.update">) => {
-      const { server, payload } = ctx;
+      const { server, routerContext: routeContext, payload } = ctx;
       const changes = payload.changes;
       const before = payload.before;
       try {
         const operationTarget = await server.getEntityManager<MomGoodTransfer>("mom_good_transfer").findEntity({
+          routeContext,
           filters: [
             {
               operator: "eq",
@@ -499,29 +513,29 @@ export default [
 
         if (changes && ctx?.routerContext?.state.userId) {
           await server.getEntityManager("sys_audit_log").createEntity({
+            routeContext,
             entity: {
               user: { id: ctx?.routerContext?.state.userId },
               targetSingularCode: "mom_good_transfer",
-              targetSingularName: `库存操作记录 - ${ operationTarget?.operation?.code } -物料:${ operationTarget?.material?.name } -批号:${ operationTarget?.lotNum } -托盘号:${ operationTarget?.binNum }`,
+              targetSingularName: `库存操作记录 - ${operationTarget?.operation?.code} -物料:${operationTarget?.material?.name} -批号:${operationTarget?.lotNum} -托盘号:${operationTarget?.binNum}`,
               method: "update",
               changes: changes,
               before: before,
-            }
-          })
+            },
+          });
         }
 
-        if (changes && changes.hasOwnProperty('quantity')) {
+        if (changes && changes.hasOwnProperty("quantity")) {
           await server.getEntityManager<MomGood>("mom_good").updateEntityById({
+            routeContext,
             id: operationTarget?.good?.id,
             entityToSave: {
               quantity: changes.quantity,
-            }
-          })
+            },
+          });
         }
 
-
-        await updateInventoryBalance(server)
-
+        await updateInventoryBalance(server, routeContext);
       } catch (e) {
         console.error(e);
       }
@@ -529,24 +543,26 @@ export default [
   },
 ] satisfies EntityWatcher<any>[];
 
-async function saveMaterialLotInfo(server: IRpdServer, lot: SaveBaseLotInput) {
+async function saveMaterialLotInfo(server: IRpdServer, routeContext: RouteContext, lot: SaveBaseLotInput) {
   if (!lot.lotNum || !lot.material || !lot.material.id) {
     throw new Error("lotNum and material are required when saving lot info.");
   }
 
   const baseLotManager = server.getEntityManager<BaseLot>("base_lot");
   const lotInDb = await baseLotManager.findEntity({
+    routeContext,
     filters: [
       { operator: "eq", field: "lot_num", value: lot.lotNum },
       { operator: "eq", field: "material_id", value: lot.material.id },
     ],
   });
 
-  return lotInDb || (await baseLotManager.createEntity({ entity: lot }));
+  return lotInDb || (await baseLotManager.createEntity({ routeContext, entity: lot }));
 }
 
-async function findOrCreateGood(goodManager: any, input: SaveMomGoodInput) {
+async function findOrCreateGood(routeContext: RouteContext, goodManager: EntityManager, input: SaveMomGoodInput) {
   let good = await goodManager.findEntity({
+    routeContext,
     filters: [
       { operator: "eq", field: "material_id", value: input.material?.id },
       { operator: "eq", field: "lot_num", value: input.lotNum },
@@ -556,8 +572,9 @@ async function findOrCreateGood(goodManager: any, input: SaveMomGoodInput) {
   });
 
   if (!good) {
-    good = await goodManager.createEntity({ entity: input });
+    good = await goodManager.createEntity({ routeContext, entity: input });
     good = await goodManager.findEntity({
+      routeContext,
       filters: [{ operator: "eq", field: "id", value: good.id }],
       properties: ["id", "material", "lotNum", "binNum", "quantity", "unit", "lot"],
     });

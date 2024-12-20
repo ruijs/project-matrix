@@ -1,11 +1,5 @@
-import type {
-  ActionHandlerContext,
-  EntityWatcher,
-  EntityWatchHandlerContext,
-  IRpdServer,
-  RouteContext
-} from "@ruiapp/rapid-core";
-import {MomInventoryOperationType} from "~/_definitions/meta/data-dictionary-types";
+import type { ActionHandlerContext, EntityWatcher, EntityWatchHandlerContext, IRpdServer, RouteContext } from "@ruiapp/rapid-core";
+import { MomInventoryOperationType } from "~/_definitions/meta/data-dictionary-types";
 import {
   BaseLocation,
   KisConfig,
@@ -21,22 +15,22 @@ import {
   SaveMomGoodInput,
   SaveMomInventoryOperationInput,
 } from "~/_definitions/meta/entity-types";
-import InventoryStatService, {StatTableConfig} from "~/services/InventoryStatService";
+import InventoryStatService, { StatTableConfig } from "~/services/InventoryStatService";
 import KisHelper from "~/sdk/kis/helper";
-import KisInventoryOperationAPI, {WarehouseEntry} from "~/sdk/kis/inventory";
+import KisInventoryOperationAPI, { WarehouseEntry } from "~/sdk/kis/inventory";
 import rapidApi from "~/rapidApi";
-import {getNowString} from "~/utils/time-utils";
+import { getNowString } from "~/utils/time-utils";
 import dayjs from "dayjs";
-import {isPlainObject} from "lodash";
-import {updateInventoryBalance} from "~/_definitions/models/server-operations/mom/splitGoods";
-import {handleKisOperation} from "~/_definitions/models/server-operations/mom/handleKisOperation";
+import { isPlainObject } from "lodash";
+import { updateInventoryBalance } from "~/_definitions/models/server-operations/mom/splitGoods";
+import { handleKisOperation } from "~/_definitions/models/server-operations/mom/handleKisOperation";
 
 export default [
   {
     eventName: "entity.beforeCreate",
     modelSingularCode: "mom_inventory_operation",
     handler: async (ctx: EntityWatchHandlerContext<"entity.beforeCreate">) => {
-      const { server, payload } = ctx;
+      const { server, routerContext: routeContext, payload } = ctx;
       let before = payload.before;
       try {
         let applicationId = before?.application_id ? before.application_id : before?.application;
@@ -45,6 +39,7 @@ export default [
         }
         if (applicationId && applicationId > 0) {
           const application = await server.getEntityManager<MomInventoryApplication>("mom_inventory_application").findEntity({
+            routeContext,
             filters: [
               {
                 operator: "eq",
@@ -72,13 +67,13 @@ export default [
     eventName: "entity.create",
     modelSingularCode: "mom_inventory_operation",
     handler: async (ctx: EntityWatchHandlerContext<"entity.create">) => {
-      const { server, payload } = ctx;
+      const { server, routerContext: routeContext, payload } = ctx;
       const changes = payload.after;
       try {
         if (changes?.application) {
           const applicationManager = server.getEntityManager<MomInventoryApplication>("mom_inventory_application");
           await applicationManager.updateEntityById({
-            routeContext: ctx.routerContext,
+            routeContext,
             id: changes.application.id,
             entityToSave: {
               operationState: "processing",
@@ -94,7 +89,7 @@ export default [
     eventName: "entity.update",
     modelSingularCode: "mom_inventory_operation",
     handler: async (ctx: EntityWatchHandlerContext<"entity.update">) => {
-      const { server, payload } = ctx;
+      const { server, routerContext: routeContext, payload } = ctx;
       const kisApi = await new KisHelper(server).NewAPIClient();
       const kisOperationApi = new KisInventoryOperationAPI(kisApi);
 
@@ -106,6 +101,7 @@ export default [
         const inventoryOperationManager = server.getEntityManager<MomInventoryOperation>("mom_inventory_operation");
 
         const inventoryOperation = await inventoryOperationManager.findEntity({
+          routeContext,
           filters: [
             {
               operator: "eq",
@@ -113,10 +109,25 @@ export default [
               value: after.id,
             },
           ],
-          properties: ["id", "code", "application", "warehouse", "operationType", "businessType", "contractNum", "supplier", "customer", "externalCode", "createdBy", "state", "approvalState"],
+          properties: [
+            "id",
+            "code",
+            "application",
+            "warehouse",
+            "operationType",
+            "businessType",
+            "contractNum",
+            "supplier",
+            "customer",
+            "externalCode",
+            "createdBy",
+            "state",
+            "approvalState",
+          ],
         });
 
         const inventoryApplication = await server.getEntityManager<MomInventoryApplication>("mom_inventory_application").findEntity({
+          routeContext,
           filters: [
             {
               operator: "eq",
@@ -130,22 +141,20 @@ export default [
         if (inventoryApplication) {
           if (changes.hasOwnProperty("externalCode")) {
             await server.getEntityManager<MomInventoryApplication>("mom_inventory_application").updateEntityById({
+              routeContext,
               id: inventoryApplication.id,
               entityToSave: {
-                externalCode: changes.externalCode
-              }
-            })
+                externalCode: changes.externalCode,
+              },
+            });
           }
         }
 
-
-
         if (changes.hasOwnProperty("approvalState") && changes.approvalState === "approved") {
-
           // 处理库存盘点
           if (inventoryApplication?.businessType && inventoryApplication.businessType.name === "库存盘点") {
-
             const inventoryBusinessTypes = await server.getEntityManager<MomInventoryBusinessType>("mom_inventory_business_type").findEntities({
+              routeContext,
               filters: [
                 {
                   operator: "or",
@@ -159,21 +168,20 @@ export default [
                       operator: "eq",
                       field: "name",
                       value: "盘亏出库",
-                    }
-                  ]
-                }
+                    },
+                  ],
+                },
               ],
               properties: ["id", "name", "code", "operationType"],
             });
 
             if (inventoryOperation) {
-
-              const resp = await rapidApi.post("app/listInventoryCheckTransfers", { "operationId": after.id });
+              const resp = await rapidApi.post("app/listInventoryCheckTransfers", { operationId: after.id });
 
               const records = resp.data;
 
               if (records) {
-                const profitInventoryBusinessType = inventoryBusinessTypes.find(item => item.name === "盘盈入库");
+                const profitInventoryBusinessType = inventoryBusinessTypes.find((item) => item.name === "盘盈入库");
 
                 let profitInventoryOperationInput = {
                   application_id: inventoryOperation.application?.id,
@@ -181,7 +189,7 @@ export default [
                   state: "processing",
                   approvalState: "uninitiated",
                   businessType: { id: profitInventoryBusinessType?.id },
-                } as SaveMomInventoryOperationInput
+                } as SaveMomInventoryOperationInput;
 
                 let profitTransfers = [];
                 for (const record of records) {
@@ -201,13 +209,14 @@ export default [
                   }
                 }
 
-                profitInventoryOperationInput.transfers = profitTransfers
+                profitInventoryOperationInput.transfers = profitTransfers;
 
                 await inventoryOperationManager.createEntity({
+                  routeContext,
                   entity: profitInventoryOperationInput,
-                })
+                });
 
-                const lossesInventoryBusinessType = inventoryBusinessTypes.find(item => item.name === "盘亏出库");
+                const lossesInventoryBusinessType = inventoryBusinessTypes.find((item) => item.name === "盘亏出库");
 
                 let lossesInventoryOperationInput = {
                   application_id: inventoryOperation.application?.id,
@@ -215,7 +224,7 @@ export default [
                   state: "done",
                   approvalState: "approved",
                   businessType: { id: lossesInventoryBusinessType?.id },
-                } as SaveMomInventoryOperationInput
+                } as SaveMomInventoryOperationInput;
 
                 let lossTransfers = [];
                 for (const record of records) {
@@ -235,22 +244,23 @@ export default [
                   }
                 }
 
-                profitInventoryOperationInput.transfers = lossTransfers
+                profitInventoryOperationInput.transfers = lossTransfers;
 
                 await inventoryOperationManager.createEntity({
+                  routeContext,
                   entity: lossesInventoryOperationInput,
-                })
+                });
               }
             }
           } else {
             if (inventoryOperation) {
-              let transfers = await listTransfersOfOperation(server, after.id);
+              let transfers = await listTransfersOfOperation(server, routeContext, after.id);
 
               if (inventoryOperation.operationType === "in") {
                 for (const transfer of transfers) {
                   if (transfer.good_id && transfer.to_location_id) {
                     await server.getEntityManager<MomGood>("mom_good").updateEntityById({
-                      routeContext: ctx.routerContext,
+                      routeContext,
                       id: transfer.good_id,
                       entityToSave: {
                         state: "normal",
@@ -266,7 +276,7 @@ export default [
                 for (const transfer of transfers) {
                   if (transfer.good_id) {
                     await server.getEntityManager<MomGood>("mom_good").updateEntityById({
-                      routeContext: ctx.routerContext,
+                      routeContext,
                       id: transfer.good_id,
                       entityToSave: {
                         state: "transferred",
@@ -276,8 +286,12 @@ export default [
                 }
               }
 
-              if ((inventoryOperation.operationType === "in" || inventoryOperation.operationType === "out") && inventoryOperation.businessType && inventoryOperation.businessType.id) {
-                await updateInventoryStats(server, inventoryOperation?.businessType?.id, inventoryOperation.operationType, transfers);
+              if (
+                (inventoryOperation.operationType === "in" || inventoryOperation.operationType === "out") &&
+                inventoryOperation.businessType &&
+                inventoryOperation.businessType.id
+              ) {
+                await updateInventoryStats(server, routeContext, inventoryOperation?.businessType?.id, inventoryOperation.operationType, transfers);
               }
             }
           }
@@ -286,7 +300,7 @@ export default [
         if (after.hasOwnProperty("state") && after.state === "done") {
           if (after?.application_id) {
             await server.getEntityManager<MomInventoryApplication>("mom_inventory_application").updateEntityById({
-              routeContext: ctx.routerContext,
+              routeContext,
               id: after.application_id,
               entityToSave: {
                 operationState: "done",
@@ -301,26 +315,26 @@ export default [
           //   console.log()
           // }
 
-
-          updateInventoryBalance(server)
+          updateInventoryBalance(server, routeContext);
         }
 
         if (changes) {
           if (ctx?.routerContext?.state.userId) {
             await server.getEntityManager("sys_audit_log").createEntity({
+              routeContext,
               entity: {
                 user: { id: ctx?.routerContext?.state.userId },
                 targetSingularCode: "mom_inventory_operation",
-                targetSingularName: `库存操作单 - ${ inventoryOperation?.businessType?.name } - ${ inventoryOperation?.code }`,
+                targetSingularName: `库存操作单 - ${inventoryOperation?.businessType?.name} - ${inventoryOperation?.code}`,
                 method: "update",
                 changes: changes,
                 before: before,
-              }
-            })
+              },
+            });
           }
         }
       } catch (e) {
-        console.log(e)
+        console.log(e);
       }
     },
   },
@@ -328,11 +342,12 @@ export default [
     eventName: "entity.beforeDelete",
     modelSingularCode: "mom_inventory_operation",
     handler: async (ctx: EntityWatchHandlerContext<"entity.beforeDelete">) => {
-      const { server, payload } = ctx;
+      const { server, routerContext: routeContext, payload } = ctx;
 
-      const before = payload.before
+      const before = payload.before;
       try {
         const inventoryOperation = await server.getEntityManager<MomInventoryOperation>("mom_inventory_operation").findEntity({
+          routeContext,
           filters: [
             {
               operator: "eq",
@@ -345,28 +360,28 @@ export default [
 
         if (ctx?.routerContext?.state.userId) {
           await server.getEntityManager("sys_audit_log").createEntity({
+            routeContext,
             entity: {
               user: { id: ctx?.routerContext?.state.userId },
               targetSingularCode: "mom_inventory_operation",
-              targetSingularName: `库存操作单 - ${ inventoryOperation?.businessType?.name } - ${ inventoryOperation?.code }`,
+              targetSingularName: `库存操作单 - ${inventoryOperation?.businessType?.name} - ${inventoryOperation?.code}`,
               method: "delete",
               before: before,
-            }
-          })
+            },
+          });
         }
-
       } catch (e) {
         console.error(e);
       }
     },
   },
-
 ] satisfies EntityWatcher<any>[];
 
-async function listTransfersOfOperation(server: IRpdServer, operationId: number) {
+async function listTransfersOfOperation(server: IRpdServer, routeContext: RouteContext, operationId: number) {
   const transferManager = server.getEntityManager("mom_good_transfer");
 
   return await transferManager.findEntities({
+    routeContext,
     filters: [
       {
         operator: "eq",
@@ -378,9 +393,15 @@ async function listTransfersOfOperation(server: IRpdServer, operationId: number)
   });
 }
 
-async function updateInventoryStats(server: IRpdServer, businessId: number, operationType: MomInventoryOperationType, transfers: any[]) {
+async function updateInventoryStats(
+  server: IRpdServer,
+  routeContext: RouteContext,
+  businessId: number,
+  operationType: MomInventoryOperationType,
+  transfers: any[],
+) {
   const businessTypeManager = server.getEntityManager<MomInventoryBusinessType>("mom_inventory_business_type");
-  const businessType = await businessTypeManager.findById(businessId);
+  const businessType = await businessTypeManager.findById({ routeContext, id: businessId });
   if (!businessType) {
     return;
   }
@@ -393,6 +414,7 @@ async function updateInventoryStats(server: IRpdServer, businessId: number, oper
   if (statTriggerName) {
     const statTriggerManager = server.getEntityManager<MomInventoryStatTrigger>("mom_inventory_stat_trigger");
     const statTrigger = await statTriggerManager.findEntity({
+      routeContext,
       filters: [
         {
           operator: "eq",
@@ -407,26 +429,26 @@ async function updateInventoryStats(server: IRpdServer, businessId: number, oper
   }
 
   const statTableManager = server.getEntityManager<MomInventoryStatTable>("mom_inventory_stat_table");
-  const statTables = await statTableManager.findEntities({});
+  const statTables = await statTableManager.findEntities({ routeContext });
 
   const inventoryStatService = new InventoryStatService(server);
 
   for (const transfer of transfers) {
     if (transfer?.to_location_id) {
-
       const warehouseId = await server.queryDatabaseObject(
         `
         SELECT get_root_location_id($1) AS id;
       `,
-        [transfer.to_location_id]
+        [transfer.to_location_id],
+        routeContext.getDbTransactionClient(),
       );
 
-      transfer['warehouse_id'] = warehouseId[0]?.id;
-
+      transfer["warehouse_id"] = warehouseId[0]?.id;
 
       if (transfer.lot_id) {
         const lotManager = server.getEntityManager<MomWarehouse>("base_lot");
         await lotManager.updateEntityById({
+          routeContext,
           id: transfer.lot_id,
           entityToSave: {
             state: "normal",
@@ -434,19 +456,20 @@ async function updateInventoryStats(server: IRpdServer, businessId: number, oper
         });
       }
 
-      transfer['location_id'] = transfer.to_location_id;
+      transfer["location_id"] = transfer.to_location_id;
     }
     if (transfer?.from_location_id) {
       const warehouseId = await server.queryDatabaseObject(
         `
         SELECT get_root_location_id($1) AS id;
       `,
-        [transfer.from_location_id]
+        [transfer.from_location_id],
+        routeContext.getDbTransactionClient(),
       );
 
-      transfer['warehouse_id'] = warehouseId[0]?.id;
+      transfer["warehouse_id"] = warehouseId[0]?.id;
 
-      transfer['location_id'] = transfer.from_location_id;
+      transfer["location_id"] = transfer.from_location_id;
     }
   }
 
@@ -464,7 +487,7 @@ async function updateInventoryStats(server: IRpdServer, businessId: number, oper
       //   quantityChange *= -1;
       // }
 
-      await inventoryStatService.changeInventoryQuantities({
+      await inventoryStatService.changeInventoryQuantities(routeContext, {
         balanceEntityCode: statTableConfig.balanceEntityCode,
         logEntityCode: statTableConfig.logEntityCode,
         quantityBalanceFields: quantityBalanceFields,

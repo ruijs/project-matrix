@@ -1,6 +1,6 @@
-import type { EntityWatchHandlerContext, EntityWatcher, IRpdServer } from "@ruiapp/rapid-core";
+import type { EntityWatchHandlerContext, EntityWatcher, IRpdServer, RouteContext } from "@ruiapp/rapid-core";
 
-async function updateTotalAmountOfOrderByOrderItemId(server: IRpdServer, orderItemId: any) {
+async function updateTotalAmountOfOrderByOrderItemId(server: IRpdServer, routeContext: RouteContext, orderItemId: any) {
   const sql = `
   with cte as (
       select order_id, sum(price * quantity) as total_amount
@@ -12,10 +12,10 @@ async function updateTotalAmountOfOrderByOrderItemId(server: IRpdServer, orderIt
   set total_amount = cte.total_amount
   from cte
   where id = cte.order_id;`;
-  await server.queryDatabaseObject(sql, [orderItemId]);
+  await server.queryDatabaseObject(sql, [orderItemId], routeContext.getDbTransactionClient());
 }
 
-async function updateTotalAmountOfOrderByOrderId(server: IRpdServer, orderId: any) {
+async function updateTotalAmountOfOrderByOrderId(server: IRpdServer, routeContext: RouteContext, orderId: any) {
   const sql = `
   with cte as (
       select order_id, sum(price * quantity) as total_amount
@@ -27,7 +27,7 @@ async function updateTotalAmountOfOrderByOrderId(server: IRpdServer, orderId: an
   set total_amount = cte.total_amount
   from cte
   where id = cte.order_id;`;
-  await server.queryDatabaseObject(sql, [orderId]);
+  await server.queryDatabaseObject(sql, [orderId], routeContext.getDbTransactionClient());
 }
 
 export default [
@@ -35,31 +35,31 @@ export default [
     eventName: "entity.create",
     modelSingularCode: "cbs_order_item",
     handler: async (ctx: EntityWatchHandlerContext<"entity.create">) => {
-      const { server, payload } = ctx;
+      const { server, routerContext: routeContext, payload } = ctx;
       const orderItem = payload.after;
-      await updateTotalAmountOfOrderByOrderItemId(server, orderItem.id);
+      await updateTotalAmountOfOrderByOrderItemId(server, routeContext, orderItem.id);
     },
   },
   {
     eventName: "entity.update",
     modelSingularCode: "cbs_order_item",
     handler: async (ctx: EntityWatchHandlerContext<"entity.update">) => {
-      const { server, payload } = ctx;
+      const { server, routerContext: routeContext, payload } = ctx;
       const { changes } = payload;
       if (!changes.hasOwnProperty("price") && !changes.hasOwnProperty("quantity")) {
         return;
       }
       const orderItem = payload.after;
-      await updateTotalAmountOfOrderByOrderItemId(server, orderItem.id);
+      await updateTotalAmountOfOrderByOrderItemId(server, routeContext, orderItem.id);
     },
   },
   {
     eventName: "entity.delete",
     modelSingularCode: "cbs_order_item",
     handler: async (ctx: EntityWatchHandlerContext<"entity.delete">) => {
-      const { server, payload } = ctx;
+      const { server, routerContext: routeContext, payload } = ctx;
       const orderItem = payload.before;
-      await updateTotalAmountOfOrderByOrderId(server, orderItem.order_id);
+      await updateTotalAmountOfOrderByOrderId(server, routeContext, orderItem.order_id);
     },
   },
 ] satisfies EntityWatcher<any>[];

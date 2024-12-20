@@ -1,6 +1,6 @@
-import type {ActionHandlerContext, CronJobConfiguration, IRpdServer} from "@ruiapp/rapid-core";
+import type { ActionHandlerContext, CronJobConfiguration, IRpdServer } from "@ruiapp/rapid-core";
 import KingdeeSDK from "~/sdk/kis/api";
-import {SaveKisConfigInput} from "~/_definitions/meta/entity-types";
+import { SaveKisConfigInput } from "~/_definitions/meta/entity-types";
 
 export default {
   code: "kis-update-tokens-job",
@@ -8,7 +8,7 @@ export default {
   cronTime: "* * * * *",
 
   async handler(ctx: ActionHandlerContext) {
-    const {server, logger} = ctx;
+    const { server, logger } = ctx;
     // handle kis config
     await refreshKisTokens(ctx, server);
 
@@ -16,12 +16,12 @@ export default {
   },
 } satisfies CronJobConfiguration;
 
-
 // handle kis config
 async function refreshKisTokens(ctx: ActionHandlerContext, server: IRpdServer) {
+  const { routerContext: routeContext } = ctx;
   const kisConfigManager = server.getEntityManager("kis_config");
 
-  const ksc = await kisConfigManager.findEntity({});
+  const ksc = await kisConfigManager.findEntity({ routeContext });
 
   const kis = new KingdeeSDK({
     baseURL: ksc.api_endpoint,
@@ -37,13 +37,12 @@ async function refreshKisTokens(ctx: ActionHandlerContext, server: IRpdServer) {
     gatewayRouterAddr: ksc.gateway_router_addr,
   });
 
-
-  await kis.ensureTokensAreValid()
+  await kis.ensureTokensAreValid();
 
   // update kis config
 
-
   const result = await kisConfigManager.updateEntityById({
+    routeContext,
     id: ksc.id,
     entityToSave: {
       access_token: kis.accessToken,
@@ -54,8 +53,8 @@ async function refreshKisTokens(ctx: ActionHandlerContext, server: IRpdServer) {
       session_id: kis.sessionId,
       session_id_expire_in: kis.sessionIdExpireIn,
       gateway_router_addr: kis.gatewayRouterAddr,
-    } as SaveKisConfigInput
-  })
+    } as SaveKisConfigInput,
+  });
 
-  console.log("Kis config updated:", result)
+  console.log("Kis config updated:", result);
 }

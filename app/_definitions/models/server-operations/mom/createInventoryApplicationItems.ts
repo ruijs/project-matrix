@@ -1,11 +1,11 @@
-import type {ActionHandlerContext, IRpdServer, ServerOperation,} from "@ruiapp/rapid-core";
+import type { ActionHandlerContext, IRpdServer, RouteContext, ServerOperation } from "@ruiapp/rapid-core";
 import type {
   BaseLot,
   BaseMaterial,
   MomInventoryApplication,
   MomInventoryApplicationItem,
   MomWarehouseStrategy,
-  SaveBaseLotInput, SaveMomInspectionSheetInput,
+  SaveBaseLotInput,
   SaveMomInventoryApplicationItemInput,
 } from "~/_definitions/meta/entity-types";
 
@@ -15,17 +15,17 @@ export type CreateInventoryApplicationItemInput = {
   unit: number;
   lotNum?: string;
   quantity?: number;
-  remark?:string;
+  remark?: string;
 };
 
 export default {
   code: "createInventoryApplicationItems",
   method: "POST",
   async handler(ctx: ActionHandlerContext) {
-    const {server} = ctx;
+    const { server, routerContext: routeContext } = ctx;
     const input: CreateInventoryApplicationItemInput = ctx.input;
 
-    await createInventoryApplicationItems(server, input);
+    await createInventoryApplicationItems(routeContext, server, input);
 
     ctx.output = {
       result: ctx.input,
@@ -33,12 +33,9 @@ export default {
   },
 } satisfies ServerOperation;
 
-export async function createInventoryApplicationItems(
-  server: IRpdServer,
-  input: CreateInventoryApplicationItemInput
-) {
-  const inventoryApplication = await getInventoryApplication(server, input.application);
-  const material = await getMaterial(server, input.material);
+export async function createInventoryApplicationItems(routeContext: RouteContext, server: IRpdServer, input: CreateInventoryApplicationItemInput) {
+  const inventoryApplication = await getInventoryApplication(routeContext, server, input.application);
+  const material = await getMaterial(routeContext, server, input.material);
 
   if (!material) {
     throw new Error("Material not found.");
@@ -60,45 +57,47 @@ export async function createInventoryApplicationItems(
   //   await handleOtherStrategies(server, input, inventoryApplication, material);
   // }
 
-  await handleOtherStrategies(server, input, inventoryApplication, material);
+  await handleOtherStrategies(routeContext, server, input, inventoryApplication, material);
 }
 
-async function getInventoryApplication(server: IRpdServer, applicationId: number) {
+async function getInventoryApplication(routeContext: RouteContext, server: IRpdServer, applicationId: number) {
   const inventoryApplicationManager = server.getEntityManager<MomInventoryApplication>("mom_inventory_application");
   return await inventoryApplicationManager.findEntity({
-    filters: [{field: "id", operator: "eq", value: applicationId}],
+    routeContext,
+    filters: [{ field: "id", operator: "eq", value: applicationId }],
     properties: ["id", "status", "operationType", "businessType"],
   });
 }
 
-async function getMaterial(server: IRpdServer, materialId: number) {
+async function getMaterial(routeContext: RouteContext, server: IRpdServer, materialId: number) {
   const materialManager = server.getEntityManager<BaseMaterial>("base_material");
   return await materialManager.findEntity({
-    filters: [{field: "id", operator: "eq", value: materialId}],
+    routeContext,
+    filters: [{ field: "id", operator: "eq", value: materialId }],
     properties: ["id", "name", "code", "category", "defaultUnit", "isInspectionFree"],
   });
 }
 
-async function getWarehouseStrategy(
-  server: IRpdServer,
-  materialCategoryId?: number,
-  businessTypeId?: number
-) {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+async function getWarehouseStrategy(routeContext: RouteContext, server: IRpdServer, materialCategoryId?: number, businessTypeId?: number) {
   const warehouseStrategyManager = server.getEntityManager<MomWarehouseStrategy>("mom_warehouse_strategy");
   return await warehouseStrategyManager.findEntity({
+    routeContext,
     filters: [
-      {field: "material_category_id", operator: "eq", value: materialCategoryId},
-      {field: "business_type_id", operator: "eq", value: businessTypeId},
-      {field: "enabled", operator: "eq", value: true},
+      { field: "material_category_id", operator: "eq", value: materialCategoryId },
+      { field: "business_type_id", operator: "eq", value: businessTypeId },
+      { field: "enabled", operator: "eq", value: true },
     ],
   });
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function handleFifoFdfoStrategy(
+  routeContext: RouteContext,
   server: IRpdServer,
   input: CreateInventoryApplicationItemInput,
   material: BaseMaterial,
-  warehouseStrategy: MomWarehouseStrategy
+  warehouseStrategy: MomWarehouseStrategy,
 ) {
   const warehouseStrategyStmt = getWarehouseStrategyStatement(warehouseStrategy.strategy);
   const strategyFilter = getStrategyFilter(warehouseStrategy);
@@ -120,28 +119,30 @@ async function handleFifoFdfoStrategy(
       FROM good_moving_sum_cte
       WHERE moving_sum <= $2;
     `,
-    [material.id, input.quantity]
+    [material.id, input.quantity],
+    routeContext.getDbTransactionClient(),
   );
 
   for (const good of goods) {
     const entitySave = createEntitySaveObject(input, material, good);
-    await saveInventoryApplicationItem(server, entitySave);
+    await saveInventoryApplicationItem(routeContext, server, entitySave);
   }
 }
 
 async function handleOtherStrategies(
+  routeContext: RouteContext,
   server: IRpdServer,
   input: CreateInventoryApplicationItemInput,
   inventoryApplication: MomInventoryApplication,
-  material: BaseMaterial
+  material: BaseMaterial,
 ) {
   if (!input.lotNum) {
     throw new Error("Lot number is required.");
   }
 
-  const lotInfo = await saveMaterialLotInfo(server, {
+  const lotInfo = await saveMaterialLotInfo(routeContext, server, {
     lotNum: input.lotNum,
-    material: {id: input.material},
+    material: { id: input.material },
     sourceType: inventoryApplication?.businessType?.config?.defaultSourceType || null,
     qualificationState: material.isInspectionFree ? "qualified" : inventoryApplication?.businessType?.config?.defaultQualificationState || "uninspected",
     isAOD: false,
@@ -151,9 +152,9 @@ async function handleOtherStrategies(
   const entitySave = createEntitySaveObject(input, material, {
     lot_num: input.lotNum,
     quantity: input.quantity,
-    lot_id: lotInfo.id
+    lot_id: lotInfo.id,
   });
-  await saveInventoryApplicationItem(server, entitySave);
+  await saveInventoryApplicationItem(routeContext, server, entitySave);
 }
 
 function getWarehouseStrategyStatement(strategy?: string): string {
@@ -178,45 +179,40 @@ function getStrategyFilter(warehouseStrategy: MomWarehouseStrategy): string {
   return strategyFilter;
 }
 
-function createEntitySaveObject(
-  input: CreateInventoryApplicationItemInput,
-  material: BaseMaterial,
-  good: any
-): SaveMomInventoryApplicationItemInput {
+function createEntitySaveObject(input: CreateInventoryApplicationItemInput, material: BaseMaterial, good: any): SaveMomInventoryApplicationItemInput {
   return {
-    application: {id: input.application},
-    material: {id: material.id},
-    unit: {id: material.defaultUnit?.id},
+    application: { id: input.application },
+    material: { id: material.id },
+    unit: { id: material.defaultUnit?.id },
     lotNum: good.lot_num,
     quantity: good.quantity,
     orderNum: 1,
     remark: input.remark,
-    lot: good.lot_id ? {id: good.lot_id} : undefined,
+    lot: good.lot_id ? { id: good.lot_id } : undefined,
   };
 }
 
-async function saveInventoryApplicationItem(
-  server: IRpdServer,
-  entitySave: SaveMomInventoryApplicationItemInput
-) {
+async function saveInventoryApplicationItem(routeContext: RouteContext, server: IRpdServer, entitySave: SaveMomInventoryApplicationItemInput) {
   const inventoryApplicationItemManager = server.getEntityManager<MomInventoryApplicationItem>("mom_inventory_application_item");
   await inventoryApplicationItemManager.createEntity({
+    routeContext,
     entity: entitySave,
   });
 }
 
-async function saveMaterialLotInfo(server: IRpdServer, lot: SaveBaseLotInput) {
+async function saveMaterialLotInfo(routeContext: RouteContext, server: IRpdServer, lot: SaveBaseLotInput) {
   if (!lot.lotNum || !lot.material || !lot.material.id) {
     throw new Error("lotNum and material are required when saving lot info.");
   }
 
   const baseLotManager = server.getEntityManager<BaseLot>("base_lot");
   const lotInDb = await baseLotManager.findEntity({
+    routeContext,
     filters: [
-      {operator: "eq", field: "lot_num", value: lot.lotNum},
-      {operator: "eq", field: "material_id", value: lot.material.id},
+      { operator: "eq", field: "lot_num", value: lot.lotNum },
+      { operator: "eq", field: "material_id", value: lot.material.id },
     ],
   });
 
-  return lotInDb || (await baseLotManager.createEntity({entity: lot}));
+  return lotInDb || (await baseLotManager.createEntity({ routeContext, entity: lot }));
 }
