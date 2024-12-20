@@ -1,5 +1,4 @@
-import type {ActionHandlerContext, IRpdServer, ServerOperation} from "@ruiapp/rapid-core";
-import {QueryGoodOutTransferInput} from "~/_definitions/models/server-operations/mom/listInventoryCheckTransfer";
+import type { ActionHandlerContext, IRpdServer, RouteContext, ServerOperation } from "@ruiapp/rapid-core";
 
 export type ListInventoryOperationCountInput = {
   warehouseId?: number;
@@ -12,22 +11,20 @@ export type ListInventoryOperationCountOutput = {
   completedCount: number;
 };
 
-
 export default {
   code: "listInventoryOperationCount",
   method: "POST",
   async handler(ctx: ActionHandlerContext) {
-    const { server } = ctx;
+    const { server, routerContext: routeContext } = ctx;
     const currentUserId = ctx.routerContext.state.userId;
     const input: ListInventoryOperationCountInput = ctx.input;
-    const output = await listInventoryOperationCount(server, input, currentUserId);
+    const output = await listInventoryOperationCount(server, routeContext, input, currentUserId);
 
     ctx.output = output;
   },
 } satisfies ServerOperation;
 
-async function listInventoryOperationCount(server: IRpdServer, input: ListInventoryOperationCountInput, currentUserId: number) {
-
+async function listInventoryOperationCount(server: IRpdServer, routeContext: RouteContext, input: ListInventoryOperationCountInput, currentUserId: number) {
   let stmt = `
     select mibt.operation_type,
            mibt.config ->> 'defaultSourceType'                as source_type,
@@ -71,7 +68,7 @@ async function listInventoryOperationCount(server: IRpdServer, input: ListInvent
     where 1 = 1
       and mia.operation_type = 'transfer'
     group by mibt.operation_type, mibt.config ->> 'defaultSourceType'
-  `
+  `;
 
   if (input.warehouseId && input.warehouseId > 0) {
     stmt = `
@@ -120,13 +117,12 @@ async function listInventoryOperationCount(server: IRpdServer, input: ListInvent
     `;
   }
 
-  let params = []
-  if (input.warehouseId && input.warehouseId >0) {
-    params.push(input.warehouseId)
+  let params = [];
+  if (input.warehouseId && input.warehouseId > 0) {
+    params.push(input.warehouseId);
   }
 
-  const transfers = await server.queryDatabaseObject(stmt, params);
-
+  const transfers = await server.queryDatabaseObject(stmt, params, routeContext.getDbTransactionClient());
 
   const outputs = transfers.map((item) => {
     return {

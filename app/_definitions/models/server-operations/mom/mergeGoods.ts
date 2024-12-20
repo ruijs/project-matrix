@@ -1,8 +1,8 @@
-import type {ActionHandlerContext, IRpdServer, RouteContext, ServerOperation} from "@ruiapp/rapid-core";
-import type {MomGood, SaveMomGoodInput} from "~/_definitions/meta/entity-types";
+import type { ActionHandlerContext, IRpdServer, RouteContext, ServerOperation } from "@ruiapp/rapid-core";
+import type { MomGood, SaveMomGoodInput } from "~/_definitions/meta/entity-types";
 import dayjs from "dayjs";
-import SequenceService, {GenerateSequenceNumbersInput} from "@ruiapp/rapid-core/src/plugins/sequence/SequenceService";
-import {updateInventoryBalance} from "~/_definitions/models/server-operations/mom/splitGoods";
+import SequenceService, { GenerateSequenceNumbersInput } from "@ruiapp/rapid-core/src/plugins/sequence/SequenceService";
+import { updateInventoryBalance } from "~/_definitions/models/server-operations/mom/splitGoods";
 
 export type MergeGoodsInput = {
   goodIds: number[];
@@ -25,19 +25,22 @@ export default {
   },
 } satisfies ServerOperation;
 
-async function mergeGoods(server: IRpdServer, ctx: RouteContext, input: MergeGoodsInput) {
+async function mergeGoods(server: IRpdServer, routeContext: RouteContext, input: MergeGoodsInput) {
   const goodManager = server.getEntityManager<MomGood>("mom_good");
 
   const sequenceService = server.getService<SequenceService>("sequenceService");
 
   const goods = await goodManager.findEntities({
-    filters: [{
-      operator: "and",
-      filters: [
-        { operator: "in", field: "id", value: input.goodIds },
-        { operator: "eq", field: "state", value: "normal" },
-      ]
-    }],
+    routeContext,
+    filters: [
+      {
+        operator: "and",
+        filters: [
+          { operator: "in", field: "id", value: input.goodIds },
+          { operator: "eq", field: "state", value: "normal" },
+        ],
+      },
+    ],
     properties: ["id", "lotNum", "binNum", "material", "location", "quantity", "manufactureDate", "validityDate", "unit", "putInTime", "lot"],
   });
 
@@ -47,7 +50,7 @@ async function mergeGoods(server: IRpdServer, ctx: RouteContext, input: MergeGoo
   }
 
   const originGood = goods[0];
-  if (goods.some(good => good.lotNum !== originGood.lotNum || good.material?.id !== originGood.material?.id)) {
+  if (goods.some((good) => good.lotNum !== originGood.lotNum || good.material?.id !== originGood.material?.id)) {
     throw new Error("标识卡批次号或物料不一致");
   }
 
@@ -57,17 +60,17 @@ async function mergeGoods(server: IRpdServer, ctx: RouteContext, input: MergeGoo
   let originBinNum = originGood.binNum;
   if (originBinNum) {
     if ((originBinNum.match(/-/g) || []).length === 2) {
-      originBinNum = originBinNum.split('-').slice(0, 2).join('-');
+      originBinNum = originBinNum.split("-").slice(0, 2).join("-");
     }
   }
 
-  const binNums = await sequenceService.generateSn(server, {
+  const binNums = await sequenceService.generateSn(routeContext, server, {
     ruleCode: "qixiang.binNum.split",
     amount: 1,
     parameters: {
       originBinNum: originBinNum,
-    }
-  } as GenerateSequenceNumbersInput)
+    },
+  } as GenerateSequenceNumbersInput);
 
   let saveGoodInput: SaveMomGoodInput = {
     material: originGood.material,
@@ -79,29 +82,31 @@ async function mergeGoods(server: IRpdServer, ctx: RouteContext, input: MergeGoo
     lotNum: originGood.lotNum,
     binNum: binNums[0],
     validityDate: originGood.validityDate,
-    state: 'normal'
-  }
+    state: "normal",
+  };
 
   if (originGood.lot) {
     //   create new good and update old goods state to merged
-    saveGoodInput.lot = originGood.lot
+    saveGoodInput.lot = originGood.lot;
   }
 
   newGood = await goodManager.createEntity({
+    routeContext,
     entity: saveGoodInput,
   });
 
-  await Promise.all(goods.map(async good => {
-    await goodManager.updateEntityById({
-      routeContext: ctx,
-      id: good.id,
-      entityToSave: {
-        state: "merged",
-        target: newGood,
-      } as SaveMomGoodInput,
-    });
-  }));
+  await Promise.all(
+    goods.map(async (good) => {
+      await goodManager.updateEntityById({
+        routeContext,
+        id: good.id,
+        entityToSave: {
+          state: "merged",
+          target: newGood,
+        } as SaveMomGoodInput,
+      });
+    }),
+  );
 
-  await updateInventoryBalance(server);
+  await updateInventoryBalance(server, routeContext);
 }
-

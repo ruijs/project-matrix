@@ -1,4 +1,4 @@
-import type {ActionHandlerContext, IRpdServer, RouteContext, ServerOperation} from "@ruiapp/rapid-core";
+import type { ActionHandlerContext, IRpdServer, RouteContext, ServerOperation } from "@ruiapp/rapid-core";
 import type {
   MomGood,
   MomGoodLocation,
@@ -24,10 +24,10 @@ export default {
   code: "submitGoodOutTransfers",
   method: "POST",
   async handler(ctx: ActionHandlerContext) {
-    const { server, routerContext } = ctx;
+    const { server, routerContext: routeContext } = ctx;
     const input: CreateGoodOutTransferInput = ctx.input;
 
-    await submitGoodOutTransfers(server, routerContext, input);
+    await submitGoodOutTransfers(server, routeContext, input);
 
     ctx.output = {
       result: ctx.input,
@@ -35,38 +35,39 @@ export default {
   },
 } satisfies ServerOperation;
 
-async function submitGoodOutTransfers(server: IRpdServer, ctx: RouteContext, input: CreateGoodOutTransferInput) {
-  const inventory = await findInventoryOperation(server, input.operationId);
+async function submitGoodOutTransfers(server: IRpdServer, routeContext: RouteContext, input: CreateGoodOutTransferInput) {
+  const inventory = await findInventoryOperation(server, routeContext, input.operationId);
 
   if (!inventory) throw new Error("未找到对应的库存操作");
 
   for (const shelve of input.shelves) {
-    const goods = await findGoods(server, input, shelve.binNum);
+    const goods = await findGoods(server, routeContext, input, shelve.binNum);
 
     if (goods) {
       for (const good of goods) {
         validateGoodForOutTransfer(server, inventory, good);
 
-        await createGoodTransfer(server, input.operationId, good);
+        await createGoodTransfer(server, routeContext, input.operationId, good);
 
-        await handleGood(server, ctx, good.id, good.location?.id);
-
+        await handleGood(server, routeContext, good.id, good.location?.id);
       }
     }
   }
 }
 
-async function findInventoryOperation(server: IRpdServer, operationId: number) {
+async function findInventoryOperation(server: IRpdServer, routeContext: RouteContext, operationId: number) {
   const inventoryManager = server.getEntityManager<MomInventoryOperation>("mom_inventory_operation");
   return await inventoryManager.findEntity({
+    routeContext,
     filters: [{ operator: "eq", field: "id", value: operationId }],
     properties: ["id", "businessType"],
   });
 }
 
-async function findGoods(server: IRpdServer, input: CreateGoodOutTransferInput, binNum: string) {
+async function findGoods(server: IRpdServer, routeContext: RouteContext, input: CreateGoodOutTransferInput, binNum: string) {
   const goodManager = server.getEntityManager<MomGood>("mom_good");
   return await goodManager.findEntities({
+    routeContext,
     filters: [
       { operator: "eq", field: "material_id", value: input.materialId },
       { operator: "eq", field: "lot_num", value: input.lotNum },
@@ -81,10 +82,9 @@ function validateGoodForOutTransfer(server: IRpdServer, inventory: MomInventoryO
     throw new Error("物料数量为0，无法出库");
   }
 
-  if (good.state != 'normal') {
+  if (good.state != "normal") {
     throw new Error("物料已经操作，无法出库");
   }
-
 
   // if (inventory.businessType?.name === "领料出库") {
   //   if (good.validityDate && dayjs().isAfter(dayjs(good.validityDate))) {
@@ -106,7 +106,7 @@ function validateGoodForOutTransfer(server: IRpdServer, inventory: MomInventoryO
 //   });
 // }
 
-async function createGoodTransfer(server: IRpdServer, operationId: number, good: MomGood) {
+async function createGoodTransfer(server: IRpdServer, routeContext: RouteContext, operationId: number, good: MomGood) {
   const goodTransferManager = server.getEntityManager<MomGoodTransfer>("mom_good_transfer");
 
   let savedGoodTransfer = {
@@ -120,7 +120,7 @@ async function createGoodTransfer(server: IRpdServer, operationId: number, good:
     from: { id: good.location?.id },
     transferTime: dayjs().format("YYYY-MM-DD HH:mm:ss"),
     orderNum: 1,
-  } as SaveMomGoodTransferInput
+  } as SaveMomGoodTransferInput;
 
   if (good.lot) {
     savedGoodTransfer = {
@@ -130,20 +130,21 @@ async function createGoodTransfer(server: IRpdServer, operationId: number, good:
   }
 
   await goodTransferManager.createEntity({
+    routeContext,
     entity: savedGoodTransfer,
   });
 }
 
-async function handleGood(server: IRpdServer, ctx: RouteContext, goodId: number, locationId: number | undefined) {
+async function handleGood(server: IRpdServer, routeContext: RouteContext, goodId: number, locationId: number | undefined) {
   // 处理货品状态和位置信息
 
   if (!locationId) return;
 
-  const good = await server.getEntityManager<MomGood>("mom_good").findById(goodId);
+  const good = await server.getEntityManager<MomGood>("mom_good").findById({ routeContext, id: goodId });
 
   if (good) {
     await server.getEntityManager<MomGood>("mom_good").updateEntityById({
-      routeContext: ctx,
+      routeContext,
       id: goodId,
       entityToSave: {
         state: "transferred",
@@ -151,10 +152,10 @@ async function handleGood(server: IRpdServer, ctx: RouteContext, goodId: number,
     });
   }
 
-
   const goodLocationManager = server.getEntityManager<MomGoodLocation>("mom_good_location");
 
   const goodLocation = await goodLocationManager.findEntity({
+    routeContext,
     filters: [
       {
         operator: "and",
@@ -163,17 +164,17 @@ async function handleGood(server: IRpdServer, ctx: RouteContext, goodId: number,
           {
             field: "location",
             operator: "exists",
-            filters: [{ field: "id", operator: "eq", value: locationId }]
+            filters: [{ field: "id", operator: "eq", value: locationId }],
           },
-        ]
-      }
+        ],
+      },
     ],
     properties: ["id"],
   });
 
   if (goodLocation) {
     await goodLocationManager.updateEntityById({
-      routeContext: ctx,
+      routeContext,
       id: goodLocation.id,
       entityToSave: {
         takeOutTime: dayjs().format("YYYY-MM-DD HH:mm:ss"),

@@ -1,5 +1,5 @@
-import type {ActionHandlerContext, IRpdServer, ServerOperation} from "@ruiapp/rapid-core";
-import type {BaseLot, BaseMaterial,} from "~/_definitions/meta/entity-types";
+import type { ActionHandlerContext, IRpdServer, RouteContext, ServerOperation } from "@ruiapp/rapid-core";
+import type { BaseLot, BaseMaterial } from "~/_definitions/meta/entity-types";
 
 export type QueryGoodOutTransferInput = {
   operationId: number;
@@ -23,26 +23,24 @@ export type QueryGoodOutTransferOutput = {
       id: number;
       code: string;
       name: string;
-    }
+    };
   }[];
 };
-
 
 export default {
   code: "listGoodOutTransfers",
   method: "POST",
   async handler(ctx: ActionHandlerContext) {
-    const { server } = ctx;
+    const { server, routerContext: routeContext } = ctx;
     const input: QueryGoodOutTransferInput = ctx.input;
 
-    const transferOutputs = await listGoodOutTransfers(server, input);
+    const transferOutputs = await listGoodOutTransfers(server, routeContext, input);
 
     ctx.output = transferOutputs;
   },
 } satisfies ServerOperation;
 
-async function listGoodOutTransfers(server: IRpdServer, input: QueryGoodOutTransferInput) {
-
+async function listGoodOutTransfers(server: IRpdServer, routeContext: RouteContext, input: QueryGoodOutTransferInput) {
   let stmt = `
     WITH inventory_good_transfers_cte AS (SELECT operation_id,
                                                  material_id,
@@ -134,7 +132,7 @@ async function listGoodOutTransfers(server: IRpdServer, input: QueryGoodOutTrans
                       AND ioc.lot_num = iogc.lot_num)
     SELECT r.*
     FROM result r;
-  `
+  `;
   if (input.modify) {
     stmt = `
       WITH inventory_good_transfers_cte AS (SELECT operation_id,
@@ -205,16 +203,13 @@ async function listGoodOutTransfers(server: IRpdServer, input: QueryGoodOutTrans
                         AND ioc.lot_num = iogc.lot_num)
       SELECT r.*
       FROM result r;
-    `
+    `;
   }
 
-  const transfers = await server.queryDatabaseObject(stmt,
-    [input.operationId],
-  );
+  const transfers = await server.queryDatabaseObject(stmt, [input.operationId], routeContext.getDbTransactionClient());
 
   const transferOutputs = transfers.map((item) => {
-
-    console.log(item.completed_amount, item.total_amount, item.waiting_amount)
+    console.log(item.completed_amount, item.total_amount, item.waiting_amount);
 
     return {
       operationId: item.operation_id,
@@ -227,7 +222,6 @@ async function listGoodOutTransfers(server: IRpdServer, input: QueryGoodOutTrans
       goods: item.goods,
     } as QueryGoodOutTransferOutput;
   });
-
 
   return transferOutputs;
 }

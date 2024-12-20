@@ -1,4 +1,4 @@
-import type { IRpdServer } from "@ruiapp/rapid-core";
+import type { IRpdServer, RouteContext } from "@ruiapp/rapid-core";
 import type { ActivityWorker, ApprovalActivityConfig, FinishActivityJobOptions, StartActivityJobOptions } from "../BpmPluginTypes";
 import { OcUser, type BpmManualTask } from "~/_definitions/meta/entity-types";
 import { cloneDeep, map, set } from "lodash";
@@ -8,13 +8,13 @@ export default class ApprovalActivityWorker implements ActivityWorker {
   #server: IRpdServer;
 
   #bpmService: BpmService;
-  
+
   constructor(server: IRpdServer, bpmService: BpmService) {
     this.#server = server;
     this.#bpmService = bpmService;
   }
 
-  async startJob(options: StartActivityJobOptions): Promise<void> {
+  async startJob(routeContext: RouteContext, options: StartActivityJobOptions): Promise<void> {
     const { activityNodeConfig, job, processInstance } = options;
     const activityConfig = cloneDeep(activityNodeConfig.activityConfig) as ApprovalActivityConfig;
     if (activityConfig.approvalType === "manual") {
@@ -35,6 +35,7 @@ export default class ApprovalActivityWorker implements ActivityWorker {
         if (roleIds) {
           const userManager = this.#server.getEntityManager<OcUser>("oc_user");
           const users = await userManager.findEntities({
+            routeContext,
             filters: [
               {
                 operator: "exists",
@@ -44,10 +45,10 @@ export default class ApprovalActivityWorker implements ActivityWorker {
                     operator: "in",
                     field: "id",
                     value: roleIds,
-                  }
-                ]
-              }
-            ]
+                  },
+                ],
+              },
+            ],
           });
 
           const userIds = map(users, (user) => user.id);
@@ -59,29 +60,29 @@ export default class ApprovalActivityWorker implements ActivityWorker {
             } satisfies Partial<BpmManualTask>;
           });
         }
-
       } else if (approverType === "initiator") {
         tasks = [
           {
             job: { id: job.id },
             state: "pending",
             assignee: { id: processInstance.initiator?.id || (processInstance as any).initiator_id },
-          } satisfies Partial<BpmManualTask>
+          } satisfies Partial<BpmManualTask>,
         ];
       } else {
-        // TODO: 
+        // TODO:
       }
 
       const taskManager = this.#server.getEntityManager<BpmManualTask>("bpm_manual_task");
       for (const task of tasks) {
         await taskManager.createEntity({
+          routeContext,
           entity: task,
         });
       }
     }
   }
 
-  async finishJob(options: FinishActivityJobOptions): Promise<void> {
+  async finishJob(routeContext: RouteContext, options: FinishActivityJobOptions): Promise<void> {
     const { processInstance } = options;
     const activityConfig = options.activityNodeConfig.activityConfig as ApprovalActivityConfig;
 
@@ -92,11 +93,10 @@ export default class ApprovalActivityWorker implements ActivityWorker {
     set(processInstance.variables, activityConfig.approvalResultVarName, options.jobResolution);
 
     if (activityConfig.approvalResultVarName) {
-      await this.#bpmService.updateProcessInstance({
+      await this.#bpmService.updateProcessInstance(routeContext, {
         id: processInstance.id,
         variables: processInstance.variables,
-      })
+      });
     }
   }
-
 }

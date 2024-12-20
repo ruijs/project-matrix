@@ -1,5 +1,5 @@
-import type {ActionHandlerContext, IRpdServer, ServerOperation} from "@ruiapp/rapid-core";
-import type {BaseMaterial,} from "~/_definitions/meta/entity-types";
+import type { ActionHandlerContext, IRpdServer, RouteContext, ServerOperation } from "@ruiapp/rapid-core";
+import type { BaseMaterial } from "~/_definitions/meta/entity-types";
 
 export type QueryGoodOutTransferInput = {
   operationId: number;
@@ -16,22 +16,20 @@ export type QueryGoodOutTransferOutput = {
   checkedShelves?: number;
 };
 
-
 export default {
   code: "listGoodCheckTransfers",
   method: "POST",
   async handler(ctx: ActionHandlerContext) {
-    const {server} = ctx;
+    const { server, routerContext: routeContext } = ctx;
     const input: QueryGoodOutTransferInput = ctx.input;
 
-    const transferOutputs = await listGoodCheckTransfers(server, input);
+    const transferOutputs = await listGoodCheckTransfers(server, routeContext, input);
 
     ctx.output = transferOutputs;
   },
 } satisfies ServerOperation;
 
-async function listGoodCheckTransfers(server: IRpdServer, input: QueryGoodOutTransferInput) {
-
+async function listGoodCheckTransfers(server: IRpdServer, routeContext: RouteContext, input: QueryGoodOutTransferInput) {
   const transfers = await server.queryDatabaseObject(
     `
       WITH inventory_checked_cte AS (SELECT mio.id                                                       AS operation_id,
@@ -77,6 +75,7 @@ async function listGoodCheckTransfers(server: IRpdServer, input: QueryGoodOutTra
       FROM result r;
     `,
     [input.operationId],
+    routeContext.getDbTransactionClient(),
   );
 
   return transfers.map((item) => {

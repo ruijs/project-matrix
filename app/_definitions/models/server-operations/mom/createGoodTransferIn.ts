@@ -1,4 +1,4 @@
-import type {ActionHandlerContext, IRpdServer, ServerOperation} from "@ruiapp/rapid-core";
+import type { ActionHandlerContext, IRpdServer, RouteContext, ServerOperation } from "@ruiapp/rapid-core";
 import type {
   BaseLot,
   BaseMaterial,
@@ -14,7 +14,7 @@ import type {
   SaveMomInspectionSheetInput,
 } from "~/_definitions/meta/entity-types";
 import dayjs from "dayjs";
-import SequenceService, {GenerateSequenceNumbersInput} from "@ruiapp/rapid-core/src/plugins/sequence/SequenceService";
+import SequenceService, { GenerateSequenceNumbersInput } from "@ruiapp/rapid-core/src/plugins/sequence/SequenceService";
 
 export type CreateGoodTransferInput = {
   operationId: number;
@@ -37,10 +37,10 @@ export default {
   code: "createGoodTransfers",
   method: "POST",
   async handler(ctx: ActionHandlerContext) {
-    const { server } = ctx;
+    const { server, routerContext: routeContext } = ctx;
     const input: CreateGoodTransferInput = ctx.input;
 
-    await createGoodTransferIn(server, input);
+    await createGoodTransferIn(routeContext, server, input);
 
     ctx.output = {
       result: ctx.input,
@@ -48,7 +48,7 @@ export default {
   },
 } satisfies ServerOperation;
 
-async function createGoodTransferIn(server: IRpdServer, input: CreateGoodTransferInput) {
+async function createGoodTransferIn(routeContext: RouteContext, server: IRpdServer, input: CreateGoodTransferInput) {
   const goodManager = server.getEntityManager<MomGood>("mom_good");
   const materialManager = server.getEntityManager<BaseMaterial>("base_material");
   const inspectRuleManager = server.getEntityManager<MomInspectionRule>("mom_inspection_rule");
@@ -60,10 +60,12 @@ async function createGoodTransferIn(server: IRpdServer, input: CreateGoodTransfe
 
   const [inventoryOperation, material] = await Promise.all([
     inventoryOperationManager.findEntity({
+      routeContext,
       filters: [{ operator: "eq", field: "id", value: input.operationId }],
       properties: ["id", "category", "businessType"],
     }),
     materialManager.findEntity({
+      routeContext,
       filters: [{ operator: "eq", field: "id", value: input?.material }],
       properties: ["id", "code", "defaultUnit", "qualityGuaranteePeriod", "isInspectionFree"],
     }),
@@ -77,7 +79,7 @@ async function createGoodTransferIn(server: IRpdServer, input: CreateGoodTransfe
     .add(parseInt(material.qualityGuaranteePeriod || "0", 10), "day")
     .format("YYYY-MM-DD");
 
-  const lotInfo = await saveMaterialLotInfo(server, {
+  const lotInfo = await saveMaterialLotInfo(routeContext, server, {
     lotNum: input.lotNum,
     material: { id: input.material },
     sourceType: inventoryOperation?.businessType?.config?.defaultSourceType || null,
@@ -97,28 +99,32 @@ async function createGoodTransferIn(server: IRpdServer, input: CreateGoodTransfe
     palletCount = (input.palletCount || 0) + input.transfers.length;
   }
 
-  const unit = await unitManager.findById({ id: material.defaultUnit?.id });
+  const unit = await unitManager.findById({ routeContext, id: material.defaultUnit?.id });
 
-  const originBinNums = await sequenceService.generateSn(server, {
+  const originBinNums = await sequenceService.generateSn(routeContext, server, {
     ruleCode: "qixiang.binNum",
-    amount: 1
-  } as GenerateSequenceNumbersInput)
+    amount: 1,
+  } as GenerateSequenceNumbersInput);
 
-  const binNums = await sequenceService.generateSn(server, {
+  const binNums = await sequenceService.generateSn(routeContext, server, {
     ruleCode: "qixiang.binNum.split",
     amount: palletCount,
     parameters: {
       originBinNum: originBinNums[0],
-    }
-  } as GenerateSequenceNumbersInput)
+    },
+  } as GenerateSequenceNumbersInput);
 
   let goods: SaveMomGoodInput[] = [];
   if (input.palletCount && input.palletCount > 0) {
-    goods = goods.concat(Array.from({ length: input.palletCount }, (_, index) => createGoodInput(material, unit, input, validityDate, `${ binNums[index] }`, input.palletWeight)))
+    goods = goods.concat(
+      Array.from({ length: input.palletCount }, (_, index) => createGoodInput(material, unit, input, validityDate, `${binNums[index]}`, input.palletWeight)),
+    );
   }
   if (input.transfers && input.transfers.length > 0) {
     let palletCount = input.palletCount || 0;
-    goods = goods.concat(input.transfers.map((transfer, index) => createGoodInput(material, unit, input, validityDate, `${ binNums[palletCount + index] }`, transfer.palletWeight)))
+    goods = goods.concat(
+      input.transfers.map((transfer, index) => createGoodInput(material, unit, input, validityDate, `${binNums[palletCount + index]}`, transfer.palletWeight)),
+    );
   }
 
   let totalWeight = 0;
@@ -131,6 +137,7 @@ async function createGoodTransferIn(server: IRpdServer, input: CreateGoodTransfe
 
   if (inventoryOperation?.businessType?.config?.inspectionCategoryId && inventoryOperation?.businessType?.config?.inspectionCategoryId > 0) {
     const inspectRule = await inspectRuleManager.findEntity({
+      routeContext,
       filters: [
         { operator: "eq", field: "material_id", value: material.id },
         { operator: "null", field: "customer_id" },
@@ -140,21 +147,21 @@ async function createGoodTransferIn(server: IRpdServer, input: CreateGoodTransfe
     });
 
     const samplingRule = await server.getEntityManager<MomInspectionSamplingItem>("mom_inspection_sampling_item").findEntity({
+      routeContext,
       filters: [
         {
           operator: "exists",
           field: "sampling",
-          filters: [{ operator: "eq", field: "material_category_id", value: material.category?.id }]
+          filters: [{ operator: "eq", field: "material_category_id", value: material.category?.id }],
         },
         { operator: "lte", field: "to", value: totalWeight },
       ],
       orderBy: [{ field: "to", desc: true }],
       properties: ["id", "sampling", "samplingCount"],
-    })
-
+    });
 
     if (inspectRule) {
-      await saveInspectionSheet(server, {
+      await saveInspectionSheet(routeContext, server, {
         inventoryOperation: { id: input.operationId },
         lotNum: input.lotNum,
         lot: { id: lotInfo.id },
@@ -166,7 +173,7 @@ async function createGoodTransferIn(server: IRpdServer, input: CreateGoodTransfe
         round: 1,
       });
     } else {
-      await saveInspectionSheet(server, {
+      await saveInspectionSheet(routeContext, server, {
         inventoryOperation: { id: input.operationId },
         lotNum: input.lotNum,
         lot: { id: lotInfo.id },
@@ -229,7 +236,6 @@ async function findOrCreateGood(goodManager: any, input: SaveMomGoodInput) {
 }
 
 async function createGoodTransfer(goodTransferManager: any, operationId: number, good: MomGood, print: boolean = false, locationId?: number) {
-
   let saveInput = {
     operation: { id: operationId },
     good: { id: good.id },
@@ -241,7 +247,7 @@ async function createGoodTransfer(goodTransferManager: any, operationId: number,
     unit: { id: good.unit?.id },
     transferTime: dayjs().format("YYYY-MM-DD HH:mm:ss"),
     printTime: print ? dayjs().format("YYYY-MM-DD HH:mm:ss") : null,
-  } as SaveMomGoodTransferInput
+  } as SaveMomGoodTransferInput;
 
   if (locationId && locationId > 0) {
     saveInput.to = { id: locationId };
@@ -252,7 +258,7 @@ async function createGoodTransfer(goodTransferManager: any, operationId: number,
   });
 }
 
-async function saveInspectionSheet(server: IRpdServer, sheet: SaveMomInspectionSheetInput) {
+async function saveInspectionSheet(routeContext: RouteContext, server: IRpdServer, sheet: SaveMomInspectionSheetInput) {
   if (!sheet.lotNum || !sheet.material || !sheet.material.id) {
     throw new Error("lotNum and material are required when saving lot info.");
   }
@@ -260,6 +266,7 @@ async function saveInspectionSheet(server: IRpdServer, sheet: SaveMomInspectionS
   const inspectionSheetManager = server.getEntityManager("mom_inspection_sheet");
 
   let inspectionSheet = await inspectionSheetManager.findEntity({
+    routeContext,
     filters: [
       { operator: "eq", field: "lot_num", value: sheet.lotNum },
       { operator: "eq", field: "material_id", value: sheet.material.id },
@@ -269,10 +276,11 @@ async function saveInspectionSheet(server: IRpdServer, sheet: SaveMomInspectionS
   });
 
   if (inspectionSheet) {
-    return inspectionSheet
+    return inspectionSheet;
   }
 
   inspectionSheet = await inspectionSheetManager.findEntity({
+    routeContext,
     filters: [
       { operator: "eq", field: "lot_num", value: sheet.lotNum },
       { operator: "eq", field: "material_id", value: sheet.material.id },
@@ -282,33 +290,33 @@ async function saveInspectionSheet(server: IRpdServer, sheet: SaveMomInspectionS
   });
 
   if (inspectionSheet) {
-    await inspectionSheetManager.updateEntityById(
-      {
-        id: inspectionSheet.id,
-        entityToSave: {
-          lot: { id: sheet.lot?.id },
-          inventoryOperation: { id: sheet.inventoryOperation?.id },
-        }
-      }
-    );
+    await inspectionSheetManager.updateEntityById({
+      routeContext,
+      id: inspectionSheet.id,
+      entityToSave: {
+        lot: { id: sheet.lot?.id },
+        inventoryOperation: { id: sheet.inventoryOperation?.id },
+      },
+    });
     return inspectionSheet;
   }
 
-  return await inspectionSheetManager.createEntity({ entity: sheet });
+  return await inspectionSheetManager.createEntity({ routeContext, entity: sheet });
 }
 
-async function saveMaterialLotInfo(server: IRpdServer, lot: SaveBaseLotInput) {
+async function saveMaterialLotInfo(routeContext: RouteContext, server: IRpdServer, lot: SaveBaseLotInput) {
   if (!lot.lotNum || !lot.material || !lot.material.id) {
     throw new Error("lotNum and material are required when saving lot info.");
   }
 
   const baseLotManager = server.getEntityManager<BaseLot>("base_lot");
   const lotInDb = await baseLotManager.findEntity({
+    routeContext,
     filters: [
       { operator: "eq", field: "lot_num", value: lot.lotNum },
       { operator: "eq", field: "material_id", value: lot.material.id },
     ],
   });
 
-  return lotInDb || (await baseLotManager.createEntity({ entity: lot }));
+  return lotInDb || (await baseLotManager.createEntity({ routeContext, entity: lot }));
 }

@@ -1,5 +1,5 @@
-import type {ActionHandlerContext, IRpdServer, RouteContext, ServerOperation} from "@ruiapp/rapid-core";
-import type {MomGoodTransfer,} from "~/_definitions/meta/entity-types";
+import type { ActionHandlerContext, IRpdServer, RouteContext, ServerOperation } from "@ruiapp/rapid-core";
+import type { MomGoodTransfer } from "~/_definitions/meta/entity-types";
 
 export type CreateGoodTransferInput = {
   ids: number[];
@@ -21,11 +21,11 @@ export default {
   },
 } satisfies ServerOperation;
 
-async function deleteGoodInTransfers(server: IRpdServer, ctx: RouteContext, input: CreateGoodTransferInput) {
+async function deleteGoodInTransfers(server: IRpdServer, routeContext: RouteContext, input: CreateGoodTransferInput) {
   for (const goodId of input.ids) {
     await server.getEntityManager<MomGoodTransfer>("mom_good_transfer").deleteById({
-      routeContext: ctx,
+      routeContext,
       id: goodId,
-    })
+    });
   }
 }

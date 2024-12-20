@@ -1,5 +1,16 @@
-import type { IRpdServer } from "@ruiapp/rapid-core";
-import type { ActivityFlowNode, ActivityJobOperation, ActivityJobResolution, ApprovalActivityFlowNode, ApprovalJobOperation, ApprovalJobResolution, CreateProcessInstanceInput, FlowConfig, StartProcessInstanceInput, UpdateProcessInstanceOptions } from "./BpmPluginTypes";
+import type { IRpdServer, RouteContext } from "@ruiapp/rapid-core";
+import type {
+  ActivityFlowNode,
+  ActivityJobOperation,
+  ActivityJobResolution,
+  ApprovalActivityFlowNode,
+  ApprovalJobOperation,
+  ApprovalJobResolution,
+  CreateProcessInstanceInput,
+  FlowConfig,
+  StartProcessInstanceInput,
+  UpdateProcessInstanceOptions,
+} from "./BpmPluginTypes";
 import type { BpmManualTask, BpmJob, BpmInstance, BpmProcess, SaveBpmJobInput, SaveBpmManualTaskInput } from "~/_definitions/meta/entity-types";
 import { getNowStringWithTimezone } from "~/utils/time-utils";
 import { countBy, filter, find, first, map } from "lodash";
@@ -13,9 +24,10 @@ export default class BpmService {
     this.#server = server;
   }
 
-  async createProcessInstance(input: CreateProcessInstanceInput) {
+  async createProcessInstance(routeContext: RouteContext, input: CreateProcessInstanceInput) {
     const processManager = this.#server.getEntityManager<BpmProcess>("bpm_process");
     const process = await processManager.findEntity({
+      routeContext,
       filters: [
         {
           operator: "eq",
@@ -30,6 +42,7 @@ export default class BpmService {
 
     const instanceManager = this.#server.getEntityManager<BpmInstance>("bpm_instance");
     const processInstance = await instanceManager.createEntity({
+      routeContext,
       entity: {
         title: input.title,
         process: process.id,
@@ -40,10 +53,10 @@ export default class BpmService {
         variables: input.variables,
         initiatedAt: getNowStringWithTimezone(),
         state: "processing",
-      } as Partial<BpmInstance>
+      } as Partial<BpmInstance>,
     });
 
-    await this.#startProcessInstance(processInstance, {
+    await this.#startProcessInstance(routeContext, processInstance, {
       instanceId: processInstance.id,
       processId: processInstance.process.id!,
     });
@@ -51,9 +64,9 @@ export default class BpmService {
     return processInstance;
   }
 
-  async #startProcessInstance(processInstance: BpmInstance, input: StartProcessInstanceInput) {
+  async #startProcessInstance(routeContext: RouteContext, processInstance: BpmInstance, input: StartProcessInstanceInput) {
     const processManager = this.#server.getEntityManager<BpmProcess>("bpm_process");
-    const process = await processManager.findById(input.processId);
+    const process = await processManager.findById({ routeContext, id: input.processId });
     const flowConfig: FlowConfig = process?.flowConfig || {};
 
     const flowNodes = flowConfig.nodes || [];
@@ -63,12 +76,13 @@ export default class BpmService {
       return;
     }
 
-    await this.startActivityJob(processInstance, activityNode);
+    await this.startActivityJob(routeContext, processInstance, activityNode);
   }
 
-  async checkApprovalJobState(jobId: number) {
+  async checkApprovalJobState(routeContext: RouteContext, jobId: number) {
     const taskManager = this.#server.getEntityManager<BpmManualTask>("bpm_manual_task");
     const tasks = await taskManager.findEntities({
+      routeContext,
       filters: [
         {
           operator: "eq",
@@ -80,6 +94,7 @@ export default class BpmService {
 
     const jobManager = this.#server.getEntityManager<BpmJob>("bpm_job");
     const job = await jobManager.findById({
+      routeContext,
       id: jobId,
       keepNonPropertyFields: true,
     });
@@ -89,7 +104,8 @@ export default class BpmService {
 
     const instanceManager = this.#server.getEntityManager<BpmInstance>("bpm_instance");
     const processInstance = await instanceManager.findById({
-      id: (job.instance?.id) || (job as any).instance_id,
+      routeContext,
+      id: job.instance?.id || (job as any).instance_id,
       keepNonPropertyFields: true,
     });
     if (!processInstance) {
@@ -98,7 +114,8 @@ export default class BpmService {
 
     const processManager = this.#server.getEntityManager<BpmProcess>("bpm_process");
     const process = await processManager.findById({
-      id: (processInstance.process?.id) || (processInstance as any).process_id,
+      routeContext,
+      id: processInstance.process?.id || (processInstance as any).process_id,
       keepNonPropertyFields: true,
     });
     if (!process) {
@@ -140,7 +157,6 @@ export default class BpmService {
           jobResolution = "rejected";
         }
       }
-
     } else if (groupDecisionPolicy === "everyone") {
       // 会签审批。需要所有人都提交后，才可以结束审批任务。
       if (pendingTasks.length === 0) {
@@ -157,16 +173,16 @@ export default class BpmService {
       // TODO: decide resolution when `groupDecisionPolicy === "sequence"`.
     }
 
-
     if (canFinishJob) {
-      await this.finishActivityJob(job, jobOperation, jobResolution);
+      await this.finishActivityJob(routeContext, job, jobOperation, jobResolution);
     }
   }
 
-  async startActivityJob(processInstance: BpmInstance, activityNode: ActivityFlowNode) {
+  async startActivityJob(routeContext: RouteContext, processInstance: BpmInstance, activityNode: ActivityFlowNode) {
     const jobManager = this.#server.getEntityManager<BpmJob>("bpm_job");
     if (activityNode.nodeType === "activity") {
       const job = await jobManager.createEntity({
+        routeContext,
         entity: {
           instance: { id: processInstance.id },
           activityType: activityNode.activityType,
@@ -178,21 +194,22 @@ export default class BpmService {
       });
 
       const activityWorker = createActivityWorker(activityNode.activityType, this.#server, this);
-      await activityWorker.startJob({
+      await activityWorker.startJob(routeContext, {
         activityNodeConfig: activityNode,
         job: job,
         processInstance: processInstance,
       });
 
       processInstance.currentJob = { id: job.id };
-      await this.updateProcessInstance(processInstance)
+      await this.updateProcessInstance(routeContext, processInstance);
     }
   }
 
-  async finishActivityJob(job: BpmJob, jobOperation: ActivityJobOperation, jobResolution: ActivityJobResolution) {
+  async finishActivityJob(routeContext: RouteContext, job: BpmJob, jobOperation: ActivityJobOperation, jobResolution: ActivityJobResolution) {
     const instanceManager = this.#server.getEntityManager<BpmInstance>("bpm_instance");
     const processInstance = await instanceManager.findById({
-      id: (job.instance?.id) || (job as any).instance_id,
+      routeContext,
+      id: job.instance?.id || (job as any).instance_id,
       keepNonPropertyFields: true,
     });
     if (!processInstance) {
@@ -201,7 +218,8 @@ export default class BpmService {
 
     const processManager = this.#server.getEntityManager<BpmProcess>("bpm_process");
     const process = await processManager.findById({
-      id: (processInstance.process?.id) || (processInstance as any).process_id,
+      routeContext,
+      id: processInstance.process?.id || (processInstance as any).process_id,
       keepNonPropertyFields: true,
     });
     if (!process) {
@@ -225,7 +243,7 @@ export default class BpmService {
     }
 
     const activityWorker = createActivityWorker(activityNodeConfig.activityType, this.#server, this);
-    await activityWorker.finishJob({
+    await activityWorker.finishJob(routeContext, {
       job,
       processInstance,
       activityNodeConfig,
@@ -234,22 +252,23 @@ export default class BpmService {
 
     const jobManager = this.#server.getEntityManager<BpmJob>("bpm_job");
     await jobManager.updateEntityById({
+      routeContext,
       id: job.id,
       entityToSave: {
         state: "finished",
         completedAt: getNowStringWithTimezone(),
         resolution: jobResolution,
-      } satisfies Partial<BpmJob>
+      } satisfies Partial<BpmJob>,
     });
 
     if (nextActivityNodeConfig.nodeType === "activity") {
-      await this.startActivityJob(processInstance, nextActivityNodeConfig);
+      await this.startActivityJob(routeContext, processInstance, nextActivityNodeConfig);
     } else if (nextActivityNodeConfig.nodeType === "endEvent") {
-      await this.finishProcessInstance(processInstance);
+      await this.finishProcessInstance(routeContext, processInstance);
     }
   }
 
-  async updateProcessInstance(options: UpdateProcessInstanceOptions) {
+  async updateProcessInstance(routeContext: RouteContext, options: UpdateProcessInstanceOptions) {
     const instanceManager = this.#server.getEntityManager<BpmInstance>("bpm_instance");
     const entityToSave: Partial<BpmInstance> = {};
     if (options.formData) {
@@ -263,19 +282,21 @@ export default class BpmService {
     }
 
     await instanceManager.updateEntityById({
+      routeContext,
       id: options.id,
       entityToSave,
     });
   }
 
-  async finishProcessInstance(instance: BpmInstance) {
+  async finishProcessInstance(routeContext: RouteContext, instance: BpmInstance) {
     const instanceManager = this.#server.getEntityManager<BpmInstance>("bpm_instance");
     await instanceManager.updateEntityById({
+      routeContext,
       id: instance.id,
       entityToSave: {
         state: "finished",
         completedAt: getNowStringWithTimezone(),
-      } satisfies Partial<BpmInstance>
+      } satisfies Partial<BpmInstance>,
     });
   }
 }

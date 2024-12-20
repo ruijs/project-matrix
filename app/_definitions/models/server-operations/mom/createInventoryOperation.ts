@@ -1,4 +1,4 @@
-import {ActionHandlerContext, IRpdServer, RouteContext, ServerOperation} from "@ruiapp/rapid-core";
+import { ActionHandlerContext, IRpdServer, RouteContext, ServerOperation } from "@ruiapp/rapid-core";
 import type {
   BaseLocation,
   BaseMaterial,
@@ -61,7 +61,7 @@ export default {
   method: "POST",
 
   async handler(ctx: ActionHandlerContext) {
-    const {server, routerContext} = ctx;
+    const { server, routerContext } = ctx;
     const input: CreateInventoryOperationInput = ctx.input;
 
     await createInventoryOperation(server, routerContext, input);
@@ -72,12 +72,13 @@ export default {
   },
 } satisfies ServerOperation;
 
-export async function createInventoryOperation(server: IRpdServer, ctx: RouteContext, input: CreateInventoryOperationInput) {
+export async function createInventoryOperation(server: IRpdServer, routeContext: RouteContext, input: CreateInventoryOperationInput) {
   const inventoryOperationManager = server.getEntityManager<MomInventoryOperation>("mom_inventory_operation");
   const goodManager = server.getEntityManager<MomGood>("mom_good");
   const goodTransferManager = server.getEntityManager<MomGoodTransfer>("mom_good_transfer");
 
   const inventoryOperation = await inventoryOperationManager.createEntity({
+    routeContext,
     entity: {
       code: dayjs().format("YYYYMMDD-HHmmss"),
       operationType: input.operationType,
@@ -88,6 +89,7 @@ export async function createInventoryOperation(server: IRpdServer, ctx: RouteCon
 
   for (const transfer of input.transfers) {
     let good = await goodManager.findEntity({
+      routeContext,
       filters: [
         {
           operator: "eq",
@@ -104,37 +106,39 @@ export async function createInventoryOperation(server: IRpdServer, ctx: RouteCon
 
     if (!good) {
       good = await goodManager.createEntity({
+        routeContext,
         entity: {
-          material: {id: transfer.material?.id},
+          material: { id: transfer.material?.id },
           materialCode: transfer.material?.code,
           lotNum: transfer.lotNum,
           binNum: transfer.binNum,
           serialNum: transfer.serialNum,
           quantity: transfer.quantity,
-          unit: {id: transfer.unit?.id},
+          unit: { id: transfer.unit?.id },
           state: "normal",
         } as SaveMomGoodInput,
       });
     }
 
     await goodTransferManager.createEntity({
+      routeContext,
       entity: {
-        operation: {id: inventoryOperation.id},
-        good: {id: good.id},
-        material: {id: transfer.material?.id},
+        operation: { id: inventoryOperation.id },
+        good: { id: good.id },
+        material: { id: transfer.material?.id },
         lotNum: transfer.lotNum,
         binNum: transfer.binNum,
         serialNum: transfer.serialNum,
         quantity: transfer.quantity,
-        unit: {id: transfer.unit?.id},
-        to: {id: 1},
+        unit: { id: transfer.unit?.id },
+        to: { id: 1 },
         transferTime: dayjs().format("YYYY-MM-DD HH:mm:ss"),
       } as SaveMomGoodTransferInput,
     });
   }
 
   inventoryOperationManager.updateEntityById({
-    routeContext: ctx,
+    routeContext,
     id: inventoryOperation.id,
     entityToSave: {
       state: "done",

@@ -1,4 +1,4 @@
-import type { EntityFilterOptions, IRpdServer } from "@ruiapp/rapid-core";
+import type { EntityFilterOptions, IRpdServer, RouteContext } from "@ruiapp/rapid-core";
 import { isNull, isUndefined } from "lodash";
 
 export type StatTableConfig = {
@@ -28,7 +28,7 @@ export default class InventoryStatService {
     this.#server = server;
   }
 
-  async changeInventoryQuantities(options: ChangeInventoryQuantityOptions) {
+  async changeInventoryQuantities(routeContext: RouteContext, options: ChangeInventoryQuantityOptions) {
     const {
       balanceEntityCode,
       logEntityCode,
@@ -61,6 +61,7 @@ export default class InventoryStatService {
         } satisfies EntityFilterOptions;
       });
     const balanceRecord = await balanceRecordManager.findEntity({
+      routeContext,
       filters: findRecordFilters as any,
     });
 
@@ -73,7 +74,6 @@ export default class InventoryStatService {
     }
 
     if (balanceRecord) {
-
       const statChanges: Record<string, number> = {};
       for (const quantityFieldToChange of quantityFieldsToIncrease) {
         if (!quantityBalanceFields.includes(quantityFieldToChange)) {
@@ -94,6 +94,7 @@ export default class InventoryStatService {
       }
 
       const savedBalanceRecord = await balanceRecordManager.updateEntityById({
+        routeContext,
         id: balanceRecord.id,
         entityToSave: statChanges,
       });
@@ -119,6 +120,7 @@ export default class InventoryStatService {
       }
 
       const savedBalanceRecord = await balanceRecordManager.createEntity({
+        routeContext,
         entity: statToCreate,
       });
 
@@ -131,6 +133,7 @@ export default class InventoryStatService {
 
     // 保存变更记录
     await logRecordManager.createEntity({
+      routeContext,
       entity: logRecord,
     });
   }

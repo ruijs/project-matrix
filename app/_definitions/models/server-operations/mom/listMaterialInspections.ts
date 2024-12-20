@@ -1,4 +1,4 @@
-import type { ActionHandlerContext, IRpdServer, ServerOperation } from "@ruiapp/rapid-core";
+import type { ActionHandlerContext, IRpdServer, RouteContext, ServerOperation } from "@ruiapp/rapid-core";
 
 export type QueryInput = {
   limit: number;
@@ -12,7 +12,7 @@ export default {
   code: "listMaterialInspections",
   method: "POST",
   async handler(ctx: ActionHandlerContext) {
-    const { server } = ctx;
+    const { server, routerContext: routeContext } = ctx;
     const input: QueryInput = ctx.input;
 
     if (input.limit === undefined || input.limit <= 0) {
@@ -22,13 +22,13 @@ export default {
       input.offset = 0;
     }
 
-    const transferOutputs = await listMaterialInspections(server, input);
+    const transferOutputs = await listMaterialInspections(server, routeContext, input);
 
     ctx.output = transferOutputs;
   },
 } satisfies ServerOperation;
 
-async function listMaterialInspections(server: IRpdServer, input: QueryInput) {
+async function listMaterialInspections(server: IRpdServer, routeContext: RouteContext, input: QueryInput) {
   const totalCount = await server.queryDatabaseObject(
     `
       with measurement_window_cte AS (select mim.sheet_id,
@@ -67,6 +67,7 @@ async function listMaterialInspections(server: IRpdServer, input: QueryInput) {
       ;
     `,
     input.keyword ? [input.keyword] : [],
+    routeContext.getDbTransactionClient(),
   );
 
   const results = await server.queryDatabaseObject(
@@ -125,6 +126,7 @@ async function listMaterialInspections(server: IRpdServer, input: QueryInput) {
       LIMIT $1 OFFSET $2;
     `,
     input.keyword ? [input.limit, input.offset, input.keyword] : [input.limit, input.offset],
+    routeContext.getDbTransactionClient(),
   );
 
   const items = results.map((item) => {

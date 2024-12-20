@@ -1,7 +1,17 @@
-import {v4 as uuidv4} from 'uuid';
-import type { IRpdServer } from "@ruiapp/rapid-core";
-import { PrintTaskState, PrinterNetworkState, type CreatePrintTasksInput, type GetNextPendingPrintTaskInput, type PrintTask, type PrinterStatusInfo, type RegisterPrinterInput, type UpdatePrintTaskStateInput, type UpdatePrinterStateInput } from "./PrinterPluginTypes";
-import type {MomPrintLog, SaveSvcPrinterInput, SvcPrinter} from "~/_definitions/meta/entity-types";
+import { v4 as uuidv4 } from "uuid";
+import type { IRpdServer, RouteContext } from "@ruiapp/rapid-core";
+import {
+  PrintTaskState,
+  PrinterNetworkState,
+  type CreatePrintTasksInput,
+  type GetNextPendingPrintTaskInput,
+  type PrintTask,
+  type PrinterStatusInfo,
+  type RegisterPrinterInput,
+  type UpdatePrintTaskStateInput,
+  type UpdatePrinterStateInput,
+} from "./PrinterPluginTypes";
+import type { MomPrintLog, SaveSvcPrinterInput, SvcPrinter } from "~/_definitions/meta/entity-types";
 import { find, findIndex, first } from "lodash";
 
 const offlineSeconds = 180;
@@ -19,7 +29,7 @@ export default class PrinterService {
   }
 
   #printerBeat(code: string, state: PrinterNetworkState) {
-    let printer: PrinterStatusInfo | undefined = find(this.#printers, {code});
+    let printer: PrinterStatusInfo | undefined = find(this.#printers, { code });
     if (!printer) {
       printer = {
         code,
@@ -33,17 +43,17 @@ export default class PrinterService {
     }
   }
 
-  async registerPrinter(input: RegisterPrinterInput) {
+  async registerPrinter(routeContext: RouteContext, input: RegisterPrinterInput) {
     const printerManager = this.#server.getEntityManager<SvcPrinter>("svc_printer");
 
     const printer = await printerManager.findEntity({
-      filters: [
-        { operator: "eq", field: "code", value: input.code },
-      ],
+      routeContext,
+      filters: [{ operator: "eq", field: "code", value: input.code }],
     });
 
     if (!printer) {
       await printerManager.createEntity({
+        routeContext,
         entity: {
           code: input.code,
           orderNum: 0,
@@ -52,6 +62,7 @@ export default class PrinterService {
       });
     } else {
       await printerManager.updateEntityById({
+        routeContext,
         id: printer.id,
         entityToSave: {
           networkState: PrinterNetworkState.Online,
@@ -62,21 +73,21 @@ export default class PrinterService {
     this.#printerBeat(input.code, PrinterNetworkState.Online);
   }
 
-  async updatePrinterState(input: UpdatePrinterStateInput) {
+  async updatePrinterState(routeContext: RouteContext, input: UpdatePrinterStateInput) {
     const printerManager = this.#server.getEntityManager<SvcPrinter>("svc_printer");
 
     const printer = await printerManager.findEntity({
-      filters: [
-        { operator: "eq", field: "code", value: input.code },
-      ],
+      routeContext,
+      filters: [{ operator: "eq", field: "code", value: input.code }],
     });
 
     if (!printer) {
-      throw new Error(`Print '${input.code}' was not found.`)
+      throw new Error(`Print '${input.code}' was not found.`);
     }
 
     if (printer.networkState !== input.state) {
       await printerManager.updateEntityById({
+        routeContext,
         id: printer.id,
         entityToSave: {
           networkState: input.state,
@@ -87,22 +98,21 @@ export default class PrinterService {
     this.#printerBeat(input.code, input.state);
   }
 
-  async createPrintTasks(input: CreatePrintTasksInput) {
+  async createPrintTasks(routeContext: RouteContext, input: CreatePrintTasksInput) {
     const { code } = input;
 
     const printerManager = this.#server.getEntityManager<SvcPrinter>("svc_printer");
     const printer = await printerManager.findEntity({
-      filters: [
-        { operator: "eq", field: "code", value: input.code },
-      ],
+      routeContext,
+      filters: [{ operator: "eq", field: "code", value: input.code }],
     });
 
     if (!printer) {
-      throw new Error(`Print '${input.code}' was not found.`)
+      throw new Error(`Print '${input.code}' was not found.`);
     }
 
     if (printer.networkState !== "1") {
-      throw new Error(`Printer '${input.code}' is offline.`)
+      throw new Error(`Printer '${input.code}' is offline.`);
     }
 
     const tasksToCreate = input.tasks;
@@ -127,11 +137,12 @@ export default class PrinterService {
 
     const printLogEntityManager = this.#server.getEntityManager<MomPrintLog>("mom_print_log");
     await printLogEntityManager.createEntity({
+      routeContext,
       entity: {
         code: input.code,
         tasks: input.tasks,
-      }
-    })
+      },
+    });
   }
 
   async getNextPendingPrintTask(input: GetNextPendingPrintTaskInput) {
@@ -144,11 +155,11 @@ export default class PrinterService {
     const { code, taskId, state } = input;
     let printer = find(this.#printers, { code });
     if (!printer) {
-      throw new Error(`Print '${input.code}' was not found.`)
+      throw new Error(`Print '${input.code}' was not found.`);
     }
 
     let tasks = this.#tasksOfPrinters.get(code) || [];
-    let taskIndex = findIndex(tasks, {id: taskId});
+    let taskIndex = findIndex(tasks, { id: taskId });
     if (taskIndex === -1) {
       return;
     }
@@ -158,9 +169,9 @@ export default class PrinterService {
     }
   }
 
-  async detectOfflinePrinters() {
+  async detectOfflinePrinters(routeContext: RouteContext) {
     const printerManager = this.#server.getEntityManager<SvcPrinter>("svc_printer");
-    const printersInDb = await printerManager.findEntities({});
+    const printersInDb = await printerManager.findEntities({ routeContext });
 
     const now = new Date();
     for (const printerInDb of printersInDb) {
@@ -176,9 +187,9 @@ export default class PrinterService {
         }
       }
 
-
       if (printerInDb.networkState !== printerNetworkState) {
         await printerManager.updateEntityById({
+          routeContext,
           id: printerInDb.id,
           entityToSave: {
             networkState: printerNetworkState,

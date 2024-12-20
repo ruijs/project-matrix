@@ -1,4 +1,4 @@
-import type {ActionHandlerContext, CronJobConfiguration, IRpdServer} from "@ruiapp/rapid-core";
+import type { ActionHandlerContext, CronJobConfiguration, IRpdServer } from "@ruiapp/rapid-core";
 import KisDataSync from "~/sdk/kis/sync";
 
 export default {
@@ -7,7 +7,7 @@ export default {
   cronTime: "40 9 * * *",
 
   async handler(ctx: ActionHandlerContext) {
-    const {server, logger} = ctx;
+    const { server, logger } = ctx;
     logger.info("Executing kis inventory data sync job...");
 
     // await syncKisInventoryData(ctx, server);
@@ -17,8 +17,9 @@ export default {
 } satisfies CronJobConfiguration;
 
 async function syncKisInventoryData(ctx: ActionHandlerContext, server: IRpdServer) {
+  const { routerContext: routeContext } = ctx;
   const dataSync = new KisDataSync(server, ctx);
   await dataSync.initialize();
   // await dataSync.syncBaseData();
-  await dataSync.syncInventoryData();
+  await dataSync.syncInventoryData(routeContext);
 }

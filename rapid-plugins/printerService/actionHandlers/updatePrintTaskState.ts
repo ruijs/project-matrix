@@ -4,14 +4,9 @@ import type { UpdatePrintTaskStateInput } from "../PrinterPluginTypes";
 
 export const code = "updatePrintTaskState";
 
-export type UpdatePrintTaskStateActionHandlerConfig = {
-}
+export type UpdatePrintTaskStateActionHandlerConfig = {};
 
-export async function handler(
-  plugin: PrinterPlugin,
-  ctx: ActionHandlerContext,
-  config: UpdatePrintTaskStateActionHandlerConfig,
-) {
+export async function handler(plugin: PrinterPlugin, ctx: ActionHandlerContext, config: UpdatePrintTaskStateActionHandlerConfig) {
   const input: UpdatePrintTaskStateInput = ctx.input;
 
   await plugin.printerService.updatePrintTaskState(input);

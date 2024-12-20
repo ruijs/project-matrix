@@ -1,5 +1,5 @@
-import type {ActionHandlerContext, IRpdServer, ServerOperation} from "@ruiapp/rapid-core";
-import type {BaseLot, BaseMaterial,} from "~/_definitions/meta/entity-types";
+import type { ActionHandlerContext, IRpdServer, RouteContext, ServerOperation } from "@ruiapp/rapid-core";
+import type { BaseLot, BaseMaterial } from "~/_definitions/meta/entity-types";
 
 export type QueryGoodInTransferInput = {
   operationId: number;
@@ -23,22 +23,20 @@ export type QueryGoodInTransferOutput = {
   }[];
 };
 
-
 export default {
   code: "listGoodInTransfers",
   method: "POST",
   async handler(ctx: ActionHandlerContext) {
-    const {server} = ctx;
+    const { server, routerContext: routeContext } = ctx;
     const input: QueryGoodInTransferInput = ctx.input;
 
-    const transferOutputs = await listGoodInTransfers(server, input);
+    const transferOutputs = await listGoodInTransfers(server, routeContext, input);
 
     ctx.output = transferOutputs;
   },
 } satisfies ServerOperation;
 
-async function listGoodInTransfers(server: IRpdServer, input: QueryGoodInTransferInput) {
-
+async function listGoodInTransfers(server: IRpdServer, routeContext: RouteContext, input: QueryGoodInTransferInput) {
   const transfers = await server.queryDatabaseObject(
     `
       with result AS (select operation_id,
@@ -77,11 +75,10 @@ async function listGoodInTransfers(server: IRpdServer, input: QueryGoodInTransfe
       order by r.waiting_pallet_amount asc;
     `,
     [input.operationId],
+    routeContext.getDbTransactionClient(),
   );
 
-
   const transferOutputs = transfers.map((item) => {
-
     return {
       operationId: item.operation_id,
       material: item.material,

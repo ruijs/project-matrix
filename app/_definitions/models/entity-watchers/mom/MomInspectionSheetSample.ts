@@ -1,12 +1,12 @@
-import type {EntityWatcher, EntityWatchHandlerContext} from "@ruiapp/rapid-core";
-import {MomInspectionMeasurement, type MomInspectionSheet} from "~/_definitions/meta/entity-types";
+import type { EntityWatcher, EntityWatchHandlerContext } from "@ruiapp/rapid-core";
+import { MomInspectionMeasurement, type MomInspectionSheet } from "~/_definitions/meta/entity-types";
 
 export default [
   {
     eventName: "entity.beforeCreate",
     modelSingularCode: "mom_inspection_sheet_sample",
     handler: async (ctx: EntityWatchHandlerContext<"entity.beforeCreate">) => {
-      const { server, payload } = ctx;
+      const { payload } = ctx;
       let before = payload.before;
 
       if (before.measurements && Array.isArray(before.measurements)) {
@@ -25,14 +25,13 @@ export default [
     eventName: "entity.create",
     modelSingularCode: "mom_inspection_sheet_sample",
     handler: async (ctx: EntityWatchHandlerContext<"entity.create">) => {
-      const { server, payload } = ctx;
+      const { server, routerContext: routeContext, payload } = ctx;
       let after = payload.after;
 
       const momInspectionMeasurementManager = server.getEntityManager<MomInspectionMeasurement>("mom_inspection_measurement");
       const momInspectionMeasurement = await momInspectionMeasurementManager.findEntities({
-        filters: [
-          { operator: "eq", field: "sheet_id", value: after.sheet_id },
-        ],
+        routeContext,
+        filters: [{ operator: "eq", field: "sheet_id", value: after.sheet_id }],
         properties: ["id", "characteristic", "isQualified", "createdAt", "qualitativeValue", "quantitativeValue"],
       });
 
@@ -50,8 +49,7 @@ export default [
         return acc;
       }, {} as Record<string, MomInspectionMeasurement>);
 
-
-      if (Object.values(latestMeasurement).every((item) => (item.qualitativeValue !== null || item.quantitativeValue !== null))) {
+      if (Object.values(latestMeasurement).every((item) => item.qualitativeValue !== null || item.quantitativeValue !== null)) {
         const momInspectionSheetManager = server.getEntityManager<MomInspectionSheet>("mom_inspection_sheet");
 
         let result = "qualified";
@@ -61,30 +59,28 @@ export default [
         }
 
         await momInspectionSheetManager.updateEntityById({
-          routeContext: ctx.routerContext,
+          routeContext,
           id: after.sheet_id,
           entityToSave: {
             result: result,
           },
         });
       }
-
     },
   },
   {
     eventName: "entity.update",
     modelSingularCode: "mom_inspection_sheet_sample",
     handler: async (ctx: EntityWatchHandlerContext<"entity.update">) => {
-      const { server, payload } = ctx;
+      const { server, routerContext: routeContext, payload } = ctx;
       let after = payload.after;
       const changes = payload.changes;
 
-      if (changes.hasOwnProperty('isQualified')) {
+      if (changes.hasOwnProperty("isQualified")) {
         const momInspectionMeasurementManager = server.getEntityManager<MomInspectionMeasurement>("mom_inspection_measurement");
         const momInspectionMeasurement = await momInspectionMeasurementManager.findEntities({
-          filters: [
-            { operator: "eq", field: "sheet_id", value: after.sheet_id },
-          ],
+          routeContext,
+          filters: [{ operator: "eq", field: "sheet_id", value: after.sheet_id }],
           properties: ["id", "characteristic", "isQualified", "createdAt"],
         });
 
@@ -102,9 +98,7 @@ export default [
           return acc;
         }, {} as Record<string, MomInspectionMeasurement>);
 
-
         const momInspectionSheetManager = server.getEntityManager<MomInspectionSheet>("mom_inspection_sheet");
-
 
         let result = "qualified";
         // If any of the latest measurements is unqualified, the sheet is unqualified.
@@ -113,14 +107,13 @@ export default [
         }
 
         await momInspectionSheetManager.updateEntityById({
-          routeContext: ctx.routerContext,
+          routeContext,
           id: after.sheet_id,
           entityToSave: {
             result: result,
           },
         });
       }
-
     },
   },
 ] satisfies EntityWatcher<any>[];
