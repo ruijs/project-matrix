@@ -603,7 +603,7 @@ const page: RapidPage = {
                   field: "orderNum",
                 },
               ],
-              extraProperties: ["binNum"],
+              extraProperties: ["binNum", "application"],
               columns: [
                 // {
                 //   type: 'auto',
@@ -684,7 +684,7 @@ const page: RapidPage = {
                   },
                 },
                 {
-                  title: "检验状态",
+                  title: "检验结果",
                   type: "auto",
                   code: "inspectState",
                   rendererType: "rapidOptionFieldRenderer",
@@ -693,8 +693,9 @@ const page: RapidPage = {
                   },
                 },
                 {
-                  type: "金蝶传输",
-                  code: "externalCode",
+                  type: "auto",
+                  title: "金蝶传输",
+                  code: "application.externalCode",
                 },
                 {
                   type: "auto",
