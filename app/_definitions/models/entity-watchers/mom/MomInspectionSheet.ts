@@ -1,5 +1,17 @@
-import type { EntityWatcher, EntityWatchHandlerContext } from "@ruiapp/rapid-core";
-import { BaseLot, MomInspectionMeasurement, MomInspectionSheet, MomInventoryApplicationItem } from "~/_definitions/meta/entity-types";
+import { DingTalkService } from "@ruiapp/ding-talk-plugin";
+import { DingTalkMessage } from "@ruiapp/ding-talk-plugin/dist/server-sdk/dingTalkSdkTypes";
+import { getEntityRelationTargetId, IRpdServer, RouteContext, type EntityWatcher, type EntityWatchHandlerContext } from "@ruiapp/rapid-core";
+import { filter, flatten, get, map } from "lodash";
+import {
+  BaseLot,
+  BaseMaterial,
+  MomInspectionMeasurement,
+  MomInspectionRule,
+  MomInspectionSheet,
+  MomInventoryApplicationItem,
+  OcUser,
+} from "~/_definitions/meta/entity-types";
+import { renderMaterial } from "~/app-extension/rocks/material-label-renderer/MaterialLabelRenderer";
 
 export default [
   {
@@ -229,4 +241,95 @@ export default [
       }
     },
   },
+  {
+    eventName: "entity.create",
+    modelSingularCode: "mom_inspection_sheet",
+    /**
+     * 创建检验单时，尝试发送钉钉工作通知给相关用户
+     */
+    handler: async (ctx: EntityWatchHandlerContext<"entity.create">) => {
+      const { server, payload, routerContext: routeContext } = ctx;
+      const inspectionSheet = payload.after;
+
+      try {
+        trySendInspectionSheetNotification(server, routeContext, inspectionSheet);
+      } catch (err: any) {
+        server.getLogger().error("发生检验单通知失败：%s", err.message);
+      }
+    },
+  },
 ] satisfies EntityWatcher<any>[];
+
+async function trySendInspectionSheetNotification(server: IRpdServer, routeContext: RouteContext, inspectionSheet: MomInspectionSheet) {
+  const ruleId = getEntityRelationTargetId(inspectionSheet, "rule", "rule_id");
+  if (!ruleId) {
+    return;
+  }
+
+  const ruleManager = server.getEntityManager<MomInspectionRule>("mom_inspection_rule");
+  const inspectionRule = await ruleManager.findById({
+    routeContext,
+    id: ruleId,
+    relations: {
+      category: {
+        relations: {
+          notificationSubscribers: {
+            properties: ["id", "name"],
+          },
+        },
+      },
+    },
+  });
+  if (!inspectionRule) {
+    return;
+  }
+
+  const inspectionCategory = inspectionRule.category;
+  if (!inspectionCategory) {
+    return;
+  }
+
+  const enableDingTalkNotification = get(inspectionCategory, "config.enableDingTalkNotification");
+  if (!enableDingTalkNotification) {
+    return;
+  }
+
+  const notificationSubscribers: OcUser[] = get(inspectionCategory, "notificationSubscribers") || [];
+  if (!notificationSubscribers.length) {
+    return;
+  }
+
+  const subscriberIds = flatten(map(notificationSubscribers, (item) => item.id));
+  // const allExternalAccounts = flatten(map(notificationSubscribers, (item) => item.accounts));
+  // const allDingTalkAccounts = filter(allExternalAccounts, (item) => item.providerCode === "dingTalk");
+  // const dingUserIds = map(allDingTalkAccounts, (item) => item.externalAccountId);
+
+  const sheetCode = inspectionSheet.code;
+  const lotNum = inspectionSheet.lotNum;
+
+  const materialId = getEntityRelationTargetId(inspectionSheet, "material", "material_id");
+  const materialManager = server.getEntityManager<BaseMaterial>("base_material");
+  const material = await materialManager.findById({
+    routeContext,
+    id: materialId,
+  });
+
+  let dingTalkNotificationContent = get(inspectionCategory, "config.dingTalkNotificationContent", "检验任务提醒");
+  dingTalkNotificationContent += `\n\n`;
+  dingTalkNotificationContent += `- 检验单号：${sheetCode || ""}\n`;
+  dingTalkNotificationContent += `- 检验单类型：${inspectionCategory.name || ""}\n`;
+  dingTalkNotificationContent += `- 物料：${renderMaterial(material as any)}\n`;
+  dingTalkNotificationContent += `- 批号：${lotNum || ""}\n`;
+
+  const dingTalkMessage: DingTalkMessage = {
+    msgtype: "markdown",
+    markdown: {
+      title: "检验任务提醒",
+      text: dingTalkNotificationContent,
+    },
+  };
+  const logger = server.getLogger();
+  logger.info("发送检验任务通知。", { subscriberIds, dingTalkMessage });
+  const dingTalkService = server.getService<DingTalkService>("dingTalkService");
+  await dingTalkService.sendWorkMessage(routeContext, subscriberIds, dingTalkMessage);
+}
