@@ -1,5 +1,5 @@
 import { cloneDeep } from "lodash";
-import type { RapidPage, RapidEntityFormConfig } from "@ruiapp/rapid-extension";
+import type { RapidPage, RapidEntityFormConfig, SonicEntityListRockConfig } from "@ruiapp/rapid-extension";
 
 const formConfig: Partial<RapidEntityFormConfig> = {
   items: [
@@ -14,6 +14,22 @@ const formConfig: Partial<RapidEntityFormConfig> = {
     {
       code: "orderNum",
       type: "auto",
+    },
+    {
+      type: "switch",
+      code: "config",
+      label: "开启通知",
+      valueFieldName: "config.enableDingTalkNotification",
+    },
+    {
+      type: "textarea",
+      code: "config",
+      label: "通知文字",
+      valueFieldName: "config.dingTalkNotificationContent",
+    },
+    {
+      type: "auto",
+      code: "notificationSubscribers",
     },
   ],
 };
@@ -63,13 +79,31 @@ const page: RapidPage = {
         {
           type: "auto",
           code: "name",
+          width: "200px",
           fixed: "left",
         },
         {
           type: "auto",
           code: "orderNum",
           width: "100px",
-          fixed: "left",
+        },
+        {
+          type: "auto",
+          code: "config",
+          title: "开启通知",
+          width: "100px",
+          rendererType: "rapidBoolRenderer",
+          fieldName: "config.enableDingTalkNotification",
+        },
+        {
+          type: "auto",
+          code: "notificationSubscribers",
+          rendererProps: {
+            item: {
+              $type: "rapidObjectRenderer",
+              format: "{{name}}",
+            },
+          },
         },
       ],
       actions: [
@@ -107,7 +141,7 @@ const page: RapidPage = {
           },
         ],
       },
-    },
+    } satisfies SonicEntityListRockConfig,
   ],
 };
 

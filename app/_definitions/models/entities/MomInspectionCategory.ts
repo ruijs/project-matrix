@@ -32,6 +32,20 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
       targetSingularCode: "mom_inspection_category",
       targetIdColumnName: "parent_id",
     },
+    {
+      code: "notificationSubscribers",
+      name: "通知用户",
+      type: "relation[]",
+      targetSingularCode: "oc_user",
+      linkTableName: "mom_inspection_category_subscribers",
+      targetIdColumnName: "user_id",
+      selfIdColumnName: "category_id",
+    },
+    {
+      code: "config",
+      name: "配置",
+      type: "json",
+    },
   ],
 };
 

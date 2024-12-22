@@ -3355,6 +3355,14 @@ export interface MomInspectionCategory {
    */
   parent?: Partial<MomInspectionCategory>;
   /**
+   * 通知用户
+   */
+  notificationSubscribers?: any;
+  /**
+   * 配置
+   */
+  config?: Record<string, any>;
+  /**
    * 创建时间
    */
   createdAt?: string;
@@ -8005,6 +8013,18 @@ export interface OcUser {
    * Email
    */
   email?: string;
+  /**
+   * 员工号
+   */
+  employeeCode?: string;
+  /**
+   * 手机号
+   */
+  mobile?: string;
+  /**
+   * 分机号
+   */
+  telephoneExt?: string;
   /**
    * 部门
    */
