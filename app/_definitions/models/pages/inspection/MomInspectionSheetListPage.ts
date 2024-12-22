@@ -1,6 +1,7 @@
 import { cloneDeep } from "lodash";
 import type { RapidPage, RapidEntityFormConfig } from "@ruiapp/rapid-extension";
 import { materialFormatStrTemplate } from "~/utils/fmt";
+import { SonicEntityListRockConfig } from "@ruiapp/rapid-extension/src/mod";
 
 const formConfig: Partial<RapidEntityFormConfig> = {
   items: [
@@ -141,7 +142,8 @@ const page: RapidPage = {
           ],
         },
       ],
-      extraProperties: ["rule", "treatment"],
+      extraProperties: ["treatment"],
+
       extraActions: [
         {
           $type: "sonicToolbarFormItem",
@@ -307,6 +309,11 @@ const page: RapidPage = {
             category: true,
           },
         },
+        rule: {
+          relations: {
+            category: true,
+          },
+        },
       },
       columns: [
         {
@@ -362,12 +369,18 @@ const page: RapidPage = {
           },
         },
         {
+          type: "auto",
+          code: "rule",
+          width: "150px",
+          title: "检验类型",
+          fieldName: "rule.category.name",
+          rendererType: "rapidTextRenderer",
+        },
+        {
           code: "rule",
           type: "auto",
           width: "260px",
-          rendererProps: {
-            format: "{{name}}",
-          },
+          fieldName: "rule.name",
         },
         {
           type: "auto",
@@ -427,7 +440,7 @@ const page: RapidPage = {
           width: "150px",
         },
       ],
-      actionsColumnWidth: "160px",
+      actionsColumnWidth: "200px",
       actions: [
         {
           $type: "sonicRecordActionEditEntity",
@@ -467,7 +480,7 @@ const page: RapidPage = {
         "newForm.fixedFields.state": '"pending"',
         "newForm.fixedFields.approvalState": '"uninitiated"',
       },
-    },
+    } satisfies SonicEntityListRockConfig,
   ],
 };
 
