@@ -22,6 +22,7 @@ import {
   CronJobPlugin,
   EntityAccessControlPlugin,
   SettingPlugin,
+  CacheFactory,
 } from "@ruiapp/rapid-core";
 import { createRapidRequestHandler } from "@ruiapp/rapid-express";
 
@@ -30,8 +31,10 @@ import entityWatchers from "./app/_definitions/meta/entity-watchers";
 import cronJobs from "./app/_definitions/meta/cron-jobs";
 
 import "dotenv/config";
+import { RedisCacheProvider, RedisClientFactory } from "@ruiapp/redis-facility";
 import PrinterPlugin from "rapid-plugins/printerService/PrinterPlugin";
 import BpmPlugin from "rapid-plugins/bpm/BpmPlugin";
+import { DingTalkPlugin } from "@ruiapp/ding-talk-plugin";
 import { getRapidAppDefinitionFromRapidServer } from "~/utils/app-definition-utility";
 
 const isDevelopmentEnv = process.env.NODE_ENV === "development";
@@ -131,6 +134,14 @@ export async function startServer() {
       jwtKey: rapidConfig.jwtKey,
       localFileStoragePath: rapidConfig.localFileStoragePath,
     },
+    facilityFactories: [
+      new RedisClientFactory({
+        url: env.get("REDIS_URL", "redis://localhost:6379"),
+      }),
+      new CacheFactory({
+        providers: [new RedisCacheProvider()],
+      }),
+    ],
     plugins: [
       new MetaManagePlugin(),
       new DataManagePlugin(),
@@ -145,13 +156,13 @@ export async function startServer() {
       new EntityAccessControlPlugin(),
       new StateMachinePlugin(),
       new SettingPlugin(),
-      new CronJobPlugin({
-        jobs: cronJobs,
-      }),
+      new CronJobPlugin(),
       new PrinterPlugin(),
       new BpmPlugin(),
+      new DingTalkPlugin(),
     ],
     entityWatchers,
+    cronJobs,
   });
   await rapidServer.start();
 
@@ -164,9 +175,9 @@ export async function startServer() {
     "*",
     isDevelopmentEnv
       ? (req, res, next) => {
-        purgeRequireCache();
-        return createRemixRequestHandler(rapidServer)(req, res, next);
-      }
+          purgeRequireCache();
+          return createRemixRequestHandler(rapidServer)(req, res, next);
+        }
       : createRemixRequestHandler(rapidServer),
   );
   const port = process.env.PORT || 3000;

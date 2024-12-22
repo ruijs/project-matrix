@@ -124,6 +124,8 @@ import SysAction from '../models/entities/SysAction';
 import SysActionGroup from '../models/entities/SysActionGroup';
 import SysAuditLog from '../models/entities/SysAuditLog';
 import SysWebhook from '../models/entities/SysWebhook';
+import auth$AuthAccount from '../models/entities/auth/AuthAccount';
+import auth$AuthProvider from '../models/entities/auth/AuthProvider';
 import bpm$BpmInstance from '../models/entities/bpm/BpmInstance';
 import bpm$BpmJob from '../models/entities/bpm/BpmJob';
 import bpm$BpmManualTask from '../models/entities/bpm/BpmManualTask';
@@ -276,6 +278,8 @@ const entityDefinitions = [
   SysActionGroup,
   SysAuditLog,
   SysWebhook,
+  auth$AuthAccount,
+  auth$AuthProvider,
   bpm$BpmInstance,
   bpm$BpmJob,
   bpm$BpmManualTask,
@@ -428,6 +432,8 @@ const configuredEntities:TRapidEntity[] = [
   autoConfigureRapidEntity(SysActionGroup, entityDefinitions),
   autoConfigureRapidEntity(SysAuditLog, entityDefinitions),
   autoConfigureRapidEntity(SysWebhook, entityDefinitions),
+  autoConfigureRapidEntity(auth$AuthAccount, entityDefinitions),
+  autoConfigureRapidEntity(auth$AuthProvider, entityDefinitions),
   autoConfigureRapidEntity(bpm$BpmInstance, entityDefinitions),
   autoConfigureRapidEntity(bpm$BpmJob, entityDefinitions),
   autoConfigureRapidEntity(bpm$BpmManualTask, entityDefinitions),

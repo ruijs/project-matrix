@@ -8014,6 +8014,10 @@ export interface OcUser {
    */
   roles?: any;
   /**
+   * 账户
+   */
+  accounts?: any;
+  /**
    * 外部编号
    */
   externalCode?: string;
@@ -8720,6 +8724,128 @@ export interface Webhook {
  * Webhook
  */
 export type SaveWebhookInput = Omit<Webhook, 'id' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>;
+
+/**
+ * 账号
+ */
+export interface AuthAccount {
+  /**
+   * id
+   */
+  id: number;
+  /**
+   * 用户
+   */
+  user?: Partial<OcUser>;
+  /**
+   * 提供者代号
+   */
+  providerCode: string;
+  /**
+   * 登录账号
+   */
+  login?: string;
+  /**
+   * 密码
+   */
+  password?: string;
+  /**
+   * Email
+   */
+  email?: string;
+  /**
+   * 手机号
+   */
+  mobile?: string;
+  /**
+   * 外部系统账号Id
+   */
+  externalAccountId?: string;
+  /**
+   * 详细信息
+   */
+  details?: Record<string, any>;
+  /**
+   * 创建时间
+   */
+  createdAt?: string;
+  /**
+   * 创建人
+   */
+  createdBy?: Partial<OcUser>;
+  /**
+   * 更新时间
+   */
+  updatedAt?: string;
+  /**
+   * 更新人
+   */
+  updatedBy?: Partial<OcUser>;
+  /**
+   * 删除时间
+   */
+  deletedAt?: string;
+  /**
+   * 删除人
+   */
+  deletedBy?: Partial<OcUser>;
+}
+
+/**
+ * 账号
+ */
+export type SaveAuthAccountInput = Omit<AuthAccount, 'id' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>;
+
+/**
+ * 认证提供者
+ */
+export interface AuthProvider {
+  /**
+   * id
+   */
+  id: number;
+  /**
+   * 提供者代号
+   */
+  code: string;
+  /**
+   * 名称
+   */
+  name: string;
+  /**
+   * 配置信息
+   */
+  config?: Record<string, any>;
+  /**
+   * 创建时间
+   */
+  createdAt?: string;
+  /**
+   * 创建人
+   */
+  createdBy?: Partial<OcUser>;
+  /**
+   * 更新时间
+   */
+  updatedAt?: string;
+  /**
+   * 更新人
+   */
+  updatedBy?: Partial<OcUser>;
+  /**
+   * 删除时间
+   */
+  deletedAt?: string;
+  /**
+   * 删除人
+   */
+  deletedBy?: Partial<OcUser>;
+}
+
+/**
+ * 认证提供者
+ */
+export type SaveAuthProviderInput = Omit<AuthProvider, 'id' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>;
 
 /**
  * 流程实例
