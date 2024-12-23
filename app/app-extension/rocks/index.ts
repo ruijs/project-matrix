@@ -45,6 +45,7 @@ import CustomTextRenderer from "./custom-text-renderer/CustomTextRenderer";
 //filter
 import filterMaterialLotNumSelector from "./filter-material-lotnum-selector/FilterMaterialLotNumSelector";
 import ExtraCount from "./extra-count/ExtraCount";
+import SaleInventoryLotNum from "./sale-inventory-lot-num/SaleInventoryLotNum";
 
 export default [
   Link,
@@ -96,4 +97,6 @@ export default [
 
   // extra
   ExtraCount,
+
+  SaleInventoryLotNum,
 ];
