@@ -45,7 +45,7 @@ class KisDataSync {
 
   // Initialize API client
   public async initialize() {
-    this.api = await new KisHelper(this.server).NewAPIClient();
+    this.api = await new KisHelper(this.server).NewAPIClient(this.server.getLogger());
   }
 
   // Load base data for categories and units

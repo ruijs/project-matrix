@@ -2281,6 +2281,10 @@ export interface KisConfig {
    */
   refresh_auth_data_token_expire_in: number;
   /**
+   * session_secret
+   */
+  session_secret?: string;
+  /**
    * 创建时间
    */
   createdAt?: string;

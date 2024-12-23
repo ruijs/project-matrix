@@ -18,18 +18,19 @@ export default {
 
 // handle kis config
 async function refreshKisTokens(ctx: ActionHandlerContext, server: IRpdServer) {
-  const { routerContext: routeContext } = ctx;
+  const { routerContext: routeContext, logger } = ctx;
   const kisConfigManager = server.getEntityManager("kis_config");
 
   const ksc = await kisConfigManager.findEntity({ routeContext });
 
-  const kis = new KingdeeSDK({
+  const kis = new KingdeeSDK(logger, {
     baseURL: ksc.api_endpoint,
     clientId: ksc.client_id,
     clientSecret: ksc.client_secret,
     accessToken: ksc.access_token,
     accessTokenExpireIn: ksc.access_token_expire_in,
     sessionId: ksc.session_id,
+    sessionSecret: ksc.session_secret,
     sessionIdExpireIn: ksc.session_id_expire_in,
     authData: ksc.auth_data,
     refreshAuthDataToken: ksc.refresh_auth_data_token,

@@ -684,6 +684,7 @@ const entityFieldCodes = {
     'session_id_expire_in',
     'access_token_expire_in',
     'refresh_auth_data_token_expire_in',
+    'session_secret',
     'createdAt',
     'createdBy',
     'updatedAt',
