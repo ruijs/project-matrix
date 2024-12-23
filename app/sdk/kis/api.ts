@@ -107,6 +107,33 @@ class KingdeeSDK {
     this.sessionIdExpireIn = data.session_id_expire_in;
   }
 
+  public async getAuthData(): Promise<void> {
+    const config: AxiosRequestConfig = {
+      url: `/koas/user/get_service_gateway`,
+      method: 'POST',
+      headers: {
+        'Kis-State': this.machineId,
+        'Kis-Timestamp': `${ Math.floor(Date.now() / 1000) }`,
+        'Kis-Traceid': uuidv4(),
+        'Kis-Ver': '1.0',
+      },
+      data: {
+        session_id: this.sessionId,
+        pid: "1702618180f5eadcf3ca2ba2528cfac9",
+        acctnumber: "UE124385172023121514032077S",
+        icrmid: "2c9223b083cc0f130183e4c32be01544"
+      },
+    };
+
+    const response = await this.axiosInstance.request<any>(config);
+    const data = response.data.data;
+
+    this.authData = data.auth_data;
+    this.gatewayRouterAddr = data.gw_router_addr;
+    this.refreshAuthDataToken = data.extend_data.refresh_auth_data_token;
+    this.refreshAuthDataTokenExpireIn = data.extend_data.refresh_auth_data_token_expire_in;
+  }
+
   public async refreshAccessToken(): Promise<void> {
     const config: AxiosRequestConfig = {
       url: `/koas/user/refresh_login_access_token?access_token=${ this.accessToken }`,
