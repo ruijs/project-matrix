@@ -23,6 +23,7 @@ import {
   EntityAccessControlPlugin,
   SettingPlugin,
   CacheFactory,
+  LicensePlugin,
 } from "@ruiapp/rapid-core";
 import { createRapidRequestHandler } from "@ruiapp/rapid-express";
 
@@ -156,6 +157,7 @@ export async function startServer() {
       new EntityAccessControlPlugin(),
       new StateMachinePlugin(),
       new SettingPlugin(),
+      new LicensePlugin({ encryptionKey: env.get("RAPID_LICENSE_ENCRYPTION_KEY", "") }),
       new CronJobPlugin(),
       new PrinterPlugin(),
       new BpmPlugin(),
