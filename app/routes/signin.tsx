@@ -117,11 +117,20 @@ function getPageConfig(viewModel: ViewModel) {
                     script: async (event: RuiEvent) => {
                       const formData = await event.sender.form.validateFields();
                       try {
-                        await MoveStyleUtils.request({
+                        const response = await MoveStyleUtils.request({
                           method: "POST",
                           url: "/api/signin",
                           data: formData,
                         });
+
+                        const result = response.data;
+                        if (response.status !== 200 || result.error) {
+                          let errorMessage = result.error?.message;
+                          if (!errorMessage) {
+                            errorMessage = response.statusText;
+                          }
+                          throw new Error("登录失败：" + errorMessage);
+                        }
 
                         message.success("登录成功");
                         redirectOriginPath(viewModel.systemSettings.homePageUrl);
@@ -129,14 +138,9 @@ function getPageConfig(viewModel: ViewModel) {
                         console.error("Signin failed.", err);
                         const errorMessage = err?.response?.data?.error?.message || err.message;
                         message.error(errorMessage);
-                        throw err;
                       }
                     },
                   },
-                  // {
-                  //   $action: "goToPage",
-                  //   pageCode: "home",
-                  // },
                 ],
               } as RapidFormRockConfig,
             ],
