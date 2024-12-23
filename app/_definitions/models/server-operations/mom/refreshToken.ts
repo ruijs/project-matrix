@@ -22,7 +22,7 @@ export default {
 async function refreshToken(server: IRpdServer, routeContext: RouteContext, input: TokenInput) {
   const kisApi = await new KisHelper(server).NewAPIClient();
   await kisApi.getAccessToken(input.code);
-  await kisApi.refreshAuthData();
+  await kisApi.getAuthData();
   const kisConfigManager = server.getEntityManager("kis_config");
 
   const ksc = await kisConfigManager.findEntity({ routeContext });
