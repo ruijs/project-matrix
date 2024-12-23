@@ -105,7 +105,6 @@ export default {
     }
 
     const printContent = (res: IInspectionsSheet) => {
-      console.log(res, "res99");
       const title = res?.material?.category?.name?.includes("原材料") ? "进 料 检 测 报 告" : "成 品 检 测 报 告";
       const result = res?.result === "unqualified" ? false : true;
       const samples = res?.samples;

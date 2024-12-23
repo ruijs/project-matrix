@@ -454,7 +454,6 @@ const page: RapidPage = {
             formControlProps: {
               allowClear: true,
             },
-            filterMode: "contains",
             filterFields: [
               {
                 field: "items",
@@ -467,6 +466,11 @@ const page: RapidPage = {
                 ],
               },
             ],
+          },
+          {
+            type: "auto",
+            code: "to",
+            label: "仓库",
           },
           {
             type: "auto",
@@ -518,6 +522,12 @@ const page: RapidPage = {
               if(changedValues.hasOwnProperty('lotNum')){
                 event.scope.setVars({
                   lotNum: changedValues?.lotNum,
+                }, true);
+              }
+
+               if(changedValues.hasOwnProperty('to')){
+                event.scope.setVars({
+                  warehouse: changedValues?.to,
                 }, true);
               }
 
