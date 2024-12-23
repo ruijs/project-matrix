@@ -131,25 +131,40 @@ class KingdeeSDK {
   }
 
   public async getAuthData(): Promise<void> {
+    const timestamp = `${Math.floor(Date.now() / 1000)}`;
+    const traceID = uuidv4();
+
     const config: AxiosRequestConfig = {
-      url: `/koas/user/get_service_gateway`,
-      method: 'POST',
+      url: `/koas/user/get_service_gateway?access_token=${this.accessToken}`,
+      method: "POST",
       headers: {
-        'Kis-State': this.machineId,
-        'Kis-Timestamp': `${ Math.floor(Date.now() / 1000) }`,
-        'Kis-Traceid': uuidv4(),
-        'Kis-Ver': '1.0',
+        "Kis-State": this.machineId,
+        "Kis-Timestamp": timestamp,
+        "Kis-Traceid": traceID,
+        "Kis-Ver": "1.0",
+        "KIS-Signature": getKisSignature({
+          state: this.machineId,
+          sessionId: this.sessionId,
+          traceID,
+          sessionSecret: this.sessionSecret,
+          timestamp,
+        }),
       },
       data: {
         session_id: this.sessionId,
         pid: "1702618180f5eadcf3ca2ba2528cfac9",
         acctnumber: "UE124385172023121514032077S",
-        icrmid: "2c9223b083cc0f130183e4c32be01544"
+        icrmid: "2c9223b083cc0f130183e4c32be01544",
       },
     };
 
     const response = await this.axiosInstance.request<any>(config);
-    const data = response.data.data;
+    const result = response.data;
+    if (result.errcode) {
+      this.#logger.error("获取业务接口网关和auth_data失败。", { result });
+      throw newKisApiError("获取业务接口网关和auth_data失败。", result);
+    }
+    const data = result.data;
 
     this.authData = data.auth_data;
     this.gatewayRouterAddr = data.gw_router_addr;
