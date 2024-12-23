@@ -68,7 +68,7 @@ export default {
                   quantitativeValue: it.kind === "quantitative" ? it.measuredValue : "",
                 };
               })
-              .filter((i: any) => i.qualitativeValue || i.quantitativeValue),
+              .filter((i: any) => i.qualitativeValue !== "" || i.quantitativeValue !== ""),
           };
         })
         .map((item: any) => item.items)
@@ -819,8 +819,16 @@ function useUpdateInspectionMeasurement(options: { sheetId: string; onSuccess: (
     const params = {
       isQualified: inspectionItem.isQualified,
       round: inspectionItem.round,
-      quantitativeValue: inspectionItem.quantitativeValue || null,
-      qualitativeValue: inspectionItem.qualitativeValue || null,
+      quantitativeValue: inspectionItem.quantitativeValue
+        ? inspectionItem.quantitativeValue
+        : inspectionItem.quantitativeValue === 0
+        ? inspectionItem.quantitativeValue
+        : null,
+      qualitativeValue: inspectionItem.qualitativeValue
+        ? inspectionItem.qualitativeValue
+        : inspectionItem.qualitativeValue === 0
+        ? inspectionItem.qualitativeValue
+        : null,
     };
 
     try {
