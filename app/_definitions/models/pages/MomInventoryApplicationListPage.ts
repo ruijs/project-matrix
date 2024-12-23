@@ -298,7 +298,7 @@ const page: RapidPage = {
           $type: "antdButton",
           href: `/api/app/exportExcel?type=application`,
           $exps: {
-            href: "'/api/app/exportExcel?type=application&businessType=' + $scope.vars.businessType + '&applicant=' + $scope.vars.applicant + '&createdAt=' + $scope.vars.createdAt + '&endAt=' + $scope.vars.endAt + '&operationState=' + $scope.vars.operationState + '&material=' + $scope.vars.material + '&lotNum=' + $scope.vars.lotNum + '&biller=' + $scope.vars.biller",
+            href: "'/api/app/exportExcel?type=application&businessType=' + $scope.vars.businessType + '&applicant=' + $scope.vars.applicant + '&createdAt=' + $scope.vars.createdAt + '&endAt=' + $scope.vars.endAt + '&operationState=' + $scope.vars.operationState + '&material=' + $scope.vars.material + '&lotNum=' + $scope.vars.lotNum + '&biller=' + $scope.vars.biller + '&warehouse=' + $scope.vars.warehouse",
           },
           children: [
             {
@@ -450,11 +450,10 @@ const page: RapidPage = {
           {
             type: "auto",
             label: "批号",
-            code: "lotNum",
+            code: "lot",
             formControlProps: {
               allowClear: true,
             },
-            filterMode: "contains",
             filterFields: [
               {
                 field: "items",
@@ -467,6 +466,11 @@ const page: RapidPage = {
                 ],
               },
             ],
+          },
+          {
+            type: "auto",
+            code: "to",
+            label: "仓库",
           },
           {
             type: "auto",
@@ -507,17 +511,21 @@ const page: RapidPage = {
             script: `
               const changedValues = event.args[0] || {};
 
-              console.log(changedValues,"changedValues")
-
               if(changedValues.hasOwnProperty('material')){
                 event.scope.setVars({
                   material: changedValues?.material,
                 }, true);
               }
 
-              if(changedValues.hasOwnProperty('lotNum')){
+              if(changedValues.hasOwnProperty('lot')){
                 event.scope.setVars({
-                  lotNum: changedValues?.lotNum,
+                  lotNum: changedValues?.lot,
+                }, true);
+              }
+
+               if(changedValues.hasOwnProperty('to')){
+                event.scope.setVars({
+                  warehouse: changedValues?.to,
                 }, true);
               }
 

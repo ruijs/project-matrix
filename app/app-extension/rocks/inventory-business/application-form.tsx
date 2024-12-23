@@ -1,21 +1,24 @@
+/* eslint-disable react/display-name */
 import { useNavigate } from "@remix-run/react";
-import { RockEvent, RockInstanceContext, type Rock } from "@ruiapp/move-style";
+import type { RockEvent, RockInstanceContext, type Rock } from "@ruiapp/move-style";
 import { useDebounceFn, useSetState } from "ahooks";
 import { Button, Form, Input, InputNumber, Select, Space, Table } from "antd";
 import { memo, useEffect, useMemo, useState } from "react";
 import rapidApi, { rapidApiRequest } from "~/rapidApi";
 import { PlusOutlined } from "@ant-design/icons";
 import { renderRock } from "@ruiapp/react-renderer";
-import { forEach, isEmpty, last, omit, pick, split } from "lodash";
+import { forEach, isEmpty, last, pick } from "lodash";
 import dayjs from "dayjs";
 import { materialFormatStrTemplate } from "~/utils/fmt";
-import { ColumnProps } from "antd/lib/table";
+import type { ColumnProps } from "antd/lib/table";
 import { decimalSum } from "~/utils/decimal";
+import SaleLotNumSelect from "./saleLotNumSelect";
 
 const LotSelect = memo<{
   isSalesOut: boolean;
   operationType: string;
   businessType: string;
+  businessTypeName: string | undefined;
   customerId: string;
   warehouseId?: string;
   record: Record<string, any>;
@@ -23,9 +26,21 @@ const LotSelect = memo<{
   context: RockInstanceContext;
   onChange(v: string): void;
 }>((props) => {
-  const { isSalesOut, operationType, businessType, customerId, warehouseId, record: r, recordIndex: i, context } = props;
+  const { isSalesOut, operationType, businessType, businessTypeName, customerId, warehouseId, record: r, recordIndex: i, context } = props;
 
   const { loading, inspectionRule } = useInspectionRule({ customerId, materialId: r.material?.id });
+
+  if (businessTypeName === "生产退料入库") {
+    return (
+      <SaleLotNumSelect
+        value={r.lotNum}
+        materialId={r.material?.id}
+        onChange={(val: string) => {
+          props.onChange(val);
+        }}
+      />
+    );
+  }
 
   if (isSalesOut && customerId && inspectionRule) {
     return (
@@ -443,7 +458,7 @@ export default {
               </Form.Item>
             </>
           )}
-          {(businessType === "销售出库") && (
+          {businessType === "销售出库" && (
             <>
               <Form.Item label="物流公司" name="express" rules={[{ message: "物流公司" }]}>
                 {renderRock({
@@ -748,6 +763,7 @@ export default {
                         customerId={form.getFieldValue("customer")}
                         operationType={operationType!}
                         businessType={form.getFieldValue("businessType")}
+                        businessTypeName={businessType}
                         onChange={(val) => {
                           setMaterialItems((draft) => {
                             return draft.map((item, index) => (i === index ? { ...item, lotNum: val } : item));

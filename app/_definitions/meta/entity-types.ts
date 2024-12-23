@@ -1254,7 +1254,7 @@ export interface BusinessTypeOcRole {
   /**
    * 角色
    */
-  roles: any;
+  businessTypeRoles: any;
   /**
    * 业务类型
    */

@@ -26,14 +26,14 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
       required: true,
     },
     {
-      code: "roles",
+      code: "businessTypeRoles",
       name: "角色",
       type: "relation[]",
       required: true,
       targetSingularCode: "oc_role",
       linkTableName: "business_type_oc_role_role_links",
       targetIdColumnName: "role_id",
-      selfIdColumnName: "role_id",
+      selfIdColumnName: "business_type_roles_id",
     },
     {
       code: "businessType",

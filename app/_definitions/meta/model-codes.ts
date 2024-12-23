@@ -438,7 +438,7 @@ const entityFieldCodes = {
     'code',
     'name',
     'orderNum',
-    'roles',
+    'businessTypeRoles',
     'businessType',
     'createdAt',
     'createdBy',

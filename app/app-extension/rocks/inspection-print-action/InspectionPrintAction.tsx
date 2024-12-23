@@ -77,6 +77,7 @@ export default {
           const name = measurement.characteristic?.name;
           const value = measurement.qualitativeValue || measurement.quantitativeValue || "-";
           const sampleCode = measurement.sampleCode;
+          const round = measurement.round || "-";
 
           if (!stats[name]) {
             stats[name] = {
@@ -86,7 +87,7 @@ export default {
           }
 
           stats[name].appearances++;
-          stats[name].values.push({ sampleCode, value });
+          stats[name].values.push({ sampleCode, value, round });
         });
       });
 
@@ -94,18 +95,13 @@ export default {
     };
 
     function convertArrayToString(arr: any) {
-      // 检查数组是否至少有两个元素
-      if (arr.length < 2) {
-        return arr[0];
+      const firstElement = arr?.find((item: any) => item.round == 1)?.value;
+      const remainingElements = arr?.filter((item: any) => item.round !== 1)?.map((item: any) => item.value);
+      if (remainingElements.length > 0) {
+        return `${firstElement}(${remainingElements.join(",")})`;
+      } else {
+        return `${firstElement}`;
       }
-
-      // 获取数组的第一个元素
-      const firstElement = arr[0];
-      // 获取数组中剩余的所有元素，并转换为字符串
-      const remainingElements = arr.slice(1).join("，");
-
-      // 返回格式化的字符串
-      return `${firstElement}(${remainingElements})`;
     }
 
     const printContent = (res: IInspectionsSheet) => {
@@ -132,10 +128,9 @@ export default {
               category: item?.characteristic?.category?.name, //特性分类
             };
           }) || [];
-
       const samplesArray = formateMeasurements.map((item: any) => {
         const appearances = formattedResult.find((it) => item.name === it.name)?.appearances || "-";
-        const values = formattedResult.find((it) => item.name === it.name)?.values.map((v: { sampleCode: string; value: string }) => v.value) || [];
+        const values = formattedResult.find((it) => item.name === it.name)?.values;
         return {
           ...item,
           appearances,
@@ -185,8 +180,6 @@ export default {
             </tr>
             <tr>
               <td colSpan={3}>
-                (如无COA、COA指标、包装规格、有效期等不符合)
-                <br />
                 <div style={{ height: 50, width: "100%" }} />
               </td>
             </tr>
@@ -199,7 +192,7 @@ export default {
               <td style={{ width: "90px" }}>单位</td>
               <td style={{ width: "70px" }}>指标</td>
               <td style={{ width: "90px" }}>特性分类</td>
-              <td style={{ width: "90px" }}>检测频次</td>
+              <td style={{ width: "90px" }}>样本数量</td>
               <td>检测结果</td>
             </tr>
             {/* <!-- 在这里添加具体的检测项目和结果 --> */}
@@ -277,6 +270,7 @@ const useInspectionSheet = () => {
           "code",
           "state",
           "approvalState",
+          "acceptQuantity",
           "result",
           "material",
           "customer",

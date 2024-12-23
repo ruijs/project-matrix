@@ -1,7 +1,7 @@
 /* eslint-disable array-callback-return */
 import { type Rock } from "@ruiapp/move-style";
 import { useDebounce, useSetState } from "ahooks";
-import { Input, Pagination } from "antd";
+import { Input, Pagination, Table } from "antd";
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import rapidApi from "~/rapidApi";
@@ -34,12 +34,14 @@ export default {
         title: "生产批号",
         dataIndex: "lotNum",
         width: 160,
+        clasName: "pm_inspection-lotNum",
         fixed: "left",
         render: (_: any) => <div style={{ padding: "8px 0" }}>{_ || ""}</div>,
       },
       {
         title: "产品",
         dataIndex: "materialName",
+        clasName: "pm_inspection-lotNum",
         width: 160,
         fixed: "left",
         render: (_: any) => <div style={{ padding: "8px 0" }}>{_ || ""}</div>,
@@ -53,6 +55,7 @@ export default {
       {
         title: "成品送样时间",
         dataIndex: "inspectionDate",
+        clasName: "pm_inspection-lotNum",
         width: 140,
         fixed: "left",
         render: (_: any) => <div style={{ padding: "8px 0" }}>{dayjs(_).format("YYYY年MM月DD日") || ""}</div>,
@@ -60,6 +63,7 @@ export default {
       {
         title: "检测进度",
         dataIndex: "state",
+        clasName: "pm_inspection-lotNum",
         width: 120,
         fixed: "left",
         render: (_: any) => <div style={{ padding: "8px 0" }}>{_ || ""}</div>,
@@ -67,6 +71,7 @@ export default {
       {
         title: "成品检测时间",
         dataIndex: "inspected_at",
+        clasName: "pm_inspection-lotNum",
         width: 140,
         fixed: "left",
         render: (_: any) => <div style={{ padding: "8px 0" }}>{dayjs(_).format("YYYY年MM月DD日") || ""}</div>,
@@ -74,6 +79,7 @@ export default {
       {
         title: "判定",
         dataIndex: "result",
+        clasName: "pm_inspection-lotNum",
         width: 120,
         fixed: "left",
         render: (_: any) => <div style={{ padding: "8px 0" }}>{_ || ""}</div>,
@@ -116,23 +122,38 @@ export default {
             <Search placeholder="请输入规格、名称、编号" allowClear enterButton size="middle" onSearch={onSearch} />
           </div>
         </div>
-        <div style={{ height: 850, overflow: "auto" }}>
-          <AntdVirtualTable
-            loading={loading}
-            scroll={{
-              x: tableWidth,
-              scrollToFirstRowOnChange: true,
-            }}
-            columns={columns.concat(extraCol as any) as any}
-            dataSource={dataSource}
-            rowHeight={80}
-            pagination={false}
-          />
-        </div>
+        <Table
+          loading={loading}
+          scroll={{
+            x: tableWidth,
+            y: 850,
+            // scrollToFirstRowOnChange: true,
+          }}
+          columns={columns.concat(extraCol as any) as any}
+          dataSource={dataSource}
+          pagination={false}
+        />
+
+        {/* <AntdVirtualTable
+          loading={loading}
+          scroll={{
+            x: tableWidth,
+            y: 850,
+            // scrollToFirstRowOnChange: true,
+          }}
+          columns={columns.concat(extraCol as any) as any}
+          dataSource={dataSource}
+          rowHeight={80}
+          pagination={false}
+        /> */}
+        {/* <div style={{ height: 850, overflow: "auto", zIndex: 10 }}>
+         
+        </div> */}
         <div style={{ height: 50, marginTop: 20, display: "flex", justifyContent: "flex-end" }}>
           <Pagination
             current={pageNum}
             pageSize={DEFAULT_LIMIT}
+            showSizeChanger={false}
             total={total || 0}
             onChange={(page, pageSize) => {
               setPageNum(page);
