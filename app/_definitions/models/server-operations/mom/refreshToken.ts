@@ -1,6 +1,7 @@
 import { ActionHandlerContext, IRpdServer, RouteContext, ServerOperation } from "@ruiapp/rapid-core";
 import KisHelper from "~/sdk/kis/helper";
 import { SaveKisConfigInput } from "~/_definitions/meta/entity-types";
+import KingdeeSDK from "~/sdk/kis/api";
 
 export type TokenInput = {
   code: string;
@@ -20,11 +21,14 @@ export default {
 } satisfies ServerOperation;
 
 async function refreshToken(server: IRpdServer, routeContext: RouteContext, input: TokenInput) {
-  const kisApi = await new KisHelper(server).NewAPIClient();
+  const kisApi = await new KisHelper(server).NewAPIClient(server.getLogger());
   await kisApi.getAccessToken(input.code);
   await kisApi.getAuthData();
-  const kisConfigManager = server.getEntityManager("kis_config");
+  await saveAuthInfoToDb(server, routeContext, kisApi);
+}
 
+async function saveAuthInfoToDb(server: IRpdServer, routeContext: RouteContext, kisApi: KingdeeSDK) {
+  const kisConfigManager = server.getEntityManager("kis_config");
   const ksc = await kisConfigManager.findEntity({ routeContext });
 
   return await kisConfigManager.updateEntityById({
@@ -38,6 +42,7 @@ async function refreshToken(server: IRpdServer, routeContext: RouteContext, inpu
       refresh_auth_data_token_expire_in: kisApi.refreshAuthDataTokenExpireIn,
       session_id: kisApi.sessionId,
       session_id_expire_in: kisApi.sessionIdExpireIn,
+      session_secret: kisApi.sessionSecret,
       gateway_router_addr: kisApi.gatewayRouterAddr,
     } as SaveKisConfigInput,
   });

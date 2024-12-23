@@ -90,7 +90,7 @@ export default [
     modelSingularCode: "mom_inventory_operation",
     handler: async (ctx: EntityWatchHandlerContext<"entity.update">) => {
       const { server, routerContext: routeContext, payload } = ctx;
-      const kisApi = await new KisHelper(server).NewAPIClient();
+      const kisApi = await new KisHelper(server).NewAPIClient(server.getLogger());
       const kisOperationApi = new KisInventoryOperationAPI(kisApi);
 
       const changes = payload.changes;

@@ -77,6 +77,11 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
       type: "integer",
       required: true,
     },
+    {
+      code: "session_secret",
+      name: "session_secret",
+      type: "text",
+    },
   ],
 };
 

@@ -26,7 +26,7 @@ export default {
 export async function handleKisOperation(server: IRpdServer, routeContext: RouteContext, input: CreateGoodTransferInput) {
   const inventoryOperationManager = server.getEntityManager<MomInventoryOperation>("mom_inventory_operation");
 
-  const kisApi = await new KisHelper(server).NewAPIClient();
+  const kisApi = await new KisHelper(server).NewAPIClient(server.getLogger());
   const kisOperationApi = new KisInventoryOperationAPI(kisApi);
 
   const inventoryOperation = await inventoryOperationManager.findEntity({
