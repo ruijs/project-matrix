@@ -16,7 +16,6 @@ export default function SaleLotNumSelect({ materialId, value, onChange }: IProps
     loadingSaleOutInventory(materialId);
   }, [materialId]);
 
-  console.log(materialId, "materialID88");
   return (
     <Select
       value={value}
