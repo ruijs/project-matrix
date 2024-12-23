@@ -63,6 +63,36 @@ const page: RapidPage = {
           icon: "PlusOutlined",
           actionStyle: "primary",
         },
+        {
+          $type: "rapidToolbarButton",
+          text: "同步钉钉用户信息",
+          onAction: [
+            {
+              $action: "sendHttpRequest",
+              method: "POST",
+              url: "/api/svc/dingTalk/bindDingTalkAccountForUsersWithMobile",
+              data: {},
+              onSuccess: [
+                {
+                  $action: "antdToast",
+                  type: "success",
+                  $exps: {
+                    content: "'钉钉用户信息同步成功。共绑定 ' + ($event.args[0]?.totalBindedCount || 0) + ' 个钉钉用户。'",
+                  },
+                },
+              ],
+              onError: [
+                {
+                  $action: "antdToast",
+                  type: "error",
+                  $exps: {
+                    content: "'钉钉用户信息同步失败：' + ($event.args[0]?.message || '')",
+                  },
+                },
+              ],
+            },
+          ],
+        },
       ],
       extraActions: [
         {
