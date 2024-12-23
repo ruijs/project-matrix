@@ -50,7 +50,7 @@ function useSaleOutInventory() {
           {
             field: "createdAt",
             operator: "gt",
-            value: dayjs().subtract(2, "month"),
+            value: dayjs().subtract(15, "day"),
           },
           {
             field: "createdAt",

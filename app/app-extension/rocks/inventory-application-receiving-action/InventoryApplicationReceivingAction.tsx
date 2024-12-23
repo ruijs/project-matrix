@@ -47,7 +47,10 @@ export default {
         name: "setFieldsValue",
         payload: {
           ...props.record,
-          manufactureDate: applicationDetail?.businessType?.id == "2" ? get(props.record, "lotNum")?.split("-")[0] : null,
+          manufactureDate:
+            applicationDetail?.businessType?.id == "生产入库" || applicationDetail?.businessType?.name === "生产退料入库"
+              ? get(props.record, "lotNum")?.split("-")[0]
+              : null,
           material: get(props.record, "material.id"),
         },
       });
