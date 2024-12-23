@@ -1,7 +1,7 @@
 /* eslint-disable array-callback-return */
 import { type Rock } from "@ruiapp/move-style";
 import { useDebounce, useSetState } from "ahooks";
-import { Input, Pagination } from "antd";
+import { Input, Pagination, Table } from "antd";
 import dayjs from "dayjs";
 import type { CSSProperties } from "react";
 import { useEffect, useState } from "react";
@@ -110,7 +110,18 @@ export default {
             <Search placeholder="请输入规格、名称、编号" allowClear enterButton size="middle" onSearch={onSearch} />
           </div>
         </div>
-        <div style={{ height: 850, overflow: "auto" }}>
+        <Table
+          loading={loading}
+          scroll={{
+            x: tableWidth,
+            y: 850,
+            // scrollToFirstRowOnChange: true,
+          }}
+          columns={columns.concat(extraCol as any) as any}
+          dataSource={dataSource}
+          pagination={false}
+        />
+        {/* <div style={{ height: 850, overflow: "auto" }}>
           <AntdVirtualTable
             loading={loading}
             scroll={{
@@ -122,12 +133,13 @@ export default {
             rowHeight={80}
             pagination={false}
           />
-        </div>
+        </div> */}
         <div style={{ height: 50, marginTop: 10, display: "flex", justifyContent: "flex-end" }}>
           <Pagination
             current={pageNum}
             pageSize={DEFAULT_LIMIT}
             total={total || 0}
+            showSizeChanger={false}
             onChange={(page, pageSize) => {
               setPageNum(page);
               inspectionFeedStockData(page, debouncedKeyword);
