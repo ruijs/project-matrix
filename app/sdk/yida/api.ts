@@ -8,6 +8,7 @@ import {
   MomTransportOperationItem,
   MomWorkFeed,
   MomWorkOrder,
+  MomWorkReport,
 } from "~/_definitions/meta/entity-types";
 import { fmtCharacteristicNorminal } from "~/utils/fmt";
 import { isNumeric } from "~/utils/isNumeric";
@@ -511,7 +512,7 @@ class YidaApi {
         textField_kocks567: input?.workOrder?.material?.name, // 物料
         textField_kpc0di1i: input?.workOrder?.lotNum, // 批号
         textField_m25kshxg: input?.workOrder?.code, // 工单号
-        textField_m32dy4v0: `100# {${input?.workOrder?.oilMixtureRatio1}%:150BS {${input?.workOrder?.oilMixtureRatio2}%`, // 混油比例
+        textField_m32dy4v0: `150BS:100# {${input?.workOrder?.oilMixtureRatio2}%:{${input?.workOrder?.oilMixtureRatio1}%`, // 混油比例
         textField_m32dy4v5: input?.workOrder?.stirringPressure, // 搅拌压力(MP)
         textField_m32dy4v1: input?.workOrder?.paraffinQuantity, // 石蜡油数量(kg)
         textField_m32dy4v6: input?.workOrder?.tankNumber, // 搅拌罐编号,
@@ -598,33 +599,36 @@ class YidaApi {
     console.log(resp.data);
   }
 
-  public async uploadFeeds(input: MomWorkFeed) {
-    let formDataJson = {
-      textField_m3wfkrg6: 1, // 工厂
-      textField_m3wfkrg5: 11, // 工单
-      textField_m3wfkrg7: 11, // 产出物料
-      textField_m3wfkrg8: 11, // 批号
-      textField_m3wfkrg9: 11, // 工序
-      textField_m3wfkrgb: 11, // 原材料
-      textField_m3wfkrgc: 11, // 原材料批号
-    };
+  public async uploadFAWProductionRecord(input: MomWorkReport) {
+    for (const feed of input.feeds) {
+      let formDataJson = {
+        textField_kocks566: input?.factory?.name, // 工厂
+        textField_kpc0di1h: input.workOrder?.code, // 工单
+        textField_kocks567: input.workOrder?.material?.name, // 产出物料
+        textField_kpc0di1l: input.process?.name, // 工序
+        textField_kpc0di1i: input.equipment?.name, // 设备
+        textField_kpc0di1m: input.lotNum, // 批号
+        textField_m4w0q058: feed.material?.name, // 原材料
+        textField_m4w0q059: feed.lotNum, // 原材料批号
+      };
 
-    let formDataJsonStr = JSON.stringify(formDataJson);
+      let formDataJsonStr = JSON.stringify(formDataJson);
 
-    let dingtalkUserId = input?.createdBy?.dingtalkUserId || "036025480920111923";
+      let dingtalkUserId = input?.createdBy?.dingtalkUserId || "036025480920111923";
 
-    let payload = {
-      language: "zh_CN",
-      formUuid: "FORM-7A87DE6777214CD0B6C88B98A76670C04699",
-      appType: "APP_MV044H55941SP5OMR0PI",
-      formDataJson: formDataJsonStr,
-      systemToken: "9FA66WC107APIRYWEES29D6BYQHM23FRS812MWB",
-      userId: dingtalkUserId,
-    };
+      let payload = {
+        language: "zh_CN",
+        formUuid: "FORM-A0CE81198BD74CFAB5350AA362A3EC2BQDUU",
+        appType: "APP_VKCHKCFNQUQZW2R3HFVC",
+        formDataJson: formDataJsonStr,
+        systemToken: "F2766O91D3BQXRJGCE0387JGX2582G7G15I3M6W3",
+        userId: dingtalkUserId,
+      };
 
-    const resp = await this.api.PostResourceRequest("/v1.0/yida/forms/instances", payload);
-    console.log("uploadFeeds response:");
-    console.log(resp.data);
+      const resp = await this.api.PostResourceRequest("/v1.0/yida/forms/instances", payload);
+      console.log("uploadFAWProductionRecord response:");
+      console.log(resp.data);
+    }
   }
 
   public async uploadFAWProcessMeasurement(input: MomRouteProcessParameterMeasurement) {
@@ -1035,134 +1039,128 @@ class YidaApi {
   public async uploadFAWTYSTransportMeasurement(inputs: MomTransportOperationItem[]) {
     // input.oilMixtureRatio
     for (const input of inputs) {
-      if (input?.sealNumMatch) {
-        let formDataJson = {
-          textField_l3plle21: "5RD", // 供应商代码
-          textField_l3plle22: "上海华特企业集团股份有限公司", // 供应商名称
-          textField_l3plle23: "/", // 车型
-          textField_l3plle24: "/", // 零件号
-          textField_l3plle25: "/", // 零件名
-          textField_l3plle26: "/", // 配置
-          textField_l3plle27: "泰洋圣运输", // 工位
-          textField_l3plle29: "铅封号/是否一致", // 参数名
-          numberField_l3plle2x: input.sealNumMatch ? 1 : 0, // 参数值
-          numberField_l3plle2y: 1, // 下公差
-          numberField_l3plle2z: 1, // 上公差
-          dateField_l3plle30: dayjs().unix() * 1000,
-          textField_l3plle2h: input.sealNumMatch ? "合格" : "不合格",
-          textField_l3plle2m: "/", // 零件负责人
-          textField_l3plle2o: input.sealNumMatch ? 1 : 0, // 参数值
-          textField_l3plle2q: 1, // 下公差
-          textField_l3plle2s: 1, // 上公差
-          textField_l3plle2u: input?.lotNum, // intime
-        };
+      let formDataJson = {
+        textField_l3plle21: "5RD", // 供应商代码
+        textField_l3plle22: "上海华特企业集团股份有限公司", // 供应商名称
+        textField_l3plle23: "/", // 车型
+        textField_l3plle24: "/", // 零件号
+        textField_l3plle25: "/", // 零件名
+        textField_l3plle26: "/", // 配置
+        textField_l3plle27: "泰洋圣运输", // 工位
+        textField_l3plle29: "铅封号/是否一致", // 参数名
+        numberField_l3plle2x: input.sealNumMatch ? 1 : 0, // 参数值
+        numberField_l3plle2y: 1, // 下公差
+        numberField_l3plle2z: 1, // 上公差
+        dateField_l3plle30: dayjs().unix() * 1000,
+        textField_l3plle2h: input.sealNumMatch ? "合格" : "不合格",
+        textField_l3plle2m: "/", // 零件负责人
+        textField_l3plle2o: input.sealNumMatch ? 1 : 0, // 参数值
+        textField_l3plle2q: 1, // 下公差
+        textField_l3plle2s: 1, // 上公差
+        textField_l3plle2u: input?.lotNum, // intime
+      };
 
-        let formDataJsonStr = JSON.stringify(formDataJson);
+      let formDataJsonStr = JSON.stringify(formDataJson);
 
-        let dingtalkUserId = input?.createdBy?.dingtalkUserId || "036025480920111923";
+      let dingtalkUserId = input?.createdBy?.dingtalkUserId || "036025480920111923";
 
-        let payload = {
-          noExecuteExpression: true,
-          language: "zh_CN",
-          formUuid: "FORM-E9116BD087B44F1AB0DFC7F86FFB74E2YCGB",
-          processCode: "TPROC--9KA66MC17WBQBV2S9T39V5JN6J9Z227G15I3M0",
-          searchCondition: "[]",
-          appType: "APP_VKCHKCFNQUQZW2R3HFVC",
-          formDataJson: formDataJsonStr,
-          systemToken: "F2766O91D3BQXRJGCE0387JGX2582G7G15I3M6W3",
-          userId: dingtalkUserId,
-          departmentId: "1",
-        };
-        const resp = await this.api.PostResourceRequest("/v2.0/yida/processes/instances/start", payload);
-        console.log("uploadFAWTYSTransportMeasurement response:");
-        console.log(resp.data);
-      }
+      let payload = {
+        noExecuteExpression: true,
+        language: "zh_CN",
+        formUuid: "FORM-E9116BD087B44F1AB0DFC7F86FFB74E2YCGB",
+        processCode: "TPROC--9KA66MC17WBQBV2S9T39V5JN6J9Z227G15I3M0",
+        searchCondition: "[]",
+        appType: "APP_VKCHKCFNQUQZW2R3HFVC",
+        formDataJson: formDataJsonStr,
+        systemToken: "F2766O91D3BQXRJGCE0387JGX2582G7G15I3M6W3",
+        userId: dingtalkUserId,
+        departmentId: "1",
+      };
+      let resp = await this.api.PostResourceRequest("/v2.0/yida/processes/instances/start", payload);
+      console.log("uploadFAWTYSTransportMeasurement response:");
+      console.log(resp.data);
 
-      if (input?.binNumMatch) {
-        let formDataJson = {
-          textField_l3plle21: "5RD", // 供应商代码
-          textField_l3plle22: "上海华特企业集团股份有限公司", // 供应商名称
-          textField_l3plle23: "/", // 车型
-          textField_l3plle24: "/", // 零件号
-          textField_l3plle25: "/", // 零件名
-          textField_l3plle26: "/", // 配置
-          textField_l3plle27: "泰洋圣运输", // 工位
-          textField_l3plle29: "罐号/是否一致", // 参数名
-          numberField_l3plle2x: input.binNumMatch ? 1 : 0, // 参数值
-          numberField_l3plle2y: 1, // 下公差
-          numberField_l3plle2z: 1, // 上公差
-          dateField_l3plle30: dayjs().unix() * 1000,
-          textField_l3plle2h: input.binNumMatch ? "合格" : "不合格",
-          textField_l3plle2m: "/", // 零件负责人
-          textField_l3plle2o: input.binNumMatch ? 1 : 0, // 参数值
-          textField_l3plle2q: 1, // 下公差
-          textField_l3plle2s: 1, // 上公差
-          textField_l3plle2u: input?.lotNum, // intime
-        };
+      formDataJson = {
+        textField_l3plle21: "5RD", // 供应商代码
+        textField_l3plle22: "上海华特企业集团股份有限公司", // 供应商名称
+        textField_l3plle23: "/", // 车型
+        textField_l3plle24: "/", // 零件号
+        textField_l3plle25: "/", // 零件名
+        textField_l3plle26: "/", // 配置
+        textField_l3plle27: "泰洋圣运输", // 工位
+        textField_l3plle29: "罐号/是否一致", // 参数名
+        numberField_l3plle2x: input.binNumMatch ? 1 : 0, // 参数值
+        numberField_l3plle2y: 1, // 下公差
+        numberField_l3plle2z: 1, // 上公差
+        dateField_l3plle30: dayjs().unix() * 1000,
+        textField_l3plle2h: input.binNumMatch ? "合格" : "不合格",
+        textField_l3plle2m: "/", // 零件负责人
+        textField_l3plle2o: input.binNumMatch ? 1 : 0, // 参数值
+        textField_l3plle2q: 1, // 下公差
+        textField_l3plle2s: 1, // 上公差
+        textField_l3plle2u: input?.lotNum, // intime
+      };
 
-        let formDataJsonStr = JSON.stringify(formDataJson);
+      formDataJsonStr = JSON.stringify(formDataJson);
 
-        let dingtalkUserId = input?.createdBy?.dingtalkUserId || "036025480920111923";
+      dingtalkUserId = input?.createdBy?.dingtalkUserId || "036025480920111923";
 
-        let payload = {
-          noExecuteExpression: true,
-          language: "zh_CN",
-          formUuid: "FORM-E9116BD087B44F1AB0DFC7F86FFB74E2YCGB",
-          processCode: "TPROC--9KA66MC17WBQBV2S9T39V5JN6J9Z227G15I3M0",
-          searchCondition: "[]",
-          appType: "APP_VKCHKCFNQUQZW2R3HFVC",
-          formDataJson: formDataJsonStr,
-          systemToken: "F2766O91D3BQXRJGCE0387JGX2582G7G15I3M6W3",
-          userId: dingtalkUserId,
-          departmentId: "1",
-        };
-        const resp = await this.api.PostResourceRequest("/v2.0/yida/processes/instances/start", payload);
-        console.log("uploadFAWTYSTransportMeasurement response:");
-        console.log(resp.data);
-      }
+      payload = {
+        noExecuteExpression: true,
+        language: "zh_CN",
+        formUuid: "FORM-E9116BD087B44F1AB0DFC7F86FFB74E2YCGB",
+        processCode: "TPROC--9KA66MC17WBQBV2S9T39V5JN6J9Z227G15I3M0",
+        searchCondition: "[]",
+        appType: "APP_VKCHKCFNQUQZW2R3HFVC",
+        formDataJson: formDataJsonStr,
+        systemToken: "F2766O91D3BQXRJGCE0387JGX2582G7G15I3M6W3",
+        userId: dingtalkUserId,
+        departmentId: "1",
+      };
+      resp = await this.api.PostResourceRequest("/v2.0/yida/processes/instances/start", payload);
+      console.log("uploadFAWTYSTransportMeasurement response:");
+      console.log(resp.data);
 
-      if (input?.manufacturerMatch) {
-        let formDataJson = {
-          textField_l3plle21: "5RD", // 供应商代码
-          textField_l3plle22: "上海华特企业集团股份有限公司", // 供应商名称
-          textField_l3plle23: "/", // 车型
-          textField_l3plle24: "/", // 零件号
-          textField_l3plle25: "/", // 零件名
-          textField_l3plle26: "/", // 配置
-          textField_l3plle27: "泰洋圣运输", // 工位
-          textField_l3plle29: "厂家/是否一致", // 参数名
-          numberField_l3plle2x: input.manufacturerMatch ? 1 : 0, // 参数值
-          numberField_l3plle2y: 1, // 下公差
-          numberField_l3plle2z: 1, // 上公差
-          dateField_l3plle30: dayjs().unix() * 1000,
-          textField_l3plle2h: input.manufacturerMatch ? "合格" : "不合格",
-          textField_l3plle2m: "/", // 零件负责人
-          textField_l3plle2o: input.manufacturerMatch ? 1 : 0, // 参数值
-          textField_l3plle2q: 1, // 下公差
-          textField_l3plle2s: 1, // 上公差
-          textField_l3plle2u: input?.lotNum, // intime
-        };
+      formDataJson = {
+        textField_l3plle21: "5RD", // 供应商代码
+        textField_l3plle22: "上海华特企业集团股份有限公司", // 供应商名称
+        textField_l3plle23: "/", // 车型
+        textField_l3plle24: "/", // 零件号
+        textField_l3plle25: "/", // 零件名
+        textField_l3plle26: "/", // 配置
+        textField_l3plle27: "泰洋圣运输", // 工位
+        textField_l3plle29: "厂家/是否一致", // 参数名
+        numberField_l3plle2x: input.manufacturerMatch ? 1 : 0, // 参数值
+        numberField_l3plle2y: 1, // 下公差
+        numberField_l3plle2z: 1, // 上公差
+        dateField_l3plle30: dayjs().unix() * 1000,
+        textField_l3plle2h: input.manufacturerMatch ? "合格" : "不合格",
+        textField_l3plle2m: "/", // 零件负责人
+        textField_l3plle2o: input.manufacturerMatch ? 1 : 0, // 参数值
+        textField_l3plle2q: 1, // 下公差
+        textField_l3plle2s: 1, // 上公差
+        textField_l3plle2u: input?.lotNum, // intime
+      };
 
-        let formDataJsonStr = JSON.stringify(formDataJson);
+      formDataJsonStr = JSON.stringify(formDataJson);
 
-        let dingtalkUserId = input?.createdBy?.dingtalkUserId || "036025480920111923";
+      dingtalkUserId = input?.createdBy?.dingtalkUserId || "036025480920111923";
 
-        let payload = {
-          noExecuteExpression: true,
-          language: "zh_CN",
-          formUuid: "FORM-E9116BD087B44F1AB0DFC7F86FFB74E2YCGB",
-          processCode: "TPROC--9KA66MC17WBQBV2S9T39V5JN6J9Z227G15I3M0",
-          searchCondition: "[]",
-          appType: "APP_VKCHKCFNQUQZW2R3HFVC",
-          formDataJson: formDataJsonStr,
-          systemToken: "F2766O91D3BQXRJGCE0387JGX2582G7G15I3M6W3",
-          userId: dingtalkUserId,
-          departmentId: "1",
-        };
-        const resp = await this.api.PostResourceRequest("/v2.0/yida/processes/instances/start", payload);
-        console.log("uploadFAWTYSTransportMeasurement response:");
-        console.log(resp.data);
-      }
+      payload = {
+        noExecuteExpression: true,
+        language: "zh_CN",
+        formUuid: "FORM-E9116BD087B44F1AB0DFC7F86FFB74E2YCGB",
+        processCode: "TPROC--9KA66MC17WBQBV2S9T39V5JN6J9Z227G15I3M0",
+        searchCondition: "[]",
+        appType: "APP_VKCHKCFNQUQZW2R3HFVC",
+        formDataJson: formDataJsonStr,
+        systemToken: "F2766O91D3BQXRJGCE0387JGX2582G7G15I3M6W3",
+        userId: dingtalkUserId,
+        departmentId: "1",
+      };
+      resp = await this.api.PostResourceRequest("/v2.0/yida/processes/instances/start", payload);
+      console.log("uploadFAWTYSTransportMeasurement response:");
+      console.log(resp.data);
     }
   }
 
@@ -1180,7 +1178,7 @@ class YidaApi {
       numberField_l3plle2y: input.material?.safetyStockQuantity || 0, // 下公差
       // numberField_l3plle2z: input.upperLimit,// 上公差
       dateField_l3plle30: dayjs().unix() * 1000,
-      textField_l3plle2h: (input.onHandQuantity || 0) > (input.material?.safetyStockQuantity || 0) ? "不合格" : "合格",
+      textField_l3plle2h: (input.onHandQuantity || 0) > (input.material?.safetyStockQuantity || 0) ? "合格" : "不合格",
       textField_l3plle2m: "/", // 零件负责人
       textField_l3plle2o: input?.onHandQuantity, // 参数值
       textField_l3plle2q: input.material?.safetyStockQuantity, // 下公差

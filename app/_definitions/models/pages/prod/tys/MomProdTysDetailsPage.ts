@@ -481,6 +481,11 @@ const page: RapidPage = {
                   code: "executionState",
                   width: "150px",
                 },
+                {
+                  type: "auto",
+                  code: "isOutSpecification",
+                  width: "100px",
+                },
               ],
               actions: [
                 {

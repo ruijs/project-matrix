@@ -141,7 +141,7 @@ export default [
 
         if (workFeedTasks) {
           for (const workFeedTask of workFeedTasks) {
-            await server.getEntityManager<MomWorkFeedTask>("mom_work_fee_task").updateEntityById(
+            await server.getEntityManager<MomWorkFeedTask>("mom_work_feed_task").updateEntityById(
               {
                 id: workFeedTask.id,
                 entityToSave: {
@@ -233,7 +233,7 @@ export default [
               filters: [
                 { operator: "eq", field: "work_order_id", value: after.id },
               ],
-              properties: ["id", "workOrder", "rawMaterial", "quantity", "lotNum", "process", "equipment", "instoreTankNumber"],
+              properties: ["id", "workOrder", "rawMaterial", "quantity", "lotNum", "process", "equipment", "instoreTankNumber", "oilMixtureRatio1", "oilMixtureRatio2"],
               relations: {
                 workOrder: {
                   properties: ["id", "processes", "code", "lotNum", "quantity", "factory", "material", "oilMixtureRatio", "paraffinQuantity", "stirringTime", "stirringPressure", "tankNumber", "unloadingVideo", "dcsPicture", "createdBy"]

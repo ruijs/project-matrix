@@ -165,9 +165,16 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
     },
     {
       code: "isOutSpecification",
-      name: "是否超标",
+      name: "是否超差",
       type: "boolean",
       defaultValue: "false",
+    },
+    {
+      code: "feeds",
+      name: "投料记录",
+      type: "relation[]",
+      targetSingularCode: "mom_work_feed",
+      selfIdColumnName: "work_report_id",
     },
     {
       code: "serialNum",

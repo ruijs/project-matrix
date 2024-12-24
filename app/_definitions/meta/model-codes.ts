@@ -2212,6 +2212,7 @@ const entityFieldCodes = {
     'binNum',
     'executionState',
     'isOutSpecification',
+    'feeds',
     'serialNum',
     'createdAt',
     'createdBy',

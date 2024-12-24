@@ -476,6 +476,11 @@ const page: RapidPage = {
                   code: "executionState",
                   width: "150px",
                 },
+                {
+                  type: "auto",
+                  code: "isOutSpecification",
+                  width: "100px",
+                },
               ],
               actions: [
                 {
@@ -588,11 +593,7 @@ const page: RapidPage = {
                 {
                   type: "auto",
                   code: "process",
-                  width: "150px",
-                  fixed: "left",
-                  rendererProps: {
-                    format: "{{name}}",
-                  },
+                  width: "100px",
                 },
                 {
                   type: "auto",
