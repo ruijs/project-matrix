@@ -1,4 +1,4 @@
-import type { ActionHandlerContext, CronJobConfiguration } from "@ruiapp/rapid-core";
+import { tryValidateLicense, type ActionHandlerContext, type CronJobConfiguration } from "@ruiapp/rapid-core";
 import type { MomMaterialInventoryBalance, MomRouteProcessParameterMeasurement, MomWorkReport } from "~/_definitions/meta/entity-types";
 import YidaHelper from "~/sdk/yida/helper";
 import YidaApi from "~/sdk/yida/api";
@@ -16,6 +16,10 @@ export default {
   async handler(ctx: ActionHandlerContext) {
     const { server, logger } = ctx;
     logger.info("Executing uploadHuateMeasurements job...");
+
+    if (!tryValidateLicense(logger, server)) {
+      throw new Error("无法上报检验记录到宜搭。");
+    }
 
     const yidaSDK = await new YidaHelper(server).NewAPIClient();
     const yidaAPI = new YidaApi(yidaSDK);
