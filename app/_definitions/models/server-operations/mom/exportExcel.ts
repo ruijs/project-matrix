@@ -501,6 +501,19 @@ async function fetchApplicationItems(routeContext: RouteContext, server: IRpdSer
       filters: [{ operator: "in", field: "operationState", value: input.operationState.split(","), itemType: "text" }],
     });
   }
+  if (input?.warehouse && input.warehouse !== "undefined") {
+    filters.push({
+      operator: "exists",
+      field: "application",
+      filters: [
+        {
+          operator: "in",
+          field: "warehouse_id",
+          value: input.warehouse.split(","),
+        }
+      ],
+    });
+  }
   if (input?.material && input.material !== "undefined") {
     filters.push({ operator: "in", field: "material_id", value: input.material.split(",") });
   }
