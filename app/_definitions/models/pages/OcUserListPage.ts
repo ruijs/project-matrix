@@ -77,7 +77,8 @@ const page: RapidPage = {
                   $action: "antdToast",
                   type: "success",
                   $exps: {
-                    content: "'钉钉用户信息同步成功。共绑定 ' + ($event.args[0]?.totalBindedCount || 0) + ' 个钉钉用户。'",
+                    content:
+                      "'钉钉用户信息同步成功。本次绑定 ' + ($event.args[0]?.newBindedCount) + ' 个钉钉用户，已绑定 ' + ($event.args[0]?.totalBindedCount) + ' 个钉钉用户。'",
                   },
                 },
               ],
