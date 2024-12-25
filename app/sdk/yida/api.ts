@@ -599,8 +599,8 @@ class YidaApi {
     console.log(resp.data);
   }
 
-  public async uploadFAWProductionRecord(input: MomWorkReport) {
-    for (const feed of input.feeds) {
+  public async uploadFAWProductionRecord(input: MomWorkReport, feeds: MomWorkFeed[]) {
+    for (const feed of feeds) {
       let formDataJson = {
         textField_kocks566: input?.factory?.name, // 工厂
         textField_kpc0di1h: input.workOrder?.code, // 工单
@@ -608,7 +608,7 @@ class YidaApi {
         textField_kpc0di1l: input.process?.name, // 工序
         textField_kpc0di1i: input.equipment?.name, // 设备
         textField_kpc0di1m: input.lotNum, // 批号
-        textField_m4w0q058: feed.material?.name, // 原材料
+        textField_m4w0q058: feed.rawMaterial?.name, // 原材料
         textField_m4w0q059: feed.lotNum, // 原材料批号
       };
 
@@ -814,7 +814,7 @@ class YidaApi {
     }
   }
 
-  public async uploadFAWTYSProductionMeasurement(input: MomWorkOrder) {
+  public async uploadFAWTYSProductionMeasurement(input: MomWorkOrder, feeds: MomWorkFeed[]) {
     // input.oilMixtureRatio
 
     if (input?.oilMixtureRatio1 && input?.oilMixtureRatio2) {
@@ -990,7 +990,7 @@ class YidaApi {
       console.log(resp.data);
     }
 
-    for (const feed of input.feeds) {
+    for (const feed of feeds) {
       if (feed?.instoreTankNumber) {
         let formDataJson = {
           textField_l3plle21: "5RD", // 供应商代码
@@ -1172,7 +1172,7 @@ class YidaApi {
       textField_l3plle24: "8WD863947A", // 零件号
       textField_l3plle25: "前围隔音垫", // 零件名
       textField_l3plle26: "/", // 配置
-      textField_l3plle27: "/", // 工位
+      textField_l3plle27: input.material?.name, // 工位
       textField_l3plle29: "计件库存", // 参数名
       numberField_l3plle2x: input?.onHandQuantity || 0, // 参数值
       numberField_l3plle2y: input.material?.safetyStockQuantity || 0, // 下公差
