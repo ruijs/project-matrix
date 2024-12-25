@@ -1,5 +1,5 @@
 import { cloneDeep } from "lodash";
-import type { RapidPage, RapidEntityFormConfig } from "@ruiapp/rapid-extension";
+import type { RapidPage, RapidEntityFormConfig, SonicEntityListRockConfig } from "@ruiapp/rapid-extension";
 
 const formConfig: Partial<RapidEntityFormConfig> = {
   items: [
@@ -74,7 +74,15 @@ const page: RapidPage = {
         {
           type: "auto",
           code: "accessToken",
-          width: "300px",
+          width: "350px",
+          rendererType: "rapidSecretTextRenderer",
+          rendererProps: {
+            canViewOrigin: true,
+            canCopy: true,
+            iconStyle: {
+              color: "#1890ff",
+            },
+          },
         },
         {
           type: "auto",
@@ -158,7 +166,7 @@ const page: RapidPage = {
           },
         ],
       },
-    },
+    } satisfies SonicEntityListRockConfig,
   ],
 };
 

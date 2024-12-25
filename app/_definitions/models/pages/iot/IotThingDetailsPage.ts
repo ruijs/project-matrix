@@ -25,6 +25,14 @@ const page: RapidPage = {
         },
         {
           code: "accessToken",
+          rendererType: "rapidSecretTextRenderer",
+          rendererProps: {
+            canViewOrigin: true,
+            canCopy: true,
+            iconStyle: {
+              color: "#1890ff",
+            },
+          },
         },
         {
           code: "description",
