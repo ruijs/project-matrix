@@ -361,20 +361,13 @@ const page: RapidPage = {
           type: "auto",
           width: "120px",
           title: "物料类型",
-          rendererType: "text",
-          rendererProps: {
-            $exps: {
-              text: "_.get($slot.record, 'material.category.name')",
-            },
-          },
+          fieldName: "material.category",
         },
         {
           type: "auto",
           code: "rule",
           width: "150px",
-          title: "检验类型",
-          fieldName: "rule.category.name",
-          rendererType: "rapidTextRenderer",
+          fieldName: "rule.category",
         },
         {
           code: "rule",
