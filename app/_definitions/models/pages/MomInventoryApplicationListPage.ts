@@ -322,7 +322,7 @@ const page: RapidPage = {
           },
         },
       },
-      extraProperties: ["operationType", "items", "to", "from"],
+      extraProperties: ["operationType", "items", "to", "from", "lots"],
       extraActions: [
         {
           $type: "sonicToolbarFormItem",
@@ -442,6 +442,61 @@ const page: RapidPage = {
                         operator: "eq",
                       },
                     ],
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            type: "auto",
+            label: "批号",
+            code: "lot",
+            formControlType: "rapidTableSelect",
+            formControlProps: {
+              allowClear: true,
+              dropdownMatchSelectWidth: 500,
+              multiply: false,
+              listTextFormat: "{{lotNum}}",
+              listValueFieldName: "lotNum",
+              listFilterFields: ["lotNum"],
+              searchPlaceholder: "搜索批号",
+              columns: [
+                {
+                  title: "批号",
+                  code: "lotNum",
+                  format: "{{lotNum}}",
+                  width: 260,
+                },
+              ],
+              requestConfig: {
+                url: `/app/base_lots/operations/find`,
+                params: {
+                  properties: ["id", "lotNum"],
+                },
+              },
+              onSelectedRecord: [
+                {
+                  $action: "script",
+                  script: `
+                  const info = event.args || {};
+                  event.page.sendComponentMessage(event.sender.$id, {
+                    name: "setFieldsValue",
+                    payload: {
+                       lotNum: info[0]?.lotNum,
+                    }
+                  });
+                `,
+                },
+              ],
+            },
+            filterFields: [
+              {
+                field: "items",
+                operator: "exists",
+                filters: [
+                  {
+                    field: "lotNum",
+                    operator: "contains",
                   },
                 ],
               },
