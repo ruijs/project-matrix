@@ -447,26 +447,27 @@ const page: RapidPage = {
               },
             ],
           },
-          {
-            type: "auto",
-            label: "批号",
-            code: "lot",
-            formControlProps: {
-              allowClear: true,
-            },
-            filterFields: [
-              {
-                field: "items",
-                operator: "exists",
-                filters: [
-                  {
-                    field: "lotNum",
-                    operator: "eq",
-                  },
-                ],
-              },
-            ],
-          },
+          // {
+          //   type: "auto",
+          //   label: "批号",
+          //   code: "lot",
+          //   formControlProps: {
+          //     allowClear: true,
+          //   },
+          //   filterFields: [
+          //     {
+          //       field: "items",
+          //       operator: "exists",
+          //       filters: [
+          //         {
+          //           field: "lotNum",
+          //           operator: "eq",
+          //           value: "",
+          //         },
+          //       ],
+          //     },
+          //   ],
+          // },
           {
             type: "auto",
             code: "to",
@@ -705,7 +706,7 @@ const page: RapidPage = {
           $permissionCheck: "inventoryApplication.manage",
           $exps: {
             _hidden:
-              "!$slot.record?.businessType?.businessTypeRoles?.find((item) => item.name === '修改')?.businessTypeRoles.map((item) => item.id).some(id => me?.profile?.roles?.map(r => r.id).includes(id))",
+              "!$slot.record?.businessType?.businessTypeRoles?.find((item) => item.code === 'editor')?.businessTypeRoles.map((item) => item.id).some(id => me?.profile?.roles?.map(r => r.id).includes(id))",
           },
         },
         {
@@ -719,7 +720,7 @@ const page: RapidPage = {
           $exps: {
             disabled: "$slot.record.operationState !== 'pending'",
             _hidden:
-              "!$slot.record?.businessType?.businessTypeRoles?.find((item) => item.name === '删除')?.businessTypeRoles.map((item) => item.id).some(id => me?.profile?.roles?.map(r => r.id).includes(id))",
+              "!$slot.record?.businessType?.businessTypeRoles?.find((item) => item.code === 'delete')?.businessTypeRoles.map((item) => item.id).some(id => me?.profile?.roles?.map(r => r.id).includes(id))",
           },
         },
         {
@@ -729,8 +730,8 @@ const page: RapidPage = {
           $permissionCheck: "inventoryApplication.manage",
           $exps: {
             disabled: "($slot.record.operationState !== 'pending' || $slot.record.operationType !== 'in')",
-            _hidden:
-              "!$slot.record?.businessType?.businessTypeRoles?.find((item) => item.name === '下发')?.businessTypeRoles.map((item) => item.id).some(id => me?.profile?.roles?.map(r => r.id).includes(id))",
+            // _hidden:
+            //   "!$slot.record?.businessType?.businessTypeRoles?.find((item) => item.name === '下发')?.businessTypeRoles.map((item) => item.id).some(id => me?.profile?.roles?.map(r => r.id).includes(id))",
           },
           onAction: [
             {

@@ -120,6 +120,17 @@ const page: RapidPage = {
       entityCode: "MomInventoryApplication",
       mode: "view",
       column: 3,
+      relations: {
+        businessType: {
+          relations: {
+            businessTypeRoles: {
+              relations: {
+                businessTypeRoles: true,
+              },
+            },
+          },
+        },
+      },
       items: [
         {
           type: "auto",
@@ -321,7 +332,10 @@ const page: RapidPage = {
                   code: "edit",
                   actionType: "edit",
                   actionText: "修改",
-                  $permissionCheck: "inventoryApplication.manage",
+                  // $permissionCheck: "inventoryApplication.manage",
+                  $exps: {
+                    _hidden: `!_.get(_.first(_.get($stores.detail, 'data.list')), 'businessType')?.businessTypeRoles?.find((item) => item.code === 'editorMaterial')?.businessTypeRoles.map((item) => item.id).some(id => me?.profile?.roles?.map(r => r.id).includes(id))`,
+                  },
                 },
                 {
                   $type: "sonicRecordActionDeleteEntity",
@@ -330,7 +344,10 @@ const page: RapidPage = {
                   actionText: "删除",
                   dataSourceCode: "list",
                   entityCode: "MomInventoryApplicationItem",
-                  $permissionCheck: "inventoryApplication.manage",
+                  // $permissionCheck: "inventoryApplication.manage",
+                  $exps: {
+                    _hidden: `!_.get(_.first(_.get($stores.detail, 'data.list')), 'businessType')?.businessTypeRoles?.find((item) => item.code === 'deleteMaterial')?.businessTypeRoles.map((item) => item.id).some(id => me?.profile?.roles?.map(r => r.id).includes(id))`,
+                  },
                 },
               ],
               newForm: cloneDeep(omit(formConfig, ["relations", "formDataAdapter"])),

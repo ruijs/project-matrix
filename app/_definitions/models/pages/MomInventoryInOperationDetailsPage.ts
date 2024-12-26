@@ -237,6 +237,17 @@ const page: RapidPage = {
       mode: "view",
       column: 3,
       extraProperties: ["application"],
+      relations: {
+        businessType: {
+          relations: {
+            businessTypeRoles: {
+              relations: {
+                businessTypeRoles: true,
+              },
+            },
+          },
+        },
+      },
       items: [
         {
           type: "auto",
@@ -636,7 +647,8 @@ const page: RapidPage = {
                   actionText: "修改",
                   $permissionCheck: "inventoryOperation.manage",
                   $exps: {
-                    _hidden: "_.get(_.first(_.get($stores.detail, 'data.list')), 'state') !== 'processing'",
+                    _hidden:
+                      "_.get(_.first(_.get($stores.detail, 'data.list')), 'state') !== 'processing'||!_.get(_.first(_.get($stores.detail, 'data.list')), 'businessType')?.businessTypeRoles?.find((item) => item.code === 'editorInventory')?.businessTypeRoles.map((item) => item.id).some(id => me?.profile?.roles?.map(r => r.id).includes(id))",
                   },
                 },
                 {
@@ -648,7 +660,8 @@ const page: RapidPage = {
                   entityCode: "MomGoodTransfer",
                   $permissionCheck: "inventoryOperation.manage",
                   $exps: {
-                    _hidden: "_.get(_.first(_.get($stores.detail, 'data.list')), 'state') !== 'processing'",
+                    _hidden:
+                      "_.get(_.first(_.get($stores.detail, 'data.list')), 'state') !== 'processing'||!_.get(_.first(_.get($stores.detail, 'data.list')), 'businessType')?.businessTypeRoles?.find((item) => item.code === 'deleteInventory')?.businessTypeRoles.map((item) => item.id).some(id => me?.profile?.roles?.map(r => r.id).includes(id))",
                   },
                 },
               ],
