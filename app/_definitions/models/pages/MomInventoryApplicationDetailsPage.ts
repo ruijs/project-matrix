@@ -520,6 +520,17 @@ const page: RapidPage = {
           code: "createdAt",
         },
       ],
+      relations: {
+        businessType: {
+          relations: {
+            businessTypeRoles: {
+              relations: {
+                businessTypeRoles: true,
+              },
+            },
+          },
+        },
+      },
       $exps: {
         entityId: "$rui.parseQuery().id",
       },
@@ -720,7 +731,11 @@ const page: RapidPage = {
                   code: "edit",
                   actionType: "edit",
                   actionText: "修改",
-                  $permissionCheck: "inventoryApplication.manage",
+                  // $permissionCheck: "inventoryApplication.manage",
+                  $exps: {
+                    _hidden:
+                      "!_.get(_.first(_.get($stores.detail, 'data.list')), 'businessType')?.businessTypeRoles?.find((item) => item.code === 'editorMaterial')?.businessTypeRoles.map((item) => item.id).some(id => me?.profile?.roles?.map(r => r.id).includes(id))",
+                  },
                 },
                 {
                   $type: "sonicRecordActionDeleteEntity",
@@ -729,12 +744,16 @@ const page: RapidPage = {
                   actionText: "删除",
                   dataSourceCode: "list",
                   entityCode: "MomInventoryApplicationItem",
-                  $permissionCheck: "inventoryApplication.manage",
+                  // $permissionCheck: "inventoryApplication.manage",
+                  $exps: {
+                    _hidden:
+                      "!_.get(_.first(_.get($stores.detail, 'data.list')), 'businessType')?.businessTypeRoles?.find((item) => item.code === 'deleteMaterial')?.businessTypeRoles.map((item) => item.id).some(id => me?.profile?.roles?.map(r => r.id).includes(id))",
+                  },
                 },
                 {
                   $type: "inventoryApplicationReceivingAction",
                   $exps: {
-                    _hidden: `_.get(_.first(_.get($stores.detail, 'data.list')), 'operationType') !== 'in'`,
+                    _hidden: `_.get(_.first(_.get($stores.detail, 'data.list')), 'operationType') !== 'in'||!_.get(_.first(_.get($stores.detail, 'data.list')), 'businessType')?.businessTypeRoles?.find((item) => item.code === 'receiveGoods')?.businessTypeRoles.map((item) => item.id).some(id => me?.profile?.roles?.map(r => r.id).includes(id)) `,
                     applicationId: "$rui.parseQuery().id",
                   },
                   $permissionCheck: "inventoryOperation.manage",
@@ -1054,7 +1073,7 @@ const page: RapidPage = {
                     actionText: "修改",
                     $permissionCheck: "inventoryOperation.manage",
                     $exps: {
-                      _hidden: `_.get(${operationDataExp}, 'state') !== 'processing'`,
+                      _hidden: `_.get(${operationDataExp}, 'state') !== 'processing'||!_.get(_.first(_.get($stores.detail, 'data.list')), 'businessType')?.businessTypeRoles?.find((item) => item.code === 'editorInventory')?.businessTypeRoles.map((item) => item.id).some(id => me?.profile?.roles?.map(r => r.id).includes(id))`,
                     },
                   },
                   {
@@ -1066,7 +1085,7 @@ const page: RapidPage = {
                     entityCode: "MomGoodTransfer",
                     $permissionCheck: "inventoryOperation.manage",
                     $exps: {
-                      _hidden: `_.get(${operationDataExp}, 'state') !== 'processing'`,
+                      _hidden: `_.get(${operationDataExp}, 'state') !== 'processing'||!_.get(_.first(_.get($stores.detail, 'data.list')), 'businessType')?.businessTypeRoles?.find((item) => item.code === 'deleteInventory')?.businessTypeRoles.map((item) => item.id).some(id => me?.profile?.roles?.map(r => r.id).includes(id))`,
                     },
                   },
                 ],

@@ -273,7 +273,7 @@ const page: RapidPage = {
           $exps: {
             disabled: "$slot.record.operationState !== 'pending'",
             _hidden:
-              "!$slot.record?.businessType?.businessTypeRoles?.find((item) => item.name === '修改')?.businessTypeRoles.map((item) => item.id).some(id => me?.profile?.roles?.map(r => r.id).includes(id))",
+              "!$slot.record?.businessType?.businessTypeRoles?.find((item) => item.name === 'editor')?.businessTypeRoles.map((item) => item.id).some(id => me?.profile?.roles?.map(r => r.id).includes(id))",
           },
         },
         {
@@ -287,7 +287,7 @@ const page: RapidPage = {
           $exps: {
             disabled: "$slot.record.operationState !== 'pending'",
             _hidden:
-              "!$slot.record?.businessType?.businessTypeRoles?.find((item) => item.name === '删除')?.businessTypeRoles.map((item) => item.id).some(id => me?.profile?.roles?.map(r => r.id).includes(id))",
+              "!$slot.record?.businessType?.businessTypeRoles?.find((item) => item.name === 'delete')?.businessTypeRoles.map((item) => item.id).some(id => me?.profile?.roles?.map(r => r.id).includes(id))",
           },
         },
         // {
