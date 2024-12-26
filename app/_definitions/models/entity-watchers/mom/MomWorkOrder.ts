@@ -224,7 +224,7 @@ export default [
                 value: after.id
               }
             ],
-            properties: ["id", "processes", "code", "lotNum", "quantity", "factory", "material", "oilMixtureRatio", "paraffinQuantity", "stirringTime", "stirringPressure", "tankNumber", "unloadingVideo", "dcsPicture", "createdBy"]
+            properties: ["id", "processes", "code", "lotNum", "quantity", "factory", "material", "oilMixtureRatio", "paraffinQuantity", "stirringTime", "stirringPressure", "tankNumber", "unloadingVideo", "dcsPicture", "createdBy", "oilMixtureRatio1", "oilMixtureRatio2"]
           });
 
           if (workOrder?.material?.code === "ITEM003" || workOrder?.material?.name === "石蜡油") {
@@ -233,7 +233,7 @@ export default [
               filters: [
                 { operator: "eq", field: "work_order_id", value: after.id },
               ],
-              properties: ["id", "workOrder", "rawMaterial", "quantity", "lotNum", "process", "equipment", "instoreTankNumber", "oilMixtureRatio1", "oilMixtureRatio2"],
+              properties: ["id", "workOrder", "rawMaterial", "quantity", "lotNum", "process", "equipment", "instoreTankNumber"],
               relations: {
                 workOrder: {
                   properties: ["id", "processes", "code", "lotNum", "quantity", "factory", "material", "oilMixtureRatio", "paraffinQuantity", "stirringTime", "stirringPressure", "tankNumber", "unloadingVideo", "dcsPicture", "createdBy"]
@@ -251,8 +251,7 @@ export default [
             }
 
             if (workOrder) {
-              workOrder.feeds = workFeeds
-              await yidaAPI.uploadFAWTYSProductionMeasurement(workOrder)
+              await yidaAPI.uploadFAWTYSProductionMeasurement(workOrder, workFeeds)
             }
           }
 

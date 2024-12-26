@@ -135,27 +135,6 @@ export default [
           before.lot = lot;
         }
       }
-
-      // 获取最近的投料单，并关联到报工单，投料记录分多轮投料，仅获取最新一轮的投料单对应的投料记录
-      const workFeedTasks = await server.getEntityManager<MomWorkFeedTask>("mom_work_feed_task").findEntities({
-        filters: [
-          { operator: "eq", field: "work_order_id", value: before.workOrder.id },
-        ],
-        orderBy: [{ field: "id", desc: true }],
-        pagination: { limit: 1, offset: 0 },
-      });
-      // 根据投料单获取投料记录
-      if (workFeedTasks.length > 0) {
-        const workFeeds = await server.getEntityManager<MomWorkFeed>("mom_work_feed").findEntities({
-          filters: [
-            { operator: "eq", field: "work_feed_task_id", value: workFeedTasks[0].id },
-          ],
-        });
-
-      if (workFeeds.length > 0) {
-          before.feeds = workFeeds;
-        }
-      }
     }
   },
   {
@@ -188,7 +167,7 @@ export default [
           filters: [
             { operator: "eq", field: "id", value: after?.id },
           ],
-          properties: ["id", "factory", "process", "workOrder", "material", "equipment", "actualStartTime", "actualFinishTime", "executionState"],
+          properties: ["id", "factory", "lotNum", "serialNum", "process", "workOrder", "equipment", "actualStartTime", "actualFinishTime", "executionState", "duration"],
           relations: {
             workOrder: {
               properties: ["id", "code", "material", "executionState"]
@@ -200,13 +179,37 @@ export default [
               properties: [
                 "id", "code", "name", "machine"
               ]
-            }
+            },
           }
-        });
+        })
 
         if (!workReport) {
           console.log("workReport not found");
           return;
+        }
+
+        if (workReport) {
+          // 获取投料记录
+          const workFeedManager = server.getEntityManager<MomWorkFeed>("mom_work_feed");
+          let workFeeds = await workFeedManager.findEntities({
+            filters: [
+              { operator: "eq", field: "work_order_id", value: workReport.id },
+            ],
+            properties: ["id", "rawMaterial", "lotNum", "createdAt"],
+          });
+
+          if (workFeeds.length === 0) {
+            workFeeds = await workFeedManager.findEntities({
+              filters: [
+                { operator: "eq", field: "process_id", value: workReport.process?.id },
+              ],
+              properties: ["id", "rawMaterial", "lotNum", "createdAt"],
+            });
+          }
+          // 上报宜搭投料记录
+          const yidaSDK = await new YidaHelper(server).NewAPIClient();
+          const yidaAPI = new YidaApi(yidaSDK);
+          await yidaAPI.uploadFAWProductionRecord(workReport, workFeeds);
         }
 
         if (workReport.equipment?.machine) {
@@ -238,13 +241,21 @@ export default [
               const deviceMetricData = data[deviceCode];
               // append work duration to device metric
 
-              if (workReport.equipment?.machine?.code === deviceCode && workReport?.duration) {
-                deviceMetricData["work_duration"] = [{
-                  timestamp: dayjs().unix(),
-                  value: workReport.duration,
-                }]
+              if (workReport.process?.code === "14" || workReport.process?.code === "23") {
+                if(workReport.equipment?.machine?.code === deviceCode && workReport?.actualFinishTime && workReport?.actualStartTime) {
+                  deviceMetricData["work_duration"] = [{
+                    timestamp: dayjs().unix(),
+                    value: dayjs.duration(dayjs(workReport.actualFinishTime).diff(dayjs(workReport.actualStartTime))).asHours(),
+                  }]
+                }
+              } else {
+                if(workReport.equipment?.machine?.code === deviceCode && workReport?.duration) {
+                  deviceMetricData["work_duration"] = [{
+                    timestamp: dayjs().unix(),
+                    value: workReport.duration,
+                  }]
+                }
               }
-
 
               for (let metricCode in deviceMetricData) {
                 const metricData = deviceMetricData[metricCode];
@@ -329,7 +340,7 @@ export default [
           }
 
           let latestValue = dayjs.duration(dayjs(workReport.actualFinishTime).diff(dayjs(workReport.actualStartTime))).asSeconds();
-          if (workReport.process?.code === "13" || workReport.process?.code === "22" || workReport.process?.code === "14" || workReport.process?.code === "23") { // 通风工序 & 烘烤工序
+          if (workReport.process?.code === "13" || workReport.process?.code === "22") { // 通风工序
             latestValue = dayjs.duration(dayjs(workReport.actualFinishTime).diff(dayjs(workReport.actualStartTime))).asHours();
           }
 
@@ -374,7 +385,7 @@ export default [
         filters: [
           { operator: "eq", field: "id", value: after?.id },
         ],
-        properties: ["id", "factory", "lotNum", "serialNum", "process", "workOrder", "equipment", "actualStartTime", "actualFinishTime", "executionState", "duration", "feeds"],
+        properties: ["id", "factory", "lotNum", "serialNum", "process", "workOrder", "equipment", "actualStartTime", "actualFinishTime", "executionState", "duration"],
         relations: {
           workOrder: {
             properties: ["id", "code", "material", "executionState"]
@@ -387,9 +398,6 @@ export default [
               "id", "code", "name", "machine"
             ]
           },
-          feeds: {
-            properties: ["id", "material", "lotNum", "createdAt"]
-          }
         }
       })
 
@@ -430,6 +438,34 @@ export default [
             executionState: 'processing',
           },
         });
+      }
+
+      if (workReport && workReport.executionState === "completed") {
+        
+        // 获取投料记录
+        const workFeedManager = server.getEntityManager<MomWorkFeed>("mom_work_feed");
+        let workFeeds = await workFeedManager.findEntities({
+          filters: [
+            { operator: "eq", field: "work_order_id", value: workReport.workOrder?.id },
+          ],
+          properties: ["id", "rawMaterial", "lotNum", "createdAt"],
+        });
+
+        if (workFeeds.length === 0) {
+          workFeeds = await workFeedManager.findEntities({
+            filters: [
+              { operator: "eq", field: "process_id", value: workReport.process?.id },
+            ],
+            properties: ["id", "rawMaterial", "lotNum", "createdAt"],
+          });
+        }
+
+        console.log("uploadFAWProductionRecord", workFeeds.length)
+
+        // 上报宜搭投料记录
+        const yidaSDK = await new YidaHelper(server).NewAPIClient();
+        const yidaAPI = new YidaApi(yidaSDK);
+        await yidaAPI.uploadFAWProductionRecord(workReport, workFeeds);
       }
 
       if (!workReport.equipment?.machine) {
@@ -534,13 +570,6 @@ export default [
           }
         } catch (e) {
           console.log(e)
-        }
-
-        if (workReport?.feeds && workReport?.feeds?.length > 0) {
-          // 上报宜搭投料记录
-          const yidaSDK = await new YidaHelper(server).NewAPIClient();
-          const yidaAPI = new YidaApi(yidaSDK);
-          await yidaAPI.uploadFAWProductionRecord(workReport);
         }
       }
 
