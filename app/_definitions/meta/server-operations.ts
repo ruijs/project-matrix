@@ -1,7 +1,8 @@
 import type { ServerOperation as TServerOperation } from '@ruiapp/rapid-core';
-import kis$getAccountAppList from '../models/server-operations/kis/getKisAccountAppList';
+import kis$getKisAccountAppList from '../models/server-operations/kis/getKisAccountAppList';
+import kis$getKisServiceGateway from '../models/server-operations/kis/getKisServiceGateway';
 import kis$getKisUserLoginStatus from '../models/server-operations/kis/getKisUserLoginStatus';
-import kis$listAccounts from '../models/server-operations/kis/listKisAccounts';
+import kis$listKisAccounts from '../models/server-operations/kis/listKisAccounts';
 import mom$calcMaterialRequirements from '../models/server-operations/mom/calcMaterialRequirements';
 import mom$calcWorkOrderMaterialRequirements from '../models/server-operations/mom/calcWorkOrderMaterialRequirements';
 import mom$createGoodTransferIn from '../models/server-operations/mom/createGoodTransferIn';
@@ -32,9 +33,10 @@ import notification$readAllNotifications from '../models/server-operations/notif
 import sys$listMyAllowedSysActions from '../models/server-operations/sys/listMyAllowedSysActions';
 
 export default [
-  kis$getAccountAppList,
+  kis$getKisAccountAppList,
+  kis$getKisServiceGateway,
   kis$getKisUserLoginStatus,
-  kis$listAccounts,
+  kis$listKisAccounts,
   mom$calcMaterialRequirements,
   mom$calcWorkOrderMaterialRequirements,
   mom$createGoodTransferIn,
