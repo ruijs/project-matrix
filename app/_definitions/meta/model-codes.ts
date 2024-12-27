@@ -1275,7 +1275,7 @@ const entityFieldCodes = {
     'operationType',
     'name',
     'config',
-    'businessType',
+    'businessTypeRoles',
     'createdAt',
     'createdBy',
     'updatedAt',
