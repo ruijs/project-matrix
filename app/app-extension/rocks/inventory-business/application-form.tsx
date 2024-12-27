@@ -354,7 +354,7 @@ export default {
               },
             })}
           </Form.Item>
-          {operationType === "in" && (
+          {operationType === "in" && businessType !== "生产退料入库" && (
             <>
               <Form.Item label="验收" name="fFManager" rules={[{ required: true, message: "验收人必填" }]}>
                 {renderRock({
@@ -394,7 +394,7 @@ export default {
               </Form.Item>
             </>
           )}
-          {operationType === "out" && (
+          {(operationType === "out" || businessType === "生产退料入库") && (
             <>
               <Form.Item label="发料" name="fFManager" rules={[{ required: true, message: "发料人必填" }]}>
                 {renderRock({
@@ -438,6 +438,20 @@ export default {
                   rockConfig: {
                     $type: "antdInput",
                     $id: `${props.$id}_f_use`,
+                    placeholder: "请输入",
+                  },
+                })}
+              </Form.Item>
+            </>
+          )}
+          {businessType === "生产退料入库" && (
+            <>
+              <Form.Item label="领料部门" name="fUseDepartment" rules={[{ required: true, message: "领料部门" }]}>
+                {renderRock({
+                  context,
+                  rockConfig: {
+                    $type: "antdInput",
+                    $id: `${props.$id}_f_use_department`,
                     placeholder: "请输入",
                   },
                 })}
