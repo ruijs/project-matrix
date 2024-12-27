@@ -27,7 +27,7 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
       type: "json",
     },
     {
-      code: "businessType",
+      code: "businessTypeRoles",
       name: "业务类型",
       type: "relation[]",
       required: true,

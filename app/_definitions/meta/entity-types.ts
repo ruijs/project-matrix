@@ -4743,7 +4743,7 @@ export interface MomInventoryBusinessType {
   /**
    * 业务类型
    */
-  businessType: any;
+  businessTypeRoles: any;
   /**
    * 创建时间
    */
