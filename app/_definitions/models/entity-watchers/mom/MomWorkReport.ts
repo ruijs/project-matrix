@@ -1,4 +1,4 @@
-import type {EntityWatcher, EntityWatchHandlerContext, IRpdServer} from "@ruiapp/rapid-core";
+import type { EntityWatcher, EntityWatchHandlerContext, IRpdServer } from "@ruiapp/rapid-core";
 import type {
   BaseLot,
   MomMaterialInventoryBalance,
@@ -14,14 +14,14 @@ import type {
   SvcPrinter
 } from "~/_definitions/meta/entity-types";
 import dayjs from "dayjs";
-import IotDBHelper, {ParseLastDeviceData} from "~/sdk/iotdb/helper";
-import {replaceTemplatePlaceholder} from "~/app-extension/rocks/print-trigger/PrintTrigger";
+import IotDBHelper, { ParseLastDeviceData } from "~/sdk/iotdb/helper";
+import { replaceTemplatePlaceholder } from "~/app-extension/rocks/print-trigger/PrintTrigger";
 import type PrinterService from "../../../../../rapid-plugins/printerService/PrinterService";
-import {CreatePrintTasksInput} from "../../../../../rapid-plugins/printerService/PrinterPluginTypes";
+import { CreatePrintTasksInput } from "../../../../../rapid-plugins/printerService/PrinterPluginTypes";
 import duration from "dayjs/plugin/duration";
 import utc from "dayjs/plugin/utc"
 import timezone from "dayjs/plugin/timezone"
-import SequenceService, {GenerateSequenceNumbersInput} from "@ruiapp/rapid-core/src/plugins/sequence/SequenceService";
+import SequenceService, { GenerateSequenceNumbersInput } from "@ruiapp/rapid-core/src/plugins/sequence/SequenceService";
 import YidaHelper from "~/sdk/yida/helper";
 import YidaApi from "~/sdk/yida/api";
 
@@ -219,18 +219,18 @@ export default [
 
             let input = {
               sql: `select last *
-                    from root.huate.devices.reports.${ workReport.equipment?.machine?.code }
-                    where time >= ${ (dayjs(workReport.actualStartTime).unix()) * 1000 }
-                      and time <= ${ (dayjs(workReport.actualFinishTime).unix()) * 1000 }`,
+                    from root.huate.devices.reports.${workReport.equipment?.machine?.code}
+                    where time >= ${(dayjs(workReport.actualStartTime).unix()) * 1000}
+                      and time <= ${(dayjs(workReport.actualFinishTime).unix()) * 1000}`,
             }
 
             // 发泡工序
             if (workReport.process?.code === "12" || workReport.process?.code === "21") {
               input = {
                 sql: `select last *
-                      from root.huate.devices.reports.${ workReport.equipment?.machine?.code }
-                      where time >= ${ (dayjs(workReport.actualStartTime).unix()) * 1000 }
-                        and time <= ${ (dayjs(workReport.actualFinishTime).add(-2, "minutes").unix()) * 1000 }`,
+                      from root.huate.devices.reports.${workReport.equipment?.machine?.code}
+                      where time >= ${(dayjs(workReport.actualStartTime).unix()) * 1000}
+                        and time <= ${(dayjs(workReport.actualFinishTime).add(-2, "minutes").unix()) * 1000}`,
               }
             }
 
@@ -242,14 +242,14 @@ export default [
               // append work duration to device metric
 
               if (workReport.process?.code === "14" || workReport.process?.code === "23") {
-                if(workReport.equipment?.machine?.code === deviceCode && workReport?.actualFinishTime && workReport?.actualStartTime) {
+                if (workReport.equipment?.machine?.code === deviceCode && workReport?.actualFinishTime && workReport?.actualStartTime) {
                   deviceMetricData["work_duration"] = [{
                     timestamp: dayjs().unix(),
                     value: dayjs.duration(dayjs(workReport.actualFinishTime).diff(dayjs(workReport.actualStartTime))).asHours(),
                   }]
                 }
               } else {
-                if(workReport.equipment?.machine?.code === deviceCode && workReport?.duration) {
+                if (workReport.equipment?.machine?.code === deviceCode && workReport?.duration) {
                   deviceMetricData["work_duration"] = [{
                     timestamp: dayjs().unix(),
                     value: workReport.duration,
@@ -441,20 +441,40 @@ export default [
       }
 
       if (workReport && workReport.executionState === "completed") {
-        
+
         // 获取投料记录
         const workFeedManager = server.getEntityManager<MomWorkFeed>("mom_work_feed");
-        let workFeeds = await workFeedManager.findEntities({
-          filters: [
-            { operator: "eq", field: "work_order_id", value: workReport.workOrder?.id },
-          ],
-          properties: ["id", "rawMaterial", "lotNum", "createdAt"],
-        });
+        let workFeeds: MomWorkFeed[] = [];
 
-        if (workFeeds.length === 0) {
+        if (workReport.process?.code === "10" || workReport.process?.code === "20") {
           workFeeds = await workFeedManager.findEntities({
             filters: [
-              { operator: "eq", field: "process_id", value: workReport.process?.id },
+              { operator: "eq", field: "work_order_id", value: workReport.workOrder?.id },
+            ],
+            properties: ["id", "rawMaterial", "lotNum", "createdAt"],
+            pagination: {
+              offset: 0,
+              limit: 1,
+            }
+          });
+          
+          if (workFeeds.length === 0) {
+            workFeeds = await workFeedManager.findEntities({
+              filters: [
+                { operator: "eq", field: "process_id", value: workReport.process?.id },
+              ],
+              properties: ["id", "rawMaterial", "lotNum", "createdAt"],
+              pagination: {
+                offset: 0,
+                limit: 1,
+              }
+            });
+          }
+
+        } else {
+          workFeeds = await workFeedManager.findEntities({
+            filters: [
+              { operator: "eq", field: "work_order_id", value: workReport.workOrder?.id },
             ],
             properties: ["id", "rawMaterial", "lotNum", "createdAt"],
           });
@@ -480,18 +500,18 @@ export default [
 
           let input = {
             sql: `select last *
-                  from root.huate.devices.reports.${ workReport.equipment?.machine?.code }
-                  where time >= ${ (dayjs(workReport.actualStartTime).unix()) * 1000 }
-                    and time <= ${ (dayjs(workReport.actualFinishTime).unix()) * 1000 }`,
+                  from root.huate.devices.reports.${workReport.equipment?.machine?.code}
+                  where time >= ${(dayjs(workReport.actualStartTime).unix()) * 1000}
+                    and time <= ${(dayjs(workReport.actualFinishTime).unix()) * 1000}`,
           }
 
           // 发泡工序
           if (workReport.process?.code === "12" || workReport.process?.code === "21") {
             input = {
               sql: `select last *
-                    from root.huate.devices.reports.${ workReport.equipment?.machine?.code }
-                    where time >= ${ (dayjs(workReport.actualStartTime).unix()) * 1000 }
-                      and time <= ${ (dayjs(workReport.actualFinishTime).add(-2, "minutes").unix()) * 1000 }`,
+                    from root.huate.devices.reports.${workReport.equipment?.machine?.code}
+                    where time >= ${(dayjs(workReport.actualStartTime).unix()) * 1000}
+                      and time <= ${(dayjs(workReport.actualFinishTime).add(-2, "minutes").unix()) * 1000}`,
             }
           }
 
@@ -610,7 +630,7 @@ export default [
 
           //   TODO: 注塑工序自动打印
           if (printer && printer.networkState === "1") {
-            console.log(`print work report: Template ${ workReport?.process?.config?.printTemplateCode } -- Printer ${ workReport?.process?.config?.printerCode }`)
+            console.log(`print work report: Template ${workReport?.process?.config?.printTemplateCode} -- Printer ${workReport?.process?.config?.printerCode}`)
 
             const printerService = server.getService<PrinterService>("printerService");
             await printerService.createPrintTasks({
