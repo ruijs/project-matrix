@@ -40,6 +40,7 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
       name: "业务类型",
       type: "relation",
       targetSingularCode: "mom_inventory_business_type",
+      targetIdColumnName: "business_type_id",
       required: true,
     },
   ],
