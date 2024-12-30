@@ -98,7 +98,6 @@ export default [
         id: after.sheet_id,
         entityToSave: {
           result: result,
-          state: "inspecting",
         },
       });
 
