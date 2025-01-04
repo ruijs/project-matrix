@@ -1,7 +1,7 @@
 import { DingTalkService } from "@ruiapp/ding-talk-plugin";
 import { DingTalkMessage } from "@ruiapp/ding-talk-plugin/dist/server-sdk/dingTalkSdkTypes";
 import { getEntityRelationTargetId, IRpdServer, RouteContext, type EntityWatcher, type EntityWatchHandlerContext } from "@ruiapp/rapid-core";
-import { filter, flatten, get, map } from "lodash";
+import { flatten, get, map } from "lodash";
 import {
   BaseLot,
   BaseMaterial,
@@ -46,6 +46,7 @@ export default [
         changes.reviewer = routeContext?.state.userId;
       }
 
+      // 当用户点击提交检验记录按钮时，检验单状态更新为已检验，将当前用户设置为检验员
       if (changes.hasOwnProperty("state") && changes.state === "inspected") {
         changes.inspector = routeContext?.state.userId;
       }
@@ -89,7 +90,7 @@ export default [
       const changes = payload.changes;
       const before = payload.before;
 
-      const operationTarget = await server.getEntityManager<MomInspectionSheet>("mom_inspection_sheet").findEntity({
+      const inspectionSheet = await server.getEntityManager<MomInspectionSheet>("mom_inspection_sheet").findEntity({
         routeContext,
         filters: [
           {
@@ -113,7 +114,7 @@ export default [
             entity: {
               user: { id: ctx?.routerContext?.state.userId },
               targetSingularCode: "mom_inspection_sheet",
-              targetSingularName: `检验单 - ${operationTarget?.code}`,
+              targetSingularName: `检验单 - ${inspectionSheet?.code}`,
               method: "update",
               changes: changes,
               before: before,
@@ -122,16 +123,16 @@ export default [
         }
       }
 
-      if (operationTarget?.inventoryOperation?.application && operationTarget?.lotNum && operationTarget?.result) {
+      if (inspectionSheet?.inventoryOperation?.application && inspectionSheet?.lotNum && inspectionSheet?.result) {
         const momInventoryApplicationItemManager = server.getEntityManager<MomInventoryApplicationItem>("mom_inventory_application_item");
         const momInventoryApplicationItem = await momInventoryApplicationItemManager.findEntity({
           routeContext,
           filters: [
-            { operator: "eq", field: "lotNum", value: operationTarget.lotNum },
+            { operator: "eq", field: "lotNum", value: inspectionSheet.lotNum },
             {
               operator: "eq",
               field: "operation_id",
-              value: operationTarget.inventoryOperation.application.id,
+              value: inspectionSheet.inventoryOperation.application.id,
             },
           ],
           properties: ["id"],
@@ -142,12 +143,14 @@ export default [
             routeContext,
             id: momInventoryApplicationItem.id,
             entityToSave: {
-              inspectState: operationTarget.result,
+              inspectState: inspectionSheet.result,
             },
           });
         }
       }
 
+      // 当用户点击提交检验记录按钮后:
+      // - 将检验值锁定，不允许修改。
       if (changes.hasOwnProperty("state") && changes.state === "inspected") {
         const measurements = await server.getEntityManager<MomInspectionMeasurement>("mom_inspection_measurement").findEntities({
           routeContext,
@@ -166,16 +169,17 @@ export default [
         }
       }
 
+      // 保持批次的`合格证状态`与检验单的`检验结果`一致
       if (after.lotNum && after.material_id) {
         const lotManager = server.getEntityManager<BaseLot>("base_lot");
         const lot = await lotManager.findEntity({
           routeContext,
           filters: [
-            { operator: "eq", field: "lotNum", value: operationTarget?.lotNum },
+            { operator: "eq", field: "lotNum", value: inspectionSheet?.lotNum },
             {
               operator: "eq",
               field: "material_id",
-              value: operationTarget?.material?.id,
+              value: inspectionSheet?.material?.id,
             },
           ],
           properties: ["id"],
@@ -183,21 +187,25 @@ export default [
         if (lot && after.result) {
           await lotManager.updateEntityById({
             routeContext,
-            id: operationTarget?.lot?.id,
+            id: lot.id,
             entityToSave: {
-              qualificationState: operationTarget?.result,
+              qualificationState: inspectionSheet?.result,
             },
           });
         }
       }
 
+      // 当变更 处理方式 时，更新对应批次的合格信息：
+      // 1. 更新处理方式：特采、退货、强制合格
+      // 2. 是否让步接收：当处理方式为特采时，表示让步接收
+      // 3. 是否合格。检验结果为合格，或者处理方式为强制合格时，设置为合格。
       if (changes.hasOwnProperty("treatment")) {
         if (after.lot_id) {
           const isAOD = changes.treatment === "special";
-          const qualified = operationTarget?.result === "qualified" ? "true" : changes.treatment === "forced";
+          const qualified = inspectionSheet?.result === "qualified" ? true : changes.treatment === "forced";
           await server.getEntityManager<BaseLot>("base_lot").updateEntityById({
             routeContext,
-            id: operationTarget?.lot?.id,
+            id: inspectionSheet?.lot?.id,
             entityToSave: {
               treatment: changes.treatment,
               isAOD: isAOD,
