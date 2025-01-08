@@ -144,7 +144,7 @@ export default [
               routeContext,
               id: inventoryApplication.id,
               entityToSave: {
-                externalCode: changes.externalCode,
+                kisResponse: changes.externalCode,
               },
             });
           }

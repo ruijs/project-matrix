@@ -1234,6 +1234,7 @@ const entityFieldCodes = {
     'fDeliveryCode',
     'express',
     'depositDate',
+    'kisResponse',
     'createdAt',
     'createdBy',
     'updatedAt',

@@ -718,7 +718,7 @@ const page: RapidPage = {
                 {
                   type: "auto",
                   title: "金蝶传输",
-                  code: "application.externalCode",
+                  code: "application.kisResponse",
                 },
                 {
                   type: "auto",

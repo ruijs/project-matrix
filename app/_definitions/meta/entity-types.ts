@@ -4571,6 +4571,10 @@ export interface MomInventoryApplication {
    */
   depositDate?: string;
   /**
+   * 金蝶传输
+   */
+  kisResponse?: string;
+  /**
    * 创建时间
    */
   createdAt?: string;

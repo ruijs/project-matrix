@@ -212,6 +212,11 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
       name: "出库日期",
       type: "date",
     },
+    {
+      code: "kisResponse",
+      name: "金蝶传输",
+      type: "text",
+    },
   ],
 };
 
