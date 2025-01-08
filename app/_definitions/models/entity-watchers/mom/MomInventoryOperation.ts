@@ -309,11 +309,11 @@ export default [
           }
 
           // 上报金蝶KIS云
-          // try {
-          //   await handleKisOperation(server, { operationId: after.id })
-          // } catch (e) {
-          //   console.log()
-          // }
+          try {
+            await handleKisOperation(server, routeContext, { operationId: after.id })
+          } catch (e) {
+            console.log(e)
+          }
 
           updateInventoryBalance(server, routeContext);
         }
