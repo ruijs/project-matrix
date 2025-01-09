@@ -1928,6 +1928,7 @@ const entityFieldCodes = {
     'isOutSpecification',
     'isReported',
     'fawCode',
+    'retryTimes',
     'createdAt',
     'createdBy',
     'updatedAt',

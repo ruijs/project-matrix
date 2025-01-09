@@ -92,6 +92,12 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
       name: "配置",
       type: "text",
     },
+    {
+      code: "retryTimes",
+      name: "重试次数",
+      type: "integer",
+      defaultValue: "0",
+    },
   ],
 };
 
