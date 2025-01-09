@@ -3,6 +3,7 @@ import Aedes, { AuthenticateError } from "aedes";
 import { createServer } from "net";
 import type IotPlugin from "rapid-plugins/iot/IotPlugin";
 import type { Logger, RapidServer } from "@ruiapp/rapid-core";
+import { ParserRegistry, TemperatureHexParser } from './parsers';
 
 export interface StartMqttServerOptions {
   rapidServer: RapidServer;
@@ -34,6 +35,29 @@ export function startMqttServer(options: StartMqttServerOptions) {
   const aedes = new Aedes();
   const mqttServer = createServer(aedes.handle);
 
+  // Initialize parser registry
+  const parserRegistry = new ParserRegistry(logger);
+  
+  // Register parsers for specific clients
+  const clientIds = [
+    '020062748395',
+    '048071690794',
+    '020062733850',
+    '048071682353',
+    '374064830385',
+    '048071687451',
+    '551052823440',
+    '713075467134',
+    'F0FE6B000A67',
+    '020062767080'
+  ];
+
+  // Register temperature parser for each client
+  clientIds.forEach(clientId => {
+    parserRegistry.registerParser(clientId, new TemperatureHexParser(logger));
+    parserRegistry.addToWhitelist(clientId);
+  });
+
   aedes.authenticate = async function (client, username, password, callback) {
     try {
       if (!username) {
@@ -62,19 +86,29 @@ export function startMqttServer(options: StartMqttServerOptions) {
 
   aedes.on("publish", async (packet, client) => {
     let payload = packet.payload.toString();
+    
     try {
-      payload = JSON.parse(payload);
+      if (client && parserRegistry.isInWhitelist(client.id)) {
+        // 只有在白名单中的客户端才使用特殊解析器
+        const parser = parserRegistry.getParser(client.id);
+        payload = parser.parse(payload);
+      } else {
+        // 非白名单客户端或无客户端时使用 JSON 解析
+        payload = JSON.parse(payload);
+      }
     } catch (ex) {
-      logger.warn("Failed to parse payload as JSON.", {
+      logger.warn("Failed to parse payload", {
         topic: packet.topic,
         properties: packet.properties,
         payload,
+        clientId: client?.id,
+        error: ex.message,
+        isInWhitelist: client ? parserRegistry.isInWhitelist(client.id) : false
       });
     }
 
-    const { topic } = packet;
     const mqttMessage = {
-      topic,
+      topic: packet.topic,
       payload,
     };
     logger.info("[MQTT] [PUBLISH]", mqttMessage);
