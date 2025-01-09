@@ -216,7 +216,7 @@ export default [
             filters: [
               { operator: "eq", field: "sheet_id", value: after.id },
             ],
-            properties: ["id", "sheet", "characteristic", "qualitativeValue", "quantitativeValue", "isQualified"],
+            properties: ["id", "sheet", "characteristic", "qualitativeValue", "quantitativeValue", "isQualified", "createdAt"],
             relations: {
               characteristic: {
                 relations: {
@@ -224,7 +224,7 @@ export default [
                 },
               },
               sheet: {
-                properties: ["id", "code", "lotNum", "material", "rule", "result", "reportFile", "gcmsReportFile", "invoiceReportFile", "normalReportFile", "qualityReportFile", "createdBy", "gcmsPassed"],
+                properties: ["id", "code", "lotNum", "material", "rule", "result", "reportFile", "gcmsReportFile", "invoiceReportFile", "normalReportFile", "qualityReportFile", "createdBy", "gcmsPassed", "createdAt"],
                 relations: {
                   rule: {
                     properties: ["id", "name", "category"],

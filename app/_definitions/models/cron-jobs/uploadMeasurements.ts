@@ -27,7 +27,7 @@ export default {
     while (true) {
       try {
         const measurements = await server.getEntityManager<MomRouteProcessParameterMeasurement>("mom_route_process_parameter_measurement").findEntities({
-          filters: [{ operator: "eq", field: "isReported", value: false }],
+          filters: [{ operator: "eq", field: "isReported", value: false }, { operator: "lt", field: "retryTimes", value: 3 }],
           properties: [
             "id",
             "process",
@@ -42,6 +42,7 @@ export default {
             "workReport",
             "fawCode",
             "createdAt",
+            "retryTimes",
           ],
           relations: {
             workOrder: {
@@ -64,11 +65,18 @@ export default {
           break;
         }
 
-        let notifyEnabled = false;
+        // let notifyEnabled = false;
+        // let isOutSpecification = false;
 
-        let isOutSpecification = false;
         for (const measurement of measurements) {
-          await yidaAPI.uploadProductionMeasurement(measurement);
+          await server.getEntityManager<MomRouteProcessParameterMeasurement>("mom_route_process_parameter_measurement").updateEntityById({
+            id: measurement.id,
+            entityToSave: {
+              retryTimes: (measurement.retryTimes || 0) + 1,
+            },
+          });
+
+          // await yidaAPI.uploadProductionMeasurement(measurement);
           await yidaAPI.uploadFAWProcessMeasurement(measurement);
 
           await server.getEntityManager<MomRouteProcessParameterMeasurement>("mom_route_process_parameter_measurement").updateEntityById({
@@ -79,18 +87,18 @@ export default {
           });
           await waitSeconds(100);
 
-          if (measurement.process?.config?.notifyEnabled) {
-            notifyEnabled = true;
-          }
+          // if (measurement.process?.config?.notifyEnabled) {
+          //   notifyEnabled = true;
+          // }
 
-          if (measurement.isOutSpecification) {
-            isOutSpecification = true;
-          }
+          // if (measurement.isOutSpecification) {
+          //   isOutSpecification = true;
+          // }
         }
 
-        if (isOutSpecification && notifyEnabled) {
-          await yidaAPI.uploadProductionMeasurementsAudit(measurements);
-        }
+        // if (isOutSpecification && notifyEnabled) {
+        //   await yidaAPI.uploadProductionMeasurementsAudit(measurements);
+        // }
       } catch (e: any) {
         logger.error("uploadHuateMeasurements failed." + e.message);
         console.log(e);

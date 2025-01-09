@@ -737,7 +737,7 @@ class YidaApi {
         numberField_l3plle2x: inspectValue, // 参数值
         numberField_l3plle2y: lowerLimit, // 下公差
         numberField_l3plle2z: upperLimit, // 上公差
-        dateField_l3plle30: dayjs().unix() * 1000,
+        dateField_l3plle30: dayjs(input.createdAt).unix() * 1000,
         textField_l3plle2h: input?.isQualified ? "合格" : "不合格",
         textField_l3plle2m: input.sheet?.rule?.partManager, // 零件负责人
         textField_l3plle2o: inspectValue, // 参数值
@@ -782,7 +782,7 @@ class YidaApi {
           numberField_l3plle2x: input.sheet.gcmsPassed ? 0 : 1, // 参数值
           numberField_l3plle2y: 0, // 下公差
           numberField_l3plle2z: 0, // 上公差
-          dateField_l3plle30: dayjs().unix() * 1000,
+          dateField_l3plle30: dayjs(input.createdAt).unix() * 1000,
           textField_l3plle2h: input.sheet.gcmsPassed ? "合格" : "不合格",
           textField_l3plle2m: input.sheet?.rule?.partManager, // 零件负责人
           textField_l3plle2o: input.sheet.gcmsPassed ? 0 : 1, // 参数值
@@ -818,7 +818,7 @@ class YidaApi {
     // input.oilMixtureRatio
 
     if (input?.oilMixtureRatio1 && input?.oilMixtureRatio2) {
-      const oilMixtureRatio = input.oilMixtureRatio1 / input?.oilMixtureRatio2;
+      const oilMixtureRatio = input.oilMixtureRatio2 / input?.oilMixtureRatio1;
       let formDataJson = {
         textField_l3plle21: "5RD", // 供应商代码
         textField_l3plle22: "上海华特企业集团股份有限公司", // 供应商名称
@@ -831,7 +831,7 @@ class YidaApi {
         numberField_l3plle2x: oilMixtureRatio, // 参数值
         numberField_l3plle2y: 2.27868852, // 下公差
         numberField_l3plle2z: 2.38983051, // 上公差
-        dateField_l3plle30: dayjs().unix() * 1000,
+        dateField_l3plle30: dayjs(input.createdAt).unix() * 1000,
         textField_l3plle2h: oilMixtureRatio < 2.27868852 || oilMixtureRatio > 2.38983051 ? "不合格" : "合格",
         textField_l3plle2m: "/", // 零件负责人
         textField_l3plle2o: oilMixtureRatio, // 参数值
@@ -874,7 +874,7 @@ class YidaApi {
         numberField_l3plle2x: input.tankNumber === "B01" ? 1 : 0, // 参数值
         numberField_l3plle2y: 1, // 下公差
         numberField_l3plle2z: 1, // 上公差
-        dateField_l3plle30: dayjs().unix() * 1000,
+        dateField_l3plle30: dayjs(input.createdAt).unix() * 1000,
         textField_l3plle2h: input.tankNumber === "B01" ? "合格" : "不合格",
         textField_l3plle2m: "/", // 零件负责人
         textField_l3plle2o: input.tankNumber === "B01", // 参数值
@@ -917,7 +917,7 @@ class YidaApi {
         numberField_l3plle2x: input.stirringTime, // 参数值
         numberField_l3plle2y: 55, // 下公差
         numberField_l3plle2z: 65, // 上公差
-        dateField_l3plle30: dayjs().unix() * 1000,
+        dateField_l3plle30: dayjs(input.createdAt).unix() * 1000,
         textField_l3plle2h: input.stirringTime < 55 || input.stirringTime > 65 ? "不合格" : "合格",
         textField_l3plle2m: "/", // 零件负责人
         textField_l3plle2o: input.stirringTime, // 参数值
@@ -960,7 +960,7 @@ class YidaApi {
         numberField_l3plle2x: input.stirringPressure, // 参数值
         numberField_l3plle2y: 0.6, // 下公差
         numberField_l3plle2z: 0.85, // 上公差
-        dateField_l3plle30: dayjs().unix() * 1000,
+        dateField_l3plle30: dayjs(input.createdAt).unix() * 1000,
         textField_l3plle2h: input.stirringPressure < 0.6 || input.stirringPressure > 0.85 ? "不合格" : "合格",
         textField_l3plle2m: "/", // 零件负责人
         textField_l3plle2o: input.stirringTime, // 参数值
@@ -1004,7 +1004,7 @@ class YidaApi {
           numberField_l3plle2x: feed.instoreTankNumber === "A5" || feed.instoreTankNumber === "A6" ? 1 : 0, // 参数值
           numberField_l3plle2y: 1, // 下公差
           numberField_l3plle2z: 1, // 上公差
-          dateField_l3plle30: dayjs().unix() * 1000,
+          dateField_l3plle30: dayjs(input.createdAt).unix() * 1000,
           textField_l3plle2h: feed.instoreTankNumber === "A5" || feed.instoreTankNumber === "A6" ? "合格" : "不合格",
           textField_l3plle2m: "/", // 零件负责人
           textField_l3plle2o: feed.instoreTankNumber === "A5" || feed.instoreTankNumber === "A6" ? 1 : 0, // 参数值
@@ -1051,7 +1051,7 @@ class YidaApi {
         numberField_l3plle2x: input.sealNumMatch ? 1 : 0, // 参数值
         numberField_l3plle2y: 1, // 下公差
         numberField_l3plle2z: 1, // 上公差
-        dateField_l3plle30: dayjs().unix() * 1000,
+        dateField_l3plle30: dayjs(input.createdAt).unix() * 1000,
         textField_l3plle2h: input.sealNumMatch ? "合格" : "不合格",
         textField_l3plle2m: "/", // 零件负责人
         textField_l3plle2o: input.sealNumMatch ? 1 : 0, // 参数值
@@ -1092,7 +1092,7 @@ class YidaApi {
         numberField_l3plle2x: input.binNumMatch ? 1 : 0, // 参数值
         numberField_l3plle2y: 1, // 下公差
         numberField_l3plle2z: 1, // 上公差
-        dateField_l3plle30: dayjs().unix() * 1000,
+        dateField_l3plle30: dayjs(input.createdAt).unix() * 1000,
         textField_l3plle2h: input.binNumMatch ? "合格" : "不合格",
         textField_l3plle2m: "/", // 零件负责人
         textField_l3plle2o: input.binNumMatch ? 1 : 0, // 参数值
@@ -1133,7 +1133,7 @@ class YidaApi {
         numberField_l3plle2x: input.manufacturerMatch ? 1 : 0, // 参数值
         numberField_l3plle2y: 1, // 下公差
         numberField_l3plle2z: 1, // 上公差
-        dateField_l3plle30: dayjs().unix() * 1000,
+        dateField_l3plle30: dayjs(input.createdAt).unix() * 1000,
         textField_l3plle2h: input.manufacturerMatch ? "合格" : "不合格",
         textField_l3plle2m: "/", // 零件负责人
         textField_l3plle2o: input.manufacturerMatch ? 1 : 0, // 参数值

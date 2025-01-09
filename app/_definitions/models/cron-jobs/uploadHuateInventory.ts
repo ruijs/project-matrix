@@ -14,7 +14,7 @@ export default {
 
     const inventories = await server.getEntityManager<MomMaterialInventoryBalance>("mom_material_inventory_balance").findEntities({
       filters: [],
-      properties: ["id", "material", "onHandQuantity"],
+      properties: ["id", "material", "onHandQuantity", "createdAt"],
     })
 
     for (const inventory of inventories) {

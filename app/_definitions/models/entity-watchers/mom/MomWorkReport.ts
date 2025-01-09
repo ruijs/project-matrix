@@ -206,10 +206,13 @@ export default [
               properties: ["id", "rawMaterial", "lotNum", "createdAt"],
             });
           }
-          // 上报宜搭投料记录
-          const yidaSDK = await new YidaHelper(server).NewAPIClient();
-          const yidaAPI = new YidaApi(yidaSDK);
-          await yidaAPI.uploadFAWProductionRecord(workReport, workFeeds);
+
+          if (workFeeds.length > 0) {
+            // 上报宜搭投料记录
+            const yidaSDK = await new YidaHelper(server).NewAPIClient();
+            const yidaAPI = new YidaApi(yidaSDK);
+            await yidaAPI.uploadFAWProductionRecord(workReport, workFeeds);
+          }
         }
 
         if (workReport.equipment?.machine) {
@@ -457,7 +460,7 @@ export default [
               limit: 1,
             }
           });
-          
+
           if (workFeeds.length === 0) {
             workFeeds = await workFeedManager.findEntities({
               filters: [

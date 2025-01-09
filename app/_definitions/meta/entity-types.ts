@@ -7380,6 +7380,10 @@ export interface MomRouteProcessParameterMeasurement {
    */
   fawCode?: string;
   /**
+   * 重试次数
+   */
+  retryTimes?: number;
+  /**
    * 创建时间
    */
   createdAt?: string;
