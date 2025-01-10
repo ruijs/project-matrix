@@ -5,7 +5,7 @@ export interface ParserResult {
 }
 
 export interface Parser {
-  parse(payload: string): ParserResult;
+  parse(payload: string, clientId?: string): ParserResult;
 }
 
 // CRC16 lookup tables
@@ -26,6 +26,23 @@ function hexToAscii(hex: string): string {
   }
   return str;
 }
+
+// 添加设备ID映射
+export const DEVICE_ID_MAP: Record<string, string> = {
+  '020062748395': 'xinZiYuanChongYou1',
+  '048071690794': 'xinZiYuanChongYou1',
+  '020062733850': 'xinZiYuanChongYou1',
+  '048071682353': 'xinZiYuanChongYou1',
+  '374064830385': 'xinZiYuanHunHe1',
+  '048071687451': 'xinZiYuanHunHe1',
+  '551052823440': 'xinZiYuanZaoLi1',
+  '713075467134': 'xinZiYuanZaoLi1',
+  'F0FE6B000A67': 'xinZiYuanZaoLi1',
+  '020062767080': 'huaGuZhuSu1'
+};
+
+// 获取所有客户端ID
+export const CLIENT_IDS = Object.keys(DEVICE_ID_MAP);
 
 // Temperature Hex Parser implementation
 export class TemperatureHexParser implements Parser {
@@ -67,7 +84,7 @@ export class TemperatureHexParser implements Parser {
     };
   }
 
-  parse(payload: string): ParserResult {
+  parse(payload: string, clientId: string): ParserResult {
     // 分离温度数据和定位数据
     const temperatureData = payload.slice(0, 72);  // 前72个字符是温度数据
     const locationHex = payload.slice(72);         // 剩余的是定位数据
@@ -90,19 +107,27 @@ export class TemperatureHexParser implements Parser {
         segment => this.parseDataSegment(segment)
       );
 
-      // 解析定位信息（16进制转ASCII）
       const location = hexToAscii(locationHex);
       const [longitude, latitude] = location.split(',').map(Number);
 
+      // 获取设备ID
+      const deviceId = DEVICE_ID_MAP[clientId] || clientId;
+
+      // 格式化输出
       return {
-        currentTemperature: pv.value,
-        setTemperature: sp.value,
-        heatHysteresis: heatHysteresis.value,
-        coolHysteresis: coolHysteresis.value,
-        location: {
-          longitude,
-          latitude
-        }
+        [deviceId]: [
+          {
+            ts: Date.now(),
+            values: {
+              currentTemperature: pv.value,
+              setTemperature: sp.value,
+              heatHysteresis: heatHysteresis.value,
+              coolHysteresis: coolHysteresis.value,
+              longitude: longitude,
+              latitude: latitude
+            }
+          }
+        ]
       };
     } catch (error) {
       this.logger.error('Error parsing hex data:', error);
@@ -115,32 +140,54 @@ export class TemperatureHexParser implements Parser {
 function test() {
   const logger = console as unknown as Logger;
   const parser = new TemperatureHexParser(logger);
+  const testClientId = '020062767080'; // 使用一个真实的客户端ID
   
   const testData = '010304000000527bce010304000000553a0c010304000000327be60103040000000a7a343132312e3138383335342c33312e333339383137';
   
   try {
-    const result = parser.parse(testData);
+    const result = parser.parse(testData, testClientId);
     console.log('Parsed result:', JSON.stringify(result, null, 2));
     
     // Verify the expected output
     const expected = {
-      currentTemperature: 82,
-      setTemperature: 85,
-      heatHysteresis: 50,
-      coolHysteresis: 10,
-      location: {
-        longitude: 121.188354,
-        latitude: 31.339817
-      }
+      huaGuZhuSu1: [
+        {
+          ts: result.huaGuZhuSu1[0].ts, // 使用实际时间戳，因为它是动态的
+          values: {
+            currentTemperature: 82,
+            setTemperature: 85,
+            heatHysteresis: 50,
+            coolHysteresis: 10,
+            longitude: 121.188354,
+            latitude: 31.339817
+          }
+        }
+      ]
     };
     
-    console.log('Test passed:', JSON.stringify(result) === JSON.stringify(expected));
+    // 深度比较，忽略时间戳
+    const isEqual = JSON.stringify({
+      ...result,
+      huaGuZhuSu1: [{
+        ...result.huaGuZhuSu1[0],
+        ts: 0
+      }]
+    }) === JSON.stringify({
+      ...expected,
+      huaGuZhuSu1: [{
+        ...expected.huaGuZhuSu1[0],
+        ts: 0
+      }]
+    });
+    
+    console.log('Test passed:', isEqual);
   } catch (error) {
     console.error('Test failed:', error);
   }
 }
 
 // Uncomment to run the test
+// ts-node mqtt-server/parsers/index.ts
 //test();
 
 // JSON Parser
@@ -160,7 +207,13 @@ export class ParserRegistry {
 
   constructor(logger: Logger) {
     this.defaultParser = new JsonParser(logger);
-    this.hexParserWhitelist = new Set(['temperatureClient1', 'temperatureClient2']);
+    this.hexParserWhitelist = new Set();
+
+    // 直接在构造函数中初始化解析器和白名单
+    CLIENT_IDS.forEach(clientId => {
+      this.registerParser(clientId, new TemperatureHexParser(logger));
+      this.addToWhitelist(clientId);
+    });
   }
 
   registerParser(clientId: string, parser: Parser) {
