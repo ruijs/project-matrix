@@ -335,7 +335,7 @@ function getFormConfig(formType: "newForm" | "editForm") {
         code: "lotNum",
         $exps: {
           _hidden:
-            "_.get($page.scope.stores, 'detail.data.list[0].businessType')?.name !== '生产退料入库')||_.get($page.scope.stores, 'detail.data.list[0].businessType')?.name === '销售出库'",
+            "_.get($page.scope.stores, 'detail.data.list[0].businessType')?.name !== '生产退料入库'||_.get($page.scope.stores, 'detail.data.list[0].businessType')?.name === '销售出库'",
           "formControlProps.materialId": "$self.form.getFieldValue('material')",
         },
       },
@@ -345,7 +345,7 @@ function getFormConfig(formType: "newForm" | "editForm") {
         code: "lotNum",
         $exps: {
           _hidden:
-            "_.get($page.scope.stores, 'detail.data.list[0].businessType')?.name === '销售出库'||_.get($page.scope.stores, 'detail.data.list[0].businessType')?.name === '生产退料入库'||_.get($page.scope.stores, 'detail.data.list[0].businessType')?.name === '销售出库'||(_.get($page.scope.stores, 'detail.data.list[0].operationType') === 'out' ||  _.get($page.scope.stores, 'detail.data.list[0].operationType') === 'transfer')",
+            "_.get($page.scope.stores, 'detail.data.list[0].businessType')?.name === '销售出库'||_.get($page.scope.stores, 'detail.data.list[0].businessType')?.name === '生产退料入库'||_.get($page.scope.stores, 'detail.data.list[0].businessType')?.name === '销售出库'||(_.get($page.scope.stores, 'detail.data.list[0].operationType') === 'out' || _.get($page.scope.stores, 'detail.data.list[0].operationType') === 'transfer')",
         },
       },
       {
