@@ -48,7 +48,7 @@ export default {
   Renderer(context, props: Record<string, any>) {
     const { materialId, businessTypeId, materialCategoryId, warehouseId, customerId } = props;
     const pageSize = 20;
-    const listValueFieldName = "id";
+    const listValueFieldName = "lotNum";
     const isMultiple = false;
     const [currentState, setCurrentState] = useMergeState<ICurrentState>({ offset: 0, selectedRecordMap: {} });
     const [debouncedKeyword, setDebouncedKeyword] = useState<string>("");
@@ -415,12 +415,12 @@ export default {
 
           return get(item, listValueFieldName) || get(item, lastCode);
         }
-        return Number(item);
+        return item;
       });
     }, [props.value]);
 
     useEffect(() => {
-      const res = dataSource.list.find((item) => item.id == props.value)?.lotNum;
+      const res = dataSource.list.find((item) => get(item, listValueFieldName) == props.value)?.lotNum;
       setCurrentState({
         inputValue: res,
       });
@@ -503,7 +503,7 @@ export default {
             })
           }
           onOk={() => {
-            props?.form.setFieldValue("lotNum", currentState?.selectRecord?.id);
+            props?.form.setFieldValue("lotNum", get(currentState?.selectRecord, listValueFieldName));
             setCurrentState({
               inputValue: currentState?.selectRecord?.lotNum,
               visible: false,
