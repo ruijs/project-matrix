@@ -236,7 +236,7 @@ async function fetchInventory(routeContext: RouteContext, server: IRpdServer, in
 }
 
 async function fetchGoods(routeContext: RouteContext, server: IRpdServer, input: ExportExcelInput) {
-  const filters: EntityFilterOptions[] = [{ operator: "ne", field: "state", value: "pending" }, ...buildDateFilters(input), ...buildCommonFilters(input)];
+  const filters: EntityFilterOptions[] = [...buildDateFilters(input), ...buildCommonFilters(input)];
 
   if (input?.state && input.state !== "undefined") {
     filters.push({

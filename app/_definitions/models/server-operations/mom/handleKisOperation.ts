@@ -236,49 +236,48 @@ export async function handleKisOperation(server: IRpdServer, routeContext: Route
                 },
               });
               break;
-            // case "其它原因入库":
-            //   for (const transfer of transfers) {
-            //     let locationCode = '1320'
-            //     // check if transfer.material_code prefix is 01. if so, set locationCode to 1320, if 03. set to 1321
-            //     if (transfer.material_code.startsWith('01.')) {
-            //       locationCode = '1320'
-            //     } else if (transfer.material_code.startsWith('03.')) {
-            //       locationCode = '1321'
-            //     }
-            //
-            //     entries.push({
-            //       FItemID: transfer.material_external_code,
-            //       FQty: transfer.quantity,
-            //       Fauxqty: transfer.quantity,
-            //       FAuxQtyMust: transfer.quantity,
-            //       FDCSPID: locationCode,
-            //       FDCStockID: warehouseId,
-            //       FBatchNo: transfer.lot_num,
-            //       FUnitID: transfer.unit_external_code,
-            //       FMTONo: transfer.lot_num,
-            //       FAuxPrice: 1,
-            //       Famount: transfer.quantity,
-            //       FPlanMode: 14036
-            //     });
-            //   }
-            //
-            //   kisResponse = await kisOperationApi.createMiscellaneousReceipt(
-            //     {
-            //       Object: {
-            //         Head: {
-            //           Fdate: getNowString(),
-            //           FDCStockID: warehouseId,
-            //           FFManagerID: inventoryApplication?.fFManager?.externalCode || inventoryApplication?.createdBy?.externalCode,
-            //           FSManagerID: inventoryApplication?.fSManager?.externalCode || inventoryApplication?.createdBy?.externalCode,
-            //           FBillerID: inventoryApplication?.createdBy?.externalUserCode,
-            //           FTranType: 10,
-            //           FROB: 1,
-            //           FHeadSelfA0143: "3286"
-            //         },
-            //         Entry: entries,
-            //       },
-            //     })
-            //   break;
+            case "其它原因入库":
+              for (const transfer of transfers) {
+                let locationCode = '1320'
+                // check if transfer.material_code prefix is 01. if so, set locationCode to 1320, if 03. set to 1321
+                if (transfer.material_code.startsWith('01.')) {
+                  locationCode = '1320'
+                } else if (transfer.material_code.startsWith('03.')) {
+                  locationCode = '1321'
+                }
+
+                entries.push({
+                  FItemID: transfer.material_external_code,
+                  FQty: transfer.quantity,
+                  Fauxqty: transfer.quantity,
+                  FAuxQtyMust: transfer.quantity,
+                  FDCSPID: locationCode,
+                  FDCStockID: warehouseId,
+                  FBatchNo: transfer.lot_num,
+                  FUnitID: transfer.unit_external_code,
+                  FMTONo: transfer.lot_num,
+                  FAuxPrice: 1,
+                  Famount: transfer.quantity,
+                  FPlanMode: 14036
+                });
+              }
+
+              kisResponse = await kisOperationApi.createMiscellaneousReceipt(
+                {
+                  Object: {
+                    Head: {
+                      Fdate: getNowString(),
+                      // FDCStockID: warehouseId,
+                      FFManagerID: inventoryApplication?.fFManager?.externalCode || inventoryApplication?.createdBy?.externalCode,
+                      FSManagerID: inventoryApplication?.fSManager?.externalCode || inventoryApplication?.createdBy?.externalCode,
+                      FBillerID: inventoryApplication?.createdBy?.externalUserCode,
+                      FTranType: 10,
+                      FHeadSelfA0143: "3286"
+                    },
+                    Entry: entries,
+                  },
+                })
+              break;
             case "委外加工入库":
               for (const transfer of transfers) {
                 let locationCode = "1320";
@@ -364,6 +363,165 @@ export async function handleKisOperation(server: IRpdServer, routeContext: Route
                     FROB: -1,
                     Fuse: inventoryApplication.fUse || "",
                     FHeadSelfB0436: inventoryApplication.fPlanSn || "无",
+                  },
+                  Entry: entries,
+                },
+              });
+              break;
+            case "销售退货入库":
+              transfers.forEach((transfer, idx) => {
+                let locationCode = "1320";
+                // check if transfer.material_code prefix is 01. if so, set locationCode to 1320, if 03. set to 1321
+                if (transfer.material_code.startsWith("01.")) {
+                  locationCode = "1320";
+                } else if (transfer.material_code.startsWith("03.")) {
+                  locationCode = "1321";
+                }
+
+                if (inventoryApplication.to?.name === "外租仓库" || inventoryApplication.from?.name === "外租仓库") {
+                  locationCode = "";
+                }
+
+                let entity: any = {
+                  FItemID: transfer.material_external_code,
+                  FQty: transfer.quantity,
+                  Fauxqty: transfer.quantity,
+                  FAuxQtyMust: transfer.quantity,
+                  FDCStockID: warehouseId,
+                  FBatchNo: transfer.lot_num,
+                  FUnitID: transfer.unit_external_code,
+                  FSourceTranType: "81",
+                  FSourceInterId: inventoryApplication?.externalCode,
+                  FSourceBillNo: inventoryApplication?.code,
+                  FSourceEntryID: idx + 1,
+                  FOrderBillNo: inventoryApplication?.code,
+                  FOrderInterID: inventoryApplication?.externalCode,
+                  FOrderEntryID: idx + 1,
+                  FAuxPrice: 1,
+                  Famount: transfer.quantity,
+                  FPlanMode: 14036,
+                  Fnote: transfer.remark,
+                };
+
+                if (locationCode !== "") {
+                  entity.FDCSPID = locationCode;
+                }
+
+                entries.push(entity);
+              });
+
+              kisResponse = await kisOperationApi.createSalesDelivery({
+                Object: {
+                  Head: {
+                    Fdate: getNowString(),
+                    FFManagerID: inventoryApplication?.fFManager?.externalCode || inventoryApplication?.createdBy?.externalCode,
+                    FSManagerID: inventoryApplication?.fSManager?.externalCode || inventoryApplication?.createdBy?.externalCode,
+                    FBillerID: inventoryApplication?.biller?.externalUserCode,
+                    FEmpID: inventoryApplication?.applicant?.externalCode,
+                    FTranType: 21,
+                    FDeptID: "781",
+                    FROB: -1,
+                    FHeadSelfB0164: inventoryApplication.express?.externalCode || "",
+                    FHeadSelfB0163: inventoryApplication.contractNum || "无",
+                    FHeadSelfB0165: inventoryApplication.fDeliveryCode || "无",
+                    FMarketingStyle: "12530",
+                    FSaleStyle: "102",
+                    FSupplyID: inventoryApplication.customer?.externalCode,
+                  },
+                  Entry: entries,
+                },
+              });
+              break;
+            case "其他原因入库":
+              for (const transfer of transfers) {
+                let locationCode = "1320";
+                // check if transfer.material_code prefix is 01. if so, set locationCode to 1320, if 03. set to 1321
+                if (transfer.material_code.startsWith("01.")) {
+                  locationCode = "1320";
+                } else if (transfer.material_code.startsWith("03.")) {
+                  locationCode = "1321";
+                }
+
+                entries.push({
+                  FItemID: transfer.material_external_code,
+                  FQty: transfer.quantity,
+                  Fauxqty: transfer.quantity,
+                  FAuxQtyMust: transfer.quantity,
+                  // FDCSPID: locationCode,
+                  FDCStockID: warehouseId,
+                  FBatchNo: transfer.lot_num,
+                  FUnitID: transfer.unit_external_code,
+                  // FMTONo: transfer.lot_num,
+                  FAuxPrice: 1,
+                  Famount: transfer.quantity,
+                  FPlanMode: 14036,
+                  Fnote: transfer.remark,
+                });
+              }
+
+              kisResponse = await kisOperationApi.createMiscellaneousReceipt({
+                Object: {
+                  Head: {
+                    Fdate: getNowString(),
+                    // FDCStockID: warehouseId,
+                    FFManagerID: inventoryApplication?.fFManager?.externalCode || inventoryApplication?.createdBy?.externalCode,
+                    FSManagerID: inventoryApplication?.fSManager?.externalCode || inventoryApplication?.createdBy?.externalCode,
+                    FBillerID: inventoryApplication?.biller?.externalUserCode,
+                    FTranType: 1,
+                    FSupplyID: inventoryApplication?.fSupplyID,
+                    FHeadSelfA0143: "3286",
+                  },
+                  Entry: entries,
+                },
+              });
+              break;
+            case "其他原因出库退货入库":
+              for (const transfer of transfers) {
+                let locationCode = "1320";
+                // check if transfer.material_code prefix is 01. if so, set locationCode to 1320, if 03. set to 1321
+                if (transfer.material_code.startsWith("01.")) {
+                  locationCode = "1320";
+                } else if (transfer.material_code.startsWith("03.")) {
+                  locationCode = "1321";
+                }
+
+                if (inventoryApplication.to?.name === "外租仓库" || inventoryApplication.from?.name === "外租仓库") {
+                  locationCode = "";
+                }
+
+                let entity: any = {
+                  FItemID: transfer.material_external_code,
+                  FQty: transfer.quantity,
+                  Fauxqty: transfer.quantity,
+                  FAuxQtyMust: transfer.quantity,
+                  FDCStockID: warehouseId,
+                  FBatchNo: transfer.lot_num,
+                  FUnitID: transfer.unit_external_code,
+                  // FMTONo: transfer.lot_num,
+                  FAuxPrice: 1,
+                  Famount: transfer.quantity,
+                  Fnote: transfer.remark,
+                };
+
+                if (locationCode !== "") {
+                  entity.FDCSPID = locationCode;
+                }
+
+                entries.push(entity);
+              }
+
+              kisResponse = await kisOperationApi.createMiscellaneousDelivery({
+                Object: {
+                  Head: {
+                    Fdate: getNowString(),
+                    // FSCStockID: warehouseId,
+                    FFManagerID: inventoryApplication?.fSManager?.externalCode || inventoryApplication?.createdBy?.externalCode,
+                    FSManagerID: inventoryApplication?.fFManager?.externalCode || inventoryApplication?.createdBy?.externalCode,
+                    FBillerID: inventoryApplication?.biller?.externalUserCode,
+                    FTranType: 29,
+                    FDeptID: "783",
+                    Fuse: inventoryApplication.fUse || "",
+                    FROB: -1,
                   },
                   Entry: entries,
                 },
@@ -481,6 +639,97 @@ export async function handleKisOperation(server: IRpdServer, routeContext: Route
                 },
               });
               break;
+            case "采购退货出库":
+              for (const transfer of transfers) {
+                let locationCode = "1320";
+                // check if transfer.material_code prefix is 01. if so, set locationCode to 1320, if 03. set to 1321
+                if (transfer.material_code.startsWith("01.")) {
+                  locationCode = "1320";
+                } else if (transfer.material_code.startsWith("03.")) {
+                  locationCode = "1321";
+                }
+
+                entries.push({
+                  FItemID: transfer.material_external_code,
+                  FQty: transfer.quantity,
+                  Fauxqty: transfer.quantity,
+                  FAuxQtyMust: transfer.quantity,
+                  FDCSPID: locationCode,
+                  FDCStockID: warehouseId,
+                  FBatchNo: transfer.lot_num,
+                  FUnitID: transfer.unit_external_code,
+                  // FMTONo: transfer.lot_num,
+                  // FSecQty: transfer.quantity,
+                  // FSecCoefficient: 1,
+                  // FAuxPrice: 1,
+                  FPlanMode: 14036,
+                  Fnote: transfer.remark,
+                });
+              }
+
+              kisResponse = await kisOperationApi.createPurchaseReceipt({
+                Object: {
+                  Head: {
+                    Fdate: getNowString(),
+                    // FDCStockID: warehouseId,
+                    FFManagerID: inventoryApplication?.fFManager?.externalCode || inventoryApplication?.createdBy?.externalCode,
+                    FSManagerID: inventoryApplication?.fSManager?.externalCode || inventoryApplication?.createdBy?.externalCode,
+                    FBillerID: inventoryApplication?.biller?.externalUserCode,
+                    FTranType: 1,
+                    FDeptID: "769",
+                    FPOStyle: inventoryApplication?.fPOStyle,
+                    FSupplyID: inventoryApplication?.fSupplyID,
+                    FHeadSelfA0143: inspectionSheet?.inspector?.externalCode,
+                    FROB: -1,
+                  },
+                  Entry: entries,
+                },
+              });
+              break;
+            case "生产入库退货出库":
+              for (const transfer of transfers) {
+                let locationCode = "1320";
+                // check if transfer.material_code prefix is 01. if so, set locationCode to 1320, if 03. set to 1321
+                if (transfer.material_code.startsWith("01.")) {
+                  locationCode = "1320";
+                } else if (transfer.material_code.startsWith("03.")) {
+                  locationCode = "1321";
+                }
+
+                entries.push({
+                  FItemID: transfer.material_external_code,
+                  FQty: transfer.quantity,
+                  Fauxqty: transfer.quantity,
+                  FAuxQtyMust: transfer.quantity,
+                  FDCSPID: locationCode,
+                  FDCStockID: warehouseId,
+                  FBatchNo: transfer.lot_num,
+                  FUnitID: transfer.unit_external_code,
+                  // FMTONo: transfer.lot_num,
+                  FAuxPrice: 1,
+                  Famount: transfer.quantity,
+                  FPlanMode: 14036,
+                  Fnote: transfer.remark,
+                });
+              }
+
+              kisResponse = await kisOperationApi.createProductReceipt({
+                Object: {
+                  Head: {
+                    Fdate: getNowString(),
+                    FDeptID: "778",
+                    // FDCStockID: warehouseId,
+                    FFManagerID: inventoryApplication?.fFManager?.externalCode || inventoryApplication?.createdBy?.externalCode,
+                    FSManagerID: inventoryApplication?.fSManager?.externalCode || inventoryApplication?.createdBy?.externalCode,
+                    FBillerID: inventoryApplication?.biller?.externalUserCode,
+                    FTranType: 2,
+                    FROB: -1,
+                    FHeadSelfA0143: inspectionSheet?.inspector?.externalCode || "3286",
+                  },
+                  Entry: entries,
+                },
+              });
+              break;
             case "其它原因出库":
               for (const transfer of transfers) {
                 let locationCode = "1320";
@@ -506,7 +755,6 @@ export async function handleKisOperation(server: IRpdServer, routeContext: Route
                   // FMTONo: transfer.lot_num,
                   FAuxPrice: 1,
                   Famount: transfer.quantity,
-                  FPlanMode: 14036,
                   Fnote: transfer.remark,
                 };
 
