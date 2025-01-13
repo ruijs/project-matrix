@@ -109,7 +109,7 @@ export async function handleKisOperation(server: IRpdServer, routeContext: Route
       // transfer aggregate, sum quantity by material and lotnum and location
       const transfers = await server.queryDatabaseObject(
         `
-          SELECT mai.material_id,
+          SELECT DISTINCT mai.material_id,
                  mai.lot_num,
                  bm.code             AS material_code,
                  bm.external_code    AS material_external_code,
