@@ -777,7 +777,6 @@ const useLoadTableData = () => {
   };
 
   // 处理对比数据
-
   const formaterData = (data: any, inspectionData: any[]) => {
     const cusInspectionItem = customeMeasurementData.map((item) => item.name);
     const res = data

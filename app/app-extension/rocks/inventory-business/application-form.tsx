@@ -396,7 +396,11 @@ export default {
           )}
           {(operationType === "out" || businessType === "生产退料入库") && (
             <>
-              <Form.Item label="发料" name="fFManager" rules={[{ required: true, message: "发料人必填" }]}>
+              <Form.Item
+                label={businessType === "销售出库" ? "发货" : "发料"}
+                name="fFManager"
+                rules={[{ required: true, message: businessType === "销售出库" ? "发货人必填" : "发料人必填" }]}
+              >
                 {renderRock({
                   context,
                   rockConfig: {
@@ -414,7 +418,11 @@ export default {
                   },
                 })}
               </Form.Item>
-              <Form.Item label="领料" name="fSManager" rules={[{ required: true, message: "领料人必填" }]}>
+              <Form.Item
+                label={businessType === "销售出库" ? "保管" : "领料"}
+                name="fSManager"
+                rules={[{ required: true, message: businessType === "销售出库" ? "保管人必填" : "领料人必填" }]}
+              >
                 {renderRock({
                   context,
                   rockConfig: {
@@ -432,7 +440,7 @@ export default {
                   },
                 })}
               </Form.Item>
-              <Form.Item label="领料用途" name="fUse" rules={[{ required: true, message: "领料用途" }]}>
+              <Form.Item label="领料用途" name="fUse" required={!(businessType === "销售出库")} rules={[{ required: true, message: "领料用途" }]}>
                 {renderRock({
                   context,
                   rockConfig: {
@@ -461,6 +469,20 @@ export default {
           {(businessType === "领料出库" || businessType === "生产退料入库") && (
             <>
               <Form.Item label="生产计划单号" name="fPlanSn" rules={[{ message: "生产计划单号" }]}>
+                {renderRock({
+                  context,
+                  rockConfig: {
+                    $type: "antdInput",
+                    $id: `${props.$id}_f_plan_sn`,
+                    placeholder: "请输入",
+                  },
+                })}
+              </Form.Item>
+            </>
+          )}
+          {businessType === "销售出库" && (
+            <>
+              <Form.Item label="合同单号" name="contractNum" rules={[{ message: "合同单号" }]}>
                 {renderRock({
                   context,
                   rockConfig: {

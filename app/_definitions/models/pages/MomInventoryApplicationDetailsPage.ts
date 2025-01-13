@@ -100,31 +100,6 @@ const createOperationFormConfig: Partial<RapidEntityFormConfig> = {
       type: "auto",
       code: "isTankerTransportation",
     },
-    // {
-    //   type: "auto",
-    //   code: "outMethod",
-    //   label: "收货方式",
-    //   formControlType: "rapidRadioListFormInput",
-    //   formControlProps: {
-    //     optionType: "button",
-    //     listTextFieldName: "label",
-    //     listValueFieldName: "value",
-    //     listDataSource: {
-    //       data: {
-    //         list: [
-    //           {
-    //             label: "批量收货",
-    //             value: "batch",
-    //           },
-    //           {
-    //             label: "单托收货",
-    //             value: "single",
-    //           },
-    //         ],
-    //       },
-    //     },
-    //   },
-    // },
     {
       type: "auto",
       label: "单托数量",
@@ -328,6 +303,7 @@ function getFormConfig(formType: "newForm" | "editForm") {
           ],
         },
       },
+      // 下拉选择 （只有出库,生产退料入库）
       {
         type: "auto",
         formControlType: "saleInventoryLotNum",
@@ -335,19 +311,32 @@ function getFormConfig(formType: "newForm" | "editForm") {
         code: "lotNum",
         $exps: {
           _hidden:
-            "_.get($page.scope.stores, 'detail.data.list[0].businessType')?.name !== '生产退料入库'||_.get($page.scope.stores, 'detail.data.list[0].businessType')?.name === '销售出库'",
+            "_.get($page.scope.stores, 'detail.data.list[0].businessType')?.name === '销售出库'||_.get($page.scope.stores, 'detail.data.list[0].businessType')?.name === '生产退料入库'|| _.get($page.scope.stores, 'detail.data.list[0].operationType') === 'in' ",
           "formControlProps.materialId": "$self.form.getFieldValue('material')",
+          "formControlProps.businessTypeId": "_.get($page.scope.stores, 'detail.data.list[0].businessType.id')",
         },
       },
-      //"
+      {
+        type: "auto",
+        formControlType: "saleInventoryLotNum",
+        formControlProps: {},
+        code: "lotNum",
+        $exps: {
+          _hidden: "_.get($page.scope.stores, 'detail.data.list[0].businessType')?.name !== '生产退料入库'",
+          "formControlProps.materialId": "$self.form.getFieldValue('material')",
+          "formControlProps.businessTypeId": "_.get($page.scope.stores, 'detail.data.list[0].businessType.id')",
+        },
+      },
+      // 普通输入框 （只有入库有输入）
       {
         type: "auto",
         code: "lotNum",
         $exps: {
           _hidden:
-            "_.get($page.scope.stores, 'detail.data.list[0].businessType')?.name === '销售出库'||_.get($page.scope.stores, 'detail.data.list[0].businessType')?.name === '生产退料入库'||_.get($page.scope.stores, 'detail.data.list[0].businessType')?.name === '销售出库'||(_.get($page.scope.stores, 'detail.data.list[0].operationType') === 'out' || _.get($page.scope.stores, 'detail.data.list[0].operationType') === 'transfer')",
+            "_.get($page.scope.stores, 'detail.data.list[0].businessType')?.name === '销售出库'|| _.get($page.scope.stores, 'detail.data.list[0].businessType')?.name === '生产退料入库'|| _.get($page.scope.stores, 'detail.data.list[0].operationType') === 'out'",
         },
       },
+      // 下拉筛选框（特殊 销售出库 使用）
       {
         type: "auto",
         code: "lotNum",
@@ -443,6 +432,7 @@ const page: RapidPage = {
             format: "{{name}}",
           },
           $exps: {
+            _hidden: "$self.form.getFieldValue('businessType').name === '销售出库'",
             label: "$self.form.getFieldValue('operationType') === 'out' ? '发料' : '验收'",
           },
         },
@@ -453,7 +443,30 @@ const page: RapidPage = {
             format: "{{name}}",
           },
           $exps: {
+            _hidden: "$self.form.getFieldValue('businessType').name === '销售出库'",
             label: "$self.form.getFieldValue('operationType') === 'out' ? '领料' : '保管'",
+          },
+        },
+        {
+          type: "auto",
+          code: "fFManager",
+          label: "发货",
+          rendererProps: {
+            format: "{{name}}",
+          },
+          $exps: {
+            _hidden: "$self.form.getFieldValue('businessType').name !== '销售出库'",
+          },
+        },
+        {
+          type: "auto",
+          code: "fSManager",
+          label: "保管",
+          rendererProps: {
+            format: "{{name}}",
+          },
+          $exps: {
+            _hidden: "$self.form.getFieldValue('businessType').name !== '销售出库'",
           },
         },
         {

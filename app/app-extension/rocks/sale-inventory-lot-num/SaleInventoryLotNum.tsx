@@ -9,11 +9,11 @@ import { Select } from "antd";
 
 export default {
   Renderer(context, props: SaleInventoryLotNumRockConfig) {
-    const { materialId, value } = props;
+    const { materialId, value, businessTypeId } = props;
     const { loadingSaleOutInventory, saleOutInventory } = useSaleOutInventory();
 
     useEffect(() => {
-      loadingSaleOutInventory(materialId);
+      loadingSaleOutInventory(materialId, businessTypeId);
     }, [materialId]);
 
     return (
@@ -36,45 +36,48 @@ function useSaleOutInventory() {
   const [loading, setLoading] = useState<boolean>(false);
   const [saleOutInventory, setSaleOutInventory] = useState<any[]>([]);
 
-  const loadingSaleOutInventory = async (materialId: string) => {
+  const loadingSaleOutInventory = async (materialId: string, businessTypeId: number) => {
     if (loading) return;
     try {
       setLoading(true);
+      const filtersByBusinessType = [
+        {
+          field: "createdAt",
+          operator: "gt",
+          value: dayjs().subtract(15, "day"),
+        },
+        {
+          field: "createdAt",
+          operator: "lt",
+          value: dayjs(),
+        },
+      ];
+      const filters = [
+        {
+          field: "material",
+          operator: "eq",
+          value: materialId,
+        },
+        {
+          field: "operation",
+          operator: "exists",
+          filters: [
+            {
+              field: "businessType",
+              operator: "exists",
+              filters: [
+                {
+                  field: "name",
+                  operator: "eq",
+                  value: "领料出库",
+                },
+              ],
+            },
+          ],
+        },
+      ] as any;
       const params = {
-        filters: [
-          {
-            field: "material",
-            operator: "eq",
-            value: materialId,
-          },
-          {
-            field: "createdAt",
-            operator: "gt",
-            value: dayjs().subtract(15, "day"),
-          },
-          {
-            field: "createdAt",
-            operator: "lt",
-            value: dayjs(),
-          },
-          {
-            field: "operation",
-            operator: "exists",
-            filters: [
-              {
-                field: "businessType",
-                operator: "exists",
-                filters: [
-                  {
-                    field: "name",
-                    operator: "eq",
-                    value: "领料出库",
-                  },
-                ],
-              },
-            ],
-          },
-        ],
+        filters: businessTypeId === 18 ? filtersByBusinessType.concat(filters) : filters,
         orderBy: [
           {
             field: "createdAt",
