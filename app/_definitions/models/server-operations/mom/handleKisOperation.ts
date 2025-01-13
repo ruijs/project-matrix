@@ -236,48 +236,6 @@ export async function handleKisOperation(server: IRpdServer, routeContext: Route
                 },
               });
               break;
-            case "其它原因入库":
-              for (const transfer of transfers) {
-                let locationCode = '1320'
-                // check if transfer.material_code prefix is 01. if so, set locationCode to 1320, if 03. set to 1321
-                if (transfer.material_code.startsWith('01.')) {
-                  locationCode = '1320'
-                } else if (transfer.material_code.startsWith('03.')) {
-                  locationCode = '1321'
-                }
-
-                entries.push({
-                  FItemID: transfer.material_external_code,
-                  FQty: transfer.quantity,
-                  Fauxqty: transfer.quantity,
-                  FAuxQtyMust: transfer.quantity,
-                  FDCSPID: locationCode,
-                  FDCStockID: warehouseId,
-                  FBatchNo: transfer.lot_num,
-                  FUnitID: transfer.unit_external_code,
-                  FMTONo: transfer.lot_num,
-                  FAuxPrice: 1,
-                  Famount: transfer.quantity,
-                  FPlanMode: 14036
-                });
-              }
-
-              kisResponse = await kisOperationApi.createMiscellaneousReceipt(
-                {
-                  Object: {
-                    Head: {
-                      Fdate: getNowString(),
-                      // FDCStockID: warehouseId,
-                      FFManagerID: inventoryApplication?.fFManager?.externalCode || inventoryApplication?.createdBy?.externalCode,
-                      FSManagerID: inventoryApplication?.fSManager?.externalCode || inventoryApplication?.createdBy?.externalCode,
-                      FBillerID: inventoryApplication?.createdBy?.externalUserCode,
-                      FTranType: 10,
-                      FHeadSelfA0143: "3286"
-                    },
-                    Entry: entries,
-                  },
-                })
-              break;
             case "委外加工入库":
               for (const transfer of transfers) {
                 let locationCode = "1320";
@@ -432,7 +390,7 @@ export async function handleKisOperation(server: IRpdServer, routeContext: Route
                 },
               });
               break;
-            case "其他原因入库":
+            case "其它原因入库":
               for (const transfer of transfers) {
                 let locationCode = "1320";
                 // check if transfer.material_code prefix is 01. if so, set locationCode to 1320, if 03. set to 1321
@@ -475,7 +433,7 @@ export async function handleKisOperation(server: IRpdServer, routeContext: Route
                 },
               });
               break;
-            case "其他原因出库退货入库":
+            case "其它原因出库退货入库":
               for (const transfer of transfers) {
                 let locationCode = "1320";
                 // check if transfer.material_code prefix is 01. if so, set locationCode to 1320, if 03. set to 1321
@@ -756,6 +714,7 @@ export async function handleKisOperation(server: IRpdServer, routeContext: Route
                   FAuxPrice: 1,
                   Famount: transfer.quantity,
                   Fnote: transfer.remark,
+                  FPlanMode: 14036,
                 };
 
                 if (locationCode !== "") {
