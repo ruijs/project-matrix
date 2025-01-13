@@ -189,13 +189,20 @@ export default [
         }
 
         if (workReport) {
-          // 获取投料记录
-          const workFeedManager = server.getEntityManager<MomWorkFeed>("mom_work_feed");
-          let workFeeds = await workFeedManager.findEntities({
+        // 获取投料记录
+        const workFeedManager = server.getEntityManager<MomWorkFeed>("mom_work_feed");
+        let workFeeds: MomWorkFeed[] = [];
+
+        if (workReport.process?.code === "10" || workReport.process?.code === "20") {
+          workFeeds = await workFeedManager.findEntities({
             filters: [
-              { operator: "eq", field: "work_order_id", value: workReport.id },
+              { operator: "eq", field: "work_order_id", value: workReport.workOrder?.id },
             ],
             properties: ["id", "rawMaterial", "lotNum", "createdAt"],
+            pagination: {
+              offset: 0,
+              limit: 1,
+            }
           });
 
           if (workFeeds.length === 0) {
@@ -204,8 +211,20 @@ export default [
                 { operator: "eq", field: "process_id", value: workReport.process?.id },
               ],
               properties: ["id", "rawMaterial", "lotNum", "createdAt"],
+              pagination: {
+                offset: 0,
+                limit: 1,
+              }
             });
           }
+        } else {
+          workFeeds = await workFeedManager.findEntities({
+            filters: [
+              { operator: "eq", field: "work_order_id", value: workReport.workOrder?.id },
+            ],
+            properties: ["id", "rawMaterial", "lotNum", "createdAt"],
+          });
+        }
 
           if (workFeeds.length > 0) {
             // 上报宜搭投料记录
@@ -485,10 +504,12 @@ export default [
 
         console.log("uploadFAWProductionRecord", workFeeds.length)
 
-        // 上报宜搭投料记录
-        const yidaSDK = await new YidaHelper(server).NewAPIClient();
-        const yidaAPI = new YidaApi(yidaSDK);
-        await yidaAPI.uploadFAWProductionRecord(workReport, workFeeds);
+        if (workFeeds.length > 0) { 
+          // 上报宜搭投料记录
+          const yidaSDK = await new YidaHelper(server).NewAPIClient();
+          const yidaAPI = new YidaApi(yidaSDK);
+          await yidaAPI.uploadFAWProductionRecord(workReport, workFeeds);
+        }
       }
 
       if (!workReport.equipment?.machine) {
