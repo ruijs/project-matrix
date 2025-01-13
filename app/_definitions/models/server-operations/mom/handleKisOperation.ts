@@ -799,7 +799,7 @@ export async function handleKisOperation(server: IRpdServer, routeContext: Route
             routeContext,
             id: input.operationId,
             entityToSave: {
-              externalCode: kisResponse.data.FBillNo || kisResponse.description,
+              externalCode: kisResponse.errorCode === 0 ? kisResponse.data.FBillNo : kisResponse.description,
             },
           });
         }
