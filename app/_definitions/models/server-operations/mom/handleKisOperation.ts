@@ -158,9 +158,9 @@ export async function handleKisOperation(server: IRpdServer, routeContext: Route
 
                 entries.push({
                   FItemID: transfer.material_external_code,
-                  FQty: transfer.quantity,
-                  Fauxqty: transfer.quantity,
-                  FAuxQtyMust: transfer.quantity,
+                  FQty: transfer.quantity.toFixed(2),
+                  Fauxqty: transfer.quantity.toFixed(2),
+                  FAuxQtyMust: transfer.quantity.toFixed(2),
                   FDCSPID: locationCode,
                   FDCStockID: warehouseId,
                   FBatchNo: transfer.lot_num,
@@ -204,16 +204,16 @@ export async function handleKisOperation(server: IRpdServer, routeContext: Route
 
                 entries.push({
                   FItemID: transfer.material_external_code,
-                  FQty: transfer.quantity,
-                  Fauxqty: transfer.quantity,
-                  FAuxQtyMust: transfer.quantity,
+                  FQty: transfer.quantity.toFixed(2),
+                  Fauxqty: transfer.quantity.toFixed(2),
+                  FAuxQtyMust: transfer.quantity.toFixed(2),
                   FDCSPID: locationCode,
                   FDCStockID: warehouseId,
                   FBatchNo: transfer.lot_num,
                   FUnitID: transfer.unit_external_code,
                   // FMTONo: transfer.lot_num,
                   FAuxPrice: 1,
-                  Famount: transfer.quantity,
+                  Famount: transfer.quantity.toFixed(2),
                   FPlanMode: 14036,
                   Fnote: transfer.remark,
                 });
@@ -248,16 +248,16 @@ export async function handleKisOperation(server: IRpdServer, routeContext: Route
 
                 entries.push({
                   FItemID: transfer.material_external_code,
-                  FQty: transfer.quantity,
-                  Fauxqty: transfer.quantity,
-                  FAuxQtyMust: transfer.quantity,
+                  FQty: transfer.quantity.toFixed(2),
+                  Fauxqty: transfer.quantity.toFixed(2),
+                  FAuxQtyMust: transfer.quantity.toFixed(2),
                   // FDCSPID: locationCode,
                   FDCStockID: warehouseId,
                   FBatchNo: transfer.lot_num,
                   FUnitID: transfer.unit_external_code,
                   // FMTONo: transfer.lot_num,
                   FAuxPrice: 1,
-                  Famount: transfer.quantity,
+                  Famount: transfer.quantity.toFixed(2),
                   FPlanMode: 14036,
                   Fnote: transfer.remark,
                 });
@@ -291,16 +291,16 @@ export async function handleKisOperation(server: IRpdServer, routeContext: Route
 
                 entries.push({
                   FItemID: transfer.material_external_code,
-                  FQty: transfer.quantity,
-                  Fauxqty: transfer.quantity,
-                  FAuxQtyMust: transfer.quantity,
+                  FQty: transfer.quantity.toFixed(2),
+                  Fauxqty: transfer.quantity.toFixed(2),
+                  FAuxQtyMust: transfer.quantity.toFixed(2),
                   FDCSPID: locationCode,
                   FSCStockID: warehouseId,
                   FBatchNo: transfer.lot_num,
                   FUnitID: transfer.unit_external_code,
                   // FMTONo: transfer.lot_num,
                   FAuxPrice: 1,
-                  Famount: transfer.quantity,
+                  Famount: transfer.quantity.toFixed(2),
                   FPlanMode: 14036,
                   FReProduceType: 1059,
                   Fnote: transfer.remark,
@@ -342,9 +342,9 @@ export async function handleKisOperation(server: IRpdServer, routeContext: Route
 
                 let entity: any = {
                   FItemID: transfer.material_external_code,
-                  FQty: transfer.quantity,
-                  Fauxqty: transfer.quantity,
-                  FAuxQtyMust: transfer.quantity,
+                  FQty: transfer.quantity.toFixed(2),
+                  Fauxqty: transfer.quantity.toFixed(2),
+                  FAuxQtyMust: transfer.quantity.toFixed(2),
                   FDCStockID: warehouseId,
                   FBatchNo: transfer.lot_num,
                   FUnitID: transfer.unit_external_code,
@@ -356,7 +356,7 @@ export async function handleKisOperation(server: IRpdServer, routeContext: Route
                   FOrderInterID: inventoryApplication?.externalCode,
                   FOrderEntryID: idx + 1,
                   FAuxPrice: 1,
-                  Famount: transfer.quantity,
+                  Famount: transfer.quantity.toFixed(2),
                   FPlanMode: 14036,
                   Fnote: transfer.remark,
                 };
@@ -402,16 +402,16 @@ export async function handleKisOperation(server: IRpdServer, routeContext: Route
 
                 entries.push({
                   FItemID: transfer.material_external_code,
-                  FQty: transfer.quantity,
-                  Fauxqty: transfer.quantity,
-                  FAuxQtyMust: transfer.quantity,
+                  FQty: transfer.quantity.toFixed(2),
+                  Fauxqty: transfer.quantity.toFixed(2),
+                  FAuxQtyMust: transfer.quantity.toFixed(2),
                   // FDCSPID: locationCode,
                   FDCStockID: warehouseId,
                   FBatchNo: transfer.lot_num,
                   FUnitID: transfer.unit_external_code,
                   // FMTONo: transfer.lot_num,
                   FAuxPrice: 1,
-                  Famount: transfer.quantity,
+                  Famount: transfer.quantity.toFixed(2),
                   FPlanMode: 14036,
                   Fnote: transfer.remark,
                 });
@@ -449,16 +449,17 @@ export async function handleKisOperation(server: IRpdServer, routeContext: Route
 
                 let entity: any = {
                   FItemID: transfer.material_external_code,
-                  FQty: transfer.quantity,
-                  Fauxqty: transfer.quantity,
-                  FAuxQtyMust: transfer.quantity,
+                  FQty: transfer.quantity.toFixed(2),
+                  Fauxqty: transfer.quantity.toFixed(2),
+                  FAuxQtyMust: transfer.quantity.toFixed(2),
                   FDCStockID: warehouseId,
                   FBatchNo: transfer.lot_num,
                   FUnitID: transfer.unit_external_code,
                   // FMTONo: transfer.lot_num,
                   FAuxPrice: 1,
-                  Famount: transfer.quantity,
+                  Famount: transfer.quantity.toFixed(2),
                   Fnote: transfer.remark,
+                  FPlanMode: 14036,
                 };
 
                 if (locationCode !== "") {
@@ -506,9 +507,9 @@ export async function handleKisOperation(server: IRpdServer, routeContext: Route
 
                 let entity: any = {
                   FItemID: transfer.material_external_code,
-                  FQty: transfer.quantity,
-                  Fauxqty: transfer.quantity,
-                  FAuxQtyMust: transfer.quantity,
+                  FQty: transfer.quantity.toFixed(2),
+                  Fauxqty: transfer.quantity.toFixed(2),
+                  FAuxQtyMust: transfer.quantity.toFixed(2),
                   FDCStockID: warehouseId,
                   FBatchNo: transfer.lot_num,
                   FUnitID: transfer.unit_external_code,
@@ -520,7 +521,7 @@ export async function handleKisOperation(server: IRpdServer, routeContext: Route
                   FOrderInterID: inventoryApplication?.externalCode,
                   FOrderEntryID: idx + 1,
                   FAuxPrice: 1,
-                  Famount: transfer.quantity,
+                  Famount: transfer.quantity.toFixed(2),
                   FPlanMode: 14036,
                   Fnote: transfer.remark,
                 };
@@ -566,16 +567,16 @@ export async function handleKisOperation(server: IRpdServer, routeContext: Route
 
                 entries.push({
                   FItemID: transfer.material_external_code,
-                  FQty: transfer.quantity,
-                  Fauxqty: transfer.quantity,
-                  FAuxQtyMust: transfer.quantity,
+                  FQty: transfer.quantity.toFixed(2),
+                  Fauxqty: transfer.quantity.toFixed(2),
+                  FAuxQtyMust: transfer.quantity.toFixed(2),
                   FDCSPID: locationCode,
                   FSCStockID: warehouseId,
                   FBatchNo: transfer.lot_num,
                   FUnitID: transfer.unit_external_code,
                   // FMTONo: transfer.lot_num,
                   FAuxPrice: 1,
-                  Famount: transfer.quantity,
+                  Famount: transfer.quantity.toFixed(2),
                   FPlanMode: 14036,
                   Fnote: transfer.remark,
                 });
@@ -609,9 +610,9 @@ export async function handleKisOperation(server: IRpdServer, routeContext: Route
 
                 entries.push({
                   FItemID: transfer.material_external_code,
-                  FQty: transfer.quantity,
-                  Fauxqty: transfer.quantity,
-                  FAuxQtyMust: transfer.quantity,
+                  FQty: transfer.quantity.toFixed(2),
+                  Fauxqty: transfer.quantity.toFixed(2),
+                  FAuxQtyMust: transfer.quantity.toFixed(2),
                   FDCSPID: locationCode,
                   FDCStockID: warehouseId,
                   FBatchNo: transfer.lot_num,
@@ -656,16 +657,16 @@ export async function handleKisOperation(server: IRpdServer, routeContext: Route
 
                 entries.push({
                   FItemID: transfer.material_external_code,
-                  FQty: transfer.quantity,
-                  Fauxqty: transfer.quantity,
-                  FAuxQtyMust: transfer.quantity,
+                  FQty: transfer.quantity.toFixed(2),
+                  Fauxqty: transfer.quantity.toFixed(2),
+                  FAuxQtyMust: transfer.quantity.toFixed(2),
                   FDCSPID: locationCode,
                   FDCStockID: warehouseId,
                   FBatchNo: transfer.lot_num,
                   FUnitID: transfer.unit_external_code,
                   // FMTONo: transfer.lot_num,
                   FAuxPrice: 1,
-                  Famount: transfer.quantity,
+                  Famount: transfer.quantity.toFixed(2),
                   FPlanMode: 14036,
                   Fnote: transfer.remark,
                 });
@@ -704,15 +705,15 @@ export async function handleKisOperation(server: IRpdServer, routeContext: Route
 
                 let entity: any = {
                   FItemID: transfer.material_external_code,
-                  FQty: transfer.quantity,
-                  Fauxqty: transfer.quantity,
-                  FAuxQtyMust: transfer.quantity,
+                  FQty: transfer.quantity.toFixed(2),
+                  Fauxqty: transfer.quantity.toFixed(2),
+                  FAuxQtyMust: transfer.quantity.toFixed(2),
                   FDCStockID: warehouseId,
                   FBatchNo: transfer.lot_num,
                   FUnitID: transfer.unit_external_code,
                   // FMTONo: transfer.lot_num,
                   FAuxPrice: 1,
-                  Famount: transfer.quantity,
+                  Famount: transfer.quantity.toFixed(2),
                   Fnote: transfer.remark,
                   FPlanMode: 14036,
                 };
@@ -753,16 +754,16 @@ export async function handleKisOperation(server: IRpdServer, routeContext: Route
 
                 entries.push({
                   FItemID: transfer.material_external_code,
-                  FQty: transfer.quantity,
-                  Fauxqty: transfer.quantity,
-                  FAuxQtyMust: transfer.quantity,
+                  FQty: transfer.quantity.toFixed(2),
+                  Fauxqty: transfer.quantity.toFixed(2),
+                  FAuxQtyMust: transfer.quantity.toFixed(2),
                   FDCSPID: locationCode,
                   FSCStockID: warehouseId,
                   FBatchNo: transfer.lot_num,
                   FUnitID: transfer.unit_external_code,
                   // FMTONo: transfer.lot_num,
                   FAuxPrice: 1,
-                  Famount: transfer.quantity,
+                  Famount: transfer.quantity.toFixed(2),
                   FPlanMode: 14036,
                   FReProduceType: 1059,
                   Fnote: transfer.remark,
@@ -798,7 +799,7 @@ export async function handleKisOperation(server: IRpdServer, routeContext: Route
             routeContext,
             id: input.operationId,
             entityToSave: {
-              externalCode: kisResponse.data.FBillNo,
+              externalCode: kisResponse.data.FBillNo || kisResponse.description,
             },
           });
         }

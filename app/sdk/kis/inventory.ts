@@ -151,16 +151,22 @@ class KisInventoryOperationAPI {
   // Retry mechanism for API requests
   private async retryApiRequest<T>(url: string, payload: object, retries: number = 3): Promise<ApiResponse<T>> {
     let attempts = 0;
+    const response = await this.api.PostResourceRequest(url, payload, true);
+    let lastResponse: ApiResponse<T> = response.data as ApiResponse<T>;
+    
     while (attempts < retries) {
-      const response = await this.api.PostResourceRequest(url, payload, true);
-      if (response.data.errcode === 0) {
-        return response.data as ApiResponse<T>;
+      if (lastResponse.errorCode === 0) {
+        return lastResponse;
       }
       console.log(`API request failed (attempt ${attempts + 1}):`, payload, response.data);
       attempts += 1;
       await this.sleep(2000); // Wait before retrying
+      
+      const retryResponse = await this.api.PostResourceRequest(url, payload, true);
+      lastResponse = retryResponse.data as ApiResponse<T>;
     }
-    throw new Error(`Failed to fetch data from ${url} after ${retries} attempts`);
+    
+    return lastResponse;
   }
 
   // 产成品入库单
