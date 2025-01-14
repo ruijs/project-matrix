@@ -3,7 +3,7 @@ import Aedes, { AuthenticateError } from "aedes";
 import { createServer } from "net";
 import type IotPlugin from "rapid-plugins/iot/IotPlugin";
 import type { Logger, RapidServer } from "@ruiapp/rapid-core";
-import { ParserRegistry, TemperatureHexParser } from './parsers';
+import { ParserRegistry, TemperatureHexParser } from './mqtt-server/parsers';
 
 export interface StartMqttServerOptions {
   rapidServer: RapidServer;
