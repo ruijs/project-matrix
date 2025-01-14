@@ -240,14 +240,14 @@ class KisDataSync {
         url: "/koas/APP006992/api/MeasureUnit/List",
         singularCode: "base_unit",
         mapToEntity: async (item: any) =>
-          ({
-            code: item.FNumber,
-            name: item.FName,
-            externalCode: item.FItemID,
-            type: "others",
-            orderNum: 1,
-            category: { id: 1 },
-          } as SaveBaseUnitInput),
+        ({
+          code: item.FNumber,
+          name: item.FName,
+          externalCode: item.FItemID,
+          type: "others",
+          orderNum: 1,
+          category: { id: 1 },
+        } as SaveBaseUnitInput),
       }),
       // 同步物料分类
       this.createListSyncFunction(routeContext, {
@@ -329,14 +329,14 @@ class KisDataSync {
         url: "/koas/APP006992/api/MeasureUnit/List",
         singularCode: "base_unit",
         mapToEntity: async (item: any) =>
-          ({
-            code: item.FNumber,
-            name: item.FName,
-            externalCode: item.FItemID,
-            type: "others",
-            orderNum: 1,
-            category: { id: 1 },
-          } as SaveBaseUnitInput),
+        ({
+          code: item.FNumber,
+          name: item.FName,
+          externalCode: item.FItemID,
+          type: "others",
+          orderNum: 1,
+          category: { id: 1 },
+        } as SaveBaseUnitInput),
       }),
       // 同步物料
       this.createListSyncFunction(routeContext, {
@@ -371,6 +371,7 @@ class KisDataSync {
             externalCode: item.EmpID,
           } as SaveOcUserInput;
         },
+        filter: (item: any) => item?.EmpID && item.EmpID !== 0,
       }),
       // 同步物流供应商
       this.createListSyncFunction(routeContext, {
@@ -591,21 +592,25 @@ class KisDataSync {
 
           const entities = Entry.map(mapEntryToEntity);
 
-          return {
-            code: Head.FBillNo,
-            contractNum: Head.FHeadSelfP0338,
-            businessType: { id: 20 }, // 委外加工出库退货入库
-            supplier: { id: partnerMap.get(String(Head.FSupplyID))?.id },
-            applicant: { id: employeeMap.get(String(Head.FEmpID))?.id },
-            operationType: "in",
-            state: "approved",
-            operationState: "pending",
-            items: entities,
-            externalCode: Head.FInterID,
-            source: "kis",
-            fPOStyle: Head.FPOStyle,
-            fSupplyID: Head.FSupplyID,
-          } as SaveMomInventoryApplicationInput;
+          if (employeeMap.get(String(Head.FEmpID))?.id && partnerMap.get(String(Head.FSupplyID))?.id) {
+            return {
+              code: Head.FBillNo,
+              contractNum: Head.FHeadSelfP0338,
+              businessType: { id: 20 }, // 委外加工出库退货入库
+              supplier: { id: partnerMap.get(String(Head.FSupplyID)).id },
+              applicant: { id: employeeMap.get(String(Head.FEmpID)).id },
+              operationType: "in",
+              state: "approved",
+              operationState: "pending",
+              items: entities,
+              externalCode: Head.FInterID,
+              source: "kis",
+              fPOStyle: Head.FPOStyle,
+              fSupplyID: Head.FSupplyID,
+            } as SaveMomInventoryApplicationInput;
+          } else {
+            return null;
+          }
         },
         payload: {
           OrderBy: {
@@ -642,21 +647,25 @@ class KisDataSync {
 
           const entities = Entry.map(mapEntryToEntity);
 
-          return {
-            code: Head.FBillNo,
-            contractNum: Head.FHeadSelfP0338,
-            businessType: { id: 1 }, // 采购入库
-            supplier: { id: partnerMap.get(String(Head.FSupplyID))?.id },
-            applicant: { id: employeeMap.get(String(Head.FEmpID))?.id },
-            operationType: "in",
-            state: "approved",
-            operationState: "pending",
-            items: entities,
-            externalCode: Head.FInterID,
-            source: "kis",
-            fPOStyle: Head.FPOStyle,
-            fSupplyID: Head.FSupplyID,
-          } as SaveMomInventoryApplicationInput;
+          if (employeeMap.get(String(Head.FEmpID))?.id && partnerMap.get(String(Head.FSupplyID))?.id) {
+            return {
+              code: Head.FBillNo,
+              contractNum: Head.FHeadSelfP0338,
+              businessType: { id: 1 }, // 采购入库
+              supplier: { id: partnerMap.get(String(Head.FSupplyID)).id },
+              applicant: { id: employeeMap.get(String(Head.FEmpID)).id },
+              operationType: "in",
+              state: "approved",
+              operationState: "pending",
+              items: entities,
+              externalCode: Head.FInterID,
+              source: "kis",
+              fPOStyle: Head.FPOStyle,
+              fSupplyID: Head.FSupplyID,
+            } as SaveMomInventoryApplicationInput;
+          } else {
+            return null;
+          }
         },
         payload: {
           OrderBy: {
@@ -688,19 +697,23 @@ class KisDataSync {
 
           const entities = Entry.map(mapEntryToEntity);
 
-          return {
-            code: Head.FBillNo,
-            businessType: { id: 8 }, // 采购退货出库
-            supplier: { id: partnerMap.get(String(Head.FSupplyID))?.id },
-            applicant: { id: employeeMap.get(String(Head.FEmpID))?.id },
-            operationType: "out",
-            state: "approved",
-            operationState: "pending",
-            items: entities,
-            externalCode: Head.FInterID,
-            fSupplyID: Head.FSupplyID,
-            source: "kis",
-          } as SaveMomInventoryApplicationInput;
+          if (employeeMap.get(String(Head.FEmpID))?.id && partnerMap.get(String(Head.FSupplyID))?.id) {
+            return {
+              code: Head.FBillNo,
+              businessType: { id: 8 }, // 采购退货出库
+              supplier: { id: partnerMap.get(String(Head.FSupplyID)).id },
+              applicant: { id: employeeMap.get(String(Head.FEmpID)).id },
+              operationType: "out",
+              state: "approved",
+              operationState: "pending",
+              items: entities,
+              externalCode: Head.FInterID,
+              fSupplyID: Head.FSupplyID,
+              source: "kis",
+            } as SaveMomInventoryApplicationInput;
+          } else {
+            return null;
+          }
         },
         payload: {
           OrderBy: {
@@ -732,19 +745,23 @@ class KisDataSync {
 
           const entities = Entry.map(mapEntryToEntity);
 
-          return {
-            code: Head.FBillNo,
-            businessType: { id: 7 }, // 销售退货入库
-            supplier: { id: partnerMap.get(String(Head.FSupplyID))?.id },
-            applicant: { id: employeeMap.get(String(Head.FEmpID))?.id },
-            operationType: "out",
-            state: "approved",
-            operationState: "pending",
-            items: entities,
-            externalCode: Head.FInterID,
-            fSupplyID: Head.FSupplyID,
-            source: "kis",
-          } as SaveMomInventoryApplicationInput;
+          if (employeeMap.get(String(Head.FEmpID))?.id && partnerMap.get(String(Head.FSupplyID))?.id) {
+            return {
+              code: Head.FBillNo,
+              businessType: { id: 7 }, // 销售退货入库
+              supplier: { id: partnerMap.get(String(Head.FSupplyID)).id },
+              applicant: { id: employeeMap.get(String(Head.FEmpID)).id },
+              operationType: "out",
+              state: "approved",
+              operationState: "pending",
+              items: entities,
+              externalCode: Head.FInterID,
+              fSupplyID: Head.FSupplyID,
+              source: "kis",
+            } as SaveMomInventoryApplicationInput;
+          } else {
+            return null;
+          }
         },
         payload: {
           OrderBy: {
@@ -776,19 +793,23 @@ class KisDataSync {
 
           const entities = Entry.map(mapEntryToEntity);
 
-          return {
-            code: Head.FBillNo,
-            businessType: { id: 7 }, // 销售退货入库
-            supplier: { id: partnerMap.get(String(Head.FSupplyID))?.id },
-            applicant: { id: employeeMap.get(String(Head.FEmpID))?.id },
-            operationType: "out",
-            state: "approved",
-            operationState: "pending",
-            items: entities,
-            externalCode: Head.FInterID,
-            source: "kis",
-            fSupplyID: Head.FSupplyID,
-          } as SaveMomInventoryApplicationInput;
+          if (employeeMap.get(String(Head.FEmpID))?.id && partnerMap.get(String(Head.FSupplyID))?.id) {
+            return {
+              code: Head.FBillNo,
+              businessType: { id: 7 }, // 销售退货入库
+              supplier: { id: partnerMap.get(String(Head.FSupplyID)).id },
+              applicant: { id: employeeMap.get(String(Head.FEmpID)).id },
+              operationType: "out",
+              state: "approved",
+              operationState: "pending",
+              items: entities,
+              externalCode: Head.FInterID,
+              source: "kis",
+              fSupplyID: Head.FSupplyID,
+            } as SaveMomInventoryApplicationInput;
+          } else {
+            return null;
+          }
         },
         payload: {
           OrderBy: {
@@ -822,20 +843,24 @@ class KisDataSync {
 
           const entities = Entry.map(mapEntryToEntity);
 
-          return {
-            code: Head.FBillNo,
-            businessType: { id: 4 }, // 销售出库
-            customer: { id: partnerMap.get(String(Head.FCustID))?.id },
-            applicant: { id: employeeMap.get(String(Head.FEmpID))?.id },
-            operationType: "out",
-            state: "approved",
-            operationState: "pending",
-            items: entities,
-            externalCode: Head.FInterID,
-            source: "kis",
-            fSupplyID: Head.FSupplyID,
-            contractNum: Head.FHeadSelfS0193,
-          } as SaveMomInventoryApplicationInput;
+          if (employeeMap.get(String(Head.FEmpID))?.id && partnerMap.get(String(Head.FCustID))?.id) {
+            return {
+              code: Head.FBillNo,
+              businessType: { id: 4 }, // 销售出库
+              customer: { id: partnerMap.get(String(Head.FCustID)).id },
+              applicant: { id: employeeMap.get(String(Head.FEmpID)).id },
+              operationType: "out",
+              state: "approved",
+              operationState: "pending",
+              items: entities,
+              externalCode: Head.FInterID,
+              source: "kis",
+              fSupplyID: Head.FSupplyID,
+              contractNum: Head.FHeadSelfS0193,
+            } as SaveMomInventoryApplicationInput;
+          } else {
+            return null;
+          }
         },
         payload: {
           OrderBy: {
