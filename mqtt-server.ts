@@ -65,7 +65,7 @@ export function startMqttServer(options: StartMqttServerOptions) {
   };
 
   aedes.on("publish", async (packet, client) => {
-    let payload = packet.payload.toString();
+    let payload: any = packet.payload.toString();
     
     try {
       if (client && parserRegistry.isInWhitelist(client.id)) {
