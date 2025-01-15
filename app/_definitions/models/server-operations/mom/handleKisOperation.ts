@@ -275,6 +275,7 @@ export async function handleKisOperation(server: IRpdServer, routeContext: Route
                     FTranType: 1,
                     FSupplyID: inventoryApplication?.fSupplyID,
                     FHeadSelfA0143: "3286",
+                    FPurposeID: 14190,
                   },
                   Entry: entries,
                 },
