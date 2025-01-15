@@ -5,7 +5,7 @@ export interface ParserResult {
 }
 
 export interface Parser {
-  parse(payload: string, clientId?: string): ParserResult;
+  parse(payload: string | Buffer, clientId?: string): ParserResult;
 }
 
 // CRC16 lookup tables
@@ -78,7 +78,13 @@ export class TemperatureHexParser implements Parser {
     };
   }
 
-  parse(payload: string, clientId: string): ParserResult {
+  parse(payload: string | Buffer, clientId: string): ParserResult {
+    if (typeof payload !== "string") {
+      payload = payload.toString("hex");
+    }
+
+    this.logger.info("payload to be parsed: " + payload);
+
     // 分离温度数据和定位数据
     const temperatureData = payload.slice(0, 72); // 前72个字符是温度数据
     const locationHex = payload.slice(72); // 剩余的是定位数据
@@ -192,8 +198,8 @@ function test() {
 export class JsonParser implements Parser {
   constructor(private logger: Logger) {}
 
-  parse(payload: string): ParserResult {
-    return JSON.parse(payload);
+  parse(payload: string | Buffer): ParserResult {
+    return JSON.parse(payload.toString());
   }
 }
 
@@ -241,7 +247,7 @@ export class ParserRegistry {
 export class BinaryParser implements Parser {
   constructor(private logger: Logger) {}
 
-  parse(payload: string): ParserResult {
+  parse(payload: string | Buffer): ParserResult {
     // 实现二进制数据的解析逻辑
     return {
       // ... parsed data

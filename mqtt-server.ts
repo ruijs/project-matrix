@@ -65,14 +65,14 @@ export function startMqttServer(options: StartMqttServerOptions) {
   };
 
   aedes.on("publish", async (packet, client) => {
-    let payload: any = packet.payload.toString();
+    let payload: any;
 
     try {
       if (client && parserRegistry.isInWhitelist(client.id)) {
         const parser = parserRegistry.getParser(client.id);
-        payload = parser.parse(payload, client.id);
+        payload = parser.parse(packet.payload, client.id);
       } else {
-        payload = JSON.parse(payload);
+        payload = JSON.parse(packet.payload.toString());
       }
     } catch (ex: unknown) {
       logger.warn("Failed to parse payload", {
