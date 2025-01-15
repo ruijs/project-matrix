@@ -149,7 +149,7 @@ class KisInventoryOperationAPI {
   }
 
   // Retry mechanism for API requests
-  private async retryApiRequest<T>(url: string, payload: object, retries: number = 3): Promise<ApiResponse<T>> {
+  private async retryApiRequest<T>(url: string, payload: object, retries: number = 1): Promise<ApiResponse<T>> {
     let attempts = 0;
     const response = await this.api.PostResourceRequest(url, payload, true);
     let lastResponse: ApiResponse<T> = response.data as ApiResponse<T>;
