@@ -70,13 +70,15 @@ export function startMqttServer(options: StartMqttServerOptions) {
     const isInWhitelist = !!(client && parserRegistry.isInWhitelist(client.id));
 
     try {
-      if (packet.topic.startsWith("$SYS/")) {
+      if (!packet.topic.startsWith("$SYS/")) {
         if (client && isInWhitelist) {
           const parser = parserRegistry.getParser(client.id);
           payload = parser.parse(packet.payload, client.id);
         } else {
           payload = JSON.parse(packet.payload.toString());
         }
+      } else {
+        payload = packet.payload;
       }
     } catch (ex: unknown) {
       logger.warn("Failed to parse payload", {
