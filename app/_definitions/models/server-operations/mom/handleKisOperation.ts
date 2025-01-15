@@ -25,6 +25,7 @@ export default {
 
 export async function handleKisOperation(server: IRpdServer, routeContext: RouteContext, input: CreateGoodTransferInput) {
   const inventoryOperationManager = server.getEntityManager<MomInventoryOperation>("mom_inventory_operation");
+  const inventoryApplicationManager = server.getEntityManager<MomInventoryApplication>("mom_inventory_application")
 
   const kisApi = await new KisHelper(server).NewAPIClient(server.getLogger());
   const kisOperationApi = new KisInventoryOperationAPI(kisApi);
@@ -63,7 +64,7 @@ export async function handleKisOperation(server: IRpdServer, routeContext: Route
     throw new Error(`Inventory operation with id ${input.operationId} not found.`);
   }
 
-  const inventoryApplication = await server.getEntityManager<MomInventoryApplication>("mom_inventory_application").findEntity({
+  const inventoryApplication = await inventoryApplicationManager.findEntity({
     routeContext,
     filters: [
       {
@@ -795,11 +796,23 @@ export async function handleKisOperation(server: IRpdServer, routeContext: Route
         }
 
         if (kisResponse) {
-          await inventoryOperationManager.updateEntityById({
+          console.log(kisResponse);
+          
+          if (kisResponse.data?.FBillNo) {
+            await inventoryOperationManager.updateEntityById({
+              routeContext,
+              id: input.operationId,
+              entityToSave: {
+                externalCode: kisResponse.data.FBillNo,
+              },
+            });
+          }
+
+          await inventoryApplicationManager.updateEntityById({
             routeContext,
-            id: input.operationId,
+            id: inventoryOperation?.application?.id,
             entityToSave: {
-              externalCode: kisResponse.data?.FBillNo ? kisResponse.data.FBillNo : kisResponse.description,
+              kisResponse: kisResponse.data?.FBillNo ? kisResponse.data.FBillNo : kisResponse.description,
             },
           });
         }
