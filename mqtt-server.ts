@@ -67,12 +67,16 @@ export function startMqttServer(options: StartMqttServerOptions) {
   aedes.on("publish", async (packet, client) => {
     let payload: any;
 
+    const isInWhitelist = !!(client && parserRegistry.isInWhitelist(client.id));
+
     try {
-      if (client && parserRegistry.isInWhitelist(client.id)) {
-        const parser = parserRegistry.getParser(client.id);
-        payload = parser.parse(packet.payload, client.id);
-      } else {
-        payload = JSON.parse(packet.payload.toString());
+      if (packet.topic.startsWith("$SYS/")) {
+        if (client && isInWhitelist) {
+          const parser = parserRegistry.getParser(client.id);
+          payload = parser.parse(packet.payload, client.id);
+        } else {
+          payload = JSON.parse(packet.payload.toString());
+        }
       }
     } catch (ex: unknown) {
       logger.warn("Failed to parse payload", {
@@ -94,7 +98,7 @@ export function startMqttServer(options: StartMqttServerOptions) {
     if (client) {
       const sender = clientManager.getClient(client.id);
       if (sender) {
-        await iotPlugin.mqttMessageHandler.onPublish(sender, mqttMessage);
+        await iotPlugin.mqttMessageHandler.onPublish(sender, mqttMessage, isInWhitelist);
       }
     }
   });

@@ -2,6 +2,7 @@ import { IRpdServer, RouteContext } from "@ruiapp/rapid-core";
 import IotPlugin from "./IotPlugin";
 import { IotGateway, IotThing } from "./types/IotModelsTypes";
 import { TelemetryValuesOfThings } from "./IotPluginTypes";
+import { isString } from "lodash";
 
 export interface MqttMessageSender {
   gateway?: IotGateway;
@@ -22,7 +23,8 @@ export default class MqttMessageHandler {
     this.#iotPlugin = iotPlugin;
   }
 
-  async onPublish(sender: MqttMessageSender, message: MqttMessage) {
+  async onPublish(sender: MqttMessageSender, message: MqttMessage, isInWhitelist: boolean) {
+    const logger = this.#server.getLogger();
     const { topic } = message;
     const payload = message.payload as TelemetryValuesOfThings;
     if (topic === "v1/gateway/telemetry") {
@@ -31,23 +33,30 @@ export default class MqttMessageHandler {
         return;
       }
 
+      if (isString(payload)) {
+        logger.error(`Invalid payload format. Should be type of "TelemetryValuesOfThings" rather than a string.`);
+        return;
+      }
+
       // Check gateway-thing bindings
       const unmanagedThingCodes: string[] = [];
-      const telemetryValuesOfThings: TelemetryValuesOfThings = {};
+      let telemetryValuesOfThings: TelemetryValuesOfThings = {};
 
-      const managedThings: IotThing[] = gateway.managedThings || [];
-      for (const thingCode in payload) {
-        if (managedThings.find((item) => item.code === thingCode)) {
-          telemetryValuesOfThings[thingCode] = payload[thingCode];
-        } else {
-          unmanagedThingCodes.push(thingCode);
+      if (isInWhitelist) {
+        telemetryValuesOfThings = payload;
+      } else {
+        const managedThings: IotThing[] = gateway.managedThings || [];
+        for (const thingCode in payload) {
+          if (managedThings.find((item) => item.code === thingCode)) {
+            telemetryValuesOfThings[thingCode] = payload[thingCode];
+          } else {
+            unmanagedThingCodes.push(thingCode);
+          }
         }
       }
 
       if (unmanagedThingCodes.length) {
-        this.#server
-          .getLogger()
-          .warn("Telemetry values of these things are ignored, because they are not managed by this gateway: " + unmanagedThingCodes.join(", "));
+        logger.warn("Telemetry values of these things are ignored, because they are not managed by this gateway: " + unmanagedThingCodes.join(", "));
       }
 
       if (Object.keys(telemetryValuesOfThings).length) {
