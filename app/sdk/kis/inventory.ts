@@ -149,79 +149,64 @@ class KisInventoryOperationAPI {
   }
 
   // Retry mechanism for API requests
-  private async retryApiRequest<T>(url: string, payload: object, retries: number = 1): Promise<ApiResponse<T>> {
-    let attempts = 0;
+  private async apiRequest<T>(url: string, payload: object): Promise<ApiResponse<T>> {
     const response = await this.api.PostResourceRequest(url, payload, true);
-    let lastResponse: ApiResponse<T> = response.data as ApiResponse<T>;
-    
-    while (attempts < retries) {
-      if (lastResponse.errcode === 0) {
-        return lastResponse;
-      }
-      console.log(`API request failed (attempt ${attempts + 1}):`, payload, response.data);
-      attempts += 1;
-      await this.sleep(2000); // Wait before retrying
-      
-      const retryResponse = await this.api.PostResourceRequest(url, payload, true);
-      lastResponse = retryResponse.data as ApiResponse<T>;
-    }
-    
-    return lastResponse;
+    return response.data as ApiResponse<T>;
   }
 
   // 产成品入库单
   public async createProductReceipt(payload: WarehousePayload): Promise<ApiResponse<WarehouseResponseData>> {
     const url = "/koas/app007104/api/productreceipt/create";
-    return await this.retryApiRequest<WarehouseResponseData>(url, payload);
+    return await this.apiRequest<WarehouseResponseData>(url, payload);
   }
 
   // 生产领料单
   public async createPickingList(payload: WarehousePayload): Promise<ApiResponse<WarehouseResponseData>> {
     const url = "/koas/app007104/api/pickinglist/create";
-    return await this.retryApiRequest<WarehouseResponseData>(url, payload);
+    return await this.apiRequest<WarehouseResponseData>(url, payload);
   }
 
   // 外购入库单
   public async createPurchaseReceipt(payload: WarehousePayload): Promise<ApiResponse<WarehouseResponseData>> {
     const url = "/koas/app007104/api/purchasereceipt/create";
-    return await this.retryApiRequest<WarehouseResponseData>(url, payload);
+    return await this.apiRequest<WarehouseResponseData>(url, payload);
   }
 
   // 销售出库单
   public async createSalesDelivery(payload: WarehousePayload): Promise<ApiResponse<WarehouseResponseData>> {
     const url = "/koas/app007104/api/salesdelivery/create";
-    return await this.retryApiRequest<WarehouseResponseData>(url, payload);
+    return await this.apiRequest<WarehouseResponseData>(url, payload);
   }
 
   // 调拨单
   public async createStockTransfer(payload: WarehouseTransferPayload): Promise<ApiResponse<WarehouseResponseData>> {
     const url = "/koas/app007104/api/stocktransfer/create";
-    return await this.retryApiRequest<WarehouseResponseData>(url, payload);
+    return await this.apiRequest<WarehouseResponseData>(url, payload);
   }
 
   // 委外加工入库单
   public async createSubcontractReceipt(payload: WarehousePayload): Promise<ApiResponse<WarehouseResponseData>> {
     const url = "/koas/app007104/api/subcontractreceipt/create";
-    return await this.retryApiRequest<WarehouseResponseData>(url, payload);
+    return await this.apiRequest<WarehouseResponseData>(url, payload);
   }
 
   // 委外加工出库单
   public async createSubcontractdelivery(payload: WarehousePayload): Promise<ApiResponse<WarehouseResponseData>> {
     const url = "/koas/app007104/api/subcontractdelivery/create";
-    return await this.retryApiRequest<WarehouseResponseData>(url, payload);
+    return await this.apiRequest<WarehouseResponseData>(url, payload);
   }
 
 
   // 其他入库
   public async createMiscellaneousReceipt(payload: WarehousePayload): Promise<ApiResponse<WarehouseResponseData>> {
     const url = "/koas/app007104/api/miscellaneousreceipt/create";
-    return await this.retryApiRequest<WarehouseResponseData>(url, payload);
+    return await this.apiRequest<WarehouseResponseData>(url, payload);
   }
 
   // 其他出库
   public async createMiscellaneousDelivery(payload: WarehousePayload): Promise<ApiResponse<WarehouseResponseData>> {
     const url = "/koas/app007104/api/miscellaneousdelivery/create";
-    return await this.retryApiRequest<WarehouseResponseData>(url, payload);
+    return await this.apiRequest<WarehouseResponseData>(url, payload);
   }
 
 
