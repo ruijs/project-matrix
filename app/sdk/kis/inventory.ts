@@ -126,7 +126,7 @@ export interface WarehouseTransferPayload {
 }
 
 interface ApiResponse<T> {
-  errorCode: number;
+  errorCode: string;
   description: string;
   data: T;
 }
@@ -155,7 +155,7 @@ class KisInventoryOperationAPI {
     let lastResponse: ApiResponse<T> = response.data as ApiResponse<T>;
     
     while (attempts < retries) {
-      if (lastResponse.errorCode === 0) {
+      if (lastResponse.errorCode === "0") {
         return lastResponse;
       }
       console.log(`API request failed (attempt ${attempts + 1}):`, payload, response.data);

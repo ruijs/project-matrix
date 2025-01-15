@@ -571,7 +571,7 @@ export async function handleKisOperation(server: IRpdServer, routeContext: Route
                   Fauxqty: transfer.quantity.toFixed(2),
                   FAuxQtyMust: transfer.quantity.toFixed(2),
                   FDCSPID: locationCode,
-                  FSCStockID: warehouseId,
+                  FDCStockID: warehouseId,
                   FBatchNo: transfer.lot_num,
                   FUnitID: transfer.unit_external_code,
                   // FMTONo: transfer.lot_num,
