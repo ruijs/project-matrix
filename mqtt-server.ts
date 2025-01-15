@@ -3,7 +3,7 @@ import Aedes, { AuthenticateError } from "aedes";
 import { createServer } from "net";
 import type IotPlugin from "rapid-plugins/iot/IotPlugin";
 import type { Logger, RapidServer } from "@ruiapp/rapid-core";
-import { ParserRegistry, TemperatureHexParser } from './mqtt-server/parsers';
+import { ParserRegistry, TemperatureHexParser } from "./mqtt-server/parsers";
 
 export interface StartMqttServerOptions {
   rapidServer: RapidServer;
@@ -37,7 +37,7 @@ export function startMqttServer(options: StartMqttServerOptions) {
 
   // Initialize parser registry
   const parserRegistry = new ParserRegistry(logger);
-  
+
   aedes.authenticate = async function (client, username, password, callback) {
     try {
       if (!username) {
@@ -65,14 +65,18 @@ export function startMqttServer(options: StartMqttServerOptions) {
   };
 
   aedes.on("publish", async (packet, client) => {
-    let payload: any = packet.payload.toString();
-    
+    let payload: any;
+
+    const isInWhitelist = !!(client && parserRegistry.isInWhitelist(client.id));
+
     try {
-      if (client && parserRegistry.isInWhitelist(client.id)) {
-        const parser = parserRegistry.getParser(client.id);
-        payload = parser.parse(payload, client.id);
-      } else {
-        payload = JSON.parse(payload);
+      if (packet.topic.startsWith("$SYS/")) {
+        if (client && isInWhitelist) {
+          const parser = parserRegistry.getParser(client.id);
+          payload = parser.parse(packet.payload, client.id);
+        } else {
+          payload = JSON.parse(packet.payload.toString());
+        }
       }
     } catch (ex: unknown) {
       logger.warn("Failed to parse payload", {
@@ -81,7 +85,7 @@ export function startMqttServer(options: StartMqttServerOptions) {
         payload,
         clientId: client?.id,
         error: (ex as Error).message,
-        isInWhitelist: client ? parserRegistry.isInWhitelist(client.id) : false
+        isInWhitelist: client ? parserRegistry.isInWhitelist(client.id) : false,
       });
     }
 
@@ -94,7 +98,7 @@ export function startMqttServer(options: StartMqttServerOptions) {
     if (client) {
       const sender = clientManager.getClient(client.id);
       if (sender) {
-        await iotPlugin.mqttMessageHandler.onPublish(sender, mqttMessage);
+        await iotPlugin.mqttMessageHandler.onPublish(sender, mqttMessage, isInWhitelist);
       }
     }
   });
