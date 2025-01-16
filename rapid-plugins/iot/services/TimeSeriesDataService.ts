@@ -121,7 +121,7 @@ CREATE TABLE IF NOT EXISTS
     const { thingId, propertyCode, limit } = options;
     const tableName = `thing_${thingId}`;
 
-    const sql = `SELECT ts, ${propertyCode} from ${tableName} limit ${limit || 100};`;
+    const sql = `SELECT ts, ${propertyCode} FROM ${tableName} ORDER BY ts DESC LIMIT ${limit || 100};`;
     const result = await this.#tDEngineAccessor.exec(sql);
 
     const data = (result.getData() || []) as [Number, any][];
