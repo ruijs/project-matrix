@@ -1,5 +1,7 @@
+/* eslint-disable jsx-a11y/anchor-is-valid */
 import { type Rock } from "@ruiapp/move-style";
 import { Spin } from "antd";
+import dayjs from "dayjs";
 import { first, get } from "lodash";
 import { useRef, useState } from "react";
 import { rapidApiRequest } from "~/rapidApi";
@@ -40,6 +42,106 @@ export default {
         }, 200);
       });
 
+      const getManfactureDate = async () => {
+        if (applicationDetail?.businessType?.name == "生产入库") {
+          return get(props.record, "lotNum")?.split("-")[0];
+        }
+
+        if (applicationDetail?.businessType?.name === "生产退料入库") {
+          const lotNum = get(props.record, "lotNum");
+          const { result } = await rapidApiRequest({
+            method: "POST",
+            url: `/mom/mom_goods/operations/find`,
+            data: {
+              filters: [
+                {
+                  operator: "or",
+                  filters: [
+                    {
+                      field: "lotNum",
+                      operator: "contains",
+                      value: `${lotNum}`,
+                    },
+                    {
+                      field: "binNum",
+                      operator: "contains",
+                      value: `${lotNum}`,
+                    },
+                    {
+                      field: "material",
+                      operator: "exists",
+                      filters: [
+                        {
+                          operator: "or",
+                          filters: [
+                            {
+                              field: "name",
+                              operator: "contains",
+                              value: "202409-WX20240819007",
+                            },
+                            {
+                              field: "code",
+                              operator: "contains",
+                              value: "202409-WX20240819007",
+                            },
+                            {
+                              field: "specification",
+                              operator: "contains",
+                              value: "202409-WX20240819007",
+                            },
+                          ],
+                        },
+                      ],
+                    },
+                  ],
+                },
+              ],
+              orderBy: [
+                {
+                  field: "createdAt",
+                  desc: true,
+                },
+              ],
+              properties: [
+                "id",
+                "material",
+                "material.category",
+                "lotNum",
+                "binNum",
+                "quantity",
+                "unit",
+                "state",
+                "warehouse",
+                "warehouseArea",
+                "location",
+                "manufactureDate",
+                "validityDate",
+                "lot",
+                "createdAt",
+              ],
+              relations: {
+                material: {
+                  properties: ["id", "code", "name", "specification", "category"],
+                  relations: {
+                    category: {
+                      properties: ["id", "code", "name", "printTemplate"],
+                    },
+                  },
+                },
+              },
+              pagination: {
+                limit: 20,
+                offset: 0,
+              },
+            },
+          });
+          return dayjs(result.list[0]?.manufactureDate)?.format("YYYY-MM-DD");
+        }
+        return null;
+      };
+
+      console.log("getManfactureDate", getManfactureDate);
+
       context.page.sendComponentMessage("goodTransferList_records-newForm", {
         name: "resetFields",
       });
@@ -47,10 +149,7 @@ export default {
         name: "setFieldsValue",
         payload: {
           ...props.record,
-          manufactureDate:
-            applicationDetail?.businessType?.name == "生产入库" || applicationDetail?.businessType?.name === "生产退料入库"
-              ? get(props.record, "lotNum")?.split("-")[0]
-              : null,
+          manufactureDate: await getManfactureDate(),
           material: get(props.record, "material.id"),
         },
       });
