@@ -8,6 +8,7 @@ import {
   MomInspectionMeasurement,
   MomInspectionRule,
   MomInspectionSheet,
+  MomInventoryApplication,
   MomInventoryApplicationItem,
   OcUser,
 } from "~/_definitions/meta/entity-types";
@@ -146,6 +147,32 @@ export default [
               inspectState: inspectionSheet.result,
             },
           });
+        }
+
+        const momInventoryApplicationItems = await momInventoryApplicationItemManager.findEntities({
+          routeContext,
+          filters: [
+            {
+              operator: "eq",
+              field: "operation_id",
+              value: inspectionSheet.inventoryOperation.application.id,
+            },
+          ],
+          properties: ["id", "inspectState"],
+        });
+
+        if (momInventoryApplicationItems.length > 0) {
+          // every item has been inspected, then update the application state to inspected
+          const allInspected = momInventoryApplicationItems.every((item) => item?.inspectState);
+          if (allInspected) {
+            await server.getEntityManager<MomInventoryApplication>("mom_inventory_application").updateEntityById({
+              routeContext,
+              id: inspectionSheet.inventoryOperation.application.id,
+              entityToSave: {
+                inspectState: "inspected",
+              },
+            });
+          }
         }
       }
 
