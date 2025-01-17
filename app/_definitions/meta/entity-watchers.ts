@@ -4,12 +4,14 @@ import cbs$CbsOrderItemWatchers from '../models/entity-watchers/cbs/CbsOrderItem
 import cbs$CbsOrderWatchers from '../models/entity-watchers/cbs/CbsOrderWatchers';
 import mom$BaseLotModifyApplication from '../models/entity-watchers/mom/BaseLotModifyApplication';
 import mom$MomGoodTransfer from '../models/entity-watchers/mom/MomGoodTransfer';
+import mom$MomGoods from '../models/entity-watchers/mom/MomGoods';
 import mom$MomInspectionCharacteristic from '../models/entity-watchers/mom/MomInspectionCharacteristic';
 import mom$MomInspectionMeasurement from '../models/entity-watchers/mom/MomInspectionMeasurement';
 import mom$MomInspectionRule from '../models/entity-watchers/mom/MomInspectionRule';
 import mom$MomInspectionSheet from '../models/entity-watchers/mom/MomInspectionSheet';
 import mom$MomInspectionSheetSample from '../models/entity-watchers/mom/MomInspectionSheetSample';
 import mom$MomInventoryApplication from '../models/entity-watchers/mom/MomInventoryApplication';
+import mom$MomInventoryApplicationItem from '../models/entity-watchers/mom/MomInventoryApplicationItem';
 import mom$MomInventoryMaterial from '../models/entity-watchers/mom/MomInventoryMaterial';
 import mom$MomInventoryOperation from '../models/entity-watchers/mom/MomInventoryOperation';
 import mom$MomMaterialLot from '../models/entity-watchers/mom/MomMaterialLot';
@@ -23,12 +25,14 @@ export default [
   ...cbs$CbsOrderWatchers,
   ...mom$BaseLotModifyApplication,
   ...mom$MomGoodTransfer,
+  ...mom$MomGoods,
   ...mom$MomInspectionCharacteristic,
   ...mom$MomInspectionMeasurement,
   ...mom$MomInspectionRule,
   ...mom$MomInspectionSheet,
   ...mom$MomInspectionSheetSample,
   ...mom$MomInventoryApplication,
+  ...mom$MomInventoryApplicationItem,
   ...mom$MomInventoryMaterial,
   ...mom$MomInventoryOperation,
   ...mom$MomMaterialLot,

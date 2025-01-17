@@ -217,6 +217,12 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
       name: "金蝶传输",
       type: "text",
     },
+    {
+      code: "inspectState",
+      name: "检验状态",
+      type: "option",
+      dataDictionary: "MomInspectionSheetState",
+    },
   ],
 };
 

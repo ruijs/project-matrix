@@ -3,6 +3,7 @@ import { KisConfig, MomInspectionSheet, MomInventoryApplication, MomInventoryOpe
 import KisInventoryOperationAPI, { WarehouseEntry } from "~/sdk/kis/inventory";
 import { getNowString } from "~/utils/time-utils";
 import KisHelper from "~/sdk/kis/helper";
+import dayjs from "dayjs";
 
 export type CreateGoodTransferInput = {
   operationId: number;
@@ -112,17 +113,21 @@ export async function handleKisOperation(server: IRpdServer, routeContext: Route
         `
 SELECT mai.material_id,
        mai.lot_num,
-       bm.code                  AS material_code,
-       bm.external_code         AS material_external_code,
-       bu.external_code         AS unit_external_code,
-       sum(mai.quantity)        AS must_quantity,
-       max(mai.accept_quantity) as quantity,
-       max(mai.remark)          AS remark
+       bm.code                     AS material_code,
+       bm.external_code            AS material_external_code,
+       bu.external_code            AS unit_external_code,
+       max(mai.inspect_state)      AS inspect_state,
+       max(bl.manufacture_date)    AS manufacture_date,
+       max(bl.qualification_state) AS qualification_state,
+       sum(mai.quantity)           AS must_quantity,
+       max(mai.accept_quantity)    as quantity,
+       max(mai.remark)             AS remark
 FROM mom_inventory_application_items mai
          inner join base_materials bm on mai.material_id = bm.id
          inner join base_units bu on bm.default_unit_id = bu.id
+         left join base_lots bl on mai.material_id = bl.material_id and mai.lot_num = bl.lot_num
 WHERE mai.operation_id = $1
-group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_code
+group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_code;
         `,
         [inventoryApplication.id],
         routeContext.getDbTransactionClient(),
@@ -146,65 +151,85 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
 
         let kisResponse: any;
 
+        const allInspected = transfers.every((transfer) => transfer?.inspect_state);
+        if (!allInspected) {
+          console.log("All items must be inspected before creating a purchase receipt.");
+          return;
+        }
+
+        let locationCode = "";
+        const warehouse = inventoryApplication?.to || inventoryApplication?.from;
+        switch (warehouse?.name) {
+          case "原料库":
+            locationCode = "1320";
+            break;
+          case "成品库":
+            locationCode = "1321";
+            break;
+          case "包材库":
+            locationCode = "2";
+            break;
+          case "次品库":
+            locationCode = "4";
+            break;
+          case "周转库":
+            locationCode = "5";
+            break;
+          case "外租仓库":
+            locationCode = "";
+            break;
+          default:
+            break;
+        }
+
         if (inventoryOperation?.businessType?.operationType === "in") {
           // TODO: 生成KIS入库单
           switch (inventoryOperation?.businessType?.name) {
-            case "采购入库":
-              for (const transfer of transfers) {
-                let locationCode = "1320";
-                // check if transfer.material_code prefix is 01. if so, set locationCode to 1320, if 03. set to 1321
-                if (transfer.material_code.startsWith("01.")) {
-                  locationCode = "1320";
-                } else if (transfer.material_code.startsWith("03.")) {
-                  locationCode = "1321";
-                }
+            // TODO: 停止回传采购入库单
+            // case "采购入库":
+            //   for (const transfer of transfers) {
+            //     if (transfer?.qualification_state && transfer.qualification_state === "qualified") {
+            //       entries.push({
+            //         FItemID: transfer.material_external_code,
+            //         FQty: transfer.quantity.toFixed(2),
+            //         Fauxqty: transfer.quantity.toFixed(2),
+            //         FAuxQtyMust: transfer.must_quantity.toFixed(2),
+            //         FDCSPID: locationCode,
+            //         FDCStockID: warehouseId,
+            //         FBatchNo: transfer.lot_num,
+            //         FUnitID: transfer.unit_external_code,
+            //         // FMTONo: transfer.lot_num,
+            //         // FSecQty: transfer.quantity,
+            //         // FSecCoefficient: 1,
+            //         // FAuxPrice: 1,
+            //         FPlanMode: 14036,
+            //         Fnote: transfer.remark,
+            //       });
+            //     }
+            //   }
 
-                entries.push({
-                  FItemID: transfer.material_external_code,
-                  FQty: transfer.quantity.toFixed(2),
-                  Fauxqty: transfer.quantity.toFixed(2),
-                  FAuxQtyMust: transfer.must_quantity.toFixed(2),
-                  FDCSPID: locationCode,
-                  FDCStockID: warehouseId,
-                  FBatchNo: transfer.lot_num,
-                  FUnitID: transfer.unit_external_code,
-                  // FMTONo: transfer.lot_num,
-                  // FSecQty: transfer.quantity,
-                  // FSecCoefficient: 1,
-                  // FAuxPrice: 1,
-                  FPlanMode: 14036,
-                  Fnote: transfer.remark,
-                });
-              }
-
-              kisResponse = await kisOperationApi.createPurchaseReceipt({
-                Object: {
-                  Head: {
-                    Fdate: getNowString(),
-                    // FDCStockID: warehouseId,
-                    FFManagerID: inventoryApplication?.fFManager?.externalCode || inventoryApplication?.createdBy?.externalCode,
-                    FSManagerID: inventoryApplication?.fSManager?.externalCode || inventoryApplication?.createdBy?.externalCode,
-                    FBillerID: inventoryApplication?.biller?.externalUserCode,
-                    FTranType: 1,
-                    FDeptID: "769",
-                    FPOStyle: inventoryApplication.fPOStyle,
-                    FSupplyID: inventoryApplication.fSupplyID,
-                    FHeadSelfA0143: inspectionSheet?.inspector?.externalCode,
-                  },
-                  Entry: entries,
-                },
-              });
-              break;
+            //   if (entries.length > 0) {
+            //     kisResponse = await kisOperationApi.createPurchaseReceipt({
+            //       Object: {
+            //         Head: {
+            //           Fdate: getNowString(),
+            //           // FDCStockID: warehouseId,
+            //           FFManagerID: inventoryApplication?.fFManager?.externalCode || inventoryApplication?.createdBy?.externalCode,
+            //           FSManagerID: inventoryApplication?.fSManager?.externalCode || inventoryApplication?.createdBy?.externalCode,
+            //           FBillerID: inventoryApplication?.biller?.externalUserCode,
+            //           FTranType: 1,
+            //           FDeptID: "769",
+            //           FPOStyle: inventoryApplication.fPOStyle,
+            //           FSupplyID: inventoryApplication.fSupplyID,
+            //           FHeadSelfA0143: inspectionSheet?.inspector?.externalCode,
+            //         },
+            //         Entry: entries,
+            //       },
+            //     });
+            //   }
+            //   break;
             case "生产入库":
               for (const transfer of transfers) {
-                let locationCode = "1320";
-                // check if transfer.material_code prefix is 01. if so, set locationCode to 1320, if 03. set to 1321
-                if (transfer.material_code.startsWith("01.")) {
-                  locationCode = "1320";
-                } else if (transfer.material_code.startsWith("03.")) {
-                  locationCode = "1321";
-                }
-
                 entries.push({
                   FItemID: transfer.material_external_code,
                   FQty: transfer.quantity.toFixed(2),
@@ -241,14 +266,6 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
               break;
             case "委外加工入库":
               for (const transfer of transfers) {
-                let locationCode = "1320";
-                // check if transfer.material_code prefix is 01. if so, set locationCode to 1320, if 03. set to 1321
-                if (transfer.material_code.startsWith("01.")) {
-                  locationCode = "1320";
-                } else if (transfer.material_code.startsWith("03.")) {
-                  locationCode = "1321";
-                }
-
                 entries.push({
                   FItemID: transfer.material_external_code,
                   FQty: transfer.quantity.toFixed(2),
@@ -285,14 +302,6 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
               break;
             case "生产退料入库":
               for (const transfer of transfers) {
-                let locationCode = "1320";
-                // check if transfer.material_code prefix is 01. if so, set locationCode to 1320, if 03. set to 1321
-                if (transfer.material_code.startsWith("01.")) {
-                  locationCode = "1320";
-                } else if (transfer.material_code.startsWith("03.")) {
-                  locationCode = "1321";
-                }
-
                 entries.push({
                   FItemID: transfer.material_external_code,
                   FQty: transfer.quantity.toFixed(2),
@@ -332,18 +341,6 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
               break;
             case "销售退货入库":
               transfers.forEach((transfer, idx) => {
-                let locationCode = "1320";
-                // check if transfer.material_code prefix is 01. if so, set locationCode to 1320, if 03. set to 1321
-                if (transfer.material_code.startsWith("01.")) {
-                  locationCode = "1320";
-                } else if (transfer.material_code.startsWith("03.")) {
-                  locationCode = "1321";
-                }
-
-                if (inventoryApplication.to?.name === "外租仓库" || inventoryApplication.from?.name === "外租仓库") {
-                  locationCode = "";
-                }
-
                 let entity: any = {
                   FItemID: transfer.material_external_code,
                   FQty: transfer.quantity.toFixed(2),
@@ -396,14 +393,6 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
               break;
             case "其它原因入库":
               for (const transfer of transfers) {
-                let locationCode = "1320";
-                // check if transfer.material_code prefix is 01. if so, set locationCode to 1320, if 03. set to 1321
-                if (transfer.material_code.startsWith("01.")) {
-                  locationCode = "1320";
-                } else if (transfer.material_code.startsWith("03.")) {
-                  locationCode = "1321";
-                }
-
                 entries.push({
                   FItemID: transfer.material_external_code,
                   FQty: transfer.quantity.toFixed(2),
@@ -439,18 +428,6 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
               break;
             case "其它原因出库退货入库":
               for (const transfer of transfers) {
-                let locationCode = "1320";
-                // check if transfer.material_code prefix is 01. if so, set locationCode to 1320, if 03. set to 1321
-                if (transfer.material_code.startsWith("01.")) {
-                  locationCode = "1320";
-                } else if (transfer.material_code.startsWith("03.")) {
-                  locationCode = "1321";
-                }
-
-                if (inventoryApplication.to?.name === "外租仓库" || inventoryApplication.from?.name === "外租仓库") {
-                  locationCode = "";
-                }
-
                 let entity: any = {
                   FItemID: transfer.material_external_code,
                   FQty: transfer.quantity.toFixed(2),
@@ -497,18 +474,6 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
           switch (inventoryOperation?.businessType?.name) {
             case "销售出库":
               transfers.forEach((transfer, idx) => {
-                let locationCode = "1320";
-                // check if transfer.material_code prefix is 01. if so, set locationCode to 1320, if 03. set to 1321
-                if (transfer.material_code.startsWith("01.")) {
-                  locationCode = "1320";
-                } else if (transfer.material_code.startsWith("03.")) {
-                  locationCode = "1321";
-                }
-
-                if (inventoryApplication.to?.name === "外租仓库" || inventoryApplication.from?.name === "外租仓库") {
-                  locationCode = "";
-                }
-
                 let entity: any = {
                   FItemID: transfer.material_external_code,
                   FQty: transfer.quantity.toFixed(2),
@@ -528,6 +493,7 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
                   Famount: transfer.quantity.toFixed(2),
                   FPlanMode: 14036,
                   Fnote: transfer.remark,
+                  FKFDate: dayjs(transfer.manufacture_date).format("YYYY-MM-DD HH:mm:ss.SSS"),
                 };
 
                 if (locationCode !== "") {
@@ -561,14 +527,6 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
               break;
             case "委外加工出库":
               for (const transfer of transfers) {
-                let locationCode = "1320";
-                // check if transfer.material_code prefix is 01. if so, set locationCode to 1320, if 03. set to 1321
-                if (transfer.material_code.startsWith("01.")) {
-                  locationCode = "1320";
-                } else if (transfer.material_code.startsWith("03.")) {
-                  locationCode = "1321";
-                }
-
                 entries.push({
                   FItemID: transfer.material_external_code,
                   FQty: transfer.quantity.toFixed(2),
@@ -604,14 +562,6 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
               break;
             case "采购退货出库":
               for (const transfer of transfers) {
-                let locationCode = "1320";
-                // check if transfer.material_code prefix is 01. if so, set locationCode to 1320, if 03. set to 1321
-                if (transfer.material_code.startsWith("01.")) {
-                  locationCode = "1320";
-                } else if (transfer.material_code.startsWith("03.")) {
-                  locationCode = "1321";
-                }
-
                 entries.push({
                   FItemID: transfer.material_external_code,
                   FQty: transfer.quantity.toFixed(2),
@@ -651,14 +601,6 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
               break;
             case "生产入库退货出库":
               for (const transfer of transfers) {
-                let locationCode = "1320";
-                // check if transfer.material_code prefix is 01. if so, set locationCode to 1320, if 03. set to 1321
-                if (transfer.material_code.startsWith("01.")) {
-                  locationCode = "1320";
-                } else if (transfer.material_code.startsWith("03.")) {
-                  locationCode = "1321";
-                }
-
                 entries.push({
                   FItemID: transfer.material_external_code,
                   FQty: transfer.quantity.toFixed(2),
@@ -695,18 +637,6 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
               break;
             case "其它原因出库":
               for (const transfer of transfers) {
-                let locationCode = "1320";
-                // check if transfer.material_code prefix is 01. if so, set locationCode to 1320, if 03. set to 1321
-                if (transfer.material_code.startsWith("01.")) {
-                  locationCode = "1320";
-                } else if (transfer.material_code.startsWith("03.")) {
-                  locationCode = "1321";
-                }
-
-                if (inventoryApplication.to?.name === "外租仓库" || inventoryApplication.from?.name === "外租仓库") {
-                  locationCode = "";
-                }
-
                 let entity: any = {
                   FItemID: transfer.material_external_code,
                   FQty: transfer.quantity.toFixed(2),
@@ -748,14 +678,6 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
               break;
             case "领料出库":
               for (const transfer of transfers) {
-                let locationCode = "1320";
-                // check if transfer.material_code prefix is 01. if so, set locationCode to 1320, if 03. set to 1321
-                if (transfer.material_code.startsWith("01.")) {
-                  locationCode = "1320";
-                } else if (transfer.material_code.startsWith("03.")) {
-                  locationCode = "1321";
-                }
-
                 entries.push({
                   FItemID: transfer.material_external_code,
                   FQty: transfer.quantity.toFixed(2),
@@ -799,8 +721,6 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
         }
 
         if (kisResponse) {
-          console.log(kisResponse);
-          
           if (kisResponse.data?.FBillNo) {
             await inventoryOperationManager.updateEntityById({
               routeContext,

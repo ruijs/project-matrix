@@ -4575,6 +4575,10 @@ export interface MomInventoryApplication {
    */
   kisResponse?: string;
   /**
+   * 检验状态
+   */
+  inspectState?: MomInspectionSheetState;
+  /**
    * 创建时间
    */
   createdAt?: string;
