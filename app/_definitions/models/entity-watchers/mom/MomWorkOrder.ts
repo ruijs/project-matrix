@@ -234,6 +234,7 @@ export default [
                 { operator: "eq", field: "work_order_id", value: after.id },
               ],
               properties: ["id", "workOrder", "rawMaterial", "quantity", "lotNum", "process", "equipment", "instoreTankNumber", "createdAt"],
+              orderBy: [{ field: "createdAt", desc: true }],
               relations: {
                 workOrder: {
                   properties: ["id", "processes", "code", "lotNum", "quantity", "factory", "material", "oilMixtureRatio", "paraffinQuantity", "stirringTime", "stirringPressure", "tankNumber", "unloadingVideo", "dcsPicture", "createdBy", "createdAt"]

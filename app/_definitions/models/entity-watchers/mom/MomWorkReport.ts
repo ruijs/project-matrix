@@ -189,42 +189,45 @@ export default [
         }
 
         if (workReport) {
-        // 获取投料记录
-        const workFeedManager = server.getEntityManager<MomWorkFeed>("mom_work_feed");
-        let workFeeds: MomWorkFeed[] = [];
+          // 获取投料记录
+          const workFeedManager = server.getEntityManager<MomWorkFeed>("mom_work_feed");
+          let workFeeds: MomWorkFeed[] = [];
 
-        if (workReport.process?.code === "10" || workReport.process?.code === "20") {
-          workFeeds = await workFeedManager.findEntities({
-            filters: [
-              { operator: "eq", field: "work_order_id", value: workReport.workOrder?.id },
-            ],
-            properties: ["id", "rawMaterial", "lotNum", "createdAt"],
-            pagination: {
-              offset: 0,
-              limit: 1,
-            }
-          });
-
-          if (workFeeds.length === 0) {
+          if (workReport.process?.code === "10" || workReport.process?.code === "20") {
             workFeeds = await workFeedManager.findEntities({
               filters: [
-                { operator: "eq", field: "process_id", value: workReport.process?.id },
+                { operator: "eq", field: "work_order_id", value: workReport.workOrder?.id },
               ],
               properties: ["id", "rawMaterial", "lotNum", "createdAt"],
+              orderBy: [{ field: "createdAt", desc: true }],
               pagination: {
                 offset: 0,
                 limit: 1,
               }
             });
+
+            if (workFeeds.length === 0) {
+              workFeeds = await workFeedManager.findEntities({
+                filters: [
+                  { operator: "eq", field: "process_id", value: workReport.process?.id },
+                ],
+                properties: ["id", "rawMaterial", "lotNum", "createdAt"],
+                orderBy: [{ field: "createdAt", desc: true }],
+                pagination: {
+                  offset: 0,
+                  limit: 1,
+                }
+              });
+            }
+          } else {
+            workFeeds = await workFeedManager.findEntities({
+              filters: [
+                { operator: "eq", field: "work_order_id", value: workReport.workOrder?.id },
+              ],
+              properties: ["id", "rawMaterial", "lotNum", "createdAt"],
+              orderBy: [{ field: "createdAt", desc: true }],
+            });
           }
-        } else {
-          workFeeds = await workFeedManager.findEntities({
-            filters: [
-              { operator: "eq", field: "work_order_id", value: workReport.workOrder?.id },
-            ],
-            properties: ["id", "rawMaterial", "lotNum", "createdAt"],
-          });
-        }
 
           if (workFeeds.length > 0) {
             // 上报宜搭投料记录
@@ -474,6 +477,7 @@ export default [
               { operator: "eq", field: "work_order_id", value: workReport.workOrder?.id },
             ],
             properties: ["id", "rawMaterial", "lotNum", "createdAt"],
+            orderBy: [{ field: "createdAt", desc: true }],
             pagination: {
               offset: 0,
               limit: 1,
@@ -486,6 +490,7 @@ export default [
                 { operator: "eq", field: "process_id", value: workReport.process?.id },
               ],
               properties: ["id", "rawMaterial", "lotNum", "createdAt"],
+              orderBy: [{ field: "createdAt", desc: true }],
               pagination: {
                 offset: 0,
                 limit: 1,
@@ -498,13 +503,14 @@ export default [
             filters: [
               { operator: "eq", field: "work_order_id", value: workReport.workOrder?.id },
             ],
+            orderBy: [{ field: "createdAt", desc: true }],
             properties: ["id", "rawMaterial", "lotNum", "createdAt"],
           });
         }
 
         console.log("uploadFAWProductionRecord", workFeeds.length)
 
-        if (workFeeds.length > 0) { 
+        if (workFeeds.length > 0) {
           // 上报宜搭投料记录
           const yidaSDK = await new YidaHelper(server).NewAPIClient();
           const yidaAPI = new YidaApi(yidaSDK);
