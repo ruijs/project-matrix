@@ -151,12 +151,6 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
 
         let kisResponse: any;
 
-        const allInspected = transfers.every((transfer) => transfer?.inspect_state);
-        if (!allInspected) {
-          console.log("All items must be inspected before creating a purchase receipt.");
-          return;
-        }
-
         let locationCode = "";
         const warehouse = inventoryApplication?.to || inventoryApplication?.from;
         switch (warehouse?.name) {
@@ -187,6 +181,11 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
           switch (inventoryOperation?.businessType?.name) {
             // TODO: 停止回传采购入库单
             // case "采购入库":
+            // const allInspected = transfers.every((transfer) => transfer?.inspect_state);
+            // if (!allInspected) {
+            //   console.log("All items must be inspected before creating a purchase receipt.");
+            //   return;
+            // }
             //   for (const transfer of transfers) {
             //     if (transfer?.qualification_state && transfer.qualification_state === "qualified") {
             //       entries.push({
