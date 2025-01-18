@@ -121,7 +121,9 @@ export default [
           };
 
           const iotSDK = await new IotHelper(server).NewAPIClient();
-          await iotSDK.PutResourceRequest(`http://10.0.0.3:3020/api/machines/${ workTask?.equipment?.machine?.id }/fields`, deviceTaskPayload);
+          const response = await iotSDK.PutResourceRequest(`http://10.0.0.3:3020/api/machines/${ workTask?.equipment?.machine?.id }/fields`, deviceTaskPayload);
+          console.log("create iot device task")
+          console.log(response.data);
         }
       } catch (e) {
         console.log(e)
@@ -183,7 +185,9 @@ export default [
           };
 
           const iotSDK = await new IotHelper(server).NewAPIClient();
-          await iotSDK.PutResourceRequest(`http://10.0.0.3:3020/api/machines/${ workTask?.equipment?.machine?.id }/fields`, deviceTaskPayload);
+          const response = await iotSDK.PutResourceRequest(`http://10.0.0.3:3020/api/machines/${ workTask?.equipment?.machine?.id }/fields`, deviceTaskPayload);
+          console.log("update iot device task")
+          console.log(response.data);
         }
       }
     }
