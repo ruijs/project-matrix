@@ -504,6 +504,82 @@ const page: RapidPage = {
               },
             ],
           },
+          {
+            type: "auto",
+            label: "仓库",
+            code: "to",
+            formControlType: "rapidTableSelect",
+            formControlProps: {
+              allowClear: true,
+              dropdownMatchSelectWidth: 500,
+              multiply: false,
+              listTextFormat: "{{name}}",
+              listValueFieldName: "id",
+              listFilterFields: ["name"],
+              searchPlaceholder: "搜索仓库",
+              columns: [
+                {
+                  title: "仓库",
+                  code: "name",
+                  format: "{{name}}",
+                  width: 260,
+                },
+              ],
+              requestConfig: {
+                url: `/app/base_locations/operations/find`,
+                params: {
+                  fixedFilters: [
+                    {
+                      operator: "and",
+                      filters: [
+                        {
+                          field: "type",
+                          operator: "eq",
+                          value: "warehouse",
+                        },
+                      ],
+                    },
+                  ],
+                  orderBy: [
+                    {
+                      field: "orderNum",
+                    },
+                  ],
+                  properties: ["id", "code", "name", "orderNum"],
+                  pagination: {
+                    limit: 20,
+                    offset: 0,
+                  },
+                },
+              },
+              onSelectedRecord: [
+                {
+                  $action: "script",
+                  script: `
+                  const info = event.args || {};
+                  event.page.sendComponentMessage(event.sender.$id, {
+                    name: "setFieldsValue",
+                    payload: {
+                       to: info[0]?.id,
+                    }
+                  });
+                `,
+                },
+              ],
+            },
+            filterFields: [
+              {
+                field: "to",
+                operator: "exists",
+                filters: [
+                  {
+                    field: "id",
+                    operator: "eq",
+                  },
+                ],
+              },
+            ],
+          },
           // {
           //   type: "auto",
           //   label: "批号",
@@ -525,11 +601,56 @@ const page: RapidPage = {
           //     },
           //   ],
           // },
-          {
-            type: "auto",
-            code: "to",
-            label: "仓库",
-          },
+          // {
+          //   type: "auto",
+          //   code: "to",
+          //   label: "仓库",
+          //   requestConfig: {
+          //     url: `/app/base_locations/operations/find`,
+          //     params: {
+          //       fixedFilters: [
+          //         {
+          //           operator: "and",
+          //           filters: [
+          //             {
+          //               field: "type",
+          //               operator: "eq",
+          //               value: "warehouse",
+          //             },
+          //           ],
+          //         },
+          //       ],
+          //       orderBy: [
+          //         {
+          //           field: "orderNum",
+          //         },
+          //       ],
+          //       properties: ["id", "code", "name", "orderNum"],
+          //       pagination: {
+          //         limit: 20,
+          //         offset: 0,
+          //       },
+          //     },
+          //   },
+          //   filterFields: [
+          //     {
+          //       field: "type",
+          //       operator: "eq",
+          //       value: "warehouse",
+          //     },
+          //     {
+          //       field: "to",
+          //       operator: "exists",
+          //       filters: [
+          //         {
+          //           field: "id",
+          //           operator: "eq",
+          //           value: "",
+          //         },
+          //       ],
+          //     },
+          //   ],
+          // },
           {
             type: "auto",
             code: "businessType",
