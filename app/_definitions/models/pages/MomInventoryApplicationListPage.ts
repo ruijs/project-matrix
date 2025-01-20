@@ -390,6 +390,11 @@ const page: RapidPage = {
         items: [
           {
             type: "auto",
+            code: "code",
+            filterMode: "contains",
+          },
+          {
+            type: "auto",
             label: "物品",
             code: "material",
             formControlType: "rapidTableSelect",
