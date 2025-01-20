@@ -903,7 +903,8 @@ export default {
               type="dashed"
               onClick={() => {
                 const newRecord = pick(last(materialItems), ["material", "unit"]);
-                setMaterialItems([...materialItems, { ...newRecord }]);
+                const lastRemark = materialItems[materialItems?.length - 1]?.remark;
+                setMaterialItems([...materialItems, { ...newRecord, remark: lastRemark }]);
               }}
             >
               <PlusOutlined onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />
