@@ -39,10 +39,12 @@ export function startMqttServer(options: StartMqttServerOptions) {
   const parserRegistry = new ParserRegistry(logger);
 
   aedes.authenticate = async function (client, username, password, callback) {
+    logger.info("[MQTT] [AUTHENTICATE]", { clientId: client.id, username, password });
     try {
       if (!username) {
         const authError = new Error("Authenticate failed: Access token is required.") as AuthenticateError;
         authError.returnCode = 4; //AuthErrorCode.BAD_USERNAME_OR_PASSWORD;
+        logger.error(authError.message);
         callback(authError, false);
         return;
       }
@@ -51,6 +53,7 @@ export function startMqttServer(options: StartMqttServerOptions) {
       if (!authResult.success) {
         const authError = new Error("Authenticate failed: " + authResult.errorMessage) as AuthenticateError;
         authError.returnCode = 4; //AuthErrorCode.BAD_USERNAME_OR_PASSWORD;
+        logger.error(authError.message);
         callback(authError, false);
         return;
       }
@@ -59,6 +62,7 @@ export function startMqttServer(options: StartMqttServerOptions) {
       callback(null, true);
     } catch (ex: any) {
       const authError = new Error("Authenticate failed: " + ex.message) as AuthenticateError;
+      logger.error(authError.message);
       authError.returnCode = 3; // AuthErrorCode.SERVER_UNAVAILABLE
       callback(authError, false);
     }
