@@ -42,7 +42,9 @@ export default class MqttMessageHandler {
       const unmanagedThingCodes: string[] = [];
       let telemetryValuesOfThings: TelemetryValuesOfThings = {};
 
-      if (isInWhitelist) {
+      const disableGatewayOfThingBindings = true;
+
+      if (isInWhitelist || disableGatewayOfThingBindings) {
         telemetryValuesOfThings = payload;
       } else {
         const managedThings: IotThing[] = gateway.managedThings || [];
