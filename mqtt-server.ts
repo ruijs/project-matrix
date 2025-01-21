@@ -96,6 +96,7 @@ export function startMqttServer(options: StartMqttServerOptions) {
     }
 
     const mqttMessage = {
+      clientId: client?.id,
       topic: packet.topic,
       payload,
     };
