@@ -14,7 +14,6 @@ import {
   SaveMomInventoryOperationInput,
 } from "~/_definitions/meta/entity-types";
 import dayjs from "dayjs";
-import { updateInventoryBalance } from "~/_definitions/models/server-operations/mom/splitGoods";
 import EntityManager from "@ruiapp/rapid-core/dist/dataAccess/entityManager";
 
 interface MaterialAcceptCountMap {
@@ -234,7 +233,6 @@ export default [
               putInTime: dayjs().format("YYYY-MM-DD HH:mm:ss"),
             },
           });
-          await updateInventoryBalance(server, routeContext);
         }
 
         if (inventoryOperation?.businessType?.operationType === "out") {
@@ -483,8 +481,6 @@ export default [
               await goodManager.deleteById(good.id);
             }
           }
-
-          await updateInventoryBalance(server, routeContext);
         }
       } catch (e) {
         console.error(e);
@@ -534,8 +530,6 @@ export default [
             },
           });
         }
-
-        await updateInventoryBalance(server, routeContext);
       } catch (e) {
         console.error(e);
       }

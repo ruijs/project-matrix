@@ -62,7 +62,8 @@ export async function handleKisOperation(server: IRpdServer, routeContext: Route
   });
 
   if (!inventoryOperation) {
-    throw new Error(`Inventory operation with id ${input.operationId} not found.`);
+    console.log(`Inventory operation with id ${input.operationId} not found.`);
+    return;
   }
 
   const inventoryApplication = await inventoryApplicationManager.findEntity({

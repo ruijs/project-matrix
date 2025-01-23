@@ -22,7 +22,6 @@ import rapidApi from "~/rapidApi";
 import { getNowString } from "~/utils/time-utils";
 import dayjs from "dayjs";
 import { isPlainObject } from "lodash";
-import { updateInventoryBalance } from "~/_definitions/models/server-operations/mom/splitGoods";
 import { handleKisOperation } from "~/_definitions/models/server-operations/mom/handleKisOperation";
 
 export default [
@@ -314,8 +313,6 @@ export default [
           } catch (e) {
             console.log(e)
           }
-
-          updateInventoryBalance(server, routeContext);
         }
 
         if (changes) {
