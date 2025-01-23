@@ -2,7 +2,6 @@ import type { ActionHandlerContext, IRpdServer, RouteContext, ServerOperation } 
 import type { MomGood, SaveMomGoodInput } from "~/_definitions/meta/entity-types";
 import dayjs from "dayjs";
 import SequenceService, { GenerateSequenceNumbersInput } from "@ruiapp/rapid-core/src/plugins/sequence/SequenceService";
-import { updateInventoryBalance } from "~/_definitions/models/server-operations/mom/splitGoods";
 
 export type MergeGoodsInput = {
   goodIds: number[];
@@ -107,6 +106,4 @@ async function mergeGoods(server: IRpdServer, routeContext: RouteContext, input:
       });
     }),
   );
-
-  await updateInventoryBalance(server, routeContext);
 }

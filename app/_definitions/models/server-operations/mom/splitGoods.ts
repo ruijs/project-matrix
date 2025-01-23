@@ -105,8 +105,6 @@ async function splitGoods(server: IRpdServer, routeContext: RouteContext, input:
     id: originGood.id,
     entityToSave: { state: "splitted" } as SaveMomGoodInput,
   });
-
-  await updateInventoryBalance(server, routeContext);
 }
 
 export async function updateInventoryBalance(server: IRpdServer, routeContext: RouteContext) {

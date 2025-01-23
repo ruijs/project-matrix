@@ -1,7 +1,6 @@
 import type { EntityWatcher, EntityWatchHandlerContext } from "@ruiapp/rapid-core";
 import { BaseLot, MomGood, MomGoodTransfer } from "~/_definitions/meta/entity-types";
 import dayjs from "dayjs";
-import { updateInventoryBalance } from "~/_definitions/models/server-operations/mom/splitGoods";
 
 export default [
   {
@@ -91,8 +90,6 @@ export default [
             },
           });
         }
-
-        await updateInventoryBalance(server, routeContext);
       }
     },
   },
