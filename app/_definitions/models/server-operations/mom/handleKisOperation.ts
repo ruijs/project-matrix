@@ -25,8 +25,9 @@ export default {
 } satisfies ServerOperation;
 
 export async function handleKisOperation(server: IRpdServer, routeContext: RouteContext, input: CreateGoodTransferInput) {
+  const logger = server.getLogger();
   const inventoryOperationManager = server.getEntityManager<MomInventoryOperation>("mom_inventory_operation");
-  const inventoryApplicationManager = server.getEntityManager<MomInventoryApplication>("mom_inventory_application")
+  const inventoryApplicationManager = server.getEntityManager<MomInventoryApplication>("mom_inventory_application");
 
   const kisApi = await new KisHelper(server).NewAPIClient(server.getLogger());
   const kisOperationApi = new KisInventoryOperationAPI(kisApi);
@@ -62,7 +63,7 @@ export async function handleKisOperation(server: IRpdServer, routeContext: Route
   });
 
   if (!inventoryOperation) {
-    console.log(`Inventory operation with id ${input.operationId} not found.`);
+    logger.error(`Inventory operation with id ${input.operationId} was not found.`);
     return;
   }
 
