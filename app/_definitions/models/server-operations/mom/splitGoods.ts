@@ -107,7 +107,7 @@ async function splitGoods(server: IRpdServer, routeContext: RouteContext, input:
   });
 }
 
-export async function updateInventoryBalance(server: IRpdServer, routeContext: RouteContext) {
+export async function updateInventoryBalance(server: IRpdServer) {
   await server.queryDatabaseObject(
     `
       WITH material_balance AS (SELECT material_id,
@@ -153,7 +153,6 @@ export async function updateInventoryBalance(server: IRpdServer, routeContext: R
                           AND mbi.unit_id = mb.unit_id);
     `,
     [],
-    routeContext.getDbTransactionClient(),
   );
 
   await server.queryDatabaseObject(
@@ -208,7 +207,6 @@ export async function updateInventoryBalance(server: IRpdServer, routeContext: R
                           and mlb.unit_id = lb.unit_id);
     `,
     [],
-    routeContext.getDbTransactionClient(),
   );
 
   await server.queryDatabaseObject(
@@ -268,7 +266,6 @@ export async function updateInventoryBalance(server: IRpdServer, routeContext: R
                           AND mlwb.unit_id = lwb.unit_id);
     `,
     [],
-    routeContext.getDbTransactionClient(),
   );
 
   await server.queryDatabaseObject(
@@ -320,7 +317,6 @@ export async function updateInventoryBalance(server: IRpdServer, routeContext: R
                           AND mwib.unit_id = wb.unit_id);
     `,
     [],
-    routeContext.getDbTransactionClient(),
   );
 
   await server.queryDatabaseObject(
@@ -377,6 +373,5 @@ export async function updateInventoryBalance(server: IRpdServer, routeContext: R
                           AND mwlb.unit_id = lb.unit_id);
     `,
     [],
-    routeContext.getDbTransactionClient(),
   );
 }

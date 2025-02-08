@@ -6,12 +6,12 @@ import { updateInventoryBalance } from "../server-operations/mom/splitGoods";
 export default {
   code: "update-inventory-balance-job",
 
-  cronTime: "*/2 * * * *",
+  cronTime: "* * * * *",
 
   async handler(ctx: ActionHandlerContext) {
     const { server, logger } = ctx;
 
-    await updateInventoryBalance(server, ctx.routerContext);
+    await updateInventoryBalance(server);
 
     logger.info("Finished update inventory balance job...");
   },
