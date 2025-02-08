@@ -494,7 +494,7 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
                   Famount: transfer.quantity.toFixed(2),
                   FPlanMode: 14036,
                   Fnote: transfer.remark,
-                  FKFDate: dayjs(transfer.manufacture_date).format("YYYY-MM-DD HH:mm:ss.SSS"),
+                  FEntrySelfB0170: dayjs(transfer.manufacture_date).format("YYYY-MM-DDT00:00:00"),
                 };
 
                 if (locationCode !== "") {
