@@ -140,7 +140,7 @@ export default [
                 filters: [
                   { operator: "eq", field: "lotNum", value: lotNum },
                   { operator: "eq", field: "material_id", value: materialId },
-                  { operator: "eq", field: "application_id", value: inventoryOperation?.application?.id },
+                  { operator: "eq", field: "operation_id", value: inventoryOperation?.application?.id },
                 ],
                 properties: ["id"],
               });
@@ -456,7 +456,7 @@ export default [
                 filters: [
                   { operator: "eq", field: "lotNum", value: lotNum },
                   { operator: "eq", field: "material_id", value: materialId },
-                  { operator: "eq", field: "application_id", value: inventoryOperation?.application?.id },
+                  { operator: "eq", field: "operation_id", value: inventoryOperation?.application?.id },
                 ],
                 properties: ["id"],
               });
