@@ -4579,6 +4579,14 @@ export interface MomInventoryApplication {
    */
   inspectState?: MomInspectionSheetState;
   /**
+   * 部门
+   */
+  department?: Partial<OcDepartment>;
+  /**
+   * 供应商
+   */
+  supplier?: Partial<BasePartner>;
+  /**
    * 创建时间
    */
   createdAt?: string;

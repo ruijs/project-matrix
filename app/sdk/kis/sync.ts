@@ -16,6 +16,7 @@ import {
   SaveMomInventoryApplicationInput,
   SaveMomInventoryApplicationItemInput,
   SaveMomInventoryOperationInput,
+  SaveOcDepartmentInput,
   SaveOcUserInput,
 } from "~/_definitions/meta/entity-types";
 
@@ -288,6 +289,20 @@ class KisDataSync {
           } as SaveBaseLocationInput;
         },
       }),
+      // 同步部门
+      this.createListSyncFunction(routeContext, {
+      url: "/koas/APP006992/api/Department/List",
+      singularCode: "oc_department",
+      mapToEntity: async (item: any) => {
+        return {
+          code: item.FNumber,
+          name: item.FName,
+          state: "enabled",
+          orderNum: 1,
+          externalCode: item.FItemID,
+        } as SaveOcDepartmentInput;
+      },
+    }),
       // this.createListSyncFunction({
       //   url: "/koas/APP006992/api/StockPlaceGroup/List",
       //   singularCode: "base_location",

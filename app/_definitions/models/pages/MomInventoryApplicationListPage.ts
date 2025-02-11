@@ -85,10 +85,30 @@ const formConfig: Partial<RapidEntityFormConfig> = {
     },
     {
       type: "auto",
-      code: "fUseDepartment",
-      label: "领料部门",
+      code: "department",
       $exps: {
-        _hidden: "$self.form.getFieldValue('operationType') !== 'out' && $self.form.getFieldValue('businessType')?.name !== '生产退料入库'",
+        label: `(['其它原因出库', '其它原因出库退货入库', '领料出库', '生产退料入库'].includes($self.form.getFieldValue('businessType')?.name)) ? '领料部门' : 
+               (['其它原因入库', '采购入库', '采购退货出库'].includes($self.form.getFieldValue('businessType')?.name)) ? '部门' :
+               (['生产入库', '生产入库退货出库'].includes($self.form.getFieldValue('businessType')?.name)) ? '交货部门' : '部门'`,
+        _hidden: `!(['其它原因出库', '其它原因出库退货入库', '领料出库', '生产退料入库',
+                    '其它原因入库', '采购入库', '采购退货出库',
+                    '生产入库', '生产入库退货出库'].includes($self.form.getFieldValue('businessType')?.name))`
+      },
+    },
+    {
+      type: "auto",
+      code: "supplier",
+      label: "加工单位",
+      $exps: {
+        _hidden: `!(['委外加工出库', '委外加工出库退货入库', '委外加工入库'].includes($self.form.getFieldValue('businessType')?.name))`
+      },
+    },
+    {
+      type: "auto",
+      code: "fUse",
+      label: "加工要求",
+      $exps: {
+        _hidden: `!(['委外加工出库', '委外加工出库退货入库'].includes($self.form.getFieldValue('businessType')?.name))`
       },
     },
     {
