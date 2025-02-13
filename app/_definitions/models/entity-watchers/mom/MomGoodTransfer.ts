@@ -103,6 +103,12 @@ export default [
           properties: ["id", "application", "businessType", "operationType"],
         });
 
+        const momGoodTransfer = await server.getEntityManager<MomGoodTransfer>("mom_good_transfer").findEntity({
+          routeContext,
+          filters: [{ operator: "eq", field: "id", value: after.id }],
+          properties: ["id", "good", "from", "to"],
+        });
+
         let materialAcceptCountMap: MaterialAcceptCountMap = {};
         if (inventoryOperation?.operationType === "in") {
           const goodTransfers = await server.getEntityManager<MomGoodTransfer>("mom_good_transfer").findEntities({
@@ -230,12 +236,12 @@ export default [
           }
         }
 
-        if (inventoryOperation?.operationType === "organize" && after.good_id) {
+        if (inventoryOperation?.operationType === "organize" && momGoodTransfer?.good) {
           await server.getEntityManager<MomGood>("mom_good").updateEntityById({
             routeContext,
-            id: after.good_id,
+            id: momGoodTransfer.good.id,
             entityToSave: {
-              location: { id: after.to?.id || after.to_location_id },
+              location: { id: momGoodTransfer.to?.id || after.to_location_id },
               putInTime: dayjs().format("YYYY-MM-DD HH:mm:ss"),
             },
           });

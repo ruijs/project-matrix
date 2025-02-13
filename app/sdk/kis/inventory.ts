@@ -57,6 +57,7 @@ export interface WarehousePayload {
       FHeadSelfB0436?: string;
       FPOStyle?: string;
       FSupplyID?: string;
+      Fnote?: string;
       FHeadSelfA0143?: string; // 质检员
       FMarketingStyle?: string;
       FSaleStyle?: string;

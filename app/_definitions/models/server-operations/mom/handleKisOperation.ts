@@ -178,6 +178,8 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
             break;
         }
 
+        const departmentId = inventoryApplication?.department?.externalCode
+
         if (inventoryOperation?.businessType?.operationType === "in") {
           // TODO: 生成KIS入库单
           switch (inventoryOperation?.businessType?.name) {
@@ -252,7 +254,7 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
                 Object: {
                   Head: {
                     Fdate: getNowString(),
-                    FDeptID: "778",
+                    FDeptID: departmentId || "778",
                     // FDCStockID: warehouseId,
                     FFManagerID: inventoryApplication?.fFManager?.externalCode || inventoryApplication?.createdBy?.externalCode,
                     FSManagerID: inventoryApplication?.fSManager?.externalCode || inventoryApplication?.createdBy?.externalCode,
@@ -327,7 +329,7 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
                     Fdate: getNowString(),
                     // FSCStockID: warehouseId,
                     FPurposeID: 12000,
-                    FDeptID: "778",
+                    FDeptID: departmentId || "778",
                     FFManagerID: inventoryApplication?.fFManager?.externalCode || inventoryApplication?.createdBy?.externalCode,
                     FSManagerID: inventoryApplication?.fSManager?.externalCode || inventoryApplication?.createdBy?.externalCode,
                     FBillerID: inventoryApplication?.biller?.externalUserCode,
@@ -379,7 +381,7 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
                     FBillerID: inventoryApplication?.biller?.externalUserCode,
                     FEmpID: inventoryApplication?.applicant?.externalCode,
                     FTranType: 21,
-                    FDeptID: "781",
+                    FDeptID: departmentId || "781",
                     FROB: -1,
                     FHeadSelfB0164: inventoryApplication.express?.externalCode || "",
                     FHeadSelfB0163: inventoryApplication.contractNum || "无",
@@ -460,7 +462,7 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
                     FSManagerID: inventoryApplication?.fFManager?.externalCode || inventoryApplication?.createdBy?.externalCode,
                     FBillerID: inventoryApplication?.biller?.externalUserCode,
                     FTranType: 29,
-                    FDeptID: "783",
+                    FDeptID: departmentId || "783",
                     Fuse: inventoryApplication.fUse || "",
                     FROB: -1,
                   },
@@ -513,7 +515,7 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
                     FBillerID: inventoryApplication?.biller?.externalUserCode,
                     FEmpID: inventoryApplication?.applicant?.externalCode,
                     FTranType: 21,
-                    FDeptID: "781",
+                    FDeptID: departmentId || "781",
                     FROB: 1,
                     FHeadSelfB0164: inventoryApplication.express?.externalCode || "",
                     FHeadSelfB0163: inventoryApplication.contractNum || "无",
@@ -555,6 +557,8 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
                     FBillerID: inventoryApplication?.biller?.externalUserCode,
                     FTranType: 28,
                     FPurposeID: 14190,
+                    FSupplyID: inventoryApplication?.fSupplyID,
+                    Fnote: "inventoryApplication.remark", // TODO: 需要确认
                     FROB: 1,
                   },
                   Entry: entries,
@@ -590,7 +594,7 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
                     FSManagerID: inventoryApplication?.fSManager?.externalCode || inventoryApplication?.createdBy?.externalCode,
                     FBillerID: inventoryApplication?.biller?.externalUserCode,
                     FTranType: 1,
-                    FDeptID: "769",
+                    FDeptID: departmentId || "769",
                     FPOStyle: inventoryApplication?.fPOStyle,
                     FSupplyID: inventoryApplication?.fSupplyID,
                     FHeadSelfA0143: inspectionSheet?.inspector?.externalCode,
@@ -623,7 +627,7 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
                 Object: {
                   Head: {
                     Fdate: getNowString(),
-                    FDeptID: "778",
+                    FDeptID: departmentId || "778",
                     // FDCStockID: warehouseId,
                     FFManagerID: inventoryApplication?.fFManager?.externalCode || inventoryApplication?.createdBy?.externalCode,
                     FSManagerID: inventoryApplication?.fSManager?.externalCode || inventoryApplication?.createdBy?.externalCode,
@@ -669,7 +673,7 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
                     FSManagerID: inventoryApplication?.fFManager?.externalCode || inventoryApplication?.createdBy?.externalCode,
                     FBillerID: inventoryApplication?.biller?.externalUserCode,
                     FTranType: 29,
-                    FDeptID: "783",
+                    FDeptID: departmentId || "783",
                     Fuse: inventoryApplication.fUse || "",
                     FROB: 1,
                   },
@@ -703,7 +707,7 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
                     Fdate: getNowString(),
                     // FSCStockID: warehouseId,
                     FPurposeID: 12000,
-                    FDeptID: "778",
+                    FDeptID: departmentId || "778",
                     FFManagerID: inventoryApplication?.fFManager?.externalCode || inventoryApplication?.createdBy?.externalCode,
                     FSManagerID: inventoryApplication?.fSManager?.externalCode || inventoryApplication?.createdBy?.externalCode,
                     FBillerID: inventoryApplication?.biller?.externalUserCode,

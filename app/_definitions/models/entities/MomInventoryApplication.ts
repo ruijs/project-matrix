@@ -223,6 +223,20 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
       type: "option",
       dataDictionary: "MomInspectionSheetState",
     },
+    {
+      code: "department",
+      name: "部门",
+      type: "relation",
+      targetSingularCode: "oc_department",
+      targetIdColumnName: "department_id",
+    },
+    {
+      code: "supplier",
+      name: "供应商",
+      type: "relation",
+      targetSingularCode: "base_partner",
+      targetIdColumnName: "supplier_id",
+    },
   ],
 };
 

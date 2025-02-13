@@ -153,7 +153,7 @@ class KingdeeSDK {
       data: {
         session_id: this.sessionId,
         pid: "1702618180f5eadcf3ca2ba2528cfac9",
-        acctnumber: "UE124385172023121514032077S",
+        acctnumber: "UE124385172023121513521899S",
         icrmid: "2c9223b083cc0f130183e4c32be01544",
       },
     };
