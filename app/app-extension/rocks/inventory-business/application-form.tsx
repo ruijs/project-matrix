@@ -219,6 +219,28 @@ export default {
       },
     };
 
+    const renderLable = (label: string, name: string) => {
+      switch (label) {
+        case "销售出库":
+          return name === "fFManager" ? "发货" : "保管";
+        case "生产入库退货出库":
+          return name === "fFManager" ? "验收" : "保管";
+        default:
+          return name === "fFManager" ? "发料" : "领料";
+      }
+    };
+
+    const renderMessage = (label: string, name: string) => {
+      switch (label) {
+        case "销售出库":
+          return name === "fFManager" ? "发货人必填" : "保管人必填";
+        case "生产入库退货出库":
+          return name === "fFManager" ? "验收人必填" : "保管人必填";
+        default:
+          return name === "fFManager" ? "发料人必填" : "领料人必填";
+      }
+    };
+
     return (
       <div style={{ padding: "24px 0 0" }}>
         <Form
@@ -397,9 +419,9 @@ export default {
           {(operationType === "out" || businessType === "生产退料入库") && (
             <>
               <Form.Item
-                label={businessType === "销售出库" ? "发货" : "发料"}
+                label={renderLable(businessType || "", "fFManager")}
                 name="fFManager"
-                rules={[{ required: true, message: businessType === "销售出库" ? "发货人必填" : "发料人必填" }]}
+                rules={[{ required: true, message: renderMessage(businessType || "", "fFManager") }]}
               >
                 {renderRock({
                   context,
@@ -419,9 +441,9 @@ export default {
                 })}
               </Form.Item>
               <Form.Item
-                label={businessType === "销售出库" ? "保管" : "领料"}
+                label={renderLable(businessType || "", "fSManager")}
                 name="fSManager"
-                rules={[{ required: true, message: businessType === "销售出库" ? "保管人必填" : "领料人必填" }]}
+                rules={[{ required: true, message: renderMessage(businessType || "", "fSManager") }]}
               >
                 {renderRock({
                   context,
