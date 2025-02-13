@@ -295,7 +295,7 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
                     FSManagerID: inventoryApplication?.fSManager?.externalCode || inventoryApplication?.createdBy?.externalCode,
                     FBillerID: inventoryApplication?.biller?.externalUserCode,
                     FTranType: 1,
-                    FSupplyID: inventoryApplication?.fSupplyID,
+                    FSupplyID: inventoryApplication?.supplier?.externalCode || inventoryApplication?.fSupplyID,
                     FHeadSelfA0143: "3286",
                     FPurposeID: 14190,
                   },
@@ -557,8 +557,8 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
                     FBillerID: inventoryApplication?.biller?.externalUserCode,
                     FTranType: 28,
                     FPurposeID: 14190,
-                    FSupplyID: inventoryApplication?.fSupplyID,
-                    Fnote: "inventoryApplication.remark", // TODO: 需要确认
+                    FSupplyID: inventoryApplication?.supplier?.externalCode || inventoryApplication?.fSupplyID,
+                    Fnote: inventoryApplication?.fUse, // TODO: 需要确认
                     FROB: 1,
                   },
                   Entry: entries,
