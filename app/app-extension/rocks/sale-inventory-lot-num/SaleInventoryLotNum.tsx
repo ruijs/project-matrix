@@ -58,23 +58,23 @@ function useSaleOutInventory() {
           operator: "eq",
           value: materialId,
         },
-        {
-          field: "operation",
-          operator: "exists",
-          filters: [
-            {
-              field: "businessType",
-              operator: "exists",
-              filters: [
-                {
-                  field: "name",
-                  operator: "eq",
-                  value: "领料出库",
-                },
-              ],
-            },
-          ],
-        },
+        // {
+        //   field: "operation",
+        //   operator: "exists",
+        //   filters: [
+        //     {
+        //       field: "businessType",
+        //       operator: "exists",
+        //       filters: [
+        //         {
+        //           field: "name",
+        //           operator: "eq",
+        //           value: "领料出库",
+        //         },
+        //       ],
+        //     },
+        //   ],
+        // },
       ] as any;
       const params = {
         filters: businessTypeId === 18 ? filtersByBusinessType.concat(filters) : filters,
