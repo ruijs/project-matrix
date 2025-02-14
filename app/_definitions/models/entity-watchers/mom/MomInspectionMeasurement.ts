@@ -32,7 +32,7 @@ export default [
         return acc;
       }, {} as Record<string, MomInspectionMeasurement>);
 
-      if (Object.values(latestMeasurement).every((item) => item.qualitativeValue !== null || item.quantitativeValue !== null)) {
+      if (Object.values(latestMeasurement).every((item) => item.qualitativeValue !== null && item.quantitativeValue !== null)) {
         const momInspectionSheetManager = server.getEntityManager<MomInspectionSheet>("mom_inspection_sheet");
 
         let result = "qualified";
