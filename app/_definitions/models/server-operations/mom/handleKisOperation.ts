@@ -183,13 +183,12 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
         if (inventoryOperation?.businessType?.operationType === "in") {
           // TODO: 生成KIS入库单
           switch (inventoryOperation?.businessType?.name) {
-            // TODO: 停止回传采购入库单
             // case "采购入库":
-            // const allInspected = transfers.every((transfer) => transfer?.inspect_state);
-            // if (!allInspected) {
-            //   console.log("All items must be inspected before creating a purchase receipt.");
-            //   return;
-            // }
+            //   const allInspected = transfers.every((transfer) => transfer?.inspect_state);
+            //   if (!allInspected) {
+            //     console.log("All items must be inspected before creating a purchase receipt.");
+            //     return;
+            //   }
             //   for (const transfer of transfers) {
             //     if (transfer?.qualification_state && transfer.qualification_state === "qualified") {
             //       entries.push({
@@ -221,10 +220,11 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
             //           FSManagerID: inventoryApplication?.fSManager?.externalCode || inventoryApplication?.createdBy?.externalCode,
             //           FBillerID: inventoryApplication?.biller?.externalUserCode,
             //           FTranType: 1,
-            //           FDeptID: "769",
             //           FPOStyle: inventoryApplication.fPOStyle,
             //           FSupplyID: inventoryApplication.fSupplyID,
             //           FHeadSelfA0143: inspectionSheet?.inspector?.externalCode,
+            //           FDeptID: departmentId || "769",
+            //           FROB: 1,
             //         },
             //         Entry: entries,
             //       },
@@ -424,6 +424,7 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
                     FTranType: 1,
                     FSupplyID: inventoryApplication?.fSupplyID,
                     FHeadSelfA0143: "3286",
+                    FDeptID: departmentId || "783",
                   },
                   Entry: entries,
                 },
