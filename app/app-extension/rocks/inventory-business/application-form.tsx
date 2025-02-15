@@ -645,11 +645,11 @@ export default {
               })}
             </Form.Item>
           )}
-          {['生产退料入库', '委外加工出库', '委外加工出库退货入库'].includes(businessType || '') && (
+          {['领料出库', '生产退料入库', '委外加工出库', '委外加工出库退货入库'].includes(businessType || '') && (
             <Form.Item
               label={['委外加工出库', '委外加工出库退货入库'].includes(businessType || '') ? "加工要求" : "领料用途"}
               name="fUse"
-              required={!(businessType === "销售出库")}
+              required={true}
               rules={[{ required: true, message: ['委外加工出库', '委外加工出库退货入库'].includes(businessType || '') ? "加工要求必填" : "领料用途必填" }]}
             >
               {renderRock({
