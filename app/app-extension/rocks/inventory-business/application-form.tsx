@@ -204,10 +204,10 @@ export default {
                     return draft.map((item, index) =>
                       i === index
                         ? {
-                          ...item,
-                          binNum: records,
-                          quantity: binNumQuantity,
-                        }
+                            ...item,
+                            binNum: records,
+                            quantity: binNumQuantity,
+                          }
                         : item,
                     );
                   });
@@ -416,35 +416,47 @@ export default {
               </Form.Item>
             </>
           )}
-          {(['其它原因出库', '其它原因出库退货入库', '领料出库', '生产退料入库',
-            '其它原因入库', '采购入库', '采购退货出库',
-            '生产入库', '生产入库退货出库'].includes(businessType || '')) && (
-              <Form.Item
-                label={
-                  (['其它原因出库', '其它原因出库退货入库', '领料出库', '生产退料入库'].includes(businessType || '')) ? '领料部门' :
-                    (['其它原因入库', '采购入库', '采购退货出库'].includes(businessType || '')) ? '部门' :
-                      (['生产入库', '生产入库退货出库'].includes(businessType || '')) ? '交货部门' : '部门'
-                }
-                name="department"
-              >
-                {renderRock({
-                  context,
-                  rockConfig: {
-                    $type: "rapidTableSelect",
-                    $id: `${props.$id}_department`,
-                    placeholder: "请选择",
-                    listFilterFields: ["name"],
-                    searchPlaceholder: "名称搜索",
-                    columns: [{ title: "名称", code: "name" }],
-                    requestConfig: {
-                      url: "/app/oc_departments/operations/find",
-                      method: "post",
-                      params: { orderBy: [{ field: "name" }] },
-                    },
+          {[
+            "其它原因出库",
+            "其它原因出库退货入库",
+            "领料出库",
+            "生产退料入库",
+            "其它原因入库",
+            "采购入库",
+            "采购退货出库",
+            "生产入库",
+            "生产入库退货出库",
+          ].includes(businessType || "") && (
+            <Form.Item
+              label={
+                ["其它原因出库", "其它原因出库退货入库", "领料出库", "生产退料入库"].includes(businessType || "")
+                  ? "领料部门"
+                  : ["其它原因入库", "采购入库", "采购退货出库"].includes(businessType || "")
+                  ? "部门"
+                  : ["生产入库", "生产入库退货出库"].includes(businessType || "")
+                  ? "交货部门"
+                  : "部门"
+              }
+              name="department"
+            >
+              {renderRock({
+                context,
+                rockConfig: {
+                  $type: "rapidTableSelect",
+                  $id: `${props.$id}_department`,
+                  placeholder: "请选择",
+                  listFilterFields: ["name"],
+                  searchPlaceholder: "名称搜索",
+                  columns: [{ title: "名称", code: "name" }],
+                  requestConfig: {
+                    url: "/app/oc_departments/operations/find",
+                    method: "post",
+                    params: { orderBy: [{ field: "name" }] },
                   },
-                })}
-              </Form.Item>
-            )}
+                },
+              })}
+            </Form.Item>
+          )}
           {(operationType === "out" || businessType === "生产退料入库") && (
             <>
               <Form.Item
@@ -623,7 +635,7 @@ export default {
               },
             })}
           </Form.Item>
-          {(['委外加工出库', '委外加工出库退货入库', '委外加工入库'].includes(businessType || '')) && (
+          {["委外加工出库", "委外加工出库退货入库", "委外加工入库"].includes(businessType || "") && (
             <Form.Item label="加工单位" name="supplier">
               {renderRock({
                 context,
@@ -645,12 +657,12 @@ export default {
               })}
             </Form.Item>
           )}
-          {['领料出库', '生产退料入库', '委外加工出库', '委外加工出库退货入库'].includes(businessType || '') && (
+          {["领料出库", "生产退料入库", "委外加工出库", "委外加工出库退货入库"].includes(businessType || "") && (
             <Form.Item
-              label={['委外加工出库', '委外加工出库退货入库'].includes(businessType || '') ? "加工要求" : "领料用途"}
+              label={["委外加工出库", "委外加工出库退货入库"].includes(businessType || "") ? "加工要求" : "领料用途"}
               name="fUse"
               required={true}
-              rules={[{ required: true, message: ['委外加工出库', '委外加工出库退货入库'].includes(businessType || '') ? "加工要求必填" : "领料用途必填" }]}
+              rules={[{ required: true, message: ["委外加工出库", "委外加工出库退货入库"].includes(businessType || "") ? "加工要求必填" : "领料用途必填" }]}
             >
               {renderRock({
                 context,
@@ -841,12 +853,12 @@ export default {
                                   return draft.map((item, index) =>
                                     i === index
                                       ? {
-                                        ...item,
-                                        material: record?.material,
-                                        unit: record?.unit,
-                                        lotNum: undefined,
-                                        binNum: undefined,
-                                      }
+                                          ...item,
+                                          material: record?.material,
+                                          unit: record?.unit,
+                                          lotNum: undefined,
+                                          binNum: undefined,
+                                        }
                                       : item,
                                   );
                                 });
@@ -892,12 +904,12 @@ export default {
                                 return draft.map((item, index) =>
                                   i === index
                                     ? {
-                                      ...item,
-                                      material: record,
-                                      unit: record?.defaultUnit,
-                                      lotNum: undefined,
-                                      binNum: undefined,
-                                    }
+                                        ...item,
+                                        material: record,
+                                        unit: record?.defaultUnit,
+                                        lotNum: undefined,
+                                        binNum: undefined,
+                                      }
                                     : item,
                                 );
                               });
