@@ -420,26 +420,6 @@ const page: RapidPage = {
         },
         {
           type: "auto",
-          code: "fFManager",
-          rendererProps: {
-            format: "{{name}}",
-          },
-          $exps: {
-            label: "$self.form.getFieldValue('operationType') === 'out' ? '发料' : '验收'",
-          },
-        },
-        {
-          type: "auto",
-          code: "fSManager",
-          rendererProps: {
-            format: "{{name}}",
-          },
-          $exps: {
-            label: "$self.form.getFieldValue('operationType') === 'out' ? '领料' : '保管'",
-          },
-        },
-        {
-          type: "auto",
           code: "fUse",
           $exps: {
             _hidden: "$self.form.getFieldValue('operationType') !== 'out'",

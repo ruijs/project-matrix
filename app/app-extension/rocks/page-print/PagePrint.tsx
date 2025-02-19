@@ -89,8 +89,12 @@ export default {
           {["in", "out"].includes(get(detail, "operationType")) && (
             <>
               <Descriptions.Item label="申请人">{get(detail, "applicant.name")}</Descriptions.Item>
-              <Descriptions.Item label={get(detail, "operationType") === "in" ? "验收" : "发料"}>{get(detail, "fFManager.name")}</Descriptions.Item>
-              <Descriptions.Item label={get(detail, "operationType") === "in" ? "保管" : "领料"}>{get(detail, "fSManager.name")}</Descriptions.Item>
+              {get(detail, "businessType").name !== "入库调整单" && get(detail, "businessType").name !== "出库调整单" && (
+                <>
+                  <Descriptions.Item label={get(detail, "operationType") === "in" ? "验收" : "发料"}>{get(detail, "fFManager.name")}</Descriptions.Item>
+                  <Descriptions.Item label={get(detail, "operationType") === "in" ? "保管" : "领料"}>{get(detail, "fSManager.name")}</Descriptions.Item>
+                </>
+              )}
               {get(detail, "operationType") === "out" && get(detail, "businessType").name !== "生产入库退货出库" && (
                 <>
                   <Descriptions.Item label="领料用途">{get(detail, "fUse")}</Descriptions.Item>
