@@ -519,14 +519,14 @@ const page: RapidPage = {
           type: "auto",
           code: "fUse",
           $exps: {
-            _hidden: "$self.form.getFieldValue('operationType') !== 'out'",
+            _hidden: "$self.form.getFieldValue('operationType') !== 'out' || $self.form.getFieldValue('businessType').name === '生产入库退货出库'",
           },
         },
         {
           type: "auto",
           code: "fPlanSn",
           $exps: {
-            _hidden: "$self.form.getFieldValue('operationType') !== 'out'",
+            _hidden: "$self.form.getFieldValue('operationType') !== 'out' || $self.form.getFieldValue('businessType').name === '生产入库退货出库'",
           },
         },
         {

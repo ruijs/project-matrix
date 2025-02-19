@@ -91,7 +91,7 @@ export default {
               <Descriptions.Item label="申请人">{get(detail, "applicant.name")}</Descriptions.Item>
               <Descriptions.Item label={get(detail, "operationType") === "in" ? "验收" : "发料"}>{get(detail, "fFManager.name")}</Descriptions.Item>
               <Descriptions.Item label={get(detail, "operationType") === "in" ? "保管" : "领料"}>{get(detail, "fSManager.name")}</Descriptions.Item>
-              {get(detail, "operationType") === "out" && (
+              {get(detail, "operationType") === "out" && get(detail, "businessType").name !== "生产入库退货出库" && (
                 <>
                   <Descriptions.Item label="领料用途">{get(detail, "fUse")}</Descriptions.Item>
                   <Descriptions.Item label="生产计划单编号">{get(detail, "fPlanSn")}</Descriptions.Item>
