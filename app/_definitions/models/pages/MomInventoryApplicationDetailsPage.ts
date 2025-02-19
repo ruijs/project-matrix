@@ -607,7 +607,7 @@ const page: RapidPage = {
           },
         },
       },
-      properties: ["id", "material", "lotNum", "quantity", "unit", "quantity", "binNum", "lot", "good"],
+      properties: ["id", "material", "lotNum", "quantity", "unit", "quantity", "binNum", "lot", "good", "remark"],
       filters: [
         { operator: "and", filters: [{ field: "application", operator: "exists", filters: [{ field: "id", operator: "eq", value: "$rui.parseQuery().id" }] }] },
       ],

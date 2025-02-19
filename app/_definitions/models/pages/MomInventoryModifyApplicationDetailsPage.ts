@@ -1,5 +1,5 @@
 import { cloneDeep, merge, omit, property } from "lodash";
-import type { RapidPage, RapidEntityFormConfig } from "@ruiapp/rapid-extension";
+import type { RapidPage, RapidEntityFormConfig, RapidEntityFormRockConfig } from "@ruiapp/rapid-extension";
 import { materialFormatStrTemplate } from "~/utils/fmt";
 import type { RockEvent } from "@ruiapp/move-style";
 
@@ -385,8 +385,8 @@ const operationDataExp = `_.first(_.get($page.getScope('applicationItemList-scop
 const page: RapidPage = {
   code: "mom_inventory_modify_application_details",
   parentCode: "mom_inventory_modify_application_list",
-  name: "库存业务申请单详情",
-  title: "库存业务申请单详情",
+  name: "库存调整单详情",
+  title: "库存调整单详情",
   // permissionCheck: {any: []},
   view: [
     {
@@ -420,31 +420,6 @@ const page: RapidPage = {
         },
         {
           type: "auto",
-          code: "fUse",
-          $exps: {
-            _hidden: "$self.form.getFieldValue('operationType') !== 'out'",
-          },
-        },
-        {
-          type: "auto",
-          code: "fPlanSn",
-          $exps: {
-            _hidden: "$self.form.getFieldValue('operationType') !== 'out'",
-          },
-        },
-        {
-          type: "auto",
-          code: "customer",
-          rendererProps: {
-            format: "{{name}}",
-          },
-          $exps: {
-            _hidden:
-              "!($self.form.getFieldValue('businessType')?.config?.defaultSourceType === 'sales' && $self.form.getFieldValue('operationType') === 'out')",
-          },
-        },
-        {
-          type: "auto",
           label: "仓库",
           code: "warehouse",
           rendererType: "text",
@@ -455,20 +430,6 @@ const page: RapidPage = {
             "rendererProps.text": "$self.form.getFieldValue('to')?.name || $self.form.getFieldValue('from')?.name",
           },
         },
-        // {
-        //   type: "auto",
-        //   code: "to",
-        //   rendererProps: {
-        //     format: "{{name}}",
-        //   },
-        //   $exps: {
-        //     _hidden: "$self.form.getFieldValue('operationType') !== 'in'",
-        //   },
-        // },
-        // {
-        //   type: "auto",
-        //   code: "state",
-        // },
         {
           type: "auto",
           code: "createdAt",
@@ -477,7 +438,7 @@ const page: RapidPage = {
       $exps: {
         entityId: "$rui.parseQuery().id",
       },
-    },
+    } satisfies RapidEntityFormRockConfig,
     {
       $type: "pagePrint",
       slots: [],
@@ -491,7 +452,7 @@ const page: RapidPage = {
           },
         },
       },
-      properties: ["id", "material", "lotNum", "quantity", "unit", "quantity", "binNum", "lot", "good"],
+      properties: ["id", "material", "lotNum", "quantity", "unit", "quantity", "binNum", "lot", "good", "remark"],
       filters: [
         { operator: "and", filters: [{ field: "application", operator: "exists", filters: [{ field: "id", operator: "eq", value: "$rui.parseQuery().id" }] }] },
       ],
