@@ -1,5 +1,5 @@
 import type { EntityWatcher, EntityWatchHandlerContext } from "@ruiapp/rapid-core";
-import { MomInventoryApplication, MomInventoryOperation } from "~/_definitions/meta/entity-types";
+import { MomInventoryApplication, MomInventoryApplicationItem, MomInventoryOperation } from "~/_definitions/meta/entity-types";
 
 export default [
   {
@@ -7,10 +7,12 @@ export default [
     modelSingularCode: "mom_inventory_application",
     handler: async (ctx: EntityWatchHandlerContext<"entity.beforeCreate">) => {
       const { payload } = ctx;
+      let entity: MomInventoryApplication = payload.before;
 
-      let before = payload.before;
-      if (before.source === "manual") {
-        before.biller_id = ctx.routerContext?.state.userId;
+      validateInventoryApplication(entity);
+
+      if (entity.source === "manual") {
+        (entity as any).biller_id = ctx.routerContext?.state.userId;
       }
     },
   },
@@ -118,3 +120,18 @@ export default [
     },
   },
 ] satisfies EntityWatcher<any>[];
+
+function validateInventoryApplication(application: MomInventoryApplication) {
+  // 物品数量不能为0
+  const applicationItems: MomInventoryApplicationItem[] = application.items;
+  if (!applicationItems || !applicationItems.length) {
+    throw new Error("物品明细项不能为空。");
+  }
+
+  for (const applicationItem of applicationItems) {
+    const quantity = applicationItem.quantity || 0;
+    if (quantity <= 0) {
+      throw new Error("物品数量必须大于0。");
+    }
+  }
+}

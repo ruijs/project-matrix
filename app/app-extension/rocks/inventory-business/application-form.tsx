@@ -2,7 +2,7 @@
 import { useNavigate } from "@remix-run/react";
 import type { RockEvent, RockInstanceContext, type Rock } from "@ruiapp/move-style";
 import { useDebounceFn, useSetState } from "ahooks";
-import { Button, Form, Input, InputNumber, Select, Space, Table } from "antd";
+import { Button, Form, Input, InputNumber, message, Select, Space, Table } from "antd";
 import { memo, useEffect, useMemo, useState } from "react";
 import rapidApi, { rapidApiRequest } from "~/rapidApi";
 import { PlusOutlined } from "@ant-design/icons";
@@ -1088,6 +1088,8 @@ function useSaveApplication(onSuccess: (data: Record<string, any>) => void) {
       .then((res) => {
         if (res.status >= 200 && res.status < 400) {
           onSuccess(res.data);
+        } else {
+          message.error(res.data.error.message);
         }
       })
       .finally(() => {
