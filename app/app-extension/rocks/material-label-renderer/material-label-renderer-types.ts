@@ -6,4 +6,5 @@ export interface MaterialLabelRendererRockConfig extends SimpleRockConfig {
     name: string;
     specification?: string;
   };
+  hideCode?: boolean;
 }

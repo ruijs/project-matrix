@@ -5,20 +5,20 @@ import type { MaterialLabelRendererRockConfig } from "./material-label-renderer-
 export default {
   Renderer(context, props: MaterialLabelRendererRockConfig) {
     const { value } = props;
-    return renderMaterial(value);
+    return renderMaterial(value, props.hideCode);
   },
 
   ...MaterialLabelRendererMeta,
 } as Rock;
 
-export function renderMaterial(value: MaterialLabelRendererRockConfig["value"]) {
+export function renderMaterial(value: MaterialLabelRendererRockConfig["value"], hideCode?: boolean) {
   if (!value) {
     return "";
   }
 
   let label = value.name;
 
-  if (value.code) {
+  if (value.code && !hideCode) {
     label = `${value.code}-${label}`;
   }
   if (value.specification) {
