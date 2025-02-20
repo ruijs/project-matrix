@@ -422,6 +422,7 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
                     FSManagerID: inventoryApplication?.fSManager?.externalCode || inventoryApplication?.createdBy?.externalCode,
                     FBillerID: inventoryApplication?.biller?.externalUserCode,
                     FEmpID: inventoryApplication?.biller?.externalUserCode,
+                    FManagerID: inventoryApplication?.biller?.externalUserCode,
                     FTranType: 1,
                     FSupplyID: inventoryApplication?.fSupplyID,
                     FHeadSelfA0143: "3286",
