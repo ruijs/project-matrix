@@ -176,8 +176,8 @@ export default {
             listFilterFields: ["binNum"],
             searchPlaceholder: "托盘号搜索",
             columns: [
-              { title: "托盘号", code: "binNum", width: 100 },
-              { title: "在库数量", code: "quantity", width: 100 },
+              { title: "托盘号", code: "binNum" },
+              { title: "在库数量", code: "quantity", width: 80 },
               { title: "库位", code: "location.name", width: 100 },
             ],
             requestConfig: {

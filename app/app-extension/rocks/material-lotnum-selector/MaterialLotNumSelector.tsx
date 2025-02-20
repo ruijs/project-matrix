@@ -1,7 +1,7 @@
 import type { Rock, RockConfig } from "@ruiapp/move-style";
 import { FindEntityOptions } from "@ruiapp/rapid-extension";
 import { renderRock } from "@ruiapp/react-renderer";
-import dayjs from "dayjs";
+import { Tag } from "antd";
 import { find, get, isPlainObject } from "lodash";
 import rapidAppDefinition from "~/rapidAppDefinition";
 
@@ -152,7 +152,7 @@ export default {
         {
           title: "在库数量",
           code: "onHandQuantity",
-          width: 120,
+          width: 80,
         },
         {
           title: "入库时间",
@@ -163,23 +163,23 @@ export default {
         {
           title: "检验状态",
           code: "lot.qualificationState",
-          width: 120,
+          width: 100,
           render: (record: any) => {
             switch (record.lot?.qualificationState) {
               case "inspectFree":
-                return "免检";
+                return <Tag color="green">免检</Tag>;
               case "uninspected":
-                return "待检";
+                return <Tag color="orange">待检</Tag>;
               case "qualified":
-                return "合格";
+                return <Tag color="green">合格</Tag>;
               case "unqualified":
                 if (record.lot?.treatment === "special") {
-                  return "不合格（特采）";
+                  return <Tag color="green">不合格（特采）</Tag>;
                 } else if (record.lot?.treatment === "withdraw") {
-                  return "不合格（退货）";
+                  return <Tag color="red">不合格（退货）</Tag>;
                 }
 
-                return "不合格";
+                return <Tag color="red">不合格</Tag>;
             }
           },
         },
