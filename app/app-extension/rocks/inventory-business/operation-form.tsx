@@ -7,7 +7,7 @@ import { useState } from "react";
 import rapidApi from "~/rapidApi";
 
 export default {
-  $type: "inventoryApplicationForm",
+  $type: "inventoryOperationForm",
 
   slots: {},
 

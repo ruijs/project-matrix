@@ -1,5 +1,5 @@
 import { cloneDeep } from "lodash";
-import type { RapidPage, RapidEntityFormConfig } from "@ruiapp/rapid-extension";
+import type { RapidPage, RapidEntityFormConfig, SonicEntityListRockConfig } from "@ruiapp/rapid-extension";
 import { materialFormatStrTemplate } from "~/utils/fmt";
 
 const formConfig: Partial<RapidEntityFormConfig> = {
@@ -50,7 +50,7 @@ const formConfig: Partial<RapidEntityFormConfig> = {
 const page: RapidPage = {
   code: "mom_good_list",
   name: "标签列表",
-  title: "标签列表",
+  title: "标签管理",
   // permissionCheck: {any: ["inventoryTag.view","inventoryTag.manage"]},
   view: [
     {
@@ -427,10 +427,20 @@ const page: RapidPage = {
         {
           type: "auto",
           code: "material",
+          width: "100px",
+          fieldName: "material.code",
+          title: "料号",
+        },
+        {
+          type: "auto",
+          code: "material",
+          title: "名称及型号",
+          width: "200px",
           rendererType: "anchor",
           rendererProps: {
             children: {
               $type: "materialLabelRenderer",
+              hideCode: true,
               $exps: {
                 value: "$slot.value",
               },
@@ -444,28 +454,28 @@ const page: RapidPage = {
           type: "auto",
           title: "物料类型",
           code: "material.category",
-          width: "180px",
+          width: "100px",
         },
         {
           type: "auto",
           code: "lotNum",
-          width: "200px",
+          width: "180px",
         },
         {
           type: "auto",
           code: "binNum",
           title: "托盘号",
-          width: "200px",
+          width: "180px",
         },
         {
           type: "auto",
           code: "quantity",
-          width: "100px",
+          width: "80px",
         },
         {
           type: "auto",
           code: "unit",
-          width: "100px",
+          width: "50px",
           rendererProps: {
             format: "{{name}}",
           },
@@ -473,7 +483,7 @@ const page: RapidPage = {
         {
           type: "auto",
           code: "state",
-          width: "100px",
+          width: "80px",
         },
         {
           type: "auto",
@@ -601,7 +611,7 @@ const page: RapidPage = {
           },
         },
       ],
-    },
+    } satisfies SonicEntityListRockConfig,
   ],
 };
 

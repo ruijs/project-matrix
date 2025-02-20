@@ -1,7 +1,17 @@
 import type { EntityWatcher, EntityWatchHandlerContext } from "@ruiapp/rapid-core";
-import { MomInventoryApplication, MomInventoryApplicationItem, MomInventoryOperation } from "~/_definitions/meta/entity-types";
+import { MomInventoryApplication, MomInventoryApplicationItem } from "~/_definitions/meta/entity-types";
 
 export default [
+  {
+    eventName: "entity.beforeCreate",
+    modelSingularCode: "mom_inventory_application_item",
+    handler: async (ctx: EntityWatchHandlerContext<"entity.beforeCreate">) => {
+      const { payload } = ctx;
+      let entity: MomInventoryApplicationItem = payload.before;
+
+      validateInventoryApplicationItem(entity);
+    },
+  },
   {
     eventName: "entity.create",
     modelSingularCode: "mom_inventory_application_item",
@@ -29,7 +39,10 @@ export default [
 
         if (inventoryApplicationItem && inventoryApplicationItem?.application && inventoryApplicationItem?.application?.businessType) {
           if (inventoryApplicationItem?.application?.businessType?.name === "销售出库") {
-            if (inventoryApplicationItem?.remark && (!inventoryApplicationItem.application?.fDeliveryCode || inventoryApplicationItem.application?.fDeliveryCode === "")) {
+            if (
+              inventoryApplicationItem?.remark &&
+              (!inventoryApplicationItem.application?.fDeliveryCode || inventoryApplicationItem.application?.fDeliveryCode === "")
+            ) {
               await server.getEntityManager<MomInventoryApplication>("mom_inventory_application").updateEntityById({
                 routeContext,
                 id: inventoryApplicationItem.application?.id,
@@ -43,9 +56,19 @@ export default [
       } catch (e) {
         console.log(e);
       }
-
     },
   },
+
+  {
+    eventName: "entity.beforeUpdate",
+    modelSingularCode: "mom_inventory_application_item",
+    handler: async (ctx: EntityWatchHandlerContext<"entity.beforeUpdate">) => {
+      const { payload } = ctx;
+
+      validateInventoryApplicationItem(payload.changes);
+    },
+  },
+
   {
     eventName: "entity.update",
     modelSingularCode: "mom_inventory_application_item",
@@ -73,7 +96,10 @@ export default [
 
         if (inventoryApplicationItem && inventoryApplicationItem?.application && inventoryApplicationItem?.application?.businessType) {
           if (inventoryApplicationItem?.application?.businessType?.name === "销售出库") {
-            if (inventoryApplicationItem?.remark && (!inventoryApplicationItem.application?.fDeliveryCode || inventoryApplicationItem.application?.fDeliveryCode === "")) {
+            if (
+              inventoryApplicationItem?.remark &&
+              (!inventoryApplicationItem.application?.fDeliveryCode || inventoryApplicationItem.application?.fDeliveryCode === "")
+            ) {
               await server.getEntityManager<MomInventoryApplication>("mom_inventory_application").updateEntityById({
                 routeContext,
                 id: inventoryApplicationItem.application?.id,
@@ -90,3 +116,11 @@ export default [
     },
   },
 ] satisfies EntityWatcher<any>[];
+
+function validateInventoryApplicationItem(applicationItem: MomInventoryApplicationItem) {
+  // 物品数量不能为0
+  const quantity = applicationItem.quantity || 0;
+  if (quantity <= 0) {
+    throw new Error("物品数量必须大于0。");
+  }
+}

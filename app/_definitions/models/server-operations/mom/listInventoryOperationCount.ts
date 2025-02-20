@@ -90,7 +90,7 @@ async function listInventoryOperationCount(server: IRpdServer, routeContext: Rou
     from mom_inventory_applications mia
            inner join mom_inventory_business_types mibt on mia.business_id = mibt.id
     where 1 = 1
-      and mia.operation_type = 'out' and (mia.from_warehouse_id = $1 or mia.to_warehouse_id = $1)
+      and mia.operation_type = 'out' and (mia.from_warehouse_id = $1)
     group by mibt.operation_type, mibt.config ->> 'defaultSourceType'
     union all
     select mibt.operation_type,
