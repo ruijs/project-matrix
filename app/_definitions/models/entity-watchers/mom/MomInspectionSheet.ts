@@ -124,6 +124,7 @@ export default [
         }
       }
 
+      // 如果检验单关联了库存操作单以及库存业务申请单，则更新库存业务申请中对应批次物料的检验状态
       if (inspectionSheet?.inventoryOperation?.application && inspectionSheet?.lotNum && inspectionSheet?.result) {
         const momInventoryApplicationItemManager = server.getEntityManager<MomInventoryApplicationItem>("mom_inventory_application_item");
         const momInventoryApplicationItem = await momInventoryApplicationItemManager.findEntity({
@@ -149,6 +150,7 @@ export default [
           });
         }
 
+        // 当检验申请中所有批次的物料都检验完成，将检验单的检验状态设置成已完成。
         const momInventoryApplicationItems = await momInventoryApplicationItemManager.findEntities({
           routeContext,
           filters: [

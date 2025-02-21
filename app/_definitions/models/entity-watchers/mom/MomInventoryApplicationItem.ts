@@ -117,10 +117,12 @@ export default [
   },
 ] satisfies EntityWatcher<any>[];
 
-function validateInventoryApplicationItem(applicationItem: MomInventoryApplicationItem) {
-  // 物品数量不能为0
-  const quantity = applicationItem.quantity || 0;
-  if (quantity <= 0) {
-    throw new Error("物品数量必须大于0。");
+function validateInventoryApplicationItem(applicationItem: Partial<MomInventoryApplicationItem>) {
+  if (applicationItem.hasOwnProperty("quantity")) {
+    // 物品数量不能为0
+    const quantity = applicationItem.quantity || 0;
+    if (quantity <= 0) {
+      throw new Error("物品数量必须大于0。");
+    }
   }
 }
