@@ -8,6 +8,7 @@ import { parseRockExpressionFunc } from "@ruiapp/rapid-extension";
 import { decimalSum } from "~/utils/decimal";
 import rapidAppDefinition from "~/rapidAppDefinition";
 import dayjs from "dayjs";
+import { getManagerDisplayLabel } from "~/app-extension/utils/inventory-manager-utility";
 
 const PrintTemplate = lazy(() => import("./PrintOrderTemplate"));
 export default {
@@ -91,8 +92,12 @@ export default {
               <Descriptions.Item label="申请人">{get(detail, "applicant.name")}</Descriptions.Item>
               {get(detail, "businessType").name !== "入库调整单" && get(detail, "businessType").name !== "出库调整单" && (
                 <>
-                  <Descriptions.Item label={get(detail, "operationType") === "in" ? "验收" : "发料"}>{get(detail, "fFManager.name")}</Descriptions.Item>
-                  <Descriptions.Item label={get(detail, "operationType") === "in" ? "保管" : "领料"}>{get(detail, "fSManager.name")}</Descriptions.Item>
+                  <Descriptions.Item label={getManagerDisplayLabel(get(detail, "businessType.name"), "fFManager")}>
+                    {get(detail, "fFManager.name")}
+                  </Descriptions.Item>
+                  <Descriptions.Item label={getManagerDisplayLabel(get(detail, "businessType.name"), "fSManager")}>
+                    {get(detail, "fSManager.name")}
+                  </Descriptions.Item>
                 </>
               )}
               {get(detail, "operationType") === "out" && get(detail, "businessType").name !== "生产入库退货出库" && (

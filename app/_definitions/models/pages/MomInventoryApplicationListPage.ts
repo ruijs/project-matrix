@@ -69,7 +69,8 @@ const formConfig: Partial<RapidEntityFormConfig> = {
       code: "fFManager",
       required: true,
       $exps: {
-        label: "$self.form.getFieldValue('businessType')?.name !== '销售出库' ? '发料' : '发货'",
+        label:
+          "$self.form.getFieldValue('businessType')?.name === '销售出库' ? '发货' : ($self.form.getFieldValue('businessType')?.name === '生产入库退货出库' ? '验收' : '发料')",
         _hidden: "$self.form.getFieldValue('operationType') !== 'out' && $self.form.getFieldValue('businessType')?.name !== '生产退料入库'",
       },
     },
@@ -79,7 +80,8 @@ const formConfig: Partial<RapidEntityFormConfig> = {
       label: "领料",
       required: true,
       $exps: {
-        label: "$self.form.getFieldValue('businessType')?.name !== '销售出库' ? '领料' : '保管'",
+        label:
+          "$self.form.getFieldValue('businessType')?.name === '销售出库' ? '保管' : ($self.form.getFieldValue('businessType')?.name === '生产入库退货出库' ? '保管' : '领料')",
         _hidden: "$self.form.getFieldValue('operationType') !== 'out' && $self.form.getFieldValue('businessType')?.name !== '生产退料入库'",
       },
     },
