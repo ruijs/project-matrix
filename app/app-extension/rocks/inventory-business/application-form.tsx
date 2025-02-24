@@ -13,6 +13,7 @@ import { materialFormatStrTemplate } from "~/utils/fmt";
 import type { ColumnProps } from "antd/lib/table";
 import { decimalSum } from "~/utils/decimal";
 import SaleLotNumSelect from "./saleLotNumSelect";
+import { getManagerDisplayLabel } from "~/app-extension/utils/inventory-manager-utility";
 
 const LotSelect = memo<{
   isSalesOut: boolean;
@@ -219,19 +220,12 @@ export default {
       },
     };
 
-    const renderLable = (label: string, name: string) => {
-      switch (label) {
-        case "销售出库":
-          return name === "fFManager" ? "发货" : "保管";
-        case "生产入库退货出库":
-          return name === "fFManager" ? "验收" : "保管";
-        default:
-          return name === "fFManager" ? "发料" : "领料";
-      }
+    const renderLable = (businessTypeName: string, name: string) => {
+      return getManagerDisplayLabel(businessTypeName, name);
     };
 
-    const renderMessage = (label: string, name: string) => {
-      switch (label) {
+    const renderMessage = (businessTypeName: string, name: string) => {
+      switch (businessTypeName) {
         case "销售出库":
           return name === "fFManager" ? "发货人必填" : "保管人必填";
         case "生产入库退货出库":
