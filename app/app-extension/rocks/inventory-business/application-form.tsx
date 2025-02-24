@@ -13,7 +13,7 @@ import { materialFormatStrTemplate } from "~/utils/fmt";
 import type { ColumnProps } from "antd/lib/table";
 import { decimalSum } from "~/utils/decimal";
 import SaleLotNumSelect from "./saleLotNumSelect";
-import { getManagerDisplayLabel } from "~/app-extension/utils/inventory-manager-utility";
+import { renderInventoryManagerDisplayLabel } from "~/app-extension/utils/inventory-manager-utility";
 
 const LotSelect = memo<{
   isSalesOut: boolean;
@@ -221,7 +221,7 @@ export default {
     };
 
     const renderLable = (businessTypeName: string, name: string) => {
-      return getManagerDisplayLabel(businessTypeName, name);
+      return renderInventoryManagerDisplayLabel(businessTypeName, name);
     };
 
     const renderMessage = (businessTypeName: string, name: string) => {

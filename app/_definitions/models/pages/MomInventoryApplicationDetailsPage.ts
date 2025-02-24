@@ -434,7 +434,7 @@ const page: RapidPage = {
           $exps: {
             _hidden:
               "$self.form.getFieldValue('businessType').name === '销售出库'|| $self.form.getFieldValue('businessType').name === '生产退料入库'||$self.form.getFieldValue('businessType').name === '生产入库退货出库'",
-            label: "$self.form.getFieldValue('operationType') === 'out' ? '发料' : '验收'",
+            label: "$functions.renderInventoryManagerDisplayLabel($self.form.getFieldValue('businessType').name, 'fFManager')",
           },
         },
         {
@@ -446,7 +446,7 @@ const page: RapidPage = {
           $exps: {
             _hidden:
               "$self.form.getFieldValue('businessType').name === '销售出库'|| $self.form.getFieldValue('businessType').name === '生产退料入库'||$self.form.getFieldValue('businessType').name === '生产入库退货出库'",
-            label: "$self.form.getFieldValue('operationType') === 'out' ? '领料' : '保管'",
+            label: "$functions.renderInventoryManagerDisplayLabel($self.form.getFieldValue('businessType').name, 'fSManager')",
           },
         },
         {
