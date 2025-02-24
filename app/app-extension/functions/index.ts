@@ -1,3 +1,4 @@
-import IsAccessAllowed from "./isAccessAllowed";
+import isAccessAllowed from "./isAccessAllowed";
+import renderInventoryManagerDisplayLabel from "./renderInventoryManagerDisplayLabel";
 
-export default [IsAccessAllowed];
+export default [isAccessAllowed, renderInventoryManagerDisplayLabel];
