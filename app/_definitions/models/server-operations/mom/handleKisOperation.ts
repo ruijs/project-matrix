@@ -421,8 +421,6 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
                     FFManagerID: inventoryApplication?.fFManager?.externalCode || inventoryApplication?.createdBy?.externalCode,
                     FSManagerID: inventoryApplication?.fSManager?.externalCode || inventoryApplication?.createdBy?.externalCode,
                     FBillerID: inventoryApplication?.biller?.externalUserCode,
-                    FEmpID: inventoryApplication?.biller?.externalUserCode,
-                    FManagerID: inventoryApplication?.biller?.externalUserCode,
                     FTranType: 1,
                     FSupplyID: inventoryApplication?.fSupplyID,
                     FHeadSelfA0143: "3286",
@@ -561,7 +559,7 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
                     FTranType: 28,
                     FPurposeID: 14190,
                     FSupplyID: inventoryApplication?.supplier?.externalCode || inventoryApplication?.fSupplyID,
-                    Fnote: inventoryApplication?.fUse, // TODO: 需要确认
+                    // Fnote: inventoryApplication?.fUse, // TODO: 需要金蝶处理问题后启用
                     FROB: 1,
                   },
                   Entry: entries,
