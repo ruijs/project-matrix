@@ -520,6 +520,7 @@ const page: RapidPage = {
           code: "fUse",
           $exps: {
             _hidden: "$self.form.getFieldValue('operationType') !== 'out' || $self.form.getFieldValue('businessType').name === '生产入库退货出库'",
+            label: "$self.form.getFieldValue('businessType').name === '委外加工出库' ? '加工要求' : '领料用途'",
           },
         },
         {

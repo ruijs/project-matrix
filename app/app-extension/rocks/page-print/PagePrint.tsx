@@ -102,7 +102,9 @@ export default {
               )}
               {get(detail, "operationType") === "out" && get(detail, "businessType").name !== "生产入库退货出库" && (
                 <>
-                  <Descriptions.Item label="领料用途">{get(detail, "fUse")}</Descriptions.Item>
+                  <Descriptions.Item label={get(detail, "businessType.name") === "委外加工出库" ? "加工要求" : "领料用途"}>
+                    {get(detail, "fUse")}
+                  </Descriptions.Item>
                   <Descriptions.Item label="生产计划单编号">{get(detail, "fPlanSn")}</Descriptions.Item>
                 </>
               )}
