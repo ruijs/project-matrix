@@ -178,7 +178,7 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
             break;
         }
 
-        const departmentId = inventoryApplication?.department?.externalCode
+        const departmentId = inventoryApplication?.department?.externalCode;
 
         if (inventoryOperation?.businessType?.operationType === "in") {
           // TODO: 生成KIS入库单
@@ -559,7 +559,7 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
                     FTranType: 28,
                     FPurposeID: 14190,
                     FSupplyID: inventoryApplication?.supplier?.externalCode || inventoryApplication?.fSupplyID,
-                    // Fnote: inventoryApplication?.fUse, // TODO: 需要金蝶处理问题后启用
+                    Fnote: inventoryApplication?.fUse, // TODO: 需要金蝶处理问题后启用，并关注单据写入是否报错
                     FROB: 1,
                   },
                   Entry: entries,
