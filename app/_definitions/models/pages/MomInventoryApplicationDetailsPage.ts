@@ -539,7 +539,8 @@ const page: RapidPage = {
           type: "auto",
           code: "fUse",
           $exps: {
-            _hidden: "$self.form.getFieldValue('operationType') !== 'out' || $self.form.getFieldValue('businessType').name === '生产入库退货出库'",
+            _hidden:
+              "!(['委外加工出库', '委外加工出库退货入库','其它原因出库', '其它原因出库退货入库', '领料出库', '生产退料入库'].includes($self.form.getFieldValue('businessType')?.name))",
             label: "$self.form.getFieldValue('businessType').name === '委外加工出库' ? '加工要求' : '领料用途'",
           },
         },
