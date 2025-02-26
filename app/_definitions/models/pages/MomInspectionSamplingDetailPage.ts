@@ -55,7 +55,7 @@ const page: RapidPage = {
       items: [
         {
           key: "items",
-          label: "检验特征",
+          label: "抽样数量",
           children: [
             {
               $id: "momInspectionSamplingItemList",
