@@ -4166,6 +4166,10 @@ export interface MomInspectionSheet {
    */
   materialCode?: string;
   /**
+   * 产品阶段
+   */
+  productStage?: string;
+  /**
    * 批号
    */
   lotNum?: string;

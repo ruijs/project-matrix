@@ -1,7 +1,7 @@
 import type { TDictionaryCodes } from "../../meta/data-dictionary-codes";
 import type { TEntitySingularCodes } from "../../meta/model-codes";
 import type { RapidEntity } from "@ruiapp/rapid-extension";
-import type {PropertySequenceConfig} from "@ruiapp/rapid-core";
+import type { PropertySequenceConfig } from "@ruiapp/rapid-core";
 
 const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
   namespace: "mom",
@@ -20,7 +20,7 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
             segments: [
               {
                 type: "literal",
-                content: "IS-"
+                content: "IS-",
               },
               {
                 type: "year",
@@ -81,6 +81,11 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
     {
       code: "materialCode",
       name: "物料号",
+      type: "text",
+    },
+    {
+      code: "productStage",
+      name: "产品阶段",
       type: "text",
     },
     {
@@ -193,6 +198,11 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
     {
       code: "remark",
       name: "备注",
+      type: "text",
+    },
+    {
+      code: "abnormalDescription",
+      name: "异常描述",
       type: "text",
     },
     {

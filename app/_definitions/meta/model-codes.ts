@@ -1135,6 +1135,7 @@ const entityFieldCodes = {
     'treatment',
     'material',
     'materialCode',
+    'productStage',
     'lotNum',
     'serialNum',
     'sampleCount',
