@@ -37,6 +37,7 @@ import PrinterPlugin from "rapid-plugins/printerService/PrinterPlugin";
 import BpmPlugin from "rapid-plugins/bpm/BpmPlugin";
 import { DingTalkPlugin } from "@ruiapp/ding-talk-plugin";
 import { getRapidAppDefinitionFromRapidServer } from "~/utils/app-definition-utility";
+import { parseBoolean } from "~/utils/boolean-utils";
 
 const isDevelopmentEnv = process.env.NODE_ENV === "development";
 
@@ -111,6 +112,8 @@ export async function startServer() {
   };
   logger.info("Staring rapid with config: ", rapidConfig);
 
+  const disableCronJob = parseBoolean(env.get("DISABLE_CRON_JOB"));
+
   const databaseAccessor = new DatabaseAccessor(logger, {
     host: rapidConfig.dbHost,
     port: rapidConfig.dbPort,
@@ -157,6 +160,7 @@ export async function startServer() {
       }),
       new EntityAccessControlPlugin(),
       new StateMachinePlugin(),
+      ...(disableCronJob ? [] : [new CronJobPlugin()]),
       new SettingPlugin(),
       new LicensePlugin({ encryptionKey: env.get("RAPID_LICENSE_ENCRYPTION_KEY", "") }),
       new CronJobPlugin(),
