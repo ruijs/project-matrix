@@ -21,6 +21,25 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
       type: "text",
     },
     {
+      code: "description",
+      name: "描述",
+      type: "text",
+    },
+    {
+      code: "isCommon",
+      name: "是否通用",
+      type: "boolean",
+      required: true,
+      defaultValue: "false",
+    },
+    {
+      code: "commonChar",
+      name: "通用检验特征",
+      type: "relation",
+      targetSingularCode: "mom_inspection_common_characteristic",
+      targetIdColumnName: "common_char_id",
+    },
+    {
       code: "skippable",
       name: "可跳过检验",
       type: "boolean",

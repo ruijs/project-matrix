@@ -89,6 +89,7 @@ import bpm$BpmProcessListPage from '../models/pages/bpm/BpmProcessListPage';
 import inspection$MomInspectionCategoryListPage from '../models/pages/inspection/MomInspectionCategoryListPage';
 import inspection$MomInspectionCharacteristicCategoryListPage from '../models/pages/inspection/MomInspectionCharacteristicCategoryListPage';
 import inspection$MomInspectionCharacteristicListPage from '../models/pages/inspection/MomInspectionCharacteristicListPage';
+import inspection$MomInspectionCommonCharacteristicListPage from '../models/pages/inspection/MomInspectionCommonCharacteristicListPage';
 import inspection$MomInspectionCustomerRuleDetailPage from '../models/pages/inspection/MomInspectionCustomerRuleDetailPage';
 import inspection$MomInspectionCustomerRuleListPage from '../models/pages/inspection/MomInspectionCustomerRuleListPage';
 import inspection$MomInspectionDefectCategoryListPage from '../models/pages/inspection/MomInspectionDefectCategoryListPage';
@@ -213,6 +214,7 @@ export default [
   inspection$MomInspectionCategoryListPage,
   inspection$MomInspectionCharacteristicCategoryListPage,
   inspection$MomInspectionCharacteristicListPage,
+  inspection$MomInspectionCommonCharacteristicListPage,
   inspection$MomInspectionCustomerRuleDetailPage,
   inspection$MomInspectionCustomerRuleListPage,
   inspection$MomInspectionDefectCategoryListPage,

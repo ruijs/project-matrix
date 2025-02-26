@@ -3414,6 +3414,18 @@ export interface MomInspectionCharacteristic {
    */
   name?: string;
   /**
+   * 描述
+   */
+  description?: string;
+  /**
+   * 是否通用
+   */
+  isCommon: boolean;
+  /**
+   * 通用检验特征
+   */
+  commonChar?: Partial<MomInspectionCommonCharacteristic>;
+  /**
    * 可跳过检验
    */
   skippable?: boolean;
@@ -3554,6 +3566,65 @@ export interface MomInspectionCharacteristicCategory {
  * 检验特征类型
  */
 export type SaveMomInspectionCharacteristicCategoryInput = Omit<MomInspectionCharacteristicCategory, 'id' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>;
+
+/**
+ * 通用检验特征
+ */
+export interface MomInspectionCommonCharacteristic {
+  /**
+   * id
+   */
+  id: number;
+  /**
+   * 名称
+   */
+  name?: string;
+  /**
+   * 描述
+   */
+  description?: string;
+  /**
+   * 排序号
+   */
+  orderNum: number;
+  /**
+   * 特征类型
+   */
+  category?: Partial<MomInspectionCharacteristicCategory>;
+  /**
+   * 状态
+   */
+  state?: EnabledDisabledState;
+  /**
+   * 创建时间
+   */
+  createdAt?: string;
+  /**
+   * 创建人
+   */
+  createdBy?: Partial<OcUser>;
+  /**
+   * 更新时间
+   */
+  updatedAt?: string;
+  /**
+   * 更新人
+   */
+  updatedBy?: Partial<OcUser>;
+  /**
+   * 删除时间
+   */
+  deletedAt?: string;
+  /**
+   * 删除人
+   */
+  deletedBy?: Partial<OcUser>;
+}
+
+/**
+ * 通用检验特征
+ */
+export type SaveMomInspectionCommonCharacteristicInput = Omit<MomInspectionCommonCharacteristic, 'id' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>;
 
 /**
  * 缺陷
@@ -4237,6 +4308,10 @@ export interface MomInspectionSheet {
    * 备注
    */
   remark?: string;
+  /**
+   * 异常描述
+   */
+  abnormalDescription?: string;
   /**
    * 检验轮次
    */

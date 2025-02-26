@@ -50,6 +50,7 @@ import MomGoodTransfer from '../models/entities/MomGoodTransfer';
 import MomInspectionCategory from '../models/entities/MomInspectionCategory';
 import MomInspectionCharacteristic from '../models/entities/MomInspectionCharacteristic';
 import MomInspectionCharacteristicCategory from '../models/entities/MomInspectionCharacteristicCategory';
+import MomInspectionCommonCharacteristic from '../models/entities/MomInspectionCommonCharacteristic';
 import MomInspectionDefect from '../models/entities/MomInspectionDefect';
 import MomInspectionDefectCategory from '../models/entities/MomInspectionDefectCategory';
 import MomInspectionDefectStat from '../models/entities/MomInspectionDefectStat';
@@ -204,6 +205,7 @@ const entityDefinitions = [
   MomInspectionCategory,
   MomInspectionCharacteristic,
   MomInspectionCharacteristicCategory,
+  MomInspectionCommonCharacteristic,
   MomInspectionDefect,
   MomInspectionDefectCategory,
   MomInspectionDefectStat,
@@ -358,6 +360,7 @@ const configuredEntities:TRapidEntity[] = [
   autoConfigureRapidEntity(MomInspectionCategory, entityDefinitions),
   autoConfigureRapidEntity(MomInspectionCharacteristic, entityDefinitions),
   autoConfigureRapidEntity(MomInspectionCharacteristicCategory, entityDefinitions),
+  autoConfigureRapidEntity(MomInspectionCommonCharacteristic, entityDefinitions),
   autoConfigureRapidEntity(MomInspectionDefect, entityDefinitions),
   autoConfigureRapidEntity(MomInspectionDefectCategory, entityDefinitions),
   autoConfigureRapidEntity(MomInspectionDefectStat, entityDefinitions),
