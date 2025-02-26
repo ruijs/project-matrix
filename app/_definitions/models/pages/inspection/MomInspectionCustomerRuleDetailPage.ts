@@ -106,6 +106,10 @@ const formConfig: Partial<RapidEntityFormConfig> = {
         _hidden: "$self.form.getFieldValue('kind') !== 'quantitative' || $self.form.getFieldValue('determineType') !== 'inLimit'",
       },
     },
+    {
+      type: "textarea",
+      code: "requirements",
+    },
   ],
   defaultFormFields: {
     skippable: false,
@@ -353,6 +357,10 @@ const page: RapidPage = {
                 //   type: "auto",
                 //   code: "lowerLimit",
                 // },
+                {
+                  type: "auto",
+                  code: "requirements",
+                },
                 {
                   type: "auto",
                   code: "createdAt",

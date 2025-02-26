@@ -3430,6 +3430,10 @@ export interface MomInspectionCharacteristic {
    */
   method?: Partial<MomInspectionMethod>;
   /**
+   * 检验要求
+   */
+  requirements?: string;
+  /**
    * 检验仪器类型
    */
   instrumentCategory?: Partial<MomInspectionInstrumentCategory>;

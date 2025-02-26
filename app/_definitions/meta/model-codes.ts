@@ -960,6 +960,7 @@ const entityFieldCodes = {
     'mustPass',
     'category',
     'method',
+    'requirements',
     'instrumentCategory',
     'instrument',
     'kind',

@@ -46,6 +46,11 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
       targetIdColumnName: "method_id",
     },
     {
+      code: "requirements",
+      name: "检验要求",
+      type: "text",
+    },
+    {
       code: "instrumentCategory",
       name: "检验仪器类型",
       type: "relation",
