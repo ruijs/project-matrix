@@ -1,6 +1,7 @@
 import type { EntityWatcher, EntityWatchHandlerContext } from "@ruiapp/rapid-core";
 import { MomInspectionMeasurement, type MomInspectionSheet } from "~/_definitions/meta/entity-types";
 import { updateInspectionSheetInspectionResult } from "~/services/InspectionSheetService";
+import { calculateInspectionResult } from "~/utils/calculate"
 
 export default [
   {
@@ -44,7 +45,7 @@ export default [
         const momInspectionSheetManager = server.getEntityManager<MomInspectionSheet>("mom_inspection_sheet");
 
         let result = "qualified";
-        
+
         // 只检查必检项的合格情况
         const hasUnqualifiedMustPass = Object.values(latestMeasurement).some(
           (item) => item.characteristic?.mustPass && !item.isQualified
@@ -63,6 +64,52 @@ export default [
           },
         });
       }
+    },
+  },
+  {
+    eventName: "entity.beforeUpdate",
+    modelSingularCode: "mom_inspection_measurement",
+    handler: async (ctx: EntityWatchHandlerContext<"entity.beforeUpdate">) => {
+      const { server, routerContext: routeContext, payload } = ctx;
+      const { before, changes } = payload;
+
+      // 如果没有修改测量值，不需要重新判断
+      if (!changes.qualitativeValue && !changes.quantitativeValue) {
+        return;
+      }
+
+      const measurement = await server.getEntityManager<MomInspectionMeasurement>("mom_inspection_measurement").findEntity({
+        routeContext,
+        filters: [{ operator: "eq", field: "id", value: before.id }],
+        properties: ["id", "characteristic", "qualitativeValue", "quantitativeValue"],
+        relations: {
+          characteristic: {
+            properties: [
+              "kind",
+              "determineType",
+              "qualitativeDetermineType",
+              "norminal",
+              "upperLimit",
+              "lowerLimit",
+              "upperTol",
+              "lowerTol"
+            ]
+          }
+        }
+      });
+
+      if (!measurement?.characteristic) {
+        return;
+      }
+
+      // 使用 calculateInspectionResult 函数判定合格状态
+      const isQualified = calculateInspectionResult(
+        measurement.characteristic,
+        measurement.characteristic.kind === "qualitative" ? measurement.qualitativeValue : measurement.quantitativeValue
+      );
+
+      // 更新合格状态
+      changes.isQualified = isQualified;
     },
   },
   {
