@@ -20,28 +20,43 @@ export default [
 
       // Get the latest measurement for each characteristic.
       const latestMeasurement = momInspectionMeasurement.reduce((acc, item) => {
-        if (item.characteristic?.id && item.createdAt) {
-          const characteristicId = item.characteristic.id;
-
-          // @ts-ignore
-          if (!acc[characteristicId] || acc[characteristicId].createdAt < item.createdAt) {
+        const characteristicId = item.characteristic?.id;
+        if (characteristicId && item.createdAt) {
+          if (!acc[characteristicId] || (acc[characteristicId]?.createdAt || 0) < item.createdAt) {
             acc[characteristicId] = item;
           }
         }
-
         return acc;
       }, {} as Record<string, MomInspectionMeasurement>);
 
-      if (Object.values(latestMeasurement).every((item) => (item.qualitativeValue || item.quantitativeValue))) {
+      // 检查是否所有测量值都已完成
+      const allMeasurementsComplete = Object.values(latestMeasurement).every((item) => {
+        // 根据特性类型检查是否有值
+        const characteristic = item.characteristic as { measurementType?: string };
+        if (characteristic?.measurementType === 'qualitative') {
+          return item.qualitativeValue !== null && item.qualitativeValue !== undefined;
+        } else {
+          return item.quantitativeValue !== null && item.quantitativeValue !== undefined;
+        }
+      });
+
+      if (allMeasurementsComplete) {
         const momInspectionSheetManager = server.getEntityManager<MomInspectionSheet>("mom_inspection_sheet");
 
         let result = "qualified";
-        // If any of the latest measurements is unqualified, the sheet is unqualified.
-        if (
-          Object.values(latestMeasurement).some(
-            (item) => item.characteristic?.mustPass && item.characteristic.mustPass && item.isQualified !== undefined && !item.isQualified,
-          )
-        ) {
+        
+        // 检查所有测量值的合格情况
+        const hasUnqualifiedMustPass = Object.values(latestMeasurement).some(
+          (item) => item.characteristic?.mustPass && !item.isQualified
+        );
+
+        // 检查非必检项的不合格情况
+        const hasUnqualifiedNonMustPass = Object.values(latestMeasurement).some(
+          (item) => !item.characteristic?.mustPass && !item.isQualified
+        );
+
+        // 如果有必检项不合格或超过允许的非必检不合格数量，则整体不合格
+        if (hasUnqualifiedMustPass || hasUnqualifiedNonMustPass) {
           result = "unqualified";
         }
 
