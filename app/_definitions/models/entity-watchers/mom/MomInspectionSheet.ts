@@ -108,6 +108,65 @@ export default [
         },
       });
 
+      // 更新检验结果
+      const momInspectionMeasurementManager = server.getEntityManager<MomInspectionMeasurement>("mom_inspection_measurement");
+      const measurements = await momInspectionMeasurementManager.findEntities({
+        routeContext,
+        filters: [{ operator: "eq", field: "sheet_id", value: after.id }],
+        properties: ["id", "characteristic", "isQualified", "createdAt", "qualitativeValue", "quantitativeValue"],
+      });
+
+      // 获取每个特性的最新测量值
+      const latestMeasurement = measurements.reduce((acc, item) => {
+        const characteristicId = item.characteristic?.id;
+        if (characteristicId && item.createdAt) {
+          if (!acc[characteristicId] || (acc[characteristicId]?.createdAt || 0) < item.createdAt) {
+            acc[characteristicId] = item;
+          }
+        }
+        return acc;
+      }, {} as Record<string, MomInspectionMeasurement>);
+
+      // 检查是否所有测量值都已完成
+      const allMeasurementsComplete = Object.values(latestMeasurement).every((item) => {
+        const characteristic = item.characteristic as { measurementType?: string };
+        if (characteristic?.measurementType === 'qualitative') {
+          return item.qualitativeValue !== null && item.qualitativeValue !== undefined;
+        } else {
+          return item.quantitativeValue !== null && item.quantitativeValue !== undefined;
+        }
+      });
+
+      if (allMeasurementsComplete) {
+        let result = "qualified";
+        
+        // 检查所有测量值的合格情况
+        const hasUnqualifiedMustPass = Object.values(latestMeasurement).some(
+          (item) => item.characteristic?.mustPass && !item.isQualified
+        );
+
+        // 检查非必检项的不合格情况
+        const hasUnqualifiedNonMustPass = Object.values(latestMeasurement).some(
+          (item) => !item.characteristic?.mustPass && !item.isQualified
+        );
+
+        // 如果有必检项不合格或超过允许的非必检不合格数量，则整体不合格
+        if (hasUnqualifiedMustPass || hasUnqualifiedNonMustPass) {
+          result = "unqualified";
+        }
+
+        // 只有当结果发生变化时才更新
+        if (inspectionSheet?.result !== result) {
+          await server.getEntityManager<MomInspectionSheet>("mom_inspection_sheet").updateEntityById({
+            routeContext,
+            id: after.id,
+            entityToSave: {
+              result: result,
+            },
+          });
+        }
+      }
+
       if (changes) {
         if (ctx?.routerContext?.state.userId) {
           await server.getEntityManager("sys_audit_log").createEntity({
