@@ -45,18 +45,13 @@ export default [
 
         let result = "qualified";
         
-        // 检查所有测量值的合格情况
+        // 只检查必检项的合格情况
         const hasUnqualifiedMustPass = Object.values(latestMeasurement).some(
           (item) => item.characteristic?.mustPass && !item.isQualified
         );
 
-        // 检查非必检项的不合格情况
-        const hasUnqualifiedNonMustPass = Object.values(latestMeasurement).some(
-          (item) => !item.characteristic?.mustPass && !item.isQualified
-        );
-
-        // 如果有必检项不合格或超过允许的非必检不合格数量，则整体不合格
-        if (hasUnqualifiedMustPass || hasUnqualifiedNonMustPass) {
+        // 如果有必检项不合格，则整体不合格
+        if (hasUnqualifiedMustPass) {
           result = "unqualified";
         }
 
