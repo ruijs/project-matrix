@@ -1,9 +1,20 @@
 import { cloneDeep, omit } from "lodash";
-import type { RapidPage, RapidEntityFormConfig } from "@ruiapp/rapid-extension";
+import type { RapidPage, RapidEntityFormConfig, RapidEntityFormRockConfig } from "@ruiapp/rapid-extension";
 import { materialFormatStrTemplate } from "~/utils/fmt";
 
 const formConfig: Partial<RapidEntityFormConfig> = {
   items: [
+    {
+      type: "auto",
+      code: "isCommon",
+    },
+    {
+      type: "auto",
+      code: "commonChar",
+      $exps: {
+        _hidden: "!$self.form.getFieldValue('isCommon')",
+      },
+    },
     {
       type: "auto",
       code: "name",
@@ -112,6 +123,7 @@ const formConfig: Partial<RapidEntityFormConfig> = {
     },
   ],
   defaultFormFields: {
+    isCommon: false,
     skippable: false,
     mustPass: true,
   },
@@ -178,44 +190,21 @@ const page: RapidPage = {
         {
           type: "auto",
           code: "category",
-          rendererProps: {
-            format: "{{name}}",
-          },
         },
         {
           type: "auto",
           code: "material",
-          rendererProps: {
-            format: materialFormatStrTemplate,
-          },
-          formControlProps: {
-            dropdownMatchSelectWidth: 500,
-            listTextFormat: materialFormatStrTemplate,
-            listFilterFields: ["name", "code", "specification"],
-            columns: [
-              { code: "code", title: "编号", width: 120 },
-              { code: "name", title: "名称", width: 120 },
-              { code: "specification", title: "规格", width: 120 },
-            ],
-          },
+          rendererType: "materialLabelRenderer",
         },
-        // {
-        //   type: "auto",
-        //   code: "routeProcess",
-        //   rendererProps: {
-        //     format: "{{aliasName}}",
-        //   },
-        // },
         {
           type: "auto",
           code: "createdAt",
-          width: "150px",
         },
       ],
       $exps: {
         entityId: "$rui.parseQuery().id",
       },
-    },
+    } satisfies RapidEntityFormRockConfig,
     {
       $type: "antdTabs",
       items: [

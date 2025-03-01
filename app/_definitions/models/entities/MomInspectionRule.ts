@@ -1,6 +1,6 @@
-import type {TDictionaryCodes} from "../../meta/data-dictionary-codes";
-import type {TEntitySingularCodes} from "../../meta/model-codes";
-import type {RapidEntity} from "@ruiapp/rapid-extension";
+import type { TDictionaryCodes } from "../../meta/data-dictionary-codes";
+import type { TEntitySingularCodes } from "../../meta/model-codes";
+import type { RapidEntity } from "@ruiapp/rapid-extension";
 
 const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
   namespace: "mom",
@@ -43,6 +43,13 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
       type: "relation",
       targetSingularCode: "mom_route_process",
       targetIdColumnName: "route_process_id",
+    },
+    {
+      code: "characteristics",
+      name: "检验特征",
+      type: "relation[]",
+      targetSingularCode: "mom_inspection_characteristic",
+      selfIdColumnName: "rule_id",
     },
     {
       code: "config",

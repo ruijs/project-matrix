@@ -3578,7 +3578,7 @@ export interface MomInspectionCommonCharacteristic {
   /**
    * 名称
    */
-  name?: string;
+  name: string;
   /**
    * 描述
    */
@@ -3591,6 +3591,10 @@ export interface MomInspectionCommonCharacteristic {
    * 特征类型
    */
   category?: Partial<MomInspectionCharacteristicCategory>;
+  /**
+   * 配置
+   */
+  config?: Record<string, any>;
   /**
    * 状态
    */
@@ -3922,9 +3926,17 @@ export interface MomInspectionMeasurement {
    */
   instrument?: Partial<MomInspectionInstrument>;
   /**
+   * 检验仪器
+   */
+  instrumentCode?: string;
+  /**
    * 检验员
    */
   inspector?: Partial<OcUser>;
+  /**
+   * 检验员
+   */
+  inspectorName?: string;
   /**
    * 检验时间
    */
@@ -4059,6 +4071,10 @@ export interface MomInspectionRule {
    * 生产工序
    */
   routeProcess?: Partial<MomRouteProcess>;
+  /**
+   * 检验特征
+   */
+  characteristics?: any;
   /**
    * 配置
    */
@@ -4237,6 +4253,10 @@ export interface MomInspectionSheet {
    */
   materialCode?: string;
   /**
+   * 牌号
+   */
+  materialAbbr?: string;
+  /**
    * 产品阶段
    */
   productStage?: string;
@@ -4248,6 +4268,18 @@ export interface MomInspectionSheet {
    * 序列号
    */
   serialNum?: string;
+  /**
+   * 生产完成时间
+   */
+  productionTime?: string;
+  /**
+   * 取样时间
+   */
+  samplingTime?: string;
+  /**
+   * 送样时间
+   */
+  sampleDeliveryTime?: string;
   /**
    * 样本数量
    */

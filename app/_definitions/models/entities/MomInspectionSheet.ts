@@ -84,6 +84,11 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
       type: "text",
     },
     {
+      code: "materialAbbr",
+      name: "牌号",
+      type: "text",
+    },
+    {
       code: "productStage",
       name: "产品阶段",
       type: "text",
@@ -97,6 +102,21 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
       code: "serialNum",
       name: "序列号",
       type: "text",
+    },
+    {
+      code: "productionTime",
+      name: "生产完成时间",
+      type: "datetime",
+    },
+    {
+      code: "samplingTime",
+      name: "取样时间",
+      type: "datetime",
+    },
+    {
+      code: "sampleDeliveryTime",
+      name: "送样时间",
+      type: "datetime",
     },
     {
       code: "sampleCount",

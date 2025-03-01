@@ -13,6 +13,7 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
       code: "name",
       name: "名称",
       type: "text",
+      required: true,
     },
     {
       code: "description",
@@ -32,6 +33,11 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
       type: "relation",
       targetSingularCode: "mom_inspection_characteristic_category",
       targetIdColumnName: "category_id",
+    },
+    {
+      code: "config",
+      name: "配置",
+      type: "json",
     },
     {
       code: "state",

@@ -1,4 +1,5 @@
 import type { ServerOperation as TServerOperation } from '@ruiapp/rapid-core';
+import inspection$uploadProductInspectionSheetImportFile from '../models/server-operations/inspection/uploadProductInspectionSheetImportFile';
 import kis$getKisAccountAppList from '../models/server-operations/kis/getKisAccountAppList';
 import kis$getKisServiceGateway from '../models/server-operations/kis/getKisServiceGateway';
 import kis$getKisUserLoginStatus from '../models/server-operations/kis/getKisUserLoginStatus';
@@ -33,6 +34,7 @@ import notification$readAllNotifications from '../models/server-operations/notif
 import sys$listMyAllowedSysActions from '../models/server-operations/sys/listMyAllowedSysActions';
 
 export default [
+  inspection$uploadProductInspectionSheetImportFile,
   kis$getKisAccountAppList,
   kis$getKisServiceGateway,
   kis$getKisUserLoginStatus,

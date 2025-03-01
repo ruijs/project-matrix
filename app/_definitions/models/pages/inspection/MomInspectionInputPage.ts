@@ -5,7 +5,7 @@ const page: RapidPage = {
   code: "mom_inspection_input",
   name: "检验录入",
   title: "检验录入",
-  // permissionCheck: {any: []},
+  permissionCheck: { any: ["inspectionRecord.manage"] },
   view: [
     {
       $type: "inspectionInputSection",

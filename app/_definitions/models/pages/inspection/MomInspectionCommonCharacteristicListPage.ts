@@ -19,6 +19,10 @@ const formConfig: Partial<RapidEntityFormConfig> = {
       type: "auto",
       code: "category",
     },
+    {
+      type: "auto",
+      code: "config",
+    },
   ],
   defaultFormFields: {
     orderNum: 0,
