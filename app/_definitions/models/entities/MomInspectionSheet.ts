@@ -1,7 +1,7 @@
 import type { TDictionaryCodes } from "../../meta/data-dictionary-codes";
 import type { TEntitySingularCodes } from "../../meta/model-codes";
 import type { RapidEntity } from "@ruiapp/rapid-extension";
-import type {PropertySequenceConfig} from "@ruiapp/rapid-core";
+import type { PropertySequenceConfig } from "@ruiapp/rapid-core";
 
 const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
   namespace: "mom",
@@ -20,7 +20,7 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
             segments: [
               {
                 type: "literal",
-                content: "IS-"
+                content: "IS-",
               },
               {
                 type: "year",
@@ -84,6 +84,16 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
       type: "text",
     },
     {
+      code: "materialAbbr",
+      name: "牌号",
+      type: "text",
+    },
+    {
+      code: "productStage",
+      name: "产品阶段",
+      type: "text",
+    },
+    {
       code: "lotNum",
       name: "批号",
       type: "text",
@@ -92,6 +102,21 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
       code: "serialNum",
       name: "序列号",
       type: "text",
+    },
+    {
+      code: "productionTime",
+      name: "生产完成时间",
+      type: "datetime",
+    },
+    {
+      code: "samplingTime",
+      name: "取样时间",
+      type: "datetime",
+    },
+    {
+      code: "sampleDeliveryTime",
+      name: "送样时间",
+      type: "datetime",
     },
     {
       code: "sampleCount",
@@ -189,10 +214,16 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
       type: "relation[]",
       targetSingularCode: "mom_inspection_sheet_sample",
       selfIdColumnName: "sheet_id",
+      entityDeletingReaction: "cascadingDelete",
     },
     {
       code: "remark",
       name: "备注",
+      type: "text",
+    },
+    {
+      code: "abnormalDescription",
+      name: "异常描述",
       type: "text",
     },
     {

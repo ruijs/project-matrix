@@ -46,6 +46,7 @@ import CustomTextRenderer from "./custom-text-renderer/CustomTextRenderer";
 import filterMaterialLotNumSelector from "./filter-material-lotnum-selector/FilterMaterialLotNumSelector";
 import ExtraCount from "./extra-count/ExtraCount";
 import SaleInventoryLotNum from "./sale-inventory-lot-num/SaleInventoryLotNum";
+import ProductInspectionSheetImport from "./product-inspection-sheet-import/ProductInspectionSheetImport";
 
 export default [
   Link,
@@ -87,6 +88,7 @@ export default [
   InspectionFinishedStockList,
   InspectionBadAction,
   InspectionPrintAction,
+  ProductInspectionSheetImport,
 
   // render
   BlockRerenderRock,

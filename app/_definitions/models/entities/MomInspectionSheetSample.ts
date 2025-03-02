@@ -6,7 +6,7 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
   namespace: "mom",
   code: "MomInspectionSheetSample",
   name: "检验样本",
-  description: "理化检验 / 感官检验",
+  description: "检验样本",
   fields: [
     {
       code: "code",
@@ -27,6 +27,7 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
       type: "relation[]",
       targetSingularCode: "mom_inspection_measurement",
       selfIdColumnName: "sample_id",
+      entityDeletingReaction: "cascadingDelete",
     },
     {
       code: "round",

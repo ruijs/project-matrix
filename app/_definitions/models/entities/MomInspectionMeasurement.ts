@@ -49,11 +49,21 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
       targetIdColumnName: "instrument_id",
     },
     {
+      code: "instrumentCode",
+      name: "检验仪器",
+      type: "text",
+    },
+    {
       code: "inspector",
       name: "检验员",
       type: "relation",
       targetSingularCode: "oc_user",
       targetIdColumnName: "inspector_id",
+    },
+    {
+      code: "inspectorName",
+      name: "检验员",
+      type: "text",
     },
     {
       code: "inspectedAt",

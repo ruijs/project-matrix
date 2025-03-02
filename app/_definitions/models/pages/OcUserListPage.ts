@@ -130,7 +130,6 @@ const page: RapidPage = {
         {
           type: "auto",
           code: "department",
-          fieldName: "department.name",
           width: "150px",
         },
         {

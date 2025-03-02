@@ -63,6 +63,10 @@ const formConfig: Partial<RapidEntityFormConfig> = {
       type: "auto",
       code: "lowerLimit",
     },
+    {
+      type: "textarea",
+      code: "requirements",
+    },
   ],
 };
 
@@ -106,10 +110,12 @@ const page: RapidPage = {
         {
           type: "auto",
           code: "name",
+          width: "150px",
         },
         {
           type: "auto",
           code: "rule",
+          width: "200px",
           rendererProps: {
             format: "{{name}}",
           },
@@ -117,10 +123,12 @@ const page: RapidPage = {
         {
           type: "auto",
           code: "skippable",
+          width: "80px",
         },
         {
           type: "auto",
           code: "category",
+          width: "80px",
           rendererProps: {
             format: "{{name}}",
           },
@@ -135,6 +143,7 @@ const page: RapidPage = {
         {
           type: "auto",
           code: "instrumentCategory",
+          width: "100px",
           rendererProps: {
             format: "{{name}}",
           },
@@ -177,6 +186,10 @@ const page: RapidPage = {
         {
           type: "auto",
           code: "lowerLimit",
+        },
+        {
+          type: "auto",
+          code: "requirements",
         },
         {
           type: "auto",

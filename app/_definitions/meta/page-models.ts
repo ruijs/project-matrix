@@ -89,6 +89,7 @@ import bpm$BpmProcessListPage from '../models/pages/bpm/BpmProcessListPage';
 import inspection$MomInspectionCategoryListPage from '../models/pages/inspection/MomInspectionCategoryListPage';
 import inspection$MomInspectionCharacteristicCategoryListPage from '../models/pages/inspection/MomInspectionCharacteristicCategoryListPage';
 import inspection$MomInspectionCharacteristicListPage from '../models/pages/inspection/MomInspectionCharacteristicListPage';
+import inspection$MomInspectionCommonCharacteristicListPage from '../models/pages/inspection/MomInspectionCommonCharacteristicListPage';
 import inspection$MomInspectionCustomerRuleDetailPage from '../models/pages/inspection/MomInspectionCustomerRuleDetailPage';
 import inspection$MomInspectionCustomerRuleListPage from '../models/pages/inspection/MomInspectionCustomerRuleListPage';
 import inspection$MomInspectionDefectCategoryListPage from '../models/pages/inspection/MomInspectionDefectCategoryListPage';
@@ -103,6 +104,7 @@ import inspection$MomInspectionRuleDetailPage from '../models/pages/inspection/M
 import inspection$MomInspectionRuleListPage from '../models/pages/inspection/MomInspectionRuleListPage';
 import inspection$MomInspectionSheetDetailsPage from '../models/pages/inspection/MomInspectionSheetDetailsPage';
 import inspection$MomInspectionSheetListPage from '../models/pages/inspection/MomInspectionSheetListPage';
+import inspection$ProductInspectionSheetImportPage from '../models/pages/inspection/ProductInspectionSheetImportPage';
 import pm$PmProjectCategoryListPage from '../models/pages/pm/PmProjectCategoryListPage';
 import pm$PmProjectDetailsPage from '../models/pages/pm/PmProjectDetailsPage';
 import pm$PmProjectEventListPage from '../models/pages/pm/PmProjectEventListPage';
@@ -213,6 +215,7 @@ export default [
   inspection$MomInspectionCategoryListPage,
   inspection$MomInspectionCharacteristicCategoryListPage,
   inspection$MomInspectionCharacteristicListPage,
+  inspection$MomInspectionCommonCharacteristicListPage,
   inspection$MomInspectionCustomerRuleDetailPage,
   inspection$MomInspectionCustomerRuleListPage,
   inspection$MomInspectionDefectCategoryListPage,
@@ -227,6 +230,7 @@ export default [
   inspection$MomInspectionRuleListPage,
   inspection$MomInspectionSheetDetailsPage,
   inspection$MomInspectionSheetListPage,
+  inspection$ProductInspectionSheetImportPage,
   pm$PmProjectCategoryListPage,
   pm$PmProjectDetailsPage,
   pm$PmProjectEventListPage,
