@@ -338,11 +338,12 @@ async function findCurrentInspectionSheet(
   const entity = inspectionSheetManager.findEntity({
     routeContext,
     filters: [
-      {
-        operator: "eq",
-        field: "rule_id",
-        value: predicate.rule?.id,
-      },
+      //TODO: 查找对应检验单时，暂时不要求检验类型为“产成品检验”。待系统中自动生成产品品检验单的检验类型错误问题修正后再恢复。
+      // {
+      //   operator: "eq",
+      //   field: "rule_id",
+      //   value: predicate.rule?.id,
+      // },
       {
         operator: "eq",
         field: "material_id",
