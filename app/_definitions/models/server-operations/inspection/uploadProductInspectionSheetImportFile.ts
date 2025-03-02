@@ -9,7 +9,14 @@ import type {
   ProductionInspectionSheetImportMeasurementValueColumn,
 } from "~/types/production-inspection-sheet-import-types";
 import dayjs from "dayjs";
-import { BaseMaterial, MomInspectionCharacteristic, MomInspectionCommonCharacteristic, MomInspectionRule, OcUser } from "~/_definitions/meta/entity-types";
+import {
+  BaseMaterial,
+  MomInspectionCategory,
+  MomInspectionCharacteristic,
+  MomInspectionCommonCharacteristic,
+  MomInspectionRule,
+  OcUser,
+} from "~/_definitions/meta/entity-types";
 
 type CodeInferOption<TCode = string> = {
   name: string;
@@ -177,9 +184,33 @@ async function parseInspectionSheetImportFile(
   }
   data.push(headers);
 
+  const inspectionCategoryManager = server.getEntityManager<MomInspectionCategory>("mom_inspection_category");
+  const pqcInspectionCategory = await inspectionCategoryManager.findEntity({
+    routeContext,
+    filters: [
+      {
+        operator: "eq",
+        field: "name",
+        value: "产成品检验",
+      },
+      {
+        operator: "null",
+        field: "deletedAt",
+      },
+    ],
+  });
+
+  if (!pqcInspectionCategory) {
+    throw new Error("未找到名为“产成品检验”的检验类型。");
+  }
+
   let rowNum = 2;
   while (true) {
     const row = sheet.getRow(rowNum);
+    if (!row) {
+      break;
+    }
+
     const currentRecord: any[] = [];
     let noneEmptyCellCount = 0;
 
@@ -200,6 +231,7 @@ async function parseInspectionSheetImportFile(
 
     const validationContext = {
       row,
+      pqcInspectionCategory,
     };
 
     for (let colIndex = 0; colIndex < columns.length; colIndex++) {
@@ -242,9 +274,9 @@ function inferPropertyOrParameterCode<TCode = string>(inferOptions: CodeInferOpt
 }
 
 export interface CellValueValidationOptions {
+  server: IRpdServer;
   routeContext: RouteContext;
   validationContext: Record<string, any>;
-  server: IRpdServer;
   column: ProductionInspectionSheetImportColumn;
   cell: ExcelJS.Cell;
   cellText: string;
@@ -314,6 +346,10 @@ async function validateCellValueOfMaterialAbbr(options: CellValueValidationOptio
         field: "code",
         value: "03.",
       },
+      {
+        operator: "null",
+        field: "deletedAt",
+      },
     ],
   });
 
@@ -334,6 +370,8 @@ async function validateCellValueOfMaterialAbbr(options: CellValueValidationOptio
   const material = materials[0];
   validationContext.material = material;
 
+  const pqcInspectionCategory: MomInspectionCategory = validationContext.pqcInspectionCategory;
+
   const inspectionRuleManager = server.getEntityManager<MomInspectionRule>("mom_inspection_rule");
   const inspectionRules = await inspectionRuleManager.findEntities({
     routeContext,
@@ -345,6 +383,11 @@ async function validateCellValueOfMaterialAbbr(options: CellValueValidationOptio
       },
     },
     filters: [
+      {
+        operator: "eq",
+        field: "category_id",
+        value: pqcInspectionCategory.id,
+      },
       {
         operator: "eq",
         field: "material_id",
@@ -359,7 +402,7 @@ async function validateCellValueOfMaterialAbbr(options: CellValueValidationOptio
 
   if (!inspectionRules.length) {
     return {
-      message: `没有配置产品 ${material.specification} 的检验规则。`,
+      message: `产品 ${material.specification} 没有配置“${pqcInspectionCategory.name}”规则。`,
       cellAddress: cell.address,
     };
   }
@@ -405,6 +448,10 @@ async function validateCellValueOfInspectorName(options: CellValueValidationOpti
         operator: "eq",
         field: "name",
         value: cellText,
+      },
+      {
+        operator: "null",
+        field: "deletedAt",
       },
     ],
   });

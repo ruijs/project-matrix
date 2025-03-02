@@ -214,6 +214,7 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
       type: "relation[]",
       targetSingularCode: "mom_inspection_sheet_sample",
       selfIdColumnName: "sheet_id",
+      entityDeletingReaction: "cascadingDelete",
     },
     {
       code: "remark",

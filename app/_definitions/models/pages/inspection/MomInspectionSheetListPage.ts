@@ -373,7 +373,6 @@ const page: RapidPage = {
           code: "rule",
           type: "auto",
           width: "260px",
-          fieldName: "rule.name",
         },
         {
           type: "auto",

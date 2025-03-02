@@ -7,7 +7,7 @@ export default {
   level: "app",
   entries: [
     { name: "未发起", value: "uninitiated" },
-    { name: "审批中", value: "approving", color: "orange" },
+    { name: "审批中", value: "approving", color: "blue" },
     { name: "已批准", value: "approved", color: "green" },
     { name: "已拒绝", value: "rejected", color: "red" },
     { name: "已撤销", value: "canceled" },
