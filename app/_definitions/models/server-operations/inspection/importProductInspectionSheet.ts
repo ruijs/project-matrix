@@ -96,6 +96,9 @@ export default {
           continue;
         }
 
+        inspectionSheetToSave.state = "inspected";
+        inspectionSheetToSave.approvalState = "approving";
+
         if (currentInspectionSheet.samples && currentInspectionSheet.samples.length === 1 && inspectionSheetToSave.samples) {
           inspectionSheetToSave.samples[0].id = currentInspectionSheet.samples[0].id;
         }
