@@ -96,7 +96,7 @@ export default {
           continue;
         }
 
-        if (currentInspectionSheet.samples && currentInspectionSheet.samples.length === 1) {
+        if (currentInspectionSheet.samples && currentInspectionSheet.samples.length === 1 && inspectionSheetToSave.samples) {
           inspectionSheetToSave.samples[0].id = currentInspectionSheet.samples[0].id;
         }
 
@@ -295,9 +295,9 @@ async function convertDataRowToInspectionSheet(options: ImportInspectionSheetOpt
       }
 
       const charName = column.charName;
-      const character: MomInspectionCharacteristic | undefined = find(inspectionRule?.characteristics, (char: MomInspectionCharacteristic) => {
+      const character = find(inspectionRule?.characteristics, (char: MomInspectionCharacteristic) => {
         return char.name === column.charName;
-      });
+      }) as MomInspectionCharacteristic | undefined;
 
       if (!character) {
         throw new Error(`检验值无效。${material!.specification}的检验规则中未配置名为“${charName}”的检验特征。`);
@@ -308,7 +308,7 @@ async function convertDataRowToInspectionSheet(options: ImportInspectionSheetOpt
         measurement = {
           characteristic: { id: character.id },
         };
-        inspectionSample.measurements.push(measurement);
+        inspectionSample.measurements!.push(measurement);
       }
 
       if (columnType === "measurementValue") {

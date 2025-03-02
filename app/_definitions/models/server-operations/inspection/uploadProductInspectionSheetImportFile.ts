@@ -483,7 +483,7 @@ async function validateCellValueOfMeasurementField(options: CellValueValidationO
     return null;
   }
 
-  const characteristics: MomInspectionCharacteristic[] = inspectionRule.characteristics;
+  const characteristics = inspectionRule.characteristics!;
   const charName = (column as ProductionInspectionSheetImportMeasurementValueColumn).charName;
   const character = find(characteristics, (item) => item.name === charName);
 
