@@ -12,6 +12,7 @@ import {
   MomInspectionSheetSample,
   OcUser,
 } from "~/_definitions/meta/entity-types";
+import { productInspectionImportSettingsIgnoredCharNames } from "~/settings/productInspectionImportSettings";
 import type { ProductionInspectionSheetImportColumn } from "~/types/production-inspection-sheet-import-types";
 
 export interface ImportInspectionSheetsOptions {
@@ -265,6 +266,10 @@ async function convertDataRowToInspectionSheet(options: ImportInspectionSheetOpt
       inspectionSheet.inspectedAt = getNowStringWithTimezone();
     } else {
       if (!cellText) {
+        continue;
+      }
+
+      if (productInspectionImportSettingsIgnoredCharNames.includes(column.charName)) {
         continue;
       }
 
