@@ -21,6 +21,10 @@ const formConfig: Partial<RapidEntityFormConfig> = {
     },
     {
       type: "auto",
+      code: "envConditions",
+    },
+    {
+      type: "auto",
       code: "skippable",
     },
     {
@@ -116,10 +120,6 @@ const formConfig: Partial<RapidEntityFormConfig> = {
       $exps: {
         _hidden: "$self.form.getFieldValue('kind') !== 'quantitative' || $self.form.getFieldValue('determineType') !== 'inLimit'",
       },
-    },
-    {
-      type: "textarea",
-      code: "requirements",
     },
   ],
   defaultFormFields: {
@@ -259,6 +259,10 @@ const page: RapidPage = {
                 },
                 {
                   type: "auto",
+                  code: "envConditions",
+                },
+                {
+                  type: "auto",
                   code: "skippable",
                 },
                 {
@@ -268,23 +272,14 @@ const page: RapidPage = {
                 {
                   type: "auto",
                   code: "category",
-                  rendererProps: {
-                    format: "{{name}}",
-                  },
                 },
                 {
                   type: "auto",
                   code: "method",
-                  rendererProps: {
-                    format: "{{name}}",
-                  },
                 },
                 {
                   type: "auto",
                   code: "instrumentCategory",
-                  rendererProps: {
-                    format: "{{name}}",
-                  },
                 },
                 {
                   type: "auto",
@@ -293,14 +288,6 @@ const page: RapidPage = {
                     format: "{{code}}",
                   },
                 },
-                // {
-                //   type: "auto",
-                //   code: "determineType",
-                // },
-                // {
-                //   type: "auto",
-                //   code: "qualitativeDetermineType",
-                // },
                 {
                   type: "auto",
                   code: "kind",
@@ -310,26 +297,6 @@ const page: RapidPage = {
                   title: "合格条件",
                   code: "norminal",
                   rendererType: "inspectionConditionRenderer",
-                },
-                // {
-                //   type: "auto",
-                //   code: "upperTol",
-                // },
-                // {
-                //   type: "auto",
-                //   code: "lowerTol",
-                // },
-                // {
-                //   type: "auto",
-                //   code: "upperLimit",
-                // },
-                // {
-                //   type: "auto",
-                //   code: "lowerLimit",
-                // },
-                {
-                  type: "auto",
-                  code: "requirements",
                 },
                 {
                   type: "auto",

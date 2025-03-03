@@ -965,6 +965,7 @@ const entityFieldCodes = {
     'category',
     'method',
     'requirements',
+    'envConditions',
     'instrumentCategory',
     'instrument',
     'kind',

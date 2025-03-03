@@ -70,6 +70,11 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
       type: "text",
     },
     {
+      code: "envConditions",
+      name: "检验条件",
+      type: "text",
+    },
+    {
       code: "instrumentCategory",
       name: "检验仪器类型",
       type: "relation",

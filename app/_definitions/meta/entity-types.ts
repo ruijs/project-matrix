@@ -3447,6 +3447,10 @@ export interface MomInspectionCharacteristic {
    */
   requirements?: string;
   /**
+   * 检验条件
+   */
+  envConditions?: string;
+  /**
    * 检验仪器类型
    */
   instrumentCategory?: Partial<MomInspectionInstrumentCategory>;
