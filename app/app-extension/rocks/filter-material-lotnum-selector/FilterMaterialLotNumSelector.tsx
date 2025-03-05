@@ -7,7 +7,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useMergeState } from "~/hooks/use-merage-state";
 import rapidApi from "~/rapidApi";
 import rapidAppDefinition from "~/rapidAppDefinition";
-import { calculateInspectionResult } from "~/utils/calculate";
+import { isCharacterMeasurementValueQualified } from "~/utils/calculate";
 
 interface ICurrentState {
   offset: number;
@@ -788,7 +788,7 @@ const useLoadTableData = () => {
             const filterInspectionItemValue = item.characteristic.name == filterCusInspection.name ? item?.quantitativeValue || item?.qualitativeValue : "null";
             return {
               ...item,
-              isCheckQualified: calculateInspectionResult(filterCusInspection, filterInspectionItemValue),
+              isCheckQualified: isCharacterMeasurementValueQualified(filterCusInspection, filterInspectionItemValue),
             };
           })
           .some((item: any) => item.isCheckQualified);

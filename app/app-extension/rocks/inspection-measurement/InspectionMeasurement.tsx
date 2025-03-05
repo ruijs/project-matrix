@@ -9,7 +9,7 @@ import rapidApi from "~/rapidApi";
 import { find, get, groupBy, map, orderBy, split, uniqBy } from "lodash";
 import rapidAppDefinition from "~/rapidAppDefinition";
 import { useEffect, useState } from "react";
-import { calculateInspectionResult } from "~/utils/calculate";
+import { isCharacterMeasurementValueQualified } from "~/utils/calculate";
 import { fmtCharacteristicNorminal } from "~/utils/fmt";
 
 export default {
@@ -63,7 +63,7 @@ export default {
                 return {
                   id: it.measurementsId,
                   round: item.round,
-                  isQualified: calculateInspectionResult(it, it.measuredValue),
+                  isQualified: isCharacterMeasurementValueQualified(it, it.measuredValue),
                   qualitativeValue: it.kind === "qualitative" ? it.measuredValue : "",
                   quantitativeValue: it.kind === "quantitative" ? it.measuredValue : "",
                 };
@@ -168,7 +168,7 @@ export default {
                       update({
                         id: r.measurementsId,
                         round: r.round,
-                        isQualified: calculateInspectionResult(r, v),
+                        isQualified: isCharacterMeasurementValueQualified(r, v),
                         qualitativeValue: r.kind === "qualitative" ? v : "",
                         quantitativeValue: r.kind === "quantitative" ? v : "",
                       });
@@ -198,7 +198,7 @@ export default {
                       update({
                         id: r.measurementsId,
                         round: r.round,
-                        isQualified: calculateInspectionResult(r, v),
+                        isQualified: isCharacterMeasurementValueQualified(r, v),
                         qualitativeValue: r.kind === "qualitative" ? v : "",
                         quantitativeValue: r.kind === "quantitative" ? v : "",
                       });
@@ -223,7 +223,7 @@ export default {
         width: 300,
         render: (_, r) => {
           if (r.measuredValue || r.measuredValue == 0) {
-            const isOk = calculateInspectionResult(r, r.measuredValue);
+            const isOk = isCharacterMeasurementValueQualified(r, r.measuredValue);
             if (isOk == null) {
               return;
             }
@@ -275,7 +275,7 @@ export default {
           ...item.items[0],
           isfirst: item?.isfirst,
           round: item.round,
-          isQualified: calculateInspectionResult(item.items[0], v),
+          isQualified: isCharacterMeasurementValueQualified(item.items[0], v),
           items: item.items
             .map((it: any) => {
               const v = it?.kind === "quantitative" ? it?.quantitativeValue : it?.qualitativeValue;
@@ -283,7 +283,7 @@ export default {
                 parentCode: item?.code,
                 isfirst: item?.isfirst,
                 round: item?.round,
-                isQualified: calculateInspectionResult(it, v),
+                isQualified: isCharacterMeasurementValueQualified(it, v),
                 ...it,
               };
             })
@@ -315,7 +315,9 @@ export default {
       } else {
         const res = arr
           .map((item: any) => {
-            const unQualifiedArr = item.items.filter((it: any) => !it.skippable).filter((it: any) => !calculateInspectionResult(it, it.measuredValue));
+            const unQualifiedArr = item.items
+              .filter((it: any) => !it.skippable)
+              .filter((it: any) => !isCharacterMeasurementValueQualified(it, it.measuredValue));
             return {
               code: item.code,
               unQualifiedArr,
@@ -763,7 +765,7 @@ function useCreateInspectionMeasurement(options: { sheetId: string; round: numbe
               round: isReCheck ? options?.round + 1 : 1,
               measurements: item.items.map((it: any) => {
                 return {
-                  isQualified: calculateInspectionResult(it, it.measuredValue),
+                  isQualified: isCharacterMeasurementValueQualified(it, it.measuredValue),
                   sampleCode: item.code,
                   locked: isReCheck ? true : false,
                   quantitativeValue: it.quantitativeValue || null,
