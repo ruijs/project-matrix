@@ -65,6 +65,7 @@ import type {
   UnitType,
   WarehouseStrategy,
 } from "./data-dictionary-types";
+export type FileOrImageFieldType = { key: string; name: string; size: number; type: string };
 /**
  * 客户端
  */
@@ -703,7 +704,7 @@ export interface BaseMaterial {
   /**
    * 类型
    */
-  types?: any;
+  types?: Partial<BaseMaterialType>[];
   /**
    * 可生产
    */
@@ -798,7 +799,7 @@ export interface BaseMaterialCategory {
   /**
    * 物料
    */
-  materials?: any;
+  materials?: Partial<BaseMaterial>[];
   /**
    * 外部编号
    */
@@ -900,7 +901,7 @@ export interface BaseMaterialType {
   /**
    * 物料
    */
-  materials?: any;
+  materials?: Partial<BaseMaterial>[];
   /**
    * 编号
    */
@@ -1022,7 +1023,7 @@ export interface BasePartner {
   /**
    * 分类
    */
-  categories?: any;
+  categories?: Partial<BasePartnerCategory>[];
   /**
    * 外部编号
    */
@@ -1199,7 +1200,7 @@ export interface BaseUnitCategory {
   /**
    * 单位
    */
-  units?: any;
+  units?: Partial<BaseUnit>[];
   /**
    * 创建时间
    */
@@ -1254,7 +1255,7 @@ export interface BusinessTypeOcRole {
   /**
    * 角色
    */
-  businessTypeRoles: any;
+  businessTypeRoles: Partial<OcRole>[];
   /**
    * 业务类型
    */
@@ -1325,7 +1326,7 @@ export interface CbsContract {
   /**
    * 相关订单
    */
-  orders?: any;
+  orders?: Partial<CbsOrder>[];
   /**
    * 合同金额
    */
@@ -1463,7 +1464,7 @@ export interface CbsContractFundingBudget {
   /**
    * 相关订单
    */
-  orders?: any;
+  orders?: Partial<CbsOrder>[];
   /**
    * 合同金额
    */
@@ -1636,11 +1637,11 @@ export interface CbsOrder {
   /**
    * 相关项目
    */
-  projects?: any;
+  projects?: Partial<PmProject>[];
   /**
    * 相关合同
    */
-  contracts?: any;
+  contracts?: Partial<CbsContract>[];
   /**
    * 物料需求计划
    */
@@ -1648,7 +1649,7 @@ export interface CbsOrder {
   /**
    * 订单项
    */
-  items?: any;
+  items?: Partial<CbsOrderItem>[];
   /**
    * 订单金额
    */
@@ -1660,7 +1661,7 @@ export interface CbsOrder {
   /**
    * 转账记录
    */
-  transactions?: any;
+  transactions?: Partial<FinTransaction>[];
   /**
    * 状态
    */
@@ -2362,7 +2363,7 @@ export interface DataDictionary {
   /**
    * 条目
    */
-  entries?: any;
+  entries?: Partial<DataDictionary>[];
   /**
    * 创建时间
    */
@@ -2500,7 +2501,7 @@ export interface Model {
   /**
    * 属性
    */
-  properties?: any;
+  properties?: Partial<Property>[];
   /**
    * 创建时间
    */
@@ -2765,7 +2766,7 @@ export interface MomAssemblyMain {
   /**
    * 零件
    */
-  parts?: any;
+  parts?: Partial<MomAssemblyPart>[];
   /**
    * 创建时间
    */
@@ -2950,7 +2951,7 @@ export interface MomEquipmentCategory {
   /**
    * 设备
    */
-  equipments?: any;
+  equipments?: Partial<MomEquipment>[];
   /**
    * 创建时间
    */
@@ -3053,7 +3054,7 @@ export interface MomGood {
   /**
    * 标签
    */
-  labels?: any;
+  labels?: Partial<MomGoodLabel>[];
   /**
    * 状态
    */
@@ -3361,7 +3362,7 @@ export interface MomInspectionCategory {
   /**
    * 通知用户
    */
-  notificationSubscribers?: any;
+  notificationSubscribers?: Partial<OcUser>[];
   /**
    * 配置
    */
@@ -3445,6 +3446,10 @@ export interface MomInspectionCharacteristic {
    * 检验要求
    */
   requirements?: string;
+  /**
+   * 检验条件
+   */
+  envConditions?: string;
   /**
    * 检验仪器类型
    */
@@ -3712,7 +3717,7 @@ export interface MomInspectionDefectCategory {
   /**
    * 缺陷
    */
-  defects?: any;
+  defects?: Partial<MomInspectionDefect>[];
   /**
    * 创建时间
    */
@@ -4074,7 +4079,7 @@ export interface MomInspectionRule {
   /**
    * 检验特征
    */
-  characteristics?: any;
+  characteristics?: Partial<MomInspectionCharacteristic>[];
   /**
    * 配置
    */
@@ -4129,7 +4134,7 @@ export interface MomInspectionSampling {
   /**
    * 明细项
    */
-  items?: any;
+  items?: Partial<MomInspectionSamplingItem>[];
   /**
    * 创建时间
    */
@@ -4176,11 +4181,11 @@ export interface MomInspectionSamplingItem {
   /**
    * 起始值
    */
-  from: any;
+  from: number;
   /**
    * 截止值
    */
-  to: any;
+  to: number;
   /**
    * 样本数
    */
@@ -4323,11 +4328,11 @@ export interface MomInspectionSheet {
   /**
    * 检验记录
    */
-  measurements?: any;
+  measurements?: Partial<MomInspectionMeasurement>[];
   /**
    * 缺陷统计
    */
-  defectStats?: any;
+  defectStats?: Partial<MomInspectionDefectStat>[];
   /**
    * 批号信息
    */
@@ -4335,7 +4340,7 @@ export interface MomInspectionSheet {
   /**
    * 样本记录
    */
-  samples?: any;
+  samples?: Partial<MomInspectionSheetSample>[];
   /**
    * 备注
    */
@@ -4410,7 +4415,7 @@ export interface MomInspectionSheetSample {
   /**
    * 检验记录
    */
-  measurements?: any;
+  measurements?: Partial<MomInspectionMeasurement>[];
   /**
    * 检验轮次
    */
@@ -4533,7 +4538,7 @@ export interface MomInventory {
   /**
    * 标签
    */
-  labels?: any;
+  labels?: Partial<MomInventoryLabel>[];
   /**
    * 创建时间
    */
@@ -4596,7 +4601,7 @@ export interface MomInventoryApplication {
   /**
    * 明细项
    */
-  items?: any;
+  items?: Partial<MomInventoryApplicationItem>[];
   /**
    * 申请状态
    */
@@ -4874,7 +4879,7 @@ export interface MomInventoryBusinessType {
   /**
    * 业务类型
    */
-  businessTypeRoles: any;
+  businessTypeRoles: Partial<BusinessTypeOcRole>[];
   /**
    * 创建时间
    */
@@ -5103,7 +5108,7 @@ export interface MomInventoryOperation {
   /**
    * 变更明细
    */
-  transfers?: any;
+  transfers?: Partial<MomGoodTransfer>[];
   /**
    * 仓库
    */
@@ -5418,11 +5423,11 @@ export interface MomManufacturingResourcePlan {
   /**
    * 主生产计划
    */
-  productionSchedules?: any;
+  productionSchedules?: Partial<MomMasterProductionSchedule>[];
   /**
    * 生产工单
    */
-  workOrders?: any;
+  workOrders?: Partial<MomWorkOrder>[];
   /**
    * 创建时间
    */
@@ -5513,11 +5518,11 @@ export interface MomMasterProductionSchedule {
   /**
    * 生产工单
    */
-  productionOrders?: any;
+  productionOrders?: Partial<MomWorkOrder>[];
   /**
    * 采购订单
    */
-  purchaseOrders?: any;
+  purchaseOrders?: Partial<CbsOrder>[];
   /**
    * 创建时间
    */
@@ -5635,7 +5640,7 @@ export interface MomMaterialBreakdown {
   /**
    * 下级物料
    */
-  parts?: any;
+  parts?: Partial<MomMaterialBreakdownPart>[];
   /**
    * 创建时间
    */
@@ -6531,7 +6536,7 @@ export interface MomPackage {
   /**
    * 物品
    */
-  goods?: any;
+  goods?: Partial<MomGood>[];
   /**
    * 创建时间
    */
@@ -6849,7 +6854,7 @@ export interface MomRoute {
   /**
    * 工序
    */
-  processes?: any;
+  processes?: Partial<MomRouteProcess>[];
   /**
    * 创建时间
    */
@@ -6908,11 +6913,11 @@ export interface MomRouteProcess {
   /**
    * 输入物料
    */
-  inputs?: any;
+  inputs?: Partial<MomRouteProcessInput>[];
   /**
    * 输出物料
    */
-  outputs?: any;
+  outputs?: Partial<MomRouteProcessOutput>[];
   /**
    * 标准周期时间
    */
@@ -7085,7 +7090,7 @@ export interface MomRouteTemplate {
   /**
    * 工序
    */
-  processes?: any;
+  processes?: Partial<MomRouteTemplateProcess>[];
   /**
    * 创建时间
    */
@@ -7554,15 +7559,15 @@ export interface MomWorkOrder {
   /**
    * 生产任务
    */
-  productionTasks?: any;
+  productionTasks?: Partial<MomWorkTask>[];
   /**
    * 生产报工单
    */
-  workReports?: any;
+  workReports?: Partial<MomWorkReport>[];
   /**
    * 检验单
    */
-  inspectionSheets?: any;
+  inspectionSheets?: Partial<MomInspectionSheet>[];
   /**
    * 创建时间
    */
@@ -7661,7 +7666,7 @@ export interface MomWorkReport {
   /**
    * 操作工
    */
-  operators?: any;
+  operators?: Partial<BaseEmployee>[];
   /**
    * 其它信息
    */
@@ -7768,7 +7773,7 @@ export interface MomWorkTask {
   /**
    * 操作工
    */
-  assignees?: any;
+  assignees?: Partial<BaseEmployee>[];
   /**
    * 最晚完成日期
    */
@@ -7796,11 +7801,11 @@ export interface MomWorkTask {
   /**
    * 生产报工单
    */
-  workReports?: any;
+  workReports?: Partial<MomWorkReport>[];
   /**
    * 检验单
    */
-  inspectionSheets?: any;
+  inspectionSheets?: Partial<MomInspectionSheet>[];
   /**
    * 创建时间
    */
@@ -7954,7 +7959,7 @@ export interface MomWorkTrack {
   /**
    * 生产任务
    */
-  productionTasks?: any;
+  productionTasks?: Partial<MomWorkTask>[];
   /**
    * 创建时间
    */
@@ -8013,7 +8018,7 @@ export interface OcDepartment {
   /**
    * 用户
    */
-  users?: any;
+  users?: Partial<OcUser>[];
   /**
    * 外部编号
    */
@@ -8080,11 +8085,11 @@ export interface OcRole {
   /**
    * 用户
    */
-  users?: any;
+  users?: Partial<OcUser>[];
   /**
    * 操作
    */
-  actions?: any;
+  actions?: Partial<SysAction>[];
   /**
    * 创建时间
    */
@@ -8167,11 +8172,11 @@ export interface OcUser {
   /**
    * 角色
    */
-  roles?: any;
+  roles?: Partial<OcRole>[];
   /**
    * 账户
    */
-  accounts?: any;
+  accounts?: Partial<AuthAccount>[];
   /**
    * 外部编号
    */
@@ -8431,7 +8436,7 @@ export interface ShopfloorDisplayDevice {
   /**
    * 关联工位
    */
-  stations?: any;
+  stations?: Partial<ShopfloorStation>[];
   /**
    * 是否删除
    */
@@ -8490,7 +8495,7 @@ export interface ShopfloorStation {
   /**
    * 关联应用
    */
-  apps?: any;
+  apps?: Partial<ShopfloorApp>[];
   /**
    * 是否删除
    */
@@ -9061,7 +9066,7 @@ export interface BpmInstance {
   /**
    * 活动
    */
-  jobs?: any;
+  jobs?: Partial<BpmJob>[];
   /**
    * 当前步骤
    */
@@ -9128,7 +9133,7 @@ export interface BpmJob {
   /**
    * 任务
    */
-  tasks?: any;
+  tasks?: Partial<BpmManualTask>[];
   /**
    * 状态
    */
@@ -9633,19 +9638,19 @@ export interface PmProject {
   /**
    * 阶段
    */
-  phases?: any;
+  phases?: Partial<PmPhase>[];
   /**
    * 里程碑
    */
-  milestones?: any;
+  milestones?: Partial<PmMilestone>[];
   /**
    * 相关订单
    */
-  orders?: any;
+  orders?: Partial<CbsOrder>[];
   /**
    * 工作项类型
    */
-  workItemTypes?: any;
+  workItemTypes?: Partial<PmWorkItemType>[];
   /**
    * 创建时间
    */
@@ -10015,7 +10020,7 @@ export interface PmProjectRole {
   /**
    * 用户
    */
-  users?: any;
+  users?: Partial<OcUser>[];
   /**
    * 创建时间
    */
@@ -10224,7 +10229,7 @@ export interface PmWorkItem {
   /**
    * 步骤
    */
-  steps?: any;
+  steps?: Partial<PmWorkItemStep>[];
   /**
    * 预计工作量
    */
@@ -10441,7 +10446,7 @@ export interface PmWorkItemType {
   /**
    * 项目
    */
-  projects?: any;
+  projects?: Partial<PmProject>[];
   /**
    * 创建时间
    */
@@ -10563,7 +10568,7 @@ export interface SystemSettingGroupSetting {
   /**
    * 设置项
    */
-  items?: any;
+  items?: Partial<SystemSettingItemSetting>[];
   /**
    * 详细信息
    */

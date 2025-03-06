@@ -123,7 +123,7 @@ export default [
 
 function validateInventoryApplication(application: MomInventoryApplication) {
   // 物品数量不能为0
-  const applicationItems: MomInventoryApplicationItem[] = application.items;
+  const applicationItems: Partial<MomInventoryApplicationItem>[] | undefined = application.items;
   if (!applicationItems || !applicationItems.length) {
     throw new Error("物品明细项不能为空。");
   }

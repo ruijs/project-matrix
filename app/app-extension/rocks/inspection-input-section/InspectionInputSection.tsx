@@ -10,7 +10,7 @@ import rapidAppDefinition from "~/rapidAppDefinition";
 import { useState } from "react";
 import dayjs from "dayjs";
 import { fmtCharacteristicNorminal } from "~/utils/fmt";
-import { calculateInspectionResult } from "~/utils/calculate";
+import { isCharacterMeasurementValueQualified } from "~/utils/calculate";
 
 interface ICurrentState {
   inspectionScanInfo?: Record<string, any>;
@@ -113,7 +113,7 @@ export default {
         dataIndex: "result",
         width: 80,
         render: (_, r) => {
-          const isOk = calculateInspectionResult(r, r.measuredValue);
+          const isOk = isCharacterMeasurementValueQualified(r, r.measuredValue);
 
           if (isOk == null) {
             return;

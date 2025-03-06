@@ -4,20 +4,26 @@ import { materialFormatStrTemplate } from "~/utils/fmt";
 
 const formConfig: Partial<RapidEntityFormConfig> = {
   items: [
-    {
-      type: "auto",
-      code: "isCommon",
-    },
-    {
-      type: "auto",
-      code: "commonChar",
-      $exps: {
-        _hidden: "!$self.form.getFieldValue('isCommon')",
-      },
-    },
+    // TODO: 完善通用检验特征的设置交互
+    // {
+    //   type: "auto",
+    //   code: "isCommon",
+
+    // },
+    // {
+    //   type: "auto",
+    //   code: "commonChar",
+    //   $exps: {
+    //     _hidden: "!$self.form.getFieldValue('isCommon')",
+    //   },
+    // },
     {
       type: "auto",
       code: "name",
+    },
+    {
+      type: "auto",
+      code: "envConditions",
     },
     {
       type: "auto",
@@ -116,10 +122,6 @@ const formConfig: Partial<RapidEntityFormConfig> = {
       $exps: {
         _hidden: "$self.form.getFieldValue('kind') !== 'quantitative' || $self.form.getFieldValue('determineType') !== 'inLimit'",
       },
-    },
-    {
-      type: "textarea",
-      code: "requirements",
     },
   ],
   defaultFormFields: {
@@ -259,6 +261,10 @@ const page: RapidPage = {
                 },
                 {
                   type: "auto",
+                  code: "envConditions",
+                },
+                {
+                  type: "auto",
                   code: "skippable",
                 },
                 {
@@ -268,23 +274,14 @@ const page: RapidPage = {
                 {
                   type: "auto",
                   code: "category",
-                  rendererProps: {
-                    format: "{{name}}",
-                  },
                 },
                 {
                   type: "auto",
                   code: "method",
-                  rendererProps: {
-                    format: "{{name}}",
-                  },
                 },
                 {
                   type: "auto",
                   code: "instrumentCategory",
-                  rendererProps: {
-                    format: "{{name}}",
-                  },
                 },
                 {
                   type: "auto",
@@ -293,14 +290,6 @@ const page: RapidPage = {
                     format: "{{code}}",
                   },
                 },
-                // {
-                //   type: "auto",
-                //   code: "determineType",
-                // },
-                // {
-                //   type: "auto",
-                //   code: "qualitativeDetermineType",
-                // },
                 {
                   type: "auto",
                   code: "kind",
@@ -310,26 +299,6 @@ const page: RapidPage = {
                   title: "合格条件",
                   code: "norminal",
                   rendererType: "inspectionConditionRenderer",
-                },
-                // {
-                //   type: "auto",
-                //   code: "upperTol",
-                // },
-                // {
-                //   type: "auto",
-                //   code: "lowerTol",
-                // },
-                // {
-                //   type: "auto",
-                //   code: "upperLimit",
-                // },
-                // {
-                //   type: "auto",
-                //   code: "lowerLimit",
-                // },
-                {
-                  type: "auto",
-                  code: "requirements",
                 },
                 {
                   type: "auto",

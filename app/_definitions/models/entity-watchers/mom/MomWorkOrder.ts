@@ -127,7 +127,7 @@ async function generateTransfers(server: IRpdServer, routeContext: RouteContext,
     state: "normal",
   });
 
-  const qualifiedQuantity = workOrder.workReports.reduce((total: number, report: any) => total + (report?.qualifiedQuantity || 0), 0);
+  const qualifiedQuantity = workOrder.workReports!.reduce((total: number, report: any) => total + (report?.qualifiedQuantity || 0), 0);
 
   return [
     {

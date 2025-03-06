@@ -65,7 +65,7 @@ const formConfig: Partial<RapidEntityFormConfig> = {
     },
     {
       type: "textarea",
-      code: "requirements",
+      code: "envConditions",
     },
   ],
 };
@@ -111,6 +111,10 @@ const page: RapidPage = {
           type: "auto",
           code: "name",
           width: "150px",
+        },
+        {
+          type: "auto",
+          code: "envConditions",
         },
         {
           type: "auto",
@@ -187,10 +191,7 @@ const page: RapidPage = {
           type: "auto",
           code: "lowerLimit",
         },
-        {
-          type: "auto",
-          code: "requirements",
-        },
+
         {
           type: "auto",
           code: "createdAt",

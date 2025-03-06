@@ -130,7 +130,7 @@ export default [
       // 检查是否所有测量值都已完成
       const allMeasurementsComplete = Object.values(latestMeasurement).every((item) => {
         const characteristic = item.characteristic as { measurementType?: string };
-        if (characteristic?.measurementType === 'qualitative') {
+        if (characteristic?.measurementType === "qualitative") {
           return item.qualitativeValue !== null && item.qualitativeValue !== undefined;
         } else {
           return item.quantitativeValue !== null && item.quantitativeValue !== undefined;
@@ -139,11 +139,9 @@ export default [
 
       if (allMeasurementsComplete) {
         let result = "qualified";
-        
+
         // 只检查必检项的合格情况
-        const hasUnqualifiedMustPass = Object.values(latestMeasurement).some(
-          (item) => item.characteristic?.mustPass && !item.isQualified
-        );
+        const hasUnqualifiedMustPass = Object.values(latestMeasurement).some((item) => item.characteristic?.mustPass && !item.isQualified);
 
         // 如果有必检项不合格，则整体不合格
         if (hasUnqualifiedMustPass) {
@@ -385,12 +383,12 @@ async function trySendInspectionSheetNotification(server: IRpdServer, routeConte
     return;
   }
 
-  const notificationSubscribers: OcUser[] = get(inspectionCategory, "notificationSubscribers") || [];
+  const notificationSubscribers: Partial<OcUser>[] = get(inspectionCategory, "notificationSubscribers") || [];
   if (!notificationSubscribers.length) {
     return;
   }
 
-  const subscriberIds = flatten(map(notificationSubscribers, (item) => item.id));
+  const subscriberIds = flatten(map(notificationSubscribers, (item) => item.id)) as number[];
   // const allExternalAccounts = flatten(map(notificationSubscribers, (item) => item.accounts));
   // const allDingTalkAccounts = filter(allExternalAccounts, (item) => item.providerCode === "dingTalk");
   // const dingUserIds = map(allDingTalkAccounts, (item) => item.externalAccountId);
