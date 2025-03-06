@@ -225,14 +225,8 @@ export default {
     };
 
     const renderMessage = (businessTypeName: string, name: string) => {
-      switch (businessTypeName) {
-        case "销售出库":
-          return name === "fFManager" ? "发货人必填" : "保管人必填";
-        case "生产入库退货出库":
-          return name === "fFManager" ? "验收人必填" : "保管人必填";
-        default:
-          return name === "fFManager" ? "发料人必填" : "领料人必填";
-      }
+      const managerLabel = renderInventoryManagerDisplayLabel(businessTypeName, name);
+      return `${managerLabel}人必填`;
     };
 
     return (
@@ -370,46 +364,6 @@ export default {
               },
             })}
           </Form.Item>
-          {operationType === "in" && businessType !== "生产退料入库" && (
-            <>
-              <Form.Item label="验收" name="fFManager" rules={[{ required: true, message: "验收人必填" }]}>
-                {renderRock({
-                  context,
-                  rockConfig: {
-                    $type: "rapidTableSelect",
-                    $id: `${props.$id}_ff_manager`,
-                    placeholder: "请选择",
-                    listFilterFields: ["name"],
-                    searchPlaceholder: "名称搜索",
-                    columns: [{ title: "名称", code: "name" }],
-                    requestConfig: {
-                      url: "/app/oc_users/operations/find",
-                      method: "post",
-                      params: { orderBy: [{ field: "name" }] },
-                    },
-                  },
-                })}
-              </Form.Item>
-              <Form.Item label="保管" name="fSManager" rules={[{ required: true, message: "保管人必填" }]}>
-                {renderRock({
-                  context,
-                  rockConfig: {
-                    $type: "rapidTableSelect",
-                    $id: `${props.$id}_fs_manager`,
-                    placeholder: "请选择",
-                    listFilterFields: ["name"],
-                    searchPlaceholder: "名称搜索",
-                    columns: [{ title: "名称", code: "name" }],
-                    requestConfig: {
-                      url: "/app/oc_users/operations/find",
-                      method: "post",
-                      params: { orderBy: [{ field: "name" }] },
-                    },
-                  },
-                })}
-              </Form.Item>
-            </>
-          )}
           {[
             "其它原因出库",
             "其它原因出库退货入库",
@@ -451,54 +405,50 @@ export default {
               })}
             </Form.Item>
           )}
-          {(operationType === "out" || businessType === "生产退料入库") && (
-            <>
-              <Form.Item
-                label={renderLable(businessType || "", "fFManager")}
-                name="fFManager"
-                rules={[{ required: true, message: renderMessage(businessType || "", "fFManager") }]}
-              >
-                {renderRock({
-                  context,
-                  rockConfig: {
-                    $type: "rapidTableSelect",
-                    $id: `${props.$id}_ff_manager`,
-                    placeholder: "请选择",
-                    listFilterFields: ["name"],
-                    searchPlaceholder: "名称搜索",
-                    columns: [{ title: "名称", code: "name" }],
-                    requestConfig: {
-                      url: "/app/oc_users/operations/find",
-                      method: "post",
-                      params: { orderBy: [{ field: "name" }] },
-                    },
-                  },
-                })}
-              </Form.Item>
-              <Form.Item
-                label={renderLable(businessType || "", "fSManager")}
-                name="fSManager"
-                rules={[{ required: true, message: renderMessage(businessType || "", "fSManager") }]}
-              >
-                {renderRock({
-                  context,
-                  rockConfig: {
-                    $type: "rapidTableSelect",
-                    $id: `${props.$id}_fs_manager`,
-                    placeholder: "请选择",
-                    listFilterFields: ["name"],
-                    searchPlaceholder: "名称搜索",
-                    columns: [{ title: "名称", code: "name" }],
-                    requestConfig: {
-                      url: "/app/oc_users/operations/find",
-                      method: "post",
-                      params: { orderBy: [{ field: "name" }] },
-                    },
-                  },
-                })}
-              </Form.Item>
-            </>
-          )}
+          <Form.Item
+            label={renderLable(businessType || "", "fFManager")}
+            name="fFManager"
+            rules={[{ required: true, message: renderMessage(businessType || "", "fFManager") }]}
+          >
+            {renderRock({
+              context,
+              rockConfig: {
+                $type: "rapidTableSelect",
+                $id: `${props.$id}_ff_manager`,
+                placeholder: "请选择",
+                listFilterFields: ["name"],
+                searchPlaceholder: "名称搜索",
+                columns: [{ title: "名称", code: "name" }],
+                requestConfig: {
+                  url: "/app/oc_users/operations/find",
+                  method: "post",
+                  params: { orderBy: [{ field: "name" }] },
+                },
+              },
+            })}
+          </Form.Item>
+          <Form.Item
+            label={renderLable(businessType || "", "fSManager")}
+            name="fSManager"
+            rules={[{ required: true, message: renderMessage(businessType || "", "fSManager") }]}
+          >
+            {renderRock({
+              context,
+              rockConfig: {
+                $type: "rapidTableSelect",
+                $id: `${props.$id}_fs_manager`,
+                placeholder: "请选择",
+                listFilterFields: ["name"],
+                searchPlaceholder: "名称搜索",
+                columns: [{ title: "名称", code: "name" }],
+                requestConfig: {
+                  url: "/app/oc_users/operations/find",
+                  method: "post",
+                  params: { orderBy: [{ field: "name" }] },
+                },
+              },
+            })}
+          </Form.Item>
           {(businessType === "领料出库" || businessType === "生产退料入库") && (
             <>
               <Form.Item label="生产计划单号" name="fPlanSn" rules={[{ message: "生产计划单号" }]}>
