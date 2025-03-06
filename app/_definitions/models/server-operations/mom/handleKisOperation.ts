@@ -497,7 +497,8 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
                   Famount: transfer.quantity.toFixed(2),
                   FPlanMode: 14036,
                   Fnote: transfer.remark,
-                  FEntrySelfB0170: dayjs(transfer.manufacture_date).format("YYYY-MM-DDT00:00:00"),
+                  // 财务要求：使用制单日期作为生产日期
+                  FEntrySelfB0170: dayjs().format("YYYY-MM-DDT00:00:00"),
                 };
 
                 if (locationCode !== "") {
