@@ -47,30 +47,11 @@ const formConfig: Partial<RapidEntityFormConfig> = {
     },
     {
       type: "auto",
-      label: "验收/发货",
-      code: "fFManager",
-      required: true,
-      $exps: {
-        _hidden: "$self.form.getFieldValue('operationType') !== 'in' || $self.form.getFieldValue('businessType')?.name === '生产退料入库'",
-      },
-    },
-    {
-      type: "auto",
-      code: "fSManager",
-      label: "保管",
-      required: true,
-      $exps: {
-        _hidden: "$self.form.getFieldValue('operationType') !== 'in' || $self.form.getFieldValue('businessType')?.name === '生产退料入库'",
-      },
-    },
-    {
-      type: "auto",
       label: "发料",
       code: "fFManager",
       required: true,
       $exps: {
         label: "$functions.renderInventoryManagerDisplayLabel($self.form.getFieldValue('businessType').name, 'fFManager')",
-        _hidden: "$self.form.getFieldValue('operationType') !== 'out' && $self.form.getFieldValue('businessType')?.name !== '生产退料入库'",
       },
     },
     {
@@ -80,7 +61,6 @@ const formConfig: Partial<RapidEntityFormConfig> = {
       required: true,
       $exps: {
         label: "$functions.renderInventoryManagerDisplayLabel($self.form.getFieldValue('businessType').name, 'fSManager')",
-        _hidden: "$self.form.getFieldValue('operationType') !== 'out' && $self.form.getFieldValue('businessType')?.name !== '生产退料入库'",
       },
     },
     {
