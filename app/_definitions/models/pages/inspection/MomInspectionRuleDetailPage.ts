@@ -4,17 +4,19 @@ import { materialFormatStrTemplate } from "~/utils/fmt";
 
 const formConfig: Partial<RapidEntityFormConfig> = {
   items: [
-    {
-      type: "auto",
-      code: "isCommon",
-    },
-    {
-      type: "auto",
-      code: "commonChar",
-      $exps: {
-        _hidden: "!$self.form.getFieldValue('isCommon')",
-      },
-    },
+    // TODO: 完善通用检验特征的设置交互
+    // {
+    //   type: "auto",
+    //   code: "isCommon",
+
+    // },
+    // {
+    //   type: "auto",
+    //   code: "commonChar",
+    //   $exps: {
+    //     _hidden: "!$self.form.getFieldValue('isCommon')",
+    //   },
+    // },
     {
       type: "auto",
       code: "name",
