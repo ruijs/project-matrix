@@ -10,6 +10,7 @@ import dayjs from "dayjs";
 import { fmtCharacteristicNorminal } from "~/utils/fmt";
 import { printDOM } from "../page-print/print";
 import { renderMaterial } from "../material-label-renderer/MaterialLabelRenderer";
+import { filter, flatten, map, uniq } from "lodash";
 
 interface IInspectionsSheet {
   id: string;
@@ -44,6 +45,17 @@ interface IInspectionsSheet {
   remark: string;
 }
 
+interface MeasurementRecord {
+  sampleCode: string;
+  value: any;
+  round: number;
+}
+
+interface MeasurementRecordsOfCharactor {
+  appearances: number;
+  measurementRecords: MeasurementRecord[];
+}
+
 export default {
   $type: "inspectionPrintAction",
 
@@ -67,7 +79,7 @@ export default {
     };
 
     const countCharacteristics = (data: any) => {
-      const stats: any = {};
+      const stats: Record<string, MeasurementRecordsOfCharactor> = {};
 
       data?.forEach((item: any) => {
         item.measurements?.forEach?.((measurement: any) => {
@@ -83,21 +95,22 @@ export default {
           if (!stats[name]) {
             stats[name] = {
               appearances: 0,
-              values: [],
+              measurementRecords: [],
             };
           }
 
           stats[name].appearances++;
-          stats[name].values.push({ sampleCode, value, round });
+          stats[name].measurementRecords.push({ sampleCode, value, round });
         });
       });
 
       return stats;
     };
 
-    function convertArrayToString(arr: any) {
-      const firstElement = arr?.find((item: any) => item.round == 1)?.value;
-      const remainingElements = arr?.filter((item: any) => item.round !== 1)?.map((item: any) => item.value);
+    function displayMeasurementValuesOfCharactor(measurementRecordsOfCharactor: MeasurementRecord[], sampleCode: string) {
+      const measurementRecordsOfSample = filter(measurementRecordsOfCharactor, { sampleCode });
+      const firstElement = measurementRecordsOfSample?.find((item: any) => item.round == 1)?.value;
+      const remainingElements = measurementRecordsOfSample?.filter((item: any) => item.round !== 1)?.map((item: any) => item.value);
       if (remainingElements.length > 0) {
         return `${firstElement}(${remainingElements.join(",")})`;
       } else {
@@ -109,13 +122,11 @@ export default {
       const title = res?.material?.category?.name?.includes("原材料") ? "进 料 检 测 报 告" : "成 品 检 测 报 告";
       const result = res?.result === "unqualified" ? false : true;
       const samples = res?.samples;
-      const temp = countCharacteristics(samples);
+      const measurementRecordsOfCharactors = countCharacteristics(samples);
 
-      const formattedResult = Object.keys(temp).map((name) => ({
-        name,
-        appearances: temp[name].appearances,
-        values: temp[name].values,
-      }));
+      const allMeasurementRecords = flatten(map(Object.values(measurementRecordsOfCharactors), (item) => item.measurementRecords));
+
+      const sampleCodes = uniq(map(allMeasurementRecords, (item) => item.sampleCode)).sort();
 
       const formateMeasurements =
         res?.samples[0]?.measurements
@@ -129,101 +140,106 @@ export default {
               category: item?.characteristic?.category?.name, //特性分类
             };
           }) || [];
-      const samplesArray = formateMeasurements.map((item: any) => {
-        const appearances = formattedResult.find((it) => item.name === it.name)?.appearances || "-";
-        const values = formattedResult.find((it) => item.name === it.name)?.values;
+
+      const samplesArray = map(formateMeasurements, (item: any) => {
+        const measurementRecordsOfCharactor = measurementRecordsOfCharactors[item.name];
+        const appearances = measurementRecordsOfCharactor?.appearances || "-";
         return {
           ...item,
           appearances,
-          values: convertArrayToString(values),
+          measurementRecords: measurementRecordsOfCharactor.measurementRecords,
         };
       });
 
       return (
         <div ref={ref} className="inspection-template-container">
           <img src={logo} style={{ width: 200, height: 75 }} />
-          <table>
+          <div style={{ textAlign: "center", fontWeight: "bold", fontSize: 25, borderTop: "none", borderLeft: "none", borderRight: "none", padding: "10px" }}>
+            {title}
+          </div>
+          <table className="printable-table">
             <tr>
-              <th colSpan={7} style={{ fontSize: 25, borderTop: "none", borderLeft: "none", borderRight: "none" }}>
-                {title}
-              </th>
-            </tr>
-            <tr>
-              <td colSpan={2}>物料名称</td>
-              <td colSpan={2}>{renderMaterial(res?.material) || "-"}</td>
-              <td colSpan={2}>批号</td>
-              <td> {res?.lotNum || "-"}</td>
-            </tr>
-            <tr>
-              <td colSpan={2}>包装规格</td>
-              <td colSpan={2}></td>
-              <td colSpan={2}>供应商</td>
-              <td></td>
-            </tr>
-            <tr>
-              <td colSpan={2}>抽样数/供货数量</td>
-              <td colSpan={2}>
-                {res?.sampleCount || "-"}/{res?.acceptQuantity || "-"}
+              <td colSpan={2} width="50%">
+                物料名称：{renderMaterial(res?.material) || "-"}
               </td>
-              <td colSpan={2}>进料日期</td>
-              <td>{res?.createdAt ? dayjs(res?.createdAt).format("YYYY-MM-DD HH:mm:ss") : "-"}</td>
+              <td colSpan={2} width="50%">
+                批号 {res?.lotNum || "-"}
+              </td>
             </tr>
             <tr>
-              <td rowSpan={2} colSpan={2}>
+              <td colSpan={2}>包装规格：</td>
+              <td colSpan={2}>供应商：</td>
+            </tr>
+            <tr>
+              <td colSpan={2}>
+                抽样数/供货数量：{res?.sampleCount || "-"}/{res?.acceptQuantity || "-"}
+              </td>
+              <td colSpan={2}>进料日期：{res?.createdAt ? dayjs(res?.createdAt).format("YYYY-MM-DD") : "-"}</td>
+            </tr>
+            <tr>
+              <td rowSpan={2} colSpan={1}>
                 非指标类检查结果
               </td>
-              <td rowSpan={2} colSpan={2}>
+              <td rowSpan={2} colSpan={1}>
                 <input type="checkbox" name="qualityRequirement[]" value="符合品质要求" /> 符合品质要求
                 <br />
                 <input type="checkbox" name="qualityRequirement[]" value="不符合品质要求" /> 不符合品质要求
               </td>
-              <td colSpan={3}>异常描述:</td>
+              <td colSpan={2}>异常描述:</td>
             </tr>
             <tr>
-              <td colSpan={3}>
+              <td colSpan={2}>
                 <div style={{ height: 50, width: "100%" }} />
               </td>
             </tr>
             <tr>
-              <td colSpan={7}>检测项目及结果（参考标准版次：08）</td>
+              <td colSpan={4}>检测项目及结果（参考标准版次：08）</td>
             </tr>
             <tr>
-              <td style={{ width: "90px" }}>检测项目</td>
-              <td style={{ width: "100px" }}>检查方法</td>
-              <td style={{ width: "90px" }}>单位</td>
-              <td style={{ width: "70px" }}>指标</td>
-              <td style={{ width: "90px" }}>特性分类</td>
-              <td style={{ width: "90px" }}>样本数量</td>
-              <td>检测结果</td>
+              <td colSpan={4} style={{ padding: 0 }}>
+                <table className="printable-table" style={{ border: 0 }}>
+                  <tr>
+                    <td style={{ width: "90px" }}>检测项目</td>
+                    <td style={{ width: "100px" }}>检查方法</td>
+                    <td style={{ width: "90px" }}>单位</td>
+                    <td style={{ width: "70px" }}>指标</td>
+                    <td style={{ width: "90px" }}>特性分类</td>
+                    <td style={{ width: "90px" }}>样本数量</td>
+                    {sampleCodes.map((sampleCode) => {
+                      return <td key={sampleCode}>{`#${sampleCode}`}</td>;
+                    })}
+                  </tr>
+                  {samplesArray.map((item: any, index: number) => {
+                    return (
+                      <tr key={index}>
+                        <td>{item.name}</td>
+                        <td>{item.method}</td>
+                        <td>{item.unit}</td>
+                        <td>{item.norminal}</td>
+                        <td>{item.category}</td>
+                        <td>{item.appearances}</td>
+                        {sampleCodes.map((sampleCode) => {
+                          return <td key={sampleCode}>{displayMeasurementValuesOfCharactor(item.measurementRecords, sampleCode)}</td>;
+                        })}
+                      </tr>
+                    );
+                  })}
+                </table>
+              </td>
             </tr>
-            {/* <!-- 在这里添加具体的检测项目和结果 --> */}
-            {samplesArray.map((item: any, index: number) => {
-              return (
-                <tr key={index}>
-                  <td>{item.name}</td>
-                  <td>{item.method}</td>
-                  <td>{item.unit}</td>
-                  <td>{item.norminal}</td>
-                  <td>{item.category}</td>
-                  <td>{item.appearances}</td>
-                  <td>{item.values}</td>
-                </tr>
-              );
-            })}
 
-            {/* <!-- 添加更多行... --> */}
             <tr>
               <td colSpan={2}>
-                判定:&nbsp;
-                <input type="radio" name="judgment" value="合格" checked={result} /> 合格 &nbsp;
-                <input type="radio" name="judgment" value="不合格" checked={!result} /> 不合格
+                判定：&nbsp;
+                <input type="checkbox" name="judgment" value="合格" checked={result} /> 合格 &nbsp;
+                <input type="checkbox" name="judgment" value="不合格" checked={!result} /> 不合格
               </td>
-              <td colSpan={5}>异常描述：{res?.remark || "-"}</td>
+              <td colSpan={2}>异常描述：{res?.remark || "-"}</td>
             </tr>
             <tr>
-              <td colSpan={2}>检测员:&nbsp;{res?.sender?.name || "-"}</td>
-              <td colSpan={2}>审核员:&nbsp;{res?.reviewer?.name || "-"}</td>
-              <td colSpan={3}>确认（不合格时）:&nbsp;</td>
+              <td colSpan={1}>检测员:&nbsp;{res?.sender?.name || "-"}</td>
+              <td colSpan={1}>审核员:&nbsp;{res?.reviewer?.name || "-"}</td>
+              <td colSpan={2}>确认（不合格时）:&nbsp;</td>
             </tr>
           </table>
         </div>
