@@ -13,6 +13,7 @@ import {
   OcUser,
 } from "~/_definitions/meta/entity-types";
 import { renderMaterial } from "~/app-extension/rocks/material-label-renderer/MaterialLabelRenderer";
+import { lockMeasurementsOfInspectionSheet } from "~/services/InspectionSheetService";
 
 export default [
   {
@@ -91,13 +92,15 @@ export default [
       const changes = payload.changes;
       const before = payload.before;
 
+      const inspectionSheetId: number = after.id;
+
       const inspectionSheet = await server.getEntityManager<MomInspectionSheet>("mom_inspection_sheet").findEntity({
         routeContext,
         filters: [
           {
             operator: "eq",
             field: "id",
-            value: after.id,
+            value: inspectionSheetId,
           },
         ],
         properties: ["id", "code", "lot", "material", "lotNum", "result", "inventoryOperation"],
@@ -112,7 +115,7 @@ export default [
       const momInspectionMeasurementManager = server.getEntityManager<MomInspectionMeasurement>("mom_inspection_measurement");
       const measurements = await momInspectionMeasurementManager.findEntities({
         routeContext,
-        filters: [{ operator: "eq", field: "sheet_id", value: after.id }],
+        filters: [{ operator: "eq", field: "sheet_id", value: inspectionSheetId }],
         properties: ["id", "characteristic", "isQualified", "createdAt", "qualitativeValue", "quantitativeValue"],
       });
 
@@ -152,7 +155,7 @@ export default [
         if (inspectionSheet?.result !== result) {
           await server.getEntityManager<MomInspectionSheet>("mom_inspection_sheet").updateEntityById({
             routeContext,
-            id: after.id,
+            id: inspectionSheetId,
             entityToSave: {
               result: result,
             },
@@ -233,21 +236,7 @@ export default [
       // 当用户点击提交检验记录按钮后:
       // - 将检验值锁定，不允许修改。
       if (changes.hasOwnProperty("state") && changes.state === "inspected") {
-        const measurements = await server.getEntityManager<MomInspectionMeasurement>("mom_inspection_measurement").findEntities({
-          routeContext,
-          filters: [{ operator: "eq", field: "sheet_id", value: after.id }],
-          properties: ["id"],
-        });
-
-        for (const measurement of measurements) {
-          await server.getEntityManager<MomInspectionMeasurement>("mom_inspection_measurement").updateEntityById({
-            routeContext,
-            id: measurement.id,
-            entityToSave: {
-              locked: true,
-            },
-          });
-        }
+        await lockMeasurementsOfInspectionSheet(server, routeContext, inspectionSheetId);
       }
 
       // 保持批次的`合格证状态`与检验单的`检验结果`一致
@@ -340,6 +329,9 @@ export default [
       const { server, payload, routerContext: routeContext } = ctx;
       const inspectionSheet = payload.after;
 
+      // 当从Excel导入检验数据时，检验单默认即为检验完成状态，此时应锁定检验值
+      await lockMeasurementsOfInspectionSheet(server, routeContext, inspectionSheet.id);
+
       try {
         trySendInspectionSheetNotification(server, routeContext, inspectionSheet);
       } catch (err: any) {
@@ -350,6 +342,10 @@ export default [
 ] satisfies EntityWatcher<any>[];
 
 async function trySendInspectionSheetNotification(server: IRpdServer, routeContext: RouteContext, inspectionSheet: MomInspectionSheet) {
+  if (inspectionSheet.state === "inspected") {
+    return;
+  }
+
   const ruleId = getEntityRelationTargetId(inspectionSheet, "rule", "rule_id");
   if (!ruleId) {
     return;
