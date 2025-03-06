@@ -132,7 +132,7 @@ const formConfig: Partial<RapidEntityFormConfig> = {
       code: "fPlanSn",
       label: "生产计划单编号",
       $exps: {
-        _hidden: "$self.form.getFieldValue('businessType')?.name !== '领料出库' && $self.form.getFieldValue('businessType')?.name !== '生产退料入库'",
+        _hidden: "!['领料出库','生产退料入库'].includes($self.form.getFieldValue('businessType')?.name)",
       },
     },
     {

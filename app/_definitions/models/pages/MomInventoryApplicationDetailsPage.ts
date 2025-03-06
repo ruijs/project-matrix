@@ -548,7 +548,7 @@ const page: RapidPage = {
           type: "auto",
           code: "fPlanSn",
           $exps: {
-            _hidden: "$self.form.getFieldValue('operationType') !== 'out' || $self.form.getFieldValue('businessType').name === '生产入库退货出库'",
+            _hidden: "!['领料出库','生产退料入库'].includes($self.form.getFieldValue('businessType')?.name)",
           },
         },
         {

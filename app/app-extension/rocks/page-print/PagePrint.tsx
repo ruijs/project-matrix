@@ -139,7 +139,7 @@ export default {
                 </Descriptions.Item>
               )}
 
-              {get(detail, "operationType") === "out" && get(detail, "businessType").name !== "生产入库退货出库" && (
+              {["领料出库", "生产退料入库"].includes(get(detail, "businessType.name")) && (
                 <>
                   <Descriptions.Item label="生产计划单编号">{get(detail, "fPlanSn")}</Descriptions.Item>
                 </>
