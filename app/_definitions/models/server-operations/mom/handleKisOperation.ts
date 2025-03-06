@@ -100,6 +100,11 @@ export async function handleKisOperation(server: IRpdServer, routeContext: Route
       "fDeliveryCode",
       "express",
     ],
+    relations: {
+      department: {
+        properties: ["id", "name", "code", "externalCode"],
+      },
+    },
   });
 
   if (!inventoryApplication) {
