@@ -9,6 +9,7 @@ import rapidApi from "~/rapidApi";
 import dayjs from "dayjs";
 import { fmtCharacteristicNorminal } from "~/utils/fmt";
 import { printDOM } from "../page-print/print";
+import { renderMaterial } from "../material-label-renderer/MaterialLabelRenderer";
 
 interface IInspectionsSheet {
   id: string;
@@ -149,7 +150,7 @@ export default {
             </tr>
             <tr>
               <td colSpan={2}>物料名称</td>
-              <td colSpan={2}>{res?.material?.name || "-"}</td>
+              <td colSpan={2}>{renderMaterial(res?.material) || "-"}</td>
               <td colSpan={2}>批号</td>
               <td> {res?.lotNum || "-"}</td>
             </tr>
