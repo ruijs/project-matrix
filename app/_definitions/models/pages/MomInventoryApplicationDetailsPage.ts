@@ -432,8 +432,6 @@ const page: RapidPage = {
             format: "{{name}}",
           },
           $exps: {
-            _hidden:
-              "$self.form.getFieldValue('businessType').name === '销售出库'|| $self.form.getFieldValue('businessType').name === '生产退料入库'||$self.form.getFieldValue('businessType').name === '生产入库退货出库'",
             label: "$functions.renderInventoryManagerDisplayLabel($self.form.getFieldValue('businessType').name, 'fFManager')",
           },
         },
@@ -444,75 +442,7 @@ const page: RapidPage = {
             format: "{{name}}",
           },
           $exps: {
-            _hidden:
-              "$self.form.getFieldValue('businessType').name === '销售出库'|| $self.form.getFieldValue('businessType').name === '生产退料入库'||$self.form.getFieldValue('businessType').name === '生产入库退货出库'",
             label: "$functions.renderInventoryManagerDisplayLabel($self.form.getFieldValue('businessType').name, 'fSManager')",
-          },
-        },
-        {
-          type: "auto",
-          code: "fFManager",
-          label: "验收",
-          rendererProps: {
-            format: "{{name}}",
-          },
-          $exps: {
-            _hidden: "$self.form.getFieldValue('businessType').name !== '生产入库退货出库'",
-          },
-        },
-        {
-          type: "auto",
-          code: "fSManager",
-          label: "保管",
-          rendererProps: {
-            format: "{{name}}",
-          },
-          $exps: {
-            _hidden: "$self.form.getFieldValue('businessType').name !== '生产入库退货出库'",
-          },
-        },
-        {
-          type: "auto",
-          code: "fFManager",
-          label: "发料",
-          rendererProps: {
-            format: "{{name}}",
-          },
-          $exps: {
-            _hidden: "$self.form.getFieldValue('businessType').name !== '生产退料入库'",
-          },
-        },
-        {
-          type: "auto",
-          code: "fSManager",
-          label: "领料",
-          rendererProps: {
-            format: "{{name}}",
-          },
-          $exps: {
-            _hidden: "$self.form.getFieldValue('businessType').name !== '生产退料入库'",
-          },
-        },
-        {
-          type: "auto",
-          code: "fFManager",
-          label: "发货",
-          rendererProps: {
-            format: "{{name}}",
-          },
-          $exps: {
-            _hidden: "$self.form.getFieldValue('businessType').name !== '销售出库'",
-          },
-        },
-        {
-          type: "auto",
-          code: "fSManager",
-          label: "保管",
-          rendererProps: {
-            format: "{{name}}",
-          },
-          $exps: {
-            _hidden: "$self.form.getFieldValue('businessType').name !== '销售出库'",
           },
         },
         {
@@ -541,14 +471,14 @@ const page: RapidPage = {
           $exps: {
             _hidden:
               "!(['委外加工出库', '委外加工出库退货入库','其它原因出库', '其它原因出库退货入库', '领料出库', '生产退料入库'].includes($self.form.getFieldValue('businessType')?.name))",
-            label: "$self.form.getFieldValue('businessType').name === '委外加工出库' ? '加工要求' : '领料用途'",
+            label: "['委外加工出库', '委外加工出库退货入库'].includes($self.form.getFieldValue('businessType').name) ? '加工要求' : '领料用途'",
           },
         },
         {
           type: "auto",
           code: "fPlanSn",
           $exps: {
-            _hidden: "$self.form.getFieldValue('operationType') !== 'out' || $self.form.getFieldValue('businessType').name === '生产入库退货出库'",
+            _hidden: "!['领料出库','生产退料入库'].includes($self.form.getFieldValue('businessType')?.name)",
           },
         },
         {

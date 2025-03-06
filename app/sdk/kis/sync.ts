@@ -241,14 +241,14 @@ class KisDataSync {
         url: "/koas/APP006992/api/MeasureUnit/List",
         singularCode: "base_unit",
         mapToEntity: async (item: any) =>
-        ({
-          code: item.FNumber,
-          name: item.FName,
-          externalCode: item.FItemID,
-          type: "others",
-          orderNum: 1,
-          category: { id: 1 },
-        } as SaveBaseUnitInput),
+          ({
+            code: item.FNumber,
+            name: item.FName,
+            externalCode: item.FItemID,
+            type: "others",
+            orderNum: 1,
+            category: { id: 1 },
+          } as SaveBaseUnitInput),
       }),
       // 同步物料分类
       this.createListSyncFunction(routeContext, {
@@ -291,18 +291,18 @@ class KisDataSync {
       }),
       // 同步部门
       this.createListSyncFunction(routeContext, {
-      url: "/koas/APP006992/api/Department/List",
-      singularCode: "oc_department",
-      mapToEntity: async (item: any) => {
-        return {
-          code: item.FNumber,
-          name: item.FName,
-          state: "enabled",
-          orderNum: 1,
-          externalCode: item.FItemID,
-        } as SaveOcDepartmentInput;
-      },
-    }),
+        url: "/koas/APP006992/api/Department/List",
+        singularCode: "oc_department",
+        mapToEntity: async (item: any) => {
+          return {
+            code: item.FNumber,
+            name: item.FName,
+            state: "enabled",
+            orderNum: 1,
+            externalCode: item.FItemID,
+          } as SaveOcDepartmentInput;
+        },
+      }),
       // this.createListSyncFunction({
       //   url: "/koas/APP006992/api/StockPlaceGroup/List",
       //   singularCode: "base_location",
@@ -344,14 +344,14 @@ class KisDataSync {
         url: "/koas/APP006992/api/MeasureUnit/List",
         singularCode: "base_unit",
         mapToEntity: async (item: any) =>
-        ({
-          code: item.FNumber,
-          name: item.FName,
-          externalCode: item.FItemID,
-          type: "others",
-          orderNum: 1,
-          category: { id: 1 },
-        } as SaveBaseUnitInput),
+          ({
+            code: item.FNumber,
+            name: item.FName,
+            externalCode: item.FItemID,
+            type: "others",
+            orderNum: 1,
+            category: { id: 1 },
+          } as SaveBaseUnitInput),
       }),
       // 同步物料
       this.createListSyncFunction(routeContext, {
@@ -920,8 +920,8 @@ class KisDataSync {
         case "盘亏出库":
           statusApiUrl = "/koas/app007104/api/inventoryloss/getdetail";
           break;
-        case "其他原因入库":
-        case "其他原因出库":
+        case "其它原因入库":
+        case "其它原因出库":
           statusApiUrl = "/koas/app007104/api/miscellaneousreceipt/getdetail";
           break;
         case "委外加工入库":
