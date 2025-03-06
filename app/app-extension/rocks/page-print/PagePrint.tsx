@@ -131,10 +131,10 @@ export default {
                 <Descriptions.Item label="加工单位">{get(detail, "supplier.name")}</Descriptions.Item>
               )}
 
-              {["委外加工出库", "委外加工出库退货入库", "其它原因出库", "其它原因出库退货入库", "领料出库", "生产退料入库"].includes(
+              {["领料出库", "生产退料入库", "委外加工出库", "委外加工出库退货入库", "其它原因出库", "其它原因出库退货入库"].includes(
                 get(detail, "businessType.name"),
               ) && (
-                <Descriptions.Item label={get(detail, "businessType.name") === "委外加工出库" ? "加工要求" : "领料用途"}>
+                <Descriptions.Item label={["委外加工出库", "委外加工出库退货入库"].includes(get(detail, "businessType.name")) ? "加工要求" : "领料用途"}>
                   {get(detail, "fUse")}
                 </Descriptions.Item>
               )}

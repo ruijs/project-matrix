@@ -86,17 +86,10 @@ const formConfig: Partial<RapidEntityFormConfig> = {
     {
       type: "auto",
       code: "fUse",
-      label: "加工要求",
-      $exps: {
-        _hidden: `!(['委外加工出库', '委外加工出库退货入库'].includes($self.form.getFieldValue('businessType')?.name))`,
-      },
-    },
-    {
-      type: "auto",
-      code: "fUse",
       label: "领料用途",
       $exps: {
-        _hidden: `!(['其它原因出库', '其它原因出库退货入库', '领料出库', '生产退料入库'].includes($self.form.getFieldValue('businessType')?.name))`,
+        label: "['委外加工出库', '委外加工出库退货入库'].includes($self.form.getFieldValue('businessType')?.name) ? '加工要求' : '领料用途'",
+        _hidden: `!(['领料出库', '生产退料入库','委外加工出库', '委外加工出库退货入库','其它原因出库', '其它原因出库退货入库', ].includes($self.form.getFieldValue('businessType')?.name))`,
       },
     },
     {

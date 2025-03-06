@@ -601,7 +601,7 @@ export default {
               })}
             </Form.Item>
           )}
-          {["领料出库", "生产退料入库", "委外加工出库", "委外加工出库退货入库", "其它原因出库"].includes(businessType || "") && (
+          {["领料出库", "生产退料入库", "委外加工出库", "委外加工出库退货入库", "其它原因出库", "其它原因出库退货入库"].includes(businessType || "") && (
             <Form.Item
               label={["委外加工出库", "委外加工出库退货入库"].includes(businessType || "") ? "加工要求" : "领料用途"}
               name="fUse"
