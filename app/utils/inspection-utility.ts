@@ -6,7 +6,7 @@ export function isCharactorMeasured(measurement: MomInspectionMeasurement, chara
   return !(isNil(inspectionValue) || (isString(inspectionValue) && inspectionValue.trim() === ""));
 }
 
-export function renderCharacteristicQualifiedConditions(characteristic: Partial<MomInspectionCharacteristic>) {
+export function renderCharacteristicQualifiedConditions(characteristic: Partial<MomInspectionCharacteristic> | undefined) {
   if (!characteristic) {
     return;
   }

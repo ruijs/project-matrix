@@ -10,44 +10,12 @@ import dayjs from "dayjs";
 import { renderCharacteristicQualifiedConditions } from "~/utils/inspection-utility";
 import { printDOM } from "../page-print/print";
 import { renderMaterial } from "../material-label-renderer/MaterialLabelRenderer";
-import { filter, flatten, map, sortBy, uniq } from "lodash";
-
-interface IInspectionsSheet {
-  id: string;
-  code: string;
-  state: string;
-  approvalState: string;
-  result: string;
-  material: {
-    category: {
-      id: string;
-      code: string;
-      name: string;
-    };
-    code: string;
-    id: number;
-    name: string;
-  };
-  customer: string;
-  lotNum: string;
-  sampleCount: number;
-  inventoryOperation: string;
-  rule: string;
-  acceptQuantity: string;
-  sender: {
-    name: string;
-  };
-  reviewer: {
-    name: string;
-  };
-  samples: any[];
-  createdAt: string;
-  remark: string;
-}
+import { filter, flatten, get, isNil, map, sortBy, uniq } from "lodash";
+import { MomInspectionMeasurement, MomInspectionSheet } from "~/_definitions/meta/entity-types";
 
 interface MeasurementRecord {
   sampleCode: string;
-  value: any;
+  measurementValue: any;
   round: number;
 }
 
@@ -88,7 +56,7 @@ export default {
           }
 
           const name = measurement.characteristic?.name;
-          const value = measurement.qualitativeValue || measurement.quantitativeValue || "-";
+          const measurementValue = measurement.qualitativeValue || measurement.quantitativeValue || "";
           const sampleCode = measurement.sampleCode;
           const round = measurement.round || "-";
 
@@ -100,7 +68,7 @@ export default {
           }
 
           stats[name].appearances++;
-          stats[name].measurementRecords.push({ sampleCode, value, round });
+          stats[name].measurementRecords.push({ sampleCode, measurementValue, round });
         });
       });
 
@@ -109,31 +77,36 @@ export default {
 
     function displayMeasurementValuesOfCharactor(measurementRecordsOfCharactor: MeasurementRecord[], sampleCode: string) {
       const measurementRecordsOfSample = sortBy(filter(measurementRecordsOfCharactor, { sampleCode }), (item) => item.round);
-      return map(measurementRecordsOfSample, (item) => `${item.value}`).join("/");
+      return map(
+        filter(measurementRecordsOfSample, (item) => !!item.measurementValue),
+        (item) => `${item.measurementValue}`,
+      ).join(" / ");
     }
 
-    const printContent = (res: IInspectionsSheet) => {
-      const title = res?.material?.category?.name?.includes("原材料") ? "进 料 检 测 报 告" : "成 品 检 测 报 告";
-      const result = res?.result === "unqualified" ? false : true;
-      const samples = res?.samples;
+    const printContent = (inspectionSheet: Partial<MomInspectionSheet>) => {
+      const title = inspectionSheet?.material?.category?.name?.includes("原材料") ? "进 料 检 测 报 告" : "成 品 检 测 报 告";
+      const result = inspectionSheet?.result === "unqualified" ? false : true;
+      const samples = inspectionSheet?.samples;
       const measurementRecordsOfCharactors = countCharacteristics(samples);
+
+      const supplierName = inspectionSheet.inventoryOperation?.application?.supplier?.name || "";
 
       const allMeasurementRecords = flatten(map(Object.values(measurementRecordsOfCharactors), (item) => item.measurementRecords));
 
       const sampleCodes = uniq(map(allMeasurementRecords, (item) => item.sampleCode)).sort();
       const sampleCounts = sampleCodes.length;
 
-      const formateMeasurements =
-        res?.samples[0]?.measurements
-          ?.filter((item: any) => item?.characteristic != null)
-          ?.map((item: any) => {
-            return {
-              name: item?.characteristic?.name,
-              method: item?.characteristic?.method?.name,
-              unit: "",
-              norminal: renderCharacteristicQualifiedConditions(item?.characteristic), //指标
-            };
-          }) || [];
+      const formateMeasurements = (get(inspectionSheet, "samples[0].measurements") || [])
+        .filter((item: Partial<MomInspectionMeasurement>) => !isNil(item.characteristic))
+        .map((item: Partial<MomInspectionMeasurement>) => {
+          const { characteristic } = item;
+          return {
+            name: characteristic?.name,
+            method: characteristic?.method?.name,
+            unit: "",
+            qualifiedConditions: renderCharacteristicQualifiedConditions(item?.characteristic), //指标
+          };
+        });
 
       const samplesArray = map(formateMeasurements, (item: any) => {
         const measurementRecordsOfCharactor = measurementRecordsOfCharactors[item.name];
@@ -154,21 +127,21 @@ export default {
           <table className="printable-table">
             <tr>
               <td colSpan={2} width="50%">
-                物料名称：{renderMaterial(res?.material) || "-"}
+                物料名称：{renderMaterial(inspectionSheet?.material) || "-"}
               </td>
               <td colSpan={2} width="50%">
-                批号 {res?.lotNum || "-"}
+                批号 {inspectionSheet?.lotNum || "-"}
               </td>
             </tr>
             <tr>
               <td colSpan={2}>包装规格：</td>
-              <td colSpan={2}>供应商：</td>
+              <td colSpan={2}>供应商：{supplierName}</td>
             </tr>
             <tr>
               <td colSpan={2}>
-                抽样数/供货数量：{res?.sampleCount || "-"}/{res?.acceptQuantity || "-"}
+                抽样数/供货数量：{inspectionSheet?.sampleCount || "-"}/{inspectionSheet?.acceptQuantity || "-"}
               </td>
-              <td colSpan={2}>进料日期：{res?.createdAt ? dayjs(res?.createdAt).format("YYYY-MM-DD") : "-"}</td>
+              <td colSpan={2}>进料日期：{inspectionSheet?.createdAt ? dayjs(inspectionSheet?.createdAt).format("YYYY-MM-DD") : "-"}</td>
             </tr>
             <tr>
               <td rowSpan={2} colSpan={1}>
@@ -206,13 +179,14 @@ export default {
                         <td>{item.name}</td>
                         <td>{item.method}</td>
                         <td>{item.unit}</td>
-                        <td>{item.norminal}</td>
+                        <td>{item.qualifiedConditions}</td>
                         <td>{sampleCounts}</td>
                         <td>
                           {sampleCodes
                             .map((sampleCode) => {
                               return displayMeasurementValuesOfCharactor(item.measurementRecords, sampleCode);
                             })
+                            .filter((item) => !!item)
                             .join("、")}
                         </td>
                       </tr>
@@ -228,11 +202,11 @@ export default {
                 <input type="checkbox" name="judgment" value="合格" checked={result} /> 合格 &nbsp;
                 <input type="checkbox" name="judgment" value="不合格" checked={!result} /> 不合格
               </td>
-              <td colSpan={2}>异常描述：{res?.remark || "-"}</td>
+              <td colSpan={2}>异常描述：{inspectionSheet?.remark || "-"}</td>
             </tr>
             <tr>
-              <td colSpan={1}>检测员:&nbsp;{res?.sender?.name || "-"}</td>
-              <td colSpan={1}>审核员:&nbsp;{res?.reviewer?.name || "-"}</td>
+              <td colSpan={1}>检测员:&nbsp;{inspectionSheet?.sender?.name || "-"}</td>
+              <td colSpan={1}>审核员:&nbsp;{inspectionSheet?.reviewer?.name || "-"}</td>
               <td colSpan={2}>确认（不合格时）:&nbsp;</td>
             </tr>
           </table>
@@ -287,7 +261,6 @@ const useInspectionSheet = () => {
           "customer",
           "lotNum",
           "sampleCount",
-          "inventoryOperation",
           "rule",
           "sender",
           "remark",
@@ -297,6 +270,15 @@ const useInspectionSheet = () => {
           "round",
         ],
         relations: {
+          inventoryOperation: {
+            relations: {
+              application: {
+                relations: {
+                  supplier: true,
+                },
+              },
+            },
+          },
           material: {
             properties: ["id", "code", "name", "specification", "category", "defaultUnit"],
             relations: {
@@ -316,38 +298,19 @@ const useInspectionSheet = () => {
             value: id,
           },
         ],
+        properties: ["id", "code", "measurements", "round"],
         relations: {
+          sheet: true,
           measurements: {
             relations: {
-              characteristic: {
-                properties: [
-                  "id",
-                  "name",
-                  "skippable",
-                  "mustPass",
-                  "method",
-                  "instrumentCategory",
-                  "instrument",
-                  "kind",
-                  "norminal",
-                  "createdAt",
-                  "determineType",
-                  "qualitativeDetermineType",
-                  "upperTol",
-                  "lowerTol",
-                  "upperLimit",
-                  "lowerLimit",
-                ],
-              },
+              characteristic: true,
             },
-            properties: ["id", "isQualified", "qualitativeValue", "quantitativeValue", "sampleCode", "instrument", "characteristic", "locked", "round"],
           },
         },
         pagination: {
           limit: 1000,
           offset: 0,
         },
-        properties: ["id", "code", "sheet", "measurements", "round"],
       });
 
       const formateData = {
