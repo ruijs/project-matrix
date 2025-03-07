@@ -217,7 +217,7 @@ export type InspectionDetermineType =
   ;
 
 /**
- * 检验条件
+ * 检验类型
  */
 export type InspectionKind =
   | 'qualitative'

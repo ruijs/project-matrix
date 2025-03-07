@@ -10,8 +10,8 @@ import dayjs from "dayjs";
 import { renderCharacteristicQualifiedConditions } from "~/utils/inspection-utility";
 import { printDOM } from "../page-print/print";
 import { renderMaterial } from "../material-label-renderer/MaterialLabelRenderer";
-import { filter, flatten, get, isNil, map, sortBy, uniq } from "lodash";
-import { MomInspectionMeasurement, MomInspectionSheet, MomInventoryApplicationItem } from "~/_definitions/meta/entity-types";
+import { filter, flatten, forEach, map, sortBy, uniq } from "lodash";
+import { MomInspectionCharacteristic, MomInspectionSheet, MomInspectionSheetSample, MomInventoryApplicationItem } from "~/_definitions/meta/entity-types";
 
 interface MeasurementRecord {
   sampleCode: string;
@@ -19,8 +19,12 @@ interface MeasurementRecord {
   round: number;
 }
 
-interface MeasurementRecordsOfCharactor {
-  appearances: number;
+interface MeasurementRecordsOfCharacter {
+  name?: string;
+  envConditions?: string;
+  method?: string;
+  unitName?: string;
+  qualifiedConditions?: string;
   measurementRecords: MeasurementRecord[];
 }
 
@@ -34,93 +38,77 @@ export default {
   Renderer(context, props, state) {
     const ref = useRef<HTMLDivElement>(null);
     const { loadInspectionSheet, inspectionSheet, inventoryApplicationItem } = useInspectionSheet();
-    const handleOnClick = async () => {
-      if (inspectionSheet) {
-        printDOM(ref.current);
-      } else {
-        loadInspectionSheet(props?.record?.id).then((res: any) => {
-          if (res) {
-            printDOM(ref.current!);
-          }
-        });
+    const [shouldPrint, setShouldPrint] = useState(false);
+
+    const handlePrintClick = async () => {
+      setShouldPrint(true);
+
+      if (!inspectionSheet) {
+        loadInspectionSheet(props?.record?.id);
       }
     };
 
-    const countCharacteristics = (data: any) => {
-      const stats: Record<string, MeasurementRecordsOfCharactor> = {};
+    function groupMeasurementRecordsByCharacter(
+      samples: MomInspectionSheetSample[],
+      characteristics: MomInspectionCharacteristic[],
+    ): MeasurementRecordsOfCharacter[] {
+      return map(characteristics, (character) => {
+        const measurementRecords: MeasurementRecord[] = [];
 
-      data?.forEach((item: any) => {
-        item.measurements?.forEach?.((measurement: any) => {
-          if (!measurement.characteristic) {
-            return;
-          }
+        forEach(samples, (sample) => {
+          sample.measurements?.forEach?.((measurement) => {
+            if (!measurement.characteristic || measurement.characteristic.id !== character.id) {
+              return;
+            }
 
-          const name = measurement.characteristic?.name;
-          const measurementValue = measurement.qualitativeValue || measurement.quantitativeValue || "";
-          const sampleCode = measurement.sampleCode;
-          const round = measurement.round || "-";
+            const measurementValue = measurement.qualitativeValue || measurement.quantitativeValue || "";
+            const sampleCode = measurement.sampleCode || "";
+            const round = measurement.round || 1;
 
-          if (!stats[name]) {
-            stats[name] = {
-              appearances: 0,
-              measurementRecords: [],
-            };
-          }
-
-          stats[name].appearances++;
-          stats[name].measurementRecords.push({ sampleCode, measurementValue, round });
+            measurementRecords.push({ sampleCode, measurementValue, round });
+          });
         });
+
+        return {
+          name: character.name,
+          envConditions: character.envConditions,
+          method: character.method?.name,
+          unitName: character.unitName,
+          qualifiedConditions: renderCharacteristicQualifiedConditions(character), //指标
+          measurementRecords,
+        } satisfies MeasurementRecordsOfCharacter;
       });
+    }
 
-      return stats;
-    };
-
-    function displayMeasurementValuesOfCharactor(measurementRecordsOfCharactor: MeasurementRecord[], sampleCode: string) {
-      const measurementRecordsOfSample = sortBy(filter(measurementRecordsOfCharactor, { sampleCode }), (item) => item.round);
+    function displayMeasurementValuesOfCharacter(measurementRecordsOfCharacter: MeasurementRecord[], sampleCode: string) {
+      const measurementRecordsOfSample = sortBy(filter(measurementRecordsOfCharacter, { sampleCode }), (item) => item.round);
       return map(
         filter(measurementRecordsOfSample, (item) => !!item.measurementValue),
         (item) => `${item.measurementValue}`,
       ).join(" / ");
     }
 
-    const printContent = (inspectionSheet: Partial<MomInspectionSheet>) => {
+    const PrintContent = (inspectionSheet: Partial<MomInspectionSheet>) => {
+      if (!inspectionSheet) {
+        return null;
+      }
+
       const title = inspectionSheet?.material?.category?.name?.includes("原材料") ? "进料检测报告" : "成品检测报告";
       const result = inspectionSheet?.result === "unqualified" ? false : true;
-      const samples = inspectionSheet?.samples;
-      const measurementRecordsOfCharactors = countCharacteristics(samples);
+      const samples: MomInspectionSheetSample[] = (inspectionSheet?.samples as any) || [];
+      const characteristics: MomInspectionCharacteristic[] = (inspectionSheet.rule?.characteristics as any) || [];
+      const measurementRecordsOfCharacters = groupMeasurementRecordsByCharacter(samples, characteristics);
 
       const supplierName = inspectionSheet.inventoryOperation?.application?.supplier?.name || "";
 
-      const allMeasurementRecords = flatten(map(Object.values(measurementRecordsOfCharactors), (item) => item.measurementRecords));
+      const allMeasurementRecords = flatten(map(Object.values(measurementRecordsOfCharacters), (item) => item.measurementRecords));
 
       const sampleCodes = uniq(map(allMeasurementRecords, (item) => item.sampleCode)).sort();
       const sampleCounts = sampleCodes.length;
 
-      const formateMeasurements = (get(inspectionSheet, "samples[0].measurements") || [])
-        .filter((item: Partial<MomInspectionMeasurement>) => !isNil(item.characteristic))
-        .map((item: Partial<MomInspectionMeasurement>) => {
-          const { characteristic } = item;
-          return {
-            name: characteristic?.name,
-            method: characteristic?.method?.name,
-            unit: "",
-            qualifiedConditions: renderCharacteristicQualifiedConditions(item?.characteristic), //指标
-          };
-        });
-
-      const samplesArray = map(formateMeasurements, (item: any) => {
-        const measurementRecordsOfCharactor = measurementRecordsOfCharactors[item.name];
-        const appearances = measurementRecordsOfCharactor?.appearances || "-";
-        return {
-          ...item,
-          appearances,
-          measurementRecords: measurementRecordsOfCharactor.measurementRecords,
-        };
-      });
-
       return (
         <div ref={ref} className="inspection-template-container">
-          <img src={logo} style={{ width: 200, height: 75 }} />
+          <img src={logo} width="200" />
           <div
             style={{
               textAlign: "center",
@@ -181,24 +169,24 @@ export default {
                 <table className="printable-table" style={{ border: 0 }}>
                   <tr>
                     <th style={{ width: "90px" }}>检测项目</th>
-                    <th style={{ width: "100px" }}>检查方法</th>
+                    <th style={{ width: "100px" }}>检测条件</th>
                     <th style={{ width: "50px" }}>单位</th>
                     <th style={{ width: "70px" }}>指标</th>
                     <th style={{ width: "70px" }}>样本数量</th>
                     <th>检测结果</th>
                   </tr>
-                  {samplesArray.map((item: any, index: number) => {
+                  {measurementRecordsOfCharacters.map((measurementRecordsOfCharacter, index: number) => {
                     return (
                       <tr key={index}>
-                        <td>{item.name}</td>
-                        <td>{item.method}</td>
-                        <td style={{ textAlign: "center" }}>{item.unit}</td>
-                        <td style={{ textAlign: "center" }}>{item.qualifiedConditions}</td>
+                        <td>{measurementRecordsOfCharacter.name}</td>
+                        <td>{measurementRecordsOfCharacter.envConditions}</td>
+                        <td style={{ textAlign: "center" }}>{measurementRecordsOfCharacter.unitName}</td>
+                        <td style={{ textAlign: "center" }}>{measurementRecordsOfCharacter.qualifiedConditions}</td>
                         <td style={{ textAlign: "center" }}>{sampleCounts}</td>
                         <td>
                           {sampleCodes
                             .map((sampleCode) => {
-                              return displayMeasurementValuesOfCharactor(item.measurementRecords, sampleCode);
+                              return displayMeasurementValuesOfCharacter(measurementRecordsOfCharacter.measurementRecords, sampleCode);
                             })
                             .filter((item) => !!item)
                             .join("、")}
@@ -229,18 +217,19 @@ export default {
     };
 
     useEffect(() => {
-      if (inspectionSheet && ref.current) {
-        handleOnClick();
+      if (inspectionSheet && shouldPrint && ref.current) {
+        printDOM(ref.current!);
+        setShouldPrint(false);
       }
-    }, [inspectionSheet, ref.current]);
+    }, [inspectionSheet, shouldPrint, ref.current]);
 
     return (
       <>
-        <Button style={{ padding: 0, marginLeft: 6 }} type="link" onClick={handleOnClick}>
+        <Button style={{ padding: 0, marginLeft: 6 }} type="link" onClick={handlePrintClick}>
           打印
         </Button>
         <div style={{ display: "none" }}>
-          <div>{inspectionSheet && printContent(inspectionSheet)}</div>
+          <div>{inspectionSheet && PrintContent(inspectionSheet)}</div>
         </div>
       </>
     );
@@ -289,6 +278,17 @@ function useInspectionSheet(): {
           "round",
         ],
         relations: {
+          rule: {
+            relations: {
+              characteristics: {
+                orderBy: [
+                  {
+                    field: "orderNum",
+                  },
+                ],
+              },
+            },
+          },
           inventoryOperation: {
             relations: {
               application: {

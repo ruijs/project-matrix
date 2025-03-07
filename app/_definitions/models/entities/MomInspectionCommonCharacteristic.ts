@@ -35,6 +35,11 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
       targetIdColumnName: "category_id",
     },
     {
+      code: "unitName",
+      name: "单位",
+      type: "text",
+    },
+    {
       code: "config",
       name: "配置",
       type: "json",

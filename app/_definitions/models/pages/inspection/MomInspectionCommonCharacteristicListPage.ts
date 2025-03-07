@@ -12,12 +12,16 @@ const formConfig: Partial<RapidEntityFormConfig> = {
       code: "name",
     },
     {
-      type: "textarea",
-      code: "description",
+      type: "auto",
+      code: "category",
     },
     {
       type: "auto",
-      code: "category",
+      code: "unitName",
+    },
+    {
+      type: "textarea",
+      code: "description",
     },
     {
       type: "auto",
@@ -86,6 +90,11 @@ const page: RapidPage = {
           type: "auto",
           code: "name",
           width: "150px",
+        },
+        {
+          type: "auto",
+          code: "unitName",
+          width: "50px",
         },
         {
           type: "auto",

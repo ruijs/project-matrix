@@ -19,6 +19,10 @@ const formConfig: Partial<RapidEntityFormConfig> = {
     // },
     {
       type: "auto",
+      code: "orderNum",
+    },
+    {
+      type: "auto",
       code: "name",
     },
     {
@@ -33,27 +37,27 @@ const formConfig: Partial<RapidEntityFormConfig> = {
       type: "auto",
       code: "mustPass",
     },
-    {
-      type: "auto",
-      code: "category",
-    },
-    {
-      type: "auto",
-      code: "method",
-    },
-    {
-      type: "auto",
-      code: "instrumentCategory",
-    },
-    {
-      type: "auto",
-      code: "instrument",
-      formControlProps: {
-        listTextFieldName: "code",
-        listFilterFields: ["code"],
-        columns: [{ code: "code", title: "编号" }],
-      },
-    },
+    // {
+    //   type: "auto",
+    //   code: "category",
+    // },
+    // {
+    //   type: "auto",
+    //   code: "method",
+    // },
+    // {
+    //   type: "auto",
+    //   code: "instrumentCategory",
+    // },
+    // {
+    //   type: "auto",
+    //   code: "instrument",
+    //   formControlProps: {
+    //     listTextFieldName: "code",
+    //     listFilterFields: ["code"],
+    //     columns: [{ code: "code", title: "编号" }],
+    //   },
+    // },
     {
       type: "auto",
       code: "kind",
@@ -123,8 +127,13 @@ const formConfig: Partial<RapidEntityFormConfig> = {
         _hidden: "$self.form.getFieldValue('kind') !== 'quantitative' || $self.form.getFieldValue('determineType') !== 'inLimit'",
       },
     },
+    {
+      type: "auto",
+      code: "unitName",
+    },
   ],
   defaultFormFields: {
+    orderNum: 0,
     isCommon: false,
     skippable: false,
     mustPass: true,
@@ -250,49 +259,30 @@ const page: RapidPage = {
               pageSize: -1,
               orderBy: [
                 {
-                  field: "id",
+                  field: "orderNum",
                 },
               ],
               extraProperties: ["determineType", "qualitativeDetermineType", "upperTol", "lowerTol", "upperLimit", "lowerLimit"],
               columns: [
                 {
                   type: "auto",
+                  code: "orderNum",
+                  width: "80px",
+                },
+                {
+                  type: "auto",
                   code: "name",
+                  width: "150px",
+                },
+                {
+                  type: "auto",
+                  code: "unitName",
+                  width: "50px",
                 },
                 {
                   type: "auto",
                   code: "envConditions",
-                },
-                {
-                  type: "auto",
-                  code: "skippable",
-                },
-                {
-                  type: "auto",
-                  code: "mustPass",
-                },
-                {
-                  type: "auto",
-                  code: "category",
-                },
-                {
-                  type: "auto",
-                  code: "method",
-                },
-                {
-                  type: "auto",
-                  code: "instrumentCategory",
-                },
-                {
-                  type: "auto",
-                  code: "instrument",
-                  rendererProps: {
-                    format: "{{code}}",
-                  },
-                },
-                {
-                  type: "auto",
-                  code: "kind",
+                  width: "150px",
                 },
                 {
                   type: "auto",
@@ -300,6 +290,22 @@ const page: RapidPage = {
                   code: "norminal",
                   rendererType: "inspectionConditionRenderer",
                 },
+                {
+                  type: "auto",
+                  code: "skippable",
+                  width: "100px",
+                },
+                {
+                  type: "auto",
+                  code: "mustPass",
+                  width: "80px",
+                },
+                {
+                  type: "auto",
+                  code: "kind",
+                  width: "80px",
+                },
+
                 {
                   type: "auto",
                   code: "createdAt",
