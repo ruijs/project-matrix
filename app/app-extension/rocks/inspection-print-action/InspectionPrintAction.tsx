@@ -10,8 +10,8 @@ import dayjs from "dayjs";
 import { renderCharacteristicQualifiedConditions } from "~/utils/inspection-utility";
 import { printDOM } from "../page-print/print";
 import { renderMaterial } from "../material-label-renderer/MaterialLabelRenderer";
-import { filter, flatten, forEach, map, sortBy, uniq } from "lodash";
-import { MomInspectionCharacteristic, MomInspectionSheet, MomInspectionSheetSample, MomInventoryApplicationItem } from "~/_definitions/meta/entity-types";
+import { filter, map, sortBy, uniq } from "lodash";
+import { MomInspectionCharacteristic, MomInspectionMeasurement, MomInspectionSheet, MomInventoryApplicationItem } from "~/_definitions/meta/entity-types";
 import { renderPrintableCheckbox } from "~/utils/common-renderers";
 
 interface MeasurementRecord {
@@ -50,24 +50,22 @@ export default {
     };
 
     function groupMeasurementRecordsByCharacter(
-      samples: MomInspectionSheetSample[],
+      measurements: MomInspectionMeasurement[],
       characteristics: MomInspectionCharacteristic[],
     ): MeasurementRecordsOfCharacter[] {
       return map(characteristics, (character) => {
         const measurementRecords: MeasurementRecord[] = [];
 
-        forEach(samples, (sample) => {
-          sample.measurements?.forEach?.((measurement) => {
-            if (!measurement.characteristic || measurement.characteristic.id !== character.id) {
-              return;
-            }
+        measurements.forEach?.((measurement) => {
+          if ((measurement as any).characteristic_id !== character.id) {
+            return;
+          }
 
-            const measurementValue = measurement.qualitativeValue || measurement.quantitativeValue || "";
-            const sampleCode = measurement.sampleCode || "";
-            const round = measurement.round || 1;
+          const measurementValue = measurement.qualitativeValue || measurement.quantitativeValue || "";
+          const sampleCode = measurement.sampleCode || "";
+          const round = measurement.round || 1;
 
-            measurementRecords.push({ sampleCode, measurementValue, round });
-          });
+          measurementRecords.push({ sampleCode, measurementValue, round });
         });
 
         return {
@@ -94,17 +92,15 @@ export default {
         return null;
       }
 
-      const title = inspectionSheet?.material?.category?.name?.includes("原材料") ? "进料检测报告" : "成品检测报告";
+      const title = inspectionSheet?.rule?.category?.name?.includes("来料检验") ? "进料检测报告" : "成品检测报告";
       const isQualified = inspectionSheet.result !== "unqualified";
-      const samples: MomInspectionSheetSample[] = (inspectionSheet.samples as any) || [];
+      const measurements: MomInspectionMeasurement[] = (inspectionSheet.measurements as any) || [];
       const characteristics: MomInspectionCharacteristic[] = (inspectionSheet.rule?.characteristics as any) || [];
-      const measurementRecordsOfCharacters = groupMeasurementRecordsByCharacter(samples, characteristics);
+      const measurementRecordsOfCharacters = groupMeasurementRecordsByCharacter(measurements, characteristics);
 
       const supplierName = inspectionSheet.inventoryOperation?.application?.supplier?.name || "";
 
-      const allMeasurementRecords = flatten(map(Object.values(measurementRecordsOfCharacters), (item) => item.measurementRecords));
-
-      const sampleCodes = uniq(map(allMeasurementRecords, (item) => item.sampleCode)).sort();
+      const sampleCodes = uniq(map(measurements, (item) => item.sampleCode)).sort();
       const sampleCounts = sampleCodes.length;
 
       return (
@@ -147,19 +143,14 @@ export default {
               <td colSpan={2}>进料日期：{inspectionSheet.createdAt ? dayjs(inspectionSheet.createdAt).format("YYYY-MM-DD") : "-"}</td>
             </tr>
             <tr>
-              <td rowSpan={2} colSpan={1}>
-                非指标类检查结果
-              </td>
-              <td rowSpan={2} colSpan={1}>
+              <td colSpan={1}>非指标类检查结果</td>
+              <td colSpan={1}>
                 {renderPrintableCheckbox(false)} 符合品质要求
                 <br />
                 {renderPrintableCheckbox(false)} 不符合品质要求
               </td>
-              <td colSpan={2}>异常描述:</td>
-            </tr>
-            <tr>
-              <td colSpan={2}>
-                <div style={{ height: 50, width: "100%" }} />
+              <td colSpan={2} style={{ height: 100, verticalAlign: "top" }}>
+                异常描述:
               </td>
             </tr>
             <tr>
@@ -281,6 +272,7 @@ function useInspectionSheet(): {
         relations: {
           rule: {
             relations: {
+              category: true,
               characteristics: {
                 orderBy: [
                   {
@@ -300,23 +292,11 @@ function useInspectionSheet(): {
             },
           },
           material: {
-            properties: ["id", "code", "name", "specification", "category", "defaultUnit"],
-            relations: {
-              category: {
-                properties: ["id", "code", "name", "printTemplate"],
-              },
-            },
+            properties: ["id", "code", "name", "specification", "defaultUnit"],
           },
-          samples: {
-            relations: {
-              measurements: {
-                relations: {
-                  characteristic: true,
-                },
-              },
-            },
-          },
+          measurements: true,
         },
+        keepNonPropertyFields: true,
       });
 
       const inspectionSheet: MomInspectionSheet = listInspectionSheetsResponse.data.list[0];
