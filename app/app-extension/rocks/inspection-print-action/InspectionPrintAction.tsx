@@ -137,7 +137,6 @@ export default {
               method: item?.characteristic?.method?.name,
               unit: "",
               norminal: fmtCharacteristicNorminal(item?.characteristic), //指标
-              category: item?.characteristic?.category?.name, //特性分类
             };
           }) || [];
 
@@ -203,7 +202,6 @@ export default {
                     <td style={{ width: "100px" }}>检查方法</td>
                     <td style={{ width: "90px" }}>单位</td>
                     <td style={{ width: "70px" }}>指标</td>
-                    <td style={{ width: "90px" }}>特性分类</td>
                     <td style={{ width: "90px" }}>样本数量</td>
                     {sampleCodes.map((sampleCode) => {
                       return <td key={sampleCode}>{`#${sampleCode}`}</td>;
@@ -331,7 +329,6 @@ const useInspectionSheet = () => {
                   "name",
                   "skippable",
                   "mustPass",
-                  "category",
                   "method",
                   "instrumentCategory",
                   "instrument",
