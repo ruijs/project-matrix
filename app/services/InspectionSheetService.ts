@@ -3,6 +3,18 @@ import { find } from "lodash";
 import type { MomInspectionCharacteristic, MomInspectionMeasurement, MomInspectionSheet } from "~/_definitions/meta/entity-types";
 import { isCharactorMeasured } from "~/utils/inspection-utility";
 
+/**
+ * 更新检验单的检验结果。
+ * 检验单检验结果判定规则：
+ * - 如果检验项设置为不可跳过，则必须填写检验值。
+ * - 如存在不可跳过的检验项没有填写检验值，则不进行检查单的检验结果判断。
+ * - 如果存在任意一个填写了检验值且被配置为必须合格（mustPass）的检验项被判定为不合格，则检验单判定为不合格，否则判定为合格。
+ * - 如检验单包含多个样本，则所有样本的均需判定合格
+ * - 如某样本存在多轮检验，则以最后轮次的检验值为准
+ * @param server
+ * @param routeContext
+ * @param inspectionSheetId
+ */
 export async function updateInspectionSheetInspectionResult(server: IRpdServer, routeContext: RouteContext, inspectionSheetId: number) {
   const inspectionSheetManager = server.getEntityManager<MomInspectionSheet>("mom_inspection_sheet");
   const inspectionMeasurementManager = server.getEntityManager<MomInspectionMeasurement>("mom_inspection_measurement");
@@ -12,13 +24,6 @@ export async function updateInspectionSheetInspectionResult(server: IRpdServer, 
     filters: [{ operator: "eq", field: "sheet_id", value: inspectionSheetId }],
     properties: ["id", "round", "sampleCode", "isQualified", "quantitativeValue", "qualitativeValue", "characteristic"],
   });
-
-  // 检验单检验结果判定规则：
-  // 如果检验项设置为不可跳过，则必须填写检验值。
-  // 如存在不可跳过的检验项没有填写检验值，则不进行检查单的检验结果判断。
-  // 如果存在任意一个填写了检验值且被配置为必须合格（mustPass）的检验项被判定为不合格，则检验单判定为不合格，否则判定为合格。
-  // 如检验单包含多个样本，则所有样本的均需判定合格
-  // 如某样本存在多轮检验，则以最后轮次的检验值为准
 
   const measurementsByCharacteristic = measurements.reduce((map, measurement) => {
     if (!measurement.characteristic) {
@@ -79,4 +84,22 @@ export async function updateInspectionSheetInspectionResult(server: IRpdServer, 
       result: sheetQualificationResult,
     },
   });
+}
+
+export async function lockMeasurementsOfInspectionSheet(server: IRpdServer, routeContext: RouteContext, inspectionSheetId: number) {
+  const measurements = await server.getEntityManager<MomInspectionMeasurement>("mom_inspection_measurement").findEntities({
+    routeContext,
+    filters: [{ operator: "eq", field: "sheet_id", value: inspectionSheetId }],
+    properties: ["id"],
+  });
+
+  for (const measurement of measurements) {
+    await server.getEntityManager<MomInspectionMeasurement>("mom_inspection_measurement").updateEntityById({
+      routeContext,
+      id: measurement.id,
+      entityToSave: {
+        locked: true,
+      },
+    });
+  }
 }

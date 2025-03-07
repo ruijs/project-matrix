@@ -1,4 +1,4 @@
-import type { EntityWatcher, EntityWatchHandlerContext } from "@ruiapp/rapid-core";
+import { getEntityRelationTargetId, type EntityWatcher, type EntityWatchHandlerContext } from "@ruiapp/rapid-core";
 import { updateInspectionSheetInspectionResult } from "~/services/InspectionSheetService";
 
 export default [
@@ -10,8 +10,9 @@ export default [
       let before = payload.before;
 
       if (before.measurements && Array.isArray(before.measurements)) {
+        const inspectionSheetId = getEntityRelationTargetId(before, "sheet", "sheet_id");
         before.measurements.forEach((measurement: any) => {
-          measurement.sheet_id = before.sheet_id;
+          measurement.sheet_id = inspectionSheetId;
           measurement.sampleCode = before.code;
           measurement.round = before.round;
           if (!measurement.locked) {
@@ -28,7 +29,8 @@ export default [
       const { server, routerContext: routeContext, payload } = ctx;
       let after = payload.after;
 
-      await updateInspectionSheetInspectionResult(server, routeContext, after.sheet_id);
+      const inspectionSheetId = getEntityRelationTargetId(after, "sheet", "sheet_id");
+      await updateInspectionSheetInspectionResult(server, routeContext, inspectionSheetId);
     },
   },
   {
@@ -40,7 +42,29 @@ export default [
       const changes = payload.changes;
 
       if (changes.hasOwnProperty("isQualified")) {
-        await updateInspectionSheetInspectionResult(server, routeContext, after.sheet_id);
+        const inspectionSheetId = getEntityRelationTargetId(after, "sheet", "sheet_id");
+        await updateInspectionSheetInspectionResult(server, routeContext, inspectionSheetId);
+      }
+    },
+  },
+  {
+    eventName: "entity.beforeUpdate",
+    modelSingularCode: "mom_inspection_sheet_sample",
+    handler: async (ctx: EntityWatchHandlerContext<"entity.beforeUpdate">) => {
+      const { server, routerContext: routeContext, payload } = ctx;
+      const before = payload.before;
+      const changes = payload.changes;
+
+      if (changes.measurements && Array.isArray(changes.measurements)) {
+        const inspectionSheetId = getEntityRelationTargetId(before, "sheet", "sheet_id");
+        changes.measurements.forEach((measurement: any) => {
+          measurement.sheet_id = inspectionSheetId;
+          measurement.sampleCode = before.code;
+          measurement.round = before.round;
+          if (!measurement.locked) {
+            measurement.locked = false;
+          }
+        });
       }
     },
   },

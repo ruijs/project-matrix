@@ -314,6 +314,7 @@ async function convertDataRowToInspectionSheet(options: ImportInspectionSheetOpt
       let measurement = find<Partial<MomInspectionMeasurement>>(inspectionSample.measurements, (item) => get(item, "characteristic.id") === character.id);
       if (!measurement) {
         measurement = {
+          locked: true,
           characteristic: { id: character.id },
         };
         inspectionSample.measurements!.push(measurement);
@@ -343,7 +344,7 @@ async function findCurrentInspectionSheet(
   inspectionSheetManager: EntityManager<MomInspectionSheet>,
   predicate: Partial<MomInspectionSheet>,
 ) {
-  const entity = inspectionSheetManager.findEntity({
+  const entity = await inspectionSheetManager.findEntity({
     routeContext,
     filters: [
       //TODO: 查找对应检验单时，暂时不要求检验类型为“产成品检验”。待系统中自动生成产品品检验单的检验类型错误问题修正后再恢复。

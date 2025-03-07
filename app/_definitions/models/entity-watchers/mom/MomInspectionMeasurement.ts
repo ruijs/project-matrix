@@ -39,7 +39,8 @@ export default [
 
       const after = payload.after;
 
-      await updateInspectionSheetInspectionResult(server, routeContext, after.sheet_id);
+      const inspectionSheetId = getEntityRelationTargetId(after, "sheet", "sheet_id");
+      await updateInspectionSheetInspectionResult(server, routeContext, inspectionSheetId);
     },
   },
   {
@@ -83,7 +84,8 @@ export default [
       const changes = payload.changes;
 
       if (changes.hasOwnProperty("qualitativeValue") || changes.hasOwnProperty("quantitativeValue")) {
-        await updateInspectionSheetInspectionResult(server, routeContext, after.sheet_id);
+        const inspectionSheetId = getEntityRelationTargetId(after, "sheet", "sheet_id");
+        await updateInspectionSheetInspectionResult(server, routeContext, inspectionSheetId);
       }
 
       if (changes.hasOwnProperty("isQualified")) {
