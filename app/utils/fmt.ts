@@ -1,48 +1,56 @@
 import { isNil, isNumber, sum } from "lodash";
+import { MomInspectionCharacteristic } from "~/_definitions/meta/entity-types";
 
-export function fmtCharacteristicNorminal(characteristic: Record<string, any>) {
+export function renderCharacteristicQualifiedConditions(characteristic: Partial<MomInspectionCharacteristic>) {
   if (!characteristic) {
     return;
   }
 
   const { kind, upperLimit, lowerLimit, upperTol, lowerTol, determineType } = characteristic;
 
-  const norminal = characteristic.norminal != null ? characteristic.norminal : "";
+  const norminal = characteristic.norminal;
 
   switch (kind) {
     // 定量
     case "quantitative":
       switch (determineType) {
         case "inLimit":
-          let inLimitInfo: string = "";
           if (isNil(lowerLimit) && isNumber(upperLimit)) {
-            inLimitInfo = `/${upperLimit}`;
+            return `≤${upperLimit}`;
           } else if (isNil(upperLimit) && isNumber(lowerLimit)) {
-            inLimitInfo = `${lowerLimit}/`;
+            return `≥${lowerLimit}`;
           } else if (isNumber(upperLimit) && isNumber(lowerLimit)) {
-            inLimitInfo = lowerLimit !== upperLimit && sum([upperLimit, lowerLimit]) === 0 ? `±${upperLimit}` : `${lowerLimit}/${upperLimit}`;
+            return `${lowerLimit} ~ ${upperLimit}`;
           }
-
-          return inLimitInfo ? `${norminal}(${inLimitInfo})` : norminal;
+          return "";
         case "inTolerance":
-          let inToleranceInfo: string = "";
-          if (isNil(lowerTol) && isNumber(upperTol)) {
-            inToleranceInfo = `/${upperTol}`;
-          } else if (isNil(upperTol) && isNumber(lowerTol)) {
-            inToleranceInfo = `${lowerTol}/`;
-          } else if (isNumber(upperTol) && isNumber(lowerTol)) {
-            inToleranceInfo = lowerTol !== upperTol && sum([upperTol, lowerTol]) === 0 ? `±${upperTol}` : `${lowerTol}/${upperTol}`;
+          if (isNil(norminal)) {
+            return "";
           }
 
-          return inToleranceInfo ? `${norminal}(${inToleranceInfo})` : norminal;
+          if (isNil(lowerTol) && isNil(upperLimit)) {
+            return norminal.toString();
+          }
+
+          if (isNil(lowerTol) && isNumber(upperTol)) {
+            return `${norminal} ~ ${norminal}+${upperTol}`;
+          } else if (isNil(upperTol) && isNumber(lowerTol)) {
+            return `${norminal}${lowerTol} ~ ${norminal}`;
+          } else {
+            if (upperTol! + lowerTol! == 0) {
+              return `${norminal}±${upperTol}`;
+            } else {
+              return `${norminal}${lowerTol} ~ ${norminal}+${upperTol}`;
+            }
+          }
         case "gt":
-          return norminal ? `>${norminal}` : norminal;
+          return isNil(norminal) ? "" : `>${norminal}`;
         case "ge":
-          return norminal ? `≥${norminal}` : norminal;
+          return isNil(norminal) ? "" : `≥${norminal}`;
         case "lt":
-          return norminal ? `<${norminal}` : norminal;
+          return isNil(norminal) ? "" : `<${norminal}`;
         case "le":
-          return norminal ? `≤${norminal}` : norminal;
+          return isNil(norminal) ? "" : `≤${norminal}`;
       }
     // 定性
     case "qualitative":

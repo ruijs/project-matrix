@@ -4,7 +4,7 @@ import { useSetState } from "ahooks";
 import { useEffect, useRef, useState } from "react";
 import { get, sumBy } from "lodash";
 import { rapidApiRequest } from "~/rapidApi";
-import { fmtCharacteristicNorminal } from "~/utils/fmt";
+import { renderCharacteristicQualifiedConditions } from "~/utils/fmt";
 import { Tag } from "antd";
 
 export default {
@@ -74,7 +74,7 @@ export default {
                 dataIndex: "normal",
                 width: 120,
                 render: (_: any, r: any) => {
-                  return fmtCharacteristicNorminal(r.characteristic);
+                  return renderCharacteristicQualifiedConditions(r.characteristic);
                 },
               },
               {

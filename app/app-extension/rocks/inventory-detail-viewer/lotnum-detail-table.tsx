@@ -5,7 +5,7 @@ import { get } from "lodash";
 import { memo, useEffect, useState } from "react";
 import { rapidApiRequest } from "~/rapidApi";
 import { useInspectionSpecItems } from "../view-inspection-record-action/ViewInspectionRecordAction";
-import { fmtCharacteristicNorminal } from "~/utils/fmt";
+import { renderCharacteristicQualifiedConditions } from "~/utils/fmt";
 
 interface IProps {
   record: any;
@@ -101,7 +101,7 @@ const LotNumDetailTable = memo<IProps>((props) => {
               dataIndex: "normal",
               width: 120,
               render: (_: any, r: any) => {
-                return fmtCharacteristicNorminal(r.characteristic);
+                return renderCharacteristicQualifiedConditions(r.characteristic);
               },
             },
             {

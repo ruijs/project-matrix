@@ -9,7 +9,7 @@ import { decimalSum } from "~/utils/decimal";
 import rapidAppDefinition from "~/rapidAppDefinition";
 import { useState } from "react";
 import dayjs from "dayjs";
-import { fmtCharacteristicNorminal } from "~/utils/fmt";
+import { renderCharacteristicQualifiedConditions } from "~/utils/fmt";
 import { isCharacterMeasurementValueQualified } from "~/utils/calculate";
 
 interface ICurrentState {
@@ -60,7 +60,7 @@ export default {
         dataIndex: "norminal",
         width: 120,
         render: (_, r) => {
-          return fmtCharacteristicNorminal(r);
+          return renderCharacteristicQualifiedConditions(r);
         },
       },
       {

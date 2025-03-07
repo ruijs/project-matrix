@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import logo from "../../../../public/favicon.png";
 import rapidApi from "~/rapidApi";
 import dayjs from "dayjs";
-import { fmtCharacteristicNorminal } from "~/utils/fmt";
+import { renderCharacteristicQualifiedConditions } from "~/utils/fmt";
 import { printDOM } from "../page-print/print";
 import { renderMaterial } from "../material-label-renderer/MaterialLabelRenderer";
 import { filter, flatten, map, sortBy, uniq } from "lodash";
@@ -130,7 +130,7 @@ export default {
               name: item?.characteristic?.name,
               method: item?.characteristic?.method?.name,
               unit: "",
-              norminal: fmtCharacteristicNorminal(item?.characteristic), //指标
+              norminal: renderCharacteristicQualifiedConditions(item?.characteristic), //指标
             };
           }) || [];
 
