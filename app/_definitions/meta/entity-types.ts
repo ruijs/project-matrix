@@ -3491,6 +3491,14 @@ export interface MomInspectionCharacteristic {
    */
   lowerLimit?: number;
   /**
+   * 单位
+   */
+  unitName?: string;
+  /**
+   * 排序号
+   */
+  orderNum: number;
+  /**
    * 配置
    */
   config?: Record<string, any>;
@@ -3596,6 +3604,10 @@ export interface MomInspectionCommonCharacteristic {
    * 特征类型
    */
   category?: Partial<MomInspectionCharacteristicCategory>;
+  /**
+   * 单位
+   */
+  unitName?: string;
   /**
    * 配置
    */

@@ -1,5 +1,5 @@
 import { Rock } from "@ruiapp/move-style";
-import { fmtCharacteristicNorminal } from "~/utils/fmt";
+import { renderCharacteristicQualifiedConditions } from "~/utils/inspection-utility";
 
 export default {
   $type: "inspectionConditionRenderer",
@@ -11,6 +11,6 @@ export default {
   Renderer(context, props: any) {
     const record = props.$slot?.record;
 
-    return fmtCharacteristicNorminal(record);
+    return renderCharacteristicQualifiedConditions(record);
   },
 } as Rock;

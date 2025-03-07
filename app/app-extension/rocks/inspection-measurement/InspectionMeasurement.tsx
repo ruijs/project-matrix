@@ -10,7 +10,7 @@ import { find, get, groupBy, map, orderBy, split, uniqBy } from "lodash";
 import rapidAppDefinition from "~/rapidAppDefinition";
 import { useEffect, useState } from "react";
 import { isCharacterMeasurementValueQualified } from "~/utils/calculate";
-import { fmtCharacteristicNorminal } from "~/utils/fmt";
+import { renderCharacteristicQualifiedConditions } from "~/utils/inspection-utility";
 
 export default {
   $type: "inspectionMeasurement",
@@ -106,7 +106,7 @@ export default {
         dataIndex: "norminal",
         width: 180,
         render: (_, r) => {
-          return fmtCharacteristicNorminal(r) || "-";
+          return renderCharacteristicQualifiedConditions(r) || "-";
         },
       },
       {

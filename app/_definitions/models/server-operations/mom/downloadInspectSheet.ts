@@ -5,7 +5,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { EntityFilterOptions } from "@ruiapp/rapid-extension/src/types/rapid-entity-types";
 import type { MomInspectionMeasurement, MomInspectionSheet } from "~/_definitions/meta/entity-types";
-import { fmtCharacteristicNorminal } from "~/utils/fmt";
+import { renderCharacteristicQualifiedConditions } from "~/utils/inspection-utility";
 import dayjs from "dayjs";
 
 export type DownloadInspectSheetInput = {
@@ -79,7 +79,7 @@ async function handleDownloadInspectSheet(server: IRpdServer, routeContext: Rout
     if (measurement.characteristic) {
       data.inspectionItems.push({
         item: measurement.characteristic?.name,
-        standard: fmtCharacteristicNorminal(measurement.characteristic),
+        standard: renderCharacteristicQualifiedConditions(measurement.characteristic),
         result: measurement.qualitativeValue || measurement.quantitativeValue?.toString(),
       });
     }

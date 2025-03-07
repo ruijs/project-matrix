@@ -132,6 +132,18 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
       type: "double",
     },
     {
+      code: "unitName",
+      name: "单位",
+      type: "text",
+    },
+    {
+      code: "orderNum",
+      name: "排序号",
+      type: "integer",
+      required: true,
+      defaultValue: "0",
+    },
+    {
       code: "config",
       name: "配置",
       type: "json",
