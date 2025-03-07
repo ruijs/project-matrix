@@ -40,10 +40,6 @@ export async function handleKisOperation(server: IRpdServer, routeContext: Route
         field: "id",
         value: input.operationId,
       },
-      {
-        operator: "null",
-        field: "externalCode",
-      },
     ],
     properties: [
       "id",
@@ -64,6 +60,11 @@ export async function handleKisOperation(server: IRpdServer, routeContext: Route
 
   if (!inventoryOperation) {
     logger.error(`Inventory operation with id ${input.operationId} was not found.`);
+    return;
+  }
+
+  if (inventoryOperation.externalCode) {
+    logger.warn(`库存操作单已同步至KIS，单号：${inventoryOperation.externalCode}`);
     return;
   }
 
