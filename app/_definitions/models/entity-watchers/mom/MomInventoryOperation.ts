@@ -296,7 +296,7 @@ export default [
           }
         }
 
-        if (after.hasOwnProperty("state") && after.state === "done") {
+        if (changes.hasOwnProperty("state") && changes.state === "done") {
           if (after?.application_id) {
             await server.getEntityManager<MomInventoryApplication>("mom_inventory_application").updateEntityById({
               routeContext,
@@ -309,9 +309,9 @@ export default [
 
           // 上报金蝶KIS云
           try {
-            await handleKisOperation(server, routeContext, { operationId: after.id })
+            await handleKisOperation(server, routeContext, { operationId: after.id });
           } catch (e) {
-            console.log(e)
+            console.log(e);
           }
         }
 
