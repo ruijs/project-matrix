@@ -11,7 +11,7 @@ import { renderCharacteristicQualifiedConditions } from "~/utils/inspection-util
 import { printDOM } from "../page-print/print";
 import { renderMaterial } from "../material-label-renderer/MaterialLabelRenderer";
 import { filter, flatten, get, isNil, map, sortBy, uniq } from "lodash";
-import { MomInspectionMeasurement, MomInspectionSheet } from "~/_definitions/meta/entity-types";
+import { MomInspectionMeasurement, MomInspectionSheet, MomInventoryApplicationItem } from "~/_definitions/meta/entity-types";
 
 interface MeasurementRecord {
   sampleCode: string;
@@ -33,12 +33,12 @@ export default {
 
   Renderer(context, props, state) {
     const ref = useRef<HTMLDivElement>(null);
-    const { loadInspectionSheet, inspectionSheet } = useInspectionSheet();
+    const { loadInspectionSheet, inspectionSheet, inventoryApplicationItem } = useInspectionSheet();
     const handleOnClick = async () => {
       if (inspectionSheet) {
         printDOM(ref.current);
       } else {
-        loadInspectionSheet(props?.record?.id).then((res) => {
+        loadInspectionSheet(props?.record?.id).then((res: any) => {
           if (res) {
             printDOM(ref.current!);
           }
@@ -84,7 +84,7 @@ export default {
     }
 
     const printContent = (inspectionSheet: Partial<MomInspectionSheet>) => {
-      const title = inspectionSheet?.material?.category?.name?.includes("原材料") ? "进 料 检 测 报 告" : "成 品 检 测 报 告";
+      const title = inspectionSheet?.material?.category?.name?.includes("原材料") ? "进料检测报告" : "成品检测报告";
       const result = inspectionSheet?.result === "unqualified" ? false : true;
       const samples = inspectionSheet?.samples;
       const measurementRecordsOfCharactors = countCharacteristics(samples);
@@ -121,7 +121,18 @@ export default {
       return (
         <div ref={ref} className="inspection-template-container">
           <img src={logo} style={{ width: 200, height: 75 }} />
-          <div style={{ textAlign: "center", fontWeight: "bold", fontSize: 25, borderTop: "none", borderLeft: "none", borderRight: "none", padding: "10px" }}>
+          <div
+            style={{
+              textAlign: "center",
+              fontWeight: "bold",
+              fontSize: 25,
+              borderTop: "none",
+              borderLeft: "none",
+              borderRight: "none",
+              padding: "10px",
+              letterSpacing: "0.5em",
+            }}
+          >
             {title}
           </div>
           <table className="printable-table">
@@ -139,7 +150,10 @@ export default {
             </tr>
             <tr>
               <td colSpan={2}>
-                抽样数/供货数量：{inspectionSheet?.sampleCount || "-"}/{inspectionSheet?.acceptQuantity || "-"}
+                抽样数/供货数量：
+                {inspectionSheet?.sampleCount || "-"}
+                {` / `}
+                {inventoryApplicationItem?.quantity ? `${inventoryApplicationItem?.quantity}${inventoryApplicationItem?.unit?.name || ""}` : "-"}
               </td>
               <td colSpan={2}>进料日期：{inspectionSheet?.createdAt ? dayjs(inspectionSheet?.createdAt).format("YYYY-MM-DD") : "-"}</td>
             </tr>
@@ -166,21 +180,21 @@ export default {
               <td colSpan={4} style={{ padding: 0 }}>
                 <table className="printable-table" style={{ border: 0 }}>
                   <tr>
-                    <td style={{ width: "90px" }}>检测项目</td>
-                    <td style={{ width: "100px" }}>检查方法</td>
-                    <td style={{ width: "90px" }}>单位</td>
-                    <td style={{ width: "70px" }}>指标</td>
-                    <td style={{ width: "90px" }}>样本数量</td>
-                    <td>检测结果</td>
+                    <th style={{ width: "90px" }}>检测项目</th>
+                    <th style={{ width: "100px" }}>检查方法</th>
+                    <th style={{ width: "50px" }}>单位</th>
+                    <th style={{ width: "70px" }}>指标</th>
+                    <th style={{ width: "70px" }}>样本数量</th>
+                    <th>检测结果</th>
                   </tr>
                   {samplesArray.map((item: any, index: number) => {
                     return (
                       <tr key={index}>
                         <td>{item.name}</td>
                         <td>{item.method}</td>
-                        <td>{item.unit}</td>
-                        <td>{item.qualifiedConditions}</td>
-                        <td>{sampleCounts}</td>
+                        <td style={{ textAlign: "center" }}>{item.unit}</td>
+                        <td style={{ textAlign: "center" }}>{item.qualifiedConditions}</td>
+                        <td style={{ textAlign: "center" }}>{sampleCounts}</td>
                         <td>
                           {sampleCodes
                             .map((sampleCode) => {
@@ -233,16 +247,21 @@ export default {
   },
 } as Rock<any>;
 
-const useInspectionSheet = () => {
+function useInspectionSheet(): {
+  loading: boolean;
+  loadInspectionSheet: any;
+  inspectionSheet: MomInspectionSheet;
+  inventoryApplicationItem: MomInventoryApplicationItem;
+} {
   const [loading, setLoading] = useState<boolean>(false);
-  const [inspectionSheet, setInspectionSheet] = useState<any>();
+  const [state, setState] = useState<any>({});
 
   const loadInspectionSheet = async (id: string) => {
     if (loading) return;
 
     try {
       setLoading(true);
-      const res = await rapidApi.post(`/mom/mom_inspection_sheets/operations/find`, {
+      const listInspectionSheetsResponse = await rapidApi.post(`/mom/mom_inspection_sheets/operations/find`, {
         filters: [
           {
             field: "id",
@@ -287,41 +306,49 @@ const useInspectionSheet = () => {
               },
             },
           },
-        },
-      });
-
-      const samples = await rapidApi.post(`/mom/mom_inspection_sheet_samples/operations/find`, {
-        filters: [
-          {
-            field: "sheet",
-            operator: "eq",
-            value: id,
-          },
-        ],
-        properties: ["id", "code", "measurements", "round"],
-        relations: {
-          sheet: true,
-          measurements: {
+          samples: {
             relations: {
-              characteristic: true,
+              measurements: {
+                relations: {
+                  characteristic: true,
+                },
+              },
             },
           },
         },
-        pagination: {
-          limit: 1000,
-          offset: 0,
-        },
       });
 
-      const formateData = {
-        ...res.data.list[0],
-        samples: samples.data.list,
-      };
-      setInspectionSheet(formateData);
+      const inspectionSheet: MomInspectionSheet = listInspectionSheetsResponse.data.list[0];
+      let inventoryApplicationItem: MomInventoryApplicationItem | null = null;
+      const { material, lotNum } = inspectionSheet;
 
-      return formateData;
-    } catch (e) {}
+      if (material && lotNum) {
+        const listInventoryApplicationItemsResponse = await rapidApi.post(`/mom/mom_inventory_application_items/operations/find`, {
+          filters: [
+            {
+              field: "material_id",
+              operator: "eq",
+              value: material.id,
+            },
+            {
+              field: "lotNum",
+              operator: "eq",
+              value: lotNum,
+            },
+          ],
+          relations: {
+            unit: true,
+          },
+        });
+        inventoryApplicationItem = listInventoryApplicationItemsResponse.data.list[0];
+      }
+
+      setState({ inspectionSheet, inventoryApplicationItem });
+      return inspectionSheet;
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  return { loading, inspectionSheet, loadInspectionSheet };
-};
+  return { loading, loadInspectionSheet, inspectionSheet: state.inspectionSheet, inventoryApplicationItem: state.inventoryApplicationItem };
+}
