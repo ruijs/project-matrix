@@ -121,6 +121,7 @@ export default {
       const allMeasurementRecords = flatten(map(Object.values(measurementRecordsOfCharactors), (item) => item.measurementRecords));
 
       const sampleCodes = uniq(map(allMeasurementRecords, (item) => item.sampleCode)).sort();
+      const sampleCounts = sampleCodes.length;
 
       const formateMeasurements =
         res?.samples[0]?.measurements
@@ -206,7 +207,7 @@ export default {
                         <td>{item.method}</td>
                         <td>{item.unit}</td>
                         <td>{item.norminal}</td>
-                        <td>{item.appearances}</td>
+                        <td>{sampleCounts}</td>
                         <td>
                           {sampleCodes
                             .map((sampleCode) => {
