@@ -12,6 +12,7 @@ import { printDOM } from "../page-print/print";
 import { renderMaterial } from "../material-label-renderer/MaterialLabelRenderer";
 import { filter, flatten, forEach, map, sortBy, uniq } from "lodash";
 import { MomInspectionCharacteristic, MomInspectionSheet, MomInspectionSheetSample, MomInventoryApplicationItem } from "~/_definitions/meta/entity-types";
+import { renderPrintableCheckbox } from "~/utils/common-renderers";
 
 interface MeasurementRecord {
   sampleCode: string;
@@ -94,8 +95,8 @@ export default {
       }
 
       const title = inspectionSheet?.material?.category?.name?.includes("原材料") ? "进料检测报告" : "成品检测报告";
-      const result = inspectionSheet?.result === "unqualified" ? false : true;
-      const samples: MomInspectionSheetSample[] = (inspectionSheet?.samples as any) || [];
+      const isQualified = inspectionSheet.result !== "unqualified";
+      const samples: MomInspectionSheetSample[] = (inspectionSheet.samples as any) || [];
       const characteristics: MomInspectionCharacteristic[] = (inspectionSheet.rule?.characteristics as any) || [];
       const measurementRecordsOfCharacters = groupMeasurementRecordsByCharacter(samples, characteristics);
 
@@ -126,10 +127,10 @@ export default {
           <table className="printable-table">
             <tr>
               <td colSpan={2} width="50%">
-                物料名称：{renderMaterial(inspectionSheet?.material) || "-"}
+                物料名称：{renderMaterial(inspectionSheet.material) || "-"}
               </td>
               <td colSpan={2} width="50%">
-                批号 {inspectionSheet?.lotNum || "-"}
+                批号：{inspectionSheet.lotNum || "-"}
               </td>
             </tr>
             <tr>
@@ -139,20 +140,20 @@ export default {
             <tr>
               <td colSpan={2}>
                 抽样数/供货数量：
-                {inspectionSheet?.sampleCount || "-"}
+                {inspectionSheet.sampleCount || "-"}
                 {` / `}
                 {inventoryApplicationItem?.quantity ? `${inventoryApplicationItem?.quantity}${inventoryApplicationItem?.unit?.name || ""}` : "-"}
               </td>
-              <td colSpan={2}>进料日期：{inspectionSheet?.createdAt ? dayjs(inspectionSheet?.createdAt).format("YYYY-MM-DD") : "-"}</td>
+              <td colSpan={2}>进料日期：{inspectionSheet.createdAt ? dayjs(inspectionSheet.createdAt).format("YYYY-MM-DD") : "-"}</td>
             </tr>
             <tr>
               <td rowSpan={2} colSpan={1}>
                 非指标类检查结果
               </td>
               <td rowSpan={2} colSpan={1}>
-                <input type="checkbox" name="qualityRequirement[]" value="符合品质要求" /> 符合品质要求
+                {renderPrintableCheckbox(false)} 符合品质要求
                 <br />
-                <input type="checkbox" name="qualityRequirement[]" value="不符合品质要求" /> 不符合品质要求
+                {renderPrintableCheckbox(false)} 不符合品质要求
               </td>
               <td colSpan={2}>异常描述:</td>
             </tr>
@@ -166,7 +167,7 @@ export default {
             </tr>
             <tr>
               <td colSpan={4} style={{ padding: 0 }}>
-                <table className="printable-table" style={{ border: 0 }}>
+                <table className="printable-table">
                   <tr>
                     <th style={{ width: "90px" }}>检测项目</th>
                     <th style={{ width: "100px" }}>检测条件</th>
@@ -201,15 +202,15 @@ export default {
             <tr>
               <td colSpan={2}>
                 判定：&nbsp;
-                <input type="checkbox" name="judgment" value="合格" checked={result} /> 合格 &nbsp;
-                <input type="checkbox" name="judgment" value="不合格" checked={!result} /> 不合格
+                {renderPrintableCheckbox(isQualified)} 合格&nbsp;&nbsp;
+                {renderPrintableCheckbox(!isQualified)} 不合格
               </td>
-              <td colSpan={2}>异常描述：{inspectionSheet?.remark || "-"}</td>
+              <td colSpan={2}>异常描述：{inspectionSheet.remark || "-"}</td>
             </tr>
             <tr>
-              <td colSpan={1}>检测员:&nbsp;{inspectionSheet?.sender?.name || "-"}</td>
-              <td colSpan={1}>审核员:&nbsp;{inspectionSheet?.reviewer?.name || "-"}</td>
-              <td colSpan={2}>确认（不合格时）:&nbsp;</td>
+              <td colSpan={1}>检测员：{inspectionSheet.sender?.name || "-"}</td>
+              <td colSpan={1}>审核员：{inspectionSheet.reviewer?.name || "-"}</td>
+              <td colSpan={2}>确认（不合格时）：</td>
             </tr>
           </table>
         </div>

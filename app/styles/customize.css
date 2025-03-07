@@ -18,6 +18,7 @@
   width: 100%;
   border: 1px solid #000;
   border-collapse: collapse;
+  font-family: 'Arial','SimSun';
   font-size: 12px;
 }
 
@@ -32,6 +33,6 @@
 
 
 .printable-table th {
+  font-family: 'Arial', 'SimHei';
   text-align: center;
-  font-weight: bold;
 }
