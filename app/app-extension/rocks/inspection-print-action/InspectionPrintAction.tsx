@@ -10,7 +10,7 @@ import dayjs from "dayjs";
 import { fmtCharacteristicNorminal } from "~/utils/fmt";
 import { printDOM } from "../page-print/print";
 import { renderMaterial } from "../material-label-renderer/MaterialLabelRenderer";
-import { filter, flatten, map, uniq } from "lodash";
+import { filter, flatten, map, sortBy, uniq } from "lodash";
 
 interface IInspectionsSheet {
   id: string;
@@ -108,14 +108,8 @@ export default {
     };
 
     function displayMeasurementValuesOfCharactor(measurementRecordsOfCharactor: MeasurementRecord[], sampleCode: string) {
-      const measurementRecordsOfSample = filter(measurementRecordsOfCharactor, { sampleCode });
-      const firstElement = measurementRecordsOfSample?.find((item: any) => item.round == 1)?.value;
-      const remainingElements = measurementRecordsOfSample?.filter((item: any) => item.round !== 1)?.map((item: any) => item.value);
-      if (remainingElements.length > 0) {
-        return `${firstElement}(${remainingElements.join(",")})`;
-      } else {
-        return `${firstElement}`;
-      }
+      const measurementRecordsOfSample = sortBy(filter(measurementRecordsOfCharactor, { sampleCode }), (item) => item.round);
+      return map(measurementRecordsOfSample, (item) => `${item.value}`).join("/");
     }
 
     const printContent = (res: IInspectionsSheet) => {
@@ -203,9 +197,7 @@ export default {
                     <td style={{ width: "90px" }}>单位</td>
                     <td style={{ width: "70px" }}>指标</td>
                     <td style={{ width: "90px" }}>样本数量</td>
-                    {sampleCodes.map((sampleCode) => {
-                      return <td key={sampleCode}>{`#${sampleCode}`}</td>;
-                    })}
+                    <td>检测结果</td>
                   </tr>
                   {samplesArray.map((item: any, index: number) => {
                     return (
@@ -214,11 +206,14 @@ export default {
                         <td>{item.method}</td>
                         <td>{item.unit}</td>
                         <td>{item.norminal}</td>
-                        <td>{item.category}</td>
                         <td>{item.appearances}</td>
-                        {sampleCodes.map((sampleCode) => {
-                          return <td key={sampleCode}>{displayMeasurementValuesOfCharactor(item.measurementRecords, sampleCode)}</td>;
-                        })}
+                        <td>
+                          {sampleCodes
+                            .map((sampleCode) => {
+                              return displayMeasurementValuesOfCharactor(item.measurementRecords, sampleCode);
+                            })
+                            .join("、")}
+                        </td>
                       </tr>
                     );
                   })}
