@@ -5,7 +5,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { EntityFilterOptions } from "@ruiapp/rapid-extension/src/types/rapid-entity-types";
 import type { MomInspectionMeasurement, MomInspectionSheet } from "~/_definitions/meta/entity-types";
-import { renderCharacteristicQualifiedConditions } from "~/utils/fmt";
+import { renderCharacteristicQualifiedConditions } from "~/utils/inspection-utility";
 import dayjs from "dayjs";
 
 export type DownloadInspectSheetInput = {

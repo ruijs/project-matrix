@@ -5,7 +5,7 @@ import { get } from "lodash";
 import { memo, useEffect, useState } from "react";
 import { rapidApiRequest } from "~/rapidApi";
 import { useInspectionSpecItems } from "../view-inspection-record-action/ViewInspectionRecordAction";
-import { renderCharacteristicQualifiedConditions } from "~/utils/fmt";
+import { renderCharacteristicQualifiedConditions } from "~/utils/inspection-utility";
 
 interface IProps {
   record: any;

@@ -1,5 +1,5 @@
 import { Rock } from "@ruiapp/move-style";
-import { renderCharacteristicQualifiedConditions } from "~/utils/fmt";
+import { renderCharacteristicQualifiedConditions } from "~/utils/inspection-utility";
 
 export default {
   $type: "inspectionConditionRenderer",

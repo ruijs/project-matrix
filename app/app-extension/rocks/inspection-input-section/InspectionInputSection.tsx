@@ -9,7 +9,7 @@ import { decimalSum } from "~/utils/decimal";
 import rapidAppDefinition from "~/rapidAppDefinition";
 import { useState } from "react";
 import dayjs from "dayjs";
-import { renderCharacteristicQualifiedConditions } from "~/utils/fmt";
+import { renderCharacteristicQualifiedConditions } from "~/utils/inspection-utility";
 import { isCharacterMeasurementValueQualified } from "~/utils/calculate";
 
 interface ICurrentState {
