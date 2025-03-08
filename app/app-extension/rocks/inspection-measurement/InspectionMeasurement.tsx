@@ -2,7 +2,7 @@
 /* eslint-disable array-callback-return */
 import { type Rock } from "@ruiapp/move-style";
 import type { TableProps } from "antd";
-import { Alert, Button, Form, InputNumber, message, Modal, Select, Space, Spin, Table, Tag } from "antd";
+import { Alert, Button, Form, Input, InputNumber, message, Modal, Select, Space, Spin, Table, Tag } from "antd";
 import { useDebounceFn, useSetState } from "ahooks";
 import { v4 as uuidv4 } from "uuid";
 import rapidApi from "~/rapidApi";
@@ -94,15 +94,12 @@ export default {
         width: 180,
       },
       {
-        title: "检验仪器",
-        dataIndex: "instrument",
+        title: "检测条件",
+        dataIndex: "envConditions",
         width: 180,
-        render: (_) => {
-          return get(_, "code") || "-";
-        },
       },
       {
-        title: "标准值",
+        title: "合格条件",
         dataIndex: "norminal",
         width: 180,
         render: (_, r) => {
@@ -180,9 +177,36 @@ export default {
                 />
               );
             case "qualitative":
+              const qualitativeDetermineType = r.qualitativeDetermineType;
+              if (!qualitativeDetermineType) {
+                return (
+                  <Input
+                    disabled={r.locked}
+                    style={{ width: "100%", maxWidth: 260 }}
+                    value={r.measuredValue}
+                    onBlur={(e) => {
+                      const v = e.target.value;
+                      if (r.isfirst) {
+                        batchupdateInspectionMeasurement(inspection, r.id);
+                      } else if (Info.round === r.round) {
+                        update({
+                          id: r.measurementsId,
+                          round: r.round,
+                          isQualified: isCharacterMeasurementValueQualified(r, v),
+                          qualitativeValue: r.kind === "qualitative" ? v : "",
+                          quantitativeValue: r.kind === "quantitative" ? v : "",
+                        });
+                      }
+                    }}
+                    onChange={(e) => {
+                      onRecordChange(e.target.value);
+                    }}
+                  />
+                );
+              }
               const dictionary = find(rapidAppDefinition.dataDictionaries, (d) => d.code === "QualitativeInspectionDetermineType");
               const item = find(get(dictionary, "entries"), (entry) => entry.value === r?.qualitativeDetermineType);
-              const options = map(split(get(item, "name"), "-"), (v) => ({ label: v, value: v }));
+              const options = map(split(get(item, "name"), "/"), (v) => ({ label: v, value: v }));
               return (
                 <Select
                   options={options}
@@ -641,7 +665,7 @@ function useInspectionMeasurement(props: { ruleId: string; round: number; sheetI
       }
 
       if (measurementIsNull) {
-        const inpsectionRule = await rapidApi.post("/mom/mom_inspection_characteristics/operations/find", {
+        const listInspectionCharactersResponse = await rapidApi.post("/mom/mom_inspection_characteristics/operations/find", {
           filters: [
             {
               field: "rule",
@@ -649,7 +673,14 @@ function useInspectionMeasurement(props: { ruleId: string; round: number; sheetI
               value: ruleId,
             },
           ],
-          pagination: { limit: 1000, offset: 0 },
+          orderBy: [
+            {
+              field: "orderNum",
+            },
+            {
+              field: "id",
+            },
+          ],
           properties: [
             "id",
             "rule",
@@ -668,17 +699,18 @@ function useInspectionMeasurement(props: { ruleId: string; round: number; sheetI
             "upperLimit",
             "lowerLimit",
             "config",
+            "envConditions",
           ],
         });
 
-        const inspection = inpsectionRule.data.list;
+        const inspectionCharacters = listInspectionCharactersResponse.data.list;
 
         const formateArr = sampleArr.map((item: any) => {
           return {
             code: item,
             sheetId: sheetId,
             round: item.round,
-            items: inspection.map((i: any) => {
+            items: inspectionCharacters.map((i: any) => {
               return {
                 ...i,
                 uuid: uuidv4(),
@@ -717,18 +749,21 @@ function useInspectionMeasurement(props: { ruleId: string; round: number; sheetI
                   sheetId: sheetId,
                   isfirst: index === 0 ? true : false,
                   round: it.round,
-                  items: it.measurements.map((i: any) => {
-                    return {
-                      ...i.characteristic,
-                      measurementsId: i.id,
-                      instrument: i.instrument,
-                      uuid: uuidv4(),
-                      locked: i.locked,
-                      quantitativeValue: i.quantitativeValue,
-                      qualitativeValue: i.qualitativeValue,
-                      measuredValue: i.characteristic?.kind === "qualitative" ? i.qualitativeValue : i.quantitativeValue,
-                    };
-                  }),
+                  items: orderBy(
+                    it.measurements.map((i: any) => {
+                      return {
+                        ...i.characteristic,
+                        measurementsId: i.id,
+                        instrument: i.instrument,
+                        uuid: uuidv4(),
+                        locked: i.locked,
+                        quantitativeValue: i.quantitativeValue,
+                        qualitativeValue: i.qualitativeValue,
+                        measuredValue: i.characteristic?.kind === "qualitative" ? i.qualitativeValue : i.quantitativeValue,
+                      };
+                    }),
+                    "orderNum",
+                  ),
                 };
               }) || [],
           };
