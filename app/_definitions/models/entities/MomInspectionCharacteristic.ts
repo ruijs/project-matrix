@@ -96,13 +96,13 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
     },
     {
       code: "determineType",
-      name: "定量合格判定方式",
+      name: "判定方式",
       type: "option",
       dataDictionary: "InspectionDetermineType",
     },
     {
       code: "qualitativeDetermineType",
-      name: "定性合格判定方式",
+      name: "可选项",
       type: "option",
       dataDictionary: "QualitativeInspectionDetermineType",
     },

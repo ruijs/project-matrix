@@ -3463,11 +3463,11 @@ export interface MomInspectionCharacteristic {
    */
   kind?: InspectionKind;
   /**
-   * 定量合格判定方式
+   * 判定方式
    */
   determineType?: InspectionDetermineType;
   /**
-   * 定性合格判定方式
+   * 可选项
    */
   qualitativeDetermineType?: QualitativeInspectionDetermineType;
   /**

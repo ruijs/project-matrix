@@ -1,5 +1,6 @@
 import { cloneDeep } from "lodash";
 import type { RapidPage, RapidEntityFormConfig } from "@ruiapp/rapid-extension";
+import { HttpRequestStoreConfig } from "@ruiapp/move-style";
 
 const formConfig: Partial<RapidEntityFormConfig> = {
   items: [
@@ -62,6 +63,9 @@ const page: RapidPage = {
           text: "新建",
           icon: "PlusOutlined",
           actionStyle: "primary",
+          $exps: {
+            _hidden: "!($scope.stores['systemSettings']?.data && !$scope.stores['systemSettings']?.data?.userCreateByWebDisabled)",
+          },
         },
         {
           $type: "rapidToolbarButton",
@@ -209,56 +213,34 @@ const page: RapidPage = {
           actionText: "修改",
         },
         {
-          $type: "rapidTableAction",
+          $type: "sonicRecordActionUpdateEntity",
           code: "disable",
           actionText: "禁用",
+          entity: {
+            state: "disabled",
+          },
           $exps: {
             _hidden: "$slot.record.state !== 'enabled'",
           },
-          onAction: [
-            {
-              $action: "sendHttpRequest",
-              method: "PATCH",
-              data: { state: "disabled" },
-              $exps: {
-                url: `"/api/app/oc_users/" + $event.sender['data-record-id']`,
-              },
-            },
-            {
-              $action: "loadStoreData",
-              storeName: "list",
-            },
-          ],
         },
         {
-          $type: "rapidTableAction",
+          $type: "sonicRecordActionUpdateEntity",
           code: "enable",
           actionText: "启用",
+          entity: {
+            state: "enabled",
+          },
           $exps: {
             _hidden: "$slot.record.state === 'enabled'",
           },
-          onAction: [
-            {
-              $action: "sendHttpRequest",
-              method: "PATCH",
-              data: { state: "enabled" },
-              $exps: {
-                url: `"/api/app/oc_users/" + $event.sender['data-record-id']`,
-              },
-            },
-            {
-              $action: "loadStoreData",
-              storeName: "list",
-            },
-          ],
         },
         {
           $type: "sonicRecordActionDeleteEntity",
           code: "delete",
           actionType: "delete",
-          actionText: "删除",
-          dataSourceCode: "list",
-          entityCode: "OcUser",
+          $exps: {
+            _hidden: "!($scope.stores['systemSettings']?.data && !$scope.stores['systemSettings']?.data?.userDeleteByWebDisabled)",
+          },
         },
       ],
       newForm: cloneDeep(formConfig),
@@ -296,6 +278,14 @@ const page: RapidPage = {
             },
           ],
         },
+        {
+          type: "httpRequest",
+          name: "systemSettings",
+          request: {
+            method: "GET",
+            url: "/api/svc/systemSettingValues?groupCode=public",
+          },
+        } as HttpRequestStoreConfig,
       ],
     },
   ],

@@ -1,6 +1,5 @@
 import { cloneDeep, omit } from "lodash";
 import type { RapidPage, RapidEntityFormConfig, RapidEntityFormRockConfig } from "@ruiapp/rapid-extension";
-import { materialFormatStrTemplate } from "~/utils/fmt";
 
 const formConfig: Partial<RapidEntityFormConfig> = {
   items: [
@@ -64,9 +63,16 @@ const formConfig: Partial<RapidEntityFormConfig> = {
     },
     {
       type: "auto",
+      code: "unitName",
+      $exps: {
+        hidden: "$self.form.getFieldValue('kind') !== 'quantitative'",
+      },
+    },
+    {
+      type: "auto",
       code: "qualitativeDetermineType",
       $exps: {
-        _hidden: "$self.form.getFieldValue('kind') !== 'qualitative'",
+        hidden: "$self.form.getFieldValue('kind') !== 'qualitative'",
       },
     },
     {
@@ -82,54 +88,50 @@ const formConfig: Partial<RapidEntityFormConfig> = {
       },
       $exps: {
         "formControlProps.listDataSource.data.list": "$self.form.getFieldValue('qualitativeNorminalValues') || []",
-        _hidden: "$self.form.getFieldValue('kind') !== 'qualitative'",
+        hidden: "$self.form.getFieldValue('kind') !== 'qualitative' || !$self.form.getFieldValue('qualitativeDetermineType')",
       },
     },
     {
       type: "auto",
       code: "determineType",
       $exps: {
-        _hidden: "$self.form.getFieldValue('kind') !== 'quantitative'",
+        hidden: "$self.form.getFieldValue('kind') !== 'quantitative'",
       },
     },
     {
       type: "auto",
       code: "norminal",
       $exps: {
-        _hidden: "$self.form.getFieldValue('kind') !== 'quantitative'",
+        hidden: "$self.form.getFieldValue('kind') !== 'quantitative'",
       },
     },
     {
       type: "auto",
       code: "upperTol",
       $exps: {
-        _hidden: "$self.form.getFieldValue('kind') !== 'quantitative' || $self.form.getFieldValue('determineType') !== 'inTolerance'",
+        hidden: "$self.form.getFieldValue('kind') !== 'quantitative' || $self.form.getFieldValue('determineType') !== 'inTolerance'",
       },
     },
     {
       type: "auto",
       code: "lowerTol",
       $exps: {
-        _hidden: "$self.form.getFieldValue('kind') !== 'quantitative' || $self.form.getFieldValue('determineType') !== 'inTolerance'",
+        hidden: "$self.form.getFieldValue('kind') !== 'quantitative' || $self.form.getFieldValue('determineType') !== 'inTolerance'",
       },
     },
     {
       type: "auto",
       code: "upperLimit",
       $exps: {
-        _hidden: "$self.form.getFieldValue('kind') !== 'quantitative' || $self.form.getFieldValue('determineType') !== 'inLimit'",
+        hidden: "$self.form.getFieldValue('kind') !== 'quantitative' || $self.form.getFieldValue('determineType') !== 'inLimit'",
       },
     },
     {
       type: "auto",
       code: "lowerLimit",
       $exps: {
-        _hidden: "$self.form.getFieldValue('kind') !== 'quantitative' || $self.form.getFieldValue('determineType') !== 'inLimit'",
+        hidden: "$self.form.getFieldValue('kind') !== 'quantitative' || $self.form.getFieldValue('determineType') !== 'inLimit'",
       },
-    },
-    {
-      type: "auto",
-      code: "unitName",
     },
   ],
   defaultFormFields: {
@@ -141,7 +143,7 @@ const formConfig: Partial<RapidEntityFormConfig> = {
   formDataAdapter: `
     const dictionary = _.find(rapidAppDefinition.getDataDictionaries(), function(d) { return d.code === 'QualitativeInspectionDetermineType'; });
     const item = _.find(_.get(dictionary, 'entries'), function(item) { return item.value === _.get(data, 'qualitativeDetermineType'); });
-    const values = _.map(_.split(_.get(item, 'name'), '-'), function(v) { return { name: v, id: v } });
+    const values = _.map(_.split(_.get(item, 'name'), '/'), function(v) { return { name: v, id: v } });
     return _.merge({}, data, {
       qualitativeNorminalValues: values || [],
     });
@@ -156,11 +158,11 @@ const formConfig: Partial<RapidEntityFormConfig> = {
           const rapidAppDefinition = event.framework.getExpressionVars().rapidAppDefinition;
           const dictionary = _.find(rapidAppDefinition.getDataDictionaries(), function(d) { return d.code === 'QualitativeInspectionDetermineType'; });
           const item = _.find(_.get(dictionary, 'entries'), function(item) { return item.value === changedValues.qualitativeDetermineType; });
-          const values = _.map(_.split(_.get(item, 'name'), '-'), function(v) { return { name: v, id: v } });
+          const values = _.map(_.split(_.get(item, 'name'), '/'), function(v) { return { name: v, id: v } });
           event.page.sendComponentMessage(event.sender.$id, {
             name: "setFieldsValue",
             payload: {
-              norminal: '',
+              norminal: null,
               qualitativeNorminalValues: values || [],
             }
           });
@@ -168,13 +170,13 @@ const formConfig: Partial<RapidEntityFormConfig> = {
           event.page.sendComponentMessage(event.sender.$id, {
             name: "setFieldsValue",
             payload: {
-              norminal: undefined,
-              qualitativeDetermineType: undefined,
-              determineType: undefined,
-              upperTol: undefined,
-              lowerTol: undefined,
-              upperLimit: undefined,
-              lowerLimit: undefined,
+              norminal: null,
+              qualitativeDetermineType: null,
+              determineType: null,
+              upperTol: null,
+              lowerTol: null,
+              upperLimit: null,
+              lowerLimit: null,
               qualitativeNorminalValues: [],
             }
           });
