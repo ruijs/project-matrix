@@ -107,8 +107,9 @@ function getCellDateText(cell: ExcelJS.Cell): string | null {
   } else if (cell.type === ExcelJS.ValueType.Number) {
     const numValue = parseInt(cell.value + "", 10) || 2;
     const msOfOneDay = 24 * 3600000;
+    const msOfMinDay = dayjs("1900-01-01").valueOf();
     // 不要使用dayjs().add()方法，有bug
-    return dayjs((numValue - 2) * msOfOneDay).format("YYYY-MM-DD");
+    return dayjs(msOfMinDay + (numValue - 2) * msOfOneDay).format("YYYY-MM-DD");
   }
   return cell.text;
 }
