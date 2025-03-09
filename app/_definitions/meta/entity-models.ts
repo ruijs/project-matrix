@@ -121,10 +121,6 @@ import ShopfloorDisplayDevice from '../models/entities/ShopfloorDisplayDevice';
 import ShopfloorStation from '../models/entities/ShopfloorStation';
 import SvcPrintTask from '../models/entities/SvcPrintTask';
 import SvcPrinter from '../models/entities/SvcPrinter';
-import SysAction from '../models/entities/SysAction';
-import SysActionGroup from '../models/entities/SysActionGroup';
-import SysAuditLog from '../models/entities/SysAuditLog';
-import SysWebhook from '../models/entities/SysWebhook';
 import auth$AuthAccount from '../models/entities/auth/AuthAccount';
 import auth$AuthProvider from '../models/entities/auth/AuthProvider';
 import bpm$BpmInstance from '../models/entities/bpm/BpmInstance';
@@ -152,6 +148,10 @@ import pm$PmWorkItemTypeStep from '../models/entities/pm/PmWorkItemTypeStep';
 import setting$SystemSettingGroupSetting from '../models/entities/setting/SystemSettingGroupSetting';
 import setting$SystemSettingItem from '../models/entities/setting/SystemSettingItem';
 import setting$SystemSettingItemSetting from '../models/entities/setting/SystemSettingItemSetting';
+import sys$SysAction from '../models/entities/sys/SysAction';
+import sys$SysActionGroup from '../models/entities/sys/SysActionGroup';
+import sys$SysAuditLog from '../models/entities/sys/SysAuditLog';
+import sys$SysWebhook from '../models/entities/sys/SysWebhook';
 import utility$Notification from '../models/entities/utility/Notification';
 
 const entityDefinitions = [
@@ -276,10 +276,6 @@ const entityDefinitions = [
   ShopfloorStation,
   SvcPrintTask,
   SvcPrinter,
-  SysAction,
-  SysActionGroup,
-  SysAuditLog,
-  SysWebhook,
   auth$AuthAccount,
   auth$AuthProvider,
   bpm$BpmInstance,
@@ -307,6 +303,10 @@ const entityDefinitions = [
   setting$SystemSettingGroupSetting,
   setting$SystemSettingItem,
   setting$SystemSettingItemSetting,
+  sys$SysAction,
+  sys$SysActionGroup,
+  sys$SysAuditLog,
+  sys$SysWebhook,
   utility$Notification,
 ];
 const configuredEntities:TRapidEntity[] = [
@@ -431,10 +431,6 @@ const configuredEntities:TRapidEntity[] = [
   autoConfigureRapidEntity(ShopfloorStation, entityDefinitions),
   autoConfigureRapidEntity(SvcPrintTask, entityDefinitions),
   autoConfigureRapidEntity(SvcPrinter, entityDefinitions),
-  autoConfigureRapidEntity(SysAction, entityDefinitions),
-  autoConfigureRapidEntity(SysActionGroup, entityDefinitions),
-  autoConfigureRapidEntity(SysAuditLog, entityDefinitions),
-  autoConfigureRapidEntity(SysWebhook, entityDefinitions),
   autoConfigureRapidEntity(auth$AuthAccount, entityDefinitions),
   autoConfigureRapidEntity(auth$AuthProvider, entityDefinitions),
   autoConfigureRapidEntity(bpm$BpmInstance, entityDefinitions),
@@ -462,6 +458,10 @@ const configuredEntities:TRapidEntity[] = [
   autoConfigureRapidEntity(setting$SystemSettingGroupSetting, entityDefinitions),
   autoConfigureRapidEntity(setting$SystemSettingItem, entityDefinitions),
   autoConfigureRapidEntity(setting$SystemSettingItemSetting, entityDefinitions),
+  autoConfigureRapidEntity(sys$SysAction, entityDefinitions),
+  autoConfigureRapidEntity(sys$SysActionGroup, entityDefinitions),
+  autoConfigureRapidEntity(sys$SysAuditLog, entityDefinitions),
+  autoConfigureRapidEntity(sys$SysWebhook, entityDefinitions),
   autoConfigureRapidEntity(utility$Notification, entityDefinitions),
 ];
 export default configuredEntities;

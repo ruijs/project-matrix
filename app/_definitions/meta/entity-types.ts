@@ -8658,246 +8658,6 @@ export interface SvcPrinter {
 export type SaveSvcPrinterInput = Omit<SvcPrinter, 'id' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>;
 
 /**
- * 系统操作
- */
-export interface SysAction {
-  /**
-   * id
-   */
-  id: number;
-  /**
-   * 分组
-   */
-  group: Partial<SysActionGroup>;
-  /**
-   * 编码
-   */
-  code: string;
-  /**
-   * 名称
-   */
-  name: string;
-  /**
-   * 描述
-   */
-  description?: string;
-  /**
-   * 排序号
-   */
-  orderNum: number;
-  /**
-   * 创建时间
-   */
-  createdAt?: string;
-  /**
-   * 创建人
-   */
-  createdBy?: Partial<OcUser>;
-  /**
-   * 更新时间
-   */
-  updatedAt?: string;
-  /**
-   * 更新人
-   */
-  updatedBy?: Partial<OcUser>;
-  /**
-   * 删除时间
-   */
-  deletedAt?: string;
-  /**
-   * 删除人
-   */
-  deletedBy?: Partial<OcUser>;
-}
-
-/**
- * 系统操作
- */
-export type SaveSysActionInput = Omit<SysAction, 'id' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>;
-
-/**
- * 系统操作分组
- */
-export interface SysActionGroup {
-  /**
-   * id
-   */
-  id: number;
-  /**
-   * 编码
-   */
-  code?: string;
-  /**
-   * 名称
-   */
-  name: string;
-  /**
-   * 排序号
-   */
-  orderNum: number;
-  /**
-   * 创建时间
-   */
-  createdAt?: string;
-  /**
-   * 创建人
-   */
-  createdBy?: Partial<OcUser>;
-  /**
-   * 更新时间
-   */
-  updatedAt?: string;
-  /**
-   * 更新人
-   */
-  updatedBy?: Partial<OcUser>;
-  /**
-   * 删除时间
-   */
-  deletedAt?: string;
-  /**
-   * 删除人
-   */
-  deletedBy?: Partial<OcUser>;
-}
-
-/**
- * 系统操作分组
- */
-export type SaveSysActionGroupInput = Omit<SysActionGroup, 'id' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>;
-
-/**
- * 系统操作
- */
-export interface SysAuditLog {
-  /**
-   * id
-   */
-  id: number;
-  /**
-   * 操作人
-   */
-  user?: Partial<OcUser>;
-  /**
-   * 操作对象
-   */
-  targetSingularCode?: SysAuditLogTarget;
-  /**
-   * 操作对象名称
-   */
-  targetSingularName?: string;
-  /**
-   * 操作方法
-   */
-  method?: SysAuditLogMethod;
-  /**
-   * 变更前记录
-   */
-  before?: Record<string, any>;
-  /**
-   * 变更记录
-   */
-  changes?: Record<string, any>;
-  /**
-   * 创建时间
-   */
-  createdAt?: string;
-  /**
-   * 创建人
-   */
-  createdBy?: Partial<OcUser>;
-  /**
-   * 更新时间
-   */
-  updatedAt?: string;
-  /**
-   * 更新人
-   */
-  updatedBy?: Partial<OcUser>;
-  /**
-   * 删除时间
-   */
-  deletedAt?: string;
-  /**
-   * 删除人
-   */
-  deletedBy?: Partial<OcUser>;
-}
-
-/**
- * 系统操作
- */
-export type SaveSysAuditLogInput = Omit<SysAuditLog, 'id' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>;
-
-/**
- * Webhook
- */
-export interface Webhook {
-  /**
-   * id
-   */
-  id: number;
-  /**
-   * 名称
-   */
-  name: string;
-  /**
-   * URL
-   */
-  url: string;
-  /**
-   * 密钥
-   */
-  secret?: string;
-  /**
-   * namespace
-   */
-  namespace: string;
-  /**
-   * 模型Code
-   */
-  modelSingularCode: string;
-  /**
-   * 事件
-   */
-  events?: Record<string, any>;
-  /**
-   * 是否启用
-   */
-  enabled: boolean;
-  /**
-   * 创建时间
-   */
-  createdAt?: string;
-  /**
-   * 创建人
-   */
-  createdBy?: Partial<OcUser>;
-  /**
-   * 更新时间
-   */
-  updatedAt?: string;
-  /**
-   * 更新人
-   */
-  updatedBy?: Partial<OcUser>;
-  /**
-   * 删除时间
-   */
-  deletedAt?: string;
-  /**
-   * 删除人
-   */
-  deletedBy?: Partial<OcUser>;
-}
-
-/**
- * Webhook
- */
-export type SaveWebhookInput = Omit<Webhook, 'id' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>;
-
-/**
  * 账号
  */
 export interface AuthAccount {
@@ -10737,6 +10497,246 @@ export interface SystemSettingItemSetting {
  * 系统设置项设置
  */
 export type SaveSystemSettingItemSettingInput = Omit<SystemSettingItemSetting, 'id' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>;
+
+/**
+ * 系统操作
+ */
+export interface SysAction {
+  /**
+   * id
+   */
+  id: number;
+  /**
+   * 分组
+   */
+  group: Partial<SysActionGroup>;
+  /**
+   * 编码
+   */
+  code: string;
+  /**
+   * 名称
+   */
+  name: string;
+  /**
+   * 描述
+   */
+  description?: string;
+  /**
+   * 排序号
+   */
+  orderNum: number;
+  /**
+   * 创建时间
+   */
+  createdAt?: string;
+  /**
+   * 创建人
+   */
+  createdBy?: Partial<OcUser>;
+  /**
+   * 更新时间
+   */
+  updatedAt?: string;
+  /**
+   * 更新人
+   */
+  updatedBy?: Partial<OcUser>;
+  /**
+   * 删除时间
+   */
+  deletedAt?: string;
+  /**
+   * 删除人
+   */
+  deletedBy?: Partial<OcUser>;
+}
+
+/**
+ * 系统操作
+ */
+export type SaveSysActionInput = Omit<SysAction, 'id' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>;
+
+/**
+ * 系统操作分组
+ */
+export interface SysActionGroup {
+  /**
+   * id
+   */
+  id: number;
+  /**
+   * 编码
+   */
+  code?: string;
+  /**
+   * 名称
+   */
+  name: string;
+  /**
+   * 排序号
+   */
+  orderNum: number;
+  /**
+   * 创建时间
+   */
+  createdAt?: string;
+  /**
+   * 创建人
+   */
+  createdBy?: Partial<OcUser>;
+  /**
+   * 更新时间
+   */
+  updatedAt?: string;
+  /**
+   * 更新人
+   */
+  updatedBy?: Partial<OcUser>;
+  /**
+   * 删除时间
+   */
+  deletedAt?: string;
+  /**
+   * 删除人
+   */
+  deletedBy?: Partial<OcUser>;
+}
+
+/**
+ * 系统操作分组
+ */
+export type SaveSysActionGroupInput = Omit<SysActionGroup, 'id' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>;
+
+/**
+ * 系统操作
+ */
+export interface SysAuditLog {
+  /**
+   * id
+   */
+  id: number;
+  /**
+   * 操作人
+   */
+  user?: Partial<OcUser>;
+  /**
+   * 操作对象
+   */
+  targetSingularCode?: SysAuditLogTarget;
+  /**
+   * 操作对象名称
+   */
+  targetSingularName?: string;
+  /**
+   * 操作方法
+   */
+  method?: SysAuditLogMethod;
+  /**
+   * 变更前记录
+   */
+  before?: Record<string, any>;
+  /**
+   * 变更记录
+   */
+  changes?: Record<string, any>;
+  /**
+   * 创建时间
+   */
+  createdAt?: string;
+  /**
+   * 创建人
+   */
+  createdBy?: Partial<OcUser>;
+  /**
+   * 更新时间
+   */
+  updatedAt?: string;
+  /**
+   * 更新人
+   */
+  updatedBy?: Partial<OcUser>;
+  /**
+   * 删除时间
+   */
+  deletedAt?: string;
+  /**
+   * 删除人
+   */
+  deletedBy?: Partial<OcUser>;
+}
+
+/**
+ * 系统操作
+ */
+export type SaveSysAuditLogInput = Omit<SysAuditLog, 'id' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>;
+
+/**
+ * Webhook
+ */
+export interface Webhook {
+  /**
+   * id
+   */
+  id: number;
+  /**
+   * 名称
+   */
+  name: string;
+  /**
+   * URL
+   */
+  url: string;
+  /**
+   * 密钥
+   */
+  secret?: string;
+  /**
+   * namespace
+   */
+  namespace: string;
+  /**
+   * 模型Code
+   */
+  modelSingularCode: string;
+  /**
+   * 事件
+   */
+  events?: Record<string, any>;
+  /**
+   * 是否启用
+   */
+  enabled: boolean;
+  /**
+   * 创建时间
+   */
+  createdAt?: string;
+  /**
+   * 创建人
+   */
+  createdBy?: Partial<OcUser>;
+  /**
+   * 更新时间
+   */
+  updatedAt?: string;
+  /**
+   * 更新人
+   */
+  updatedBy?: Partial<OcUser>;
+  /**
+   * 删除时间
+   */
+  deletedAt?: string;
+  /**
+   * 删除人
+   */
+  deletedBy?: Partial<OcUser>;
+}
+
+/**
+ * Webhook
+ */
+export type SaveWebhookInput = Omit<Webhook, 'id' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>;
 
 /**
  * 通知
