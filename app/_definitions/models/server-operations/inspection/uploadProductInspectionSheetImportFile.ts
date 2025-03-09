@@ -89,6 +89,31 @@ function getCellText(cell: ExcelJS.Cell): string | null {
   return cell.text;
 }
 
+function getCellDateText(cell: ExcelJS.Cell): string | null {
+  if (!cell) {
+    return null;
+  }
+
+  if (cell.isMerged) {
+    return getCellDateText(cell.master);
+  }
+
+  if (!cell.value) {
+    return null;
+  }
+
+  if (cell.type === ExcelJS.ValueType.Date) {
+    return dayjs(cell.value as Date).format("YYYY-MM-DD");
+  } else if (cell.type === ExcelJS.ValueType.Number) {
+    const numValue = parseInt(cell.value + "", 10) || 1;
+    const msOfOneDay = 24 * 3600000;
+    const msOfMinDay = dayjs("1900-01-01").valueOf();
+    // 不要使用dayjs().add()方法，有bug
+    return dayjs(msOfMinDay + (numValue - 1) * msOfOneDay).format("YYYY-MM-DD");
+  }
+  return cell.text;
+}
+
 async function parseInspectionSheetImportFile(
   routeContext: RouteContext,
   server: IRpdServer,
@@ -218,7 +243,13 @@ async function parseInspectionSheetImportFile(
     for (let colIndex = 0; colIndex < columns.length; colIndex++) {
       const column = columns[colIndex];
       const cell = row.getCell(column.colNum);
-      const cellText = getCellText(cell) || "";
+      let cellText: string;
+      if (column.type === "sheetProperty" && (column.propertyCode === "sampleDeliveryTime" || column.propertyCode === "productionTime")) {
+        cellText = getCellDateText(cell) || "";
+      } else {
+        cellText = getCellText(cell) || "";
+      }
+
       currentRecord[colIndex] = cellText.trim();
 
       if (cellText) {
