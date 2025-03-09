@@ -135,6 +135,7 @@ async function createGoodTransferIn(routeContext: RouteContext, server: IRpdServ
     await createGoodTransfer(goodTransferManager, input.operationId, good, input?.print, input.locationId);
   }
 
+  // 根据库存业务类型配置，自动生成对应检验类型的检验单
   if (inventoryOperation?.businessType?.config?.inspectionCategoryId && inventoryOperation?.businessType?.config?.inspectionCategoryId > 0) {
     const inspectRule = await inspectRuleManager.findEntity({
       routeContext,
@@ -160,30 +161,21 @@ async function createGoodTransferIn(routeContext: RouteContext, server: IRpdServ
       properties: ["id", "sampling", "samplingCount"],
     });
 
+    const inspectionSheet: SaveMomInspectionSheetInput = {
+      inventoryOperation: { id: input.operationId },
+      lotNum: input.lotNum,
+      lot: { id: lotInfo.id },
+      material: { id: input.material },
+      approvalState: "approving",
+      state: "pending",
+      sampleCount: input.isTankerTransportation ? 2 : samplingRule?.samplingCount,
+      round: 1,
+    };
+
     if (inspectRule) {
-      await saveInspectionSheet(routeContext, server, {
-        inventoryOperation: { id: input.operationId },
-        lotNum: input.lotNum,
-        lot: { id: lotInfo.id },
-        rule: { id: inspectRule?.id },
-        material: { id: input.material },
-        approvalState: "approving",
-        state: "pending",
-        sampleCount: input.isTankerTransportation ? 2 : samplingRule?.samplingCount,
-        round: 1,
-      });
-    } else {
-      await saveInspectionSheet(routeContext, server, {
-        inventoryOperation: { id: input.operationId },
-        lotNum: input.lotNum,
-        lot: { id: lotInfo.id },
-        material: { id: input.material },
-        approvalState: "approving",
-        state: "pending",
-        sampleCount: input.isTankerTransportation ? 2 : samplingRule?.samplingCount,
-        round: 1,
-      });
+      inspectionSheet.rule = { id: inspectRule.id };
     }
+    await saveInspectionSheet(routeContext, server, inspectionSheet);
   }
 }
 
