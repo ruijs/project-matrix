@@ -60,13 +60,13 @@ import PublishState from '../models/data-dictionaries/PublishState';
 import QualificationState from '../models/data-dictionaries/QualificationState';
 import QualitativeInspectionDetermineType from '../models/data-dictionaries/QualitativeInspectionDetermineType';
 import QuantityType from '../models/data-dictionaries/QuantityType';
-import SysAuditLogMethod from '../models/data-dictionaries/SysAuditLogMethod';
-import SysAuditLogTarget from '../models/data-dictionaries/SysAuditLogTarget';
 import UndeletedDeletedState from '../models/data-dictionaries/UndeletedDeletedState';
 import UnitType from '../models/data-dictionaries/UnitType';
 import UserSecretLevel from '../models/data-dictionaries/UserSecretLevel';
 import WarehouseStrategy from '../models/data-dictionaries/WarehouseStrategy';
 import setting$SettingItemType from '../models/data-dictionaries/setting/SettingItemType';
+import sys$SysAuditLogMethod from '../models/data-dictionaries/sys/SysAuditLogMethod';
+import sys$SysAuditLogTarget from '../models/data-dictionaries/sys/SysAuditLogTarget';
 
 export default [
   ActiveInactiveState,
@@ -130,11 +130,11 @@ export default [
   QualificationState,
   QualitativeInspectionDetermineType,
   QuantityType,
-  SysAuditLogMethod,
-  SysAuditLogTarget,
   UndeletedDeletedState,
   UnitType,
   UserSecretLevel,
   WarehouseStrategy,
   setting$SettingItemType,
+  sys$SysAuditLogMethod,
+  sys$SysAuditLogTarget,
 ] as TRapidDataDictionary[];

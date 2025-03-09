@@ -119,7 +119,7 @@ import pm$PmWorkItemTypeListPage from '../models/pages/pm/PmWorkItemTypeListPage
 import setting$SystemSettingItemSettingPage from '../models/pages/setting/SystemSettingItemSettingPage';
 import setting$SystemSettingsPage from '../models/pages/setting/SystemSettingsPage';
 import sys$SysActionListPage from '../models/pages/sys/SysActionListPage';
-import sys$SysAuditLogkListPage from '../models/pages/sys/SysAuditLogkListPage';
+import sys$SysAuditLogListPage from '../models/pages/sys/SysAuditLogListPage';
 import sys$SysPrinterListPage from '../models/pages/sys/SysPrinterListPage';
 import sys$SysSubSystemListPage from '../models/pages/sys/SysSubSystemListPage';
 import sys$SysWebhookListPage from '../models/pages/sys/SysWebhookListPage';
@@ -245,7 +245,7 @@ export default [
   setting$SystemSettingItemSettingPage,
   setting$SystemSettingsPage,
   sys$SysActionListPage,
-  sys$SysAuditLogkListPage,
+  sys$SysAuditLogListPage,
   sys$SysPrinterListPage,
   sys$SysSubSystemListPage,
   sys$SysWebhookListPage,
