@@ -339,20 +339,6 @@ class KisDataSync {
     await this.loadBaseData();
 
     const syncFunctions = [
-      //  同步单位
-      this.createListSyncFunction(routeContext, {
-        url: "/koas/APP006992/api/MeasureUnit/List",
-        singularCode: "base_unit",
-        mapToEntity: async (item: any) =>
-          ({
-            code: item.FNumber,
-            name: item.FName,
-            externalCode: item.FItemID,
-            type: "others",
-            orderNum: 1,
-            category: { id: 1 },
-          } as SaveBaseUnitInput),
-      }),
       // 同步物料
       this.createListSyncFunction(routeContext, {
         url: "/koas/APP006992/api/Material/List",
@@ -436,6 +422,7 @@ class KisDataSync {
             code: item.FNumber,
             name: item.FName,
             externalCode: item.FItemID,
+            categories: category ? [{ id: category.id }] : [],
           } as SaveBasePartnerInput;
         },
       }),
@@ -565,7 +552,7 @@ class KisDataSync {
       throw new Error("API client is not initialized");
     }
 
-    const [materials, employees, partners] = await Promise.all([
+    const [materials, employees, users, partners] = await Promise.all([
       this.server.getEntityManager("base_material").findEntities({
         routeContext,
         filters: [{ operator: "notNull", field: "externalCode" }],
@@ -574,15 +561,23 @@ class KisDataSync {
       this.server.getEntityManager("oc_user").findEntities({
         routeContext,
         filters: [{ operator: "notNull", field: "externalCode" }],
+        properties: ["id", "externalCode"],
+      }),
+      this.server.getEntityManager("oc_user").findEntities({
+        routeContext,
+        filters: [{ operator: "notNull", field: "externalUserCode" }],
+        properties: ["id", "externalUserCode"],
       }),
       this.server.getEntityManager("base_partner").findEntities({
         routeContext,
         filters: [{ operator: "notNull", field: "externalCode" }],
+        properties: ["id", "externalCode"],
       }),
     ]);
 
     const materialMap = new Map(materials.map((material) => [material.externalCode, material]));
     const employeeMap = new Map(employees.map((employee) => [employee.externalCode, employee]));
+    const userMap = new Map(users.map((employee) => [employee.externalUserCode, employee]));
     const partnerMap = new Map(partners.map((partner) => [partner.externalCode, partner]));
 
     const syncFunctions = [
@@ -598,7 +593,7 @@ class KisDataSync {
             return {
               material,
               lotNum: entry.FBatchNo,
-              quantity: entry.Fauxqty,
+              quantity: Math.abs(entry.Fauxqty),
               unit: { id: material?.defaultUnit?.id },
               remark: entry?.Fnote,
               orderNum: 1,
@@ -607,13 +602,12 @@ class KisDataSync {
 
           const entities = Entry.map(mapEntryToEntity);
 
-          if (employeeMap.get(String(Head.FEmpID))?.id && partnerMap.get(String(Head.FSupplyID))?.id) {
+          if (userMap.get(String(Head.FBillerID))?.id && partnerMap.get(String(Head.FSupplyID))?.id) {
             return {
               code: Head.FBillNo,
-              contractNum: Head.FHeadSelfP0338,
               businessType: { id: 20 }, // 委外加工出库退货入库
               supplier: { id: partnerMap.get(String(Head.FSupplyID)).id },
-              applicant: { id: employeeMap.get(String(Head.FEmpID)).id },
+              applicant: { id: userMap.get(String(Head.FBillerID)).id },
               operationType: "in",
               state: "approved",
               operationState: "pending",
