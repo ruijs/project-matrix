@@ -196,16 +196,12 @@ export async function startServer() {
     logger.info("Express server listening on port %d", port);
   });
 
-  try {
-    await rapidServer.getService<EventLogService>("eventLogService").createLog({
-      sourceType: "sys",
-      level: "info",
-      eventTypeCode: "sys.applicationStartUp",
-      message: "应用启动成功。",
-    });
-  } catch (ex) {
-    rapidServer.getLogger().error(ex);
-  }
+  await rapidServer.getService<EventLogService>("eventLogService").createLog({
+    sourceType: "sys",
+    level: "info",
+    eventTypeCode: "sys.applicationStartUp",
+    message: "应用启动成功。",
+  });
 }
 
 function createRemixRequestHandler(rapidServer: RapidServer) {
