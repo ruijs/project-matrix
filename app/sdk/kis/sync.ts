@@ -369,10 +369,10 @@ class KisDataSync {
             name: item.FName,
             hidden: false,
             state: "enabled",
-            externalCode: item.EmpID,
+            externalCode: item.FItemID,
           } as SaveOcUserInput;
         },
-        filter: (item: any) => item?.EmpID && item.EmpID !== 0,
+        // filter: (item: any) => item?.EmpID && item.EmpID !== 0,
       }),
       // 同步物流供应商
       this.createListSyncFunction(routeContext, {
