@@ -4,7 +4,7 @@ import KisDataSync from "~/sdk/kis/sync";
 export default {
   code: "kis-sync-base-data-job",
 
-  cronTime: "*/5 * * * *",
+  cronTime: "*/10 * * * *",
 
   async handler(ctx: ActionHandlerContext) {
     const { server, logger } = ctx;
