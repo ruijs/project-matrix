@@ -277,18 +277,6 @@ class KisDataSync {
         },
         payload: { Detail: false },
       }),
-      this.createListSyncFunction(routeContext, {
-        url: "/koas/APP006992/api/Stock/List",
-        singularCode: "base_location",
-        mapToEntity: async (item: any) => {
-          return {
-            code: item.FNumber,
-            name: item.FName,
-            externalCode: item.FItemID,
-            type: "warehouse",
-          } as SaveBaseLocationInput;
-        },
-      }),
       // 同步部门
       this.createListSyncFunction(routeContext, {
         url: "/koas/APP006992/api/Department/List",
@@ -302,7 +290,42 @@ class KisDataSync {
             externalCode: item.FItemID,
           } as SaveOcDepartmentInput;
         },
+      }),    
+      // 同步员工
+      this.createListSyncFunction(routeContext, {
+        url: "/koas/APP006992/api/Employee/List",
+        singularCode: "oc_user",
+        mapToEntity: async (item: any) => {
+          // const username = pinyin(item.FName, { style: pinyin.STYLE_NORMAL, segment: true, heteronym: false, compact: true });
+
+          return {
+            login: item.FName,
+            name: item.FName,
+            hidden: false,
+            state: "enabled",
+            externalCode: item.FItemID,
+          } as SaveOcUserInput;
+        },
+        // filter: (item: any) => item?.EmpID && item.EmpID !== 0,
       }),
+      // 同步员工
+      this.createListSyncFunction(routeContext, {
+        url: "/koas/APP006992/api/User/List",
+        singularCode: "oc_user",
+        mapToEntity: async (item: any) => {
+          // const username = pinyin(item.FName, { style: pinyin.STYLE_NORMAL, segment: true, heteronym: false, compact: true });
+
+          return {
+            login: item.FName,
+            name: item.FName,
+            hidden: false,
+            state: "enabled",
+            externalUserCode: item.FUserID,
+            externalCode: item.EmpID,
+          } as SaveOcUserInput;
+        },
+        // filter: (item: any) => item?.EmpID && item.EmpID !== 0,
+      }),  
       // this.createListSyncFunction({
       //   url: "/koas/APP006992/api/StockPlaceGroup/List",
       //   singularCode: "base_location",
@@ -316,6 +339,19 @@ class KisDataSync {
       //     } as SaveBaseLocationInput;
       //   },
       // }),
+      // 同步仓库
+      this.createListSyncFunction(routeContext, {
+        url: "/koas/APP006992/api/Stock/List",
+        singularCode: "base_location",
+        mapToEntity: async (item: any) => {
+          return {
+            code: item.FNumber,
+            name: item.FName,
+            externalCode: item.FItemID,
+            type: "warehouse",
+          } as SaveBaseLocationInput;
+        },
+      }),
       // 同步库位
       this.createListSyncFunction(routeContext, {
         url: "/koas/APP006992/api/StockPlace/List",
