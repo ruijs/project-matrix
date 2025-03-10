@@ -19,10 +19,12 @@ import {
   SaveOcDepartmentInput,
   SaveOcUserInput,
 } from "~/_definitions/meta/entity-types";
+import EventLogService from "rapid-plugins/eventLog/services/EventLogService";
 
 interface SyncOptions {
+  externalEntityTypeName: string;
   url: string;
-  singularCode?: string;
+  singularCode: string;
   mapToEntity: (item: any) => Promise<any>;
   filter?: (item: any) => boolean;
   payload?: any;
@@ -181,26 +183,72 @@ class KisDataSync {
   }
 
   private async syncEntities(routeContext: RouteContext, options: SyncOptions, isLoadDetail: boolean = false) {
-    const data = isLoadDetail ? await this.fetchDetailPages(options) : await this.fetchListPages(options);
+    const logger = this.ctx.logger;
+
+    const { externalEntityTypeName } = options;
+    logger.info(`开始同步 ${externalEntityTypeName}...`);
+
+    if (!options.singularCode) {
+      logger.error("singularCode未设置");
+      return;
+    }
+    const entityManager = this.server.getEntityManager(options.singularCode);
+    if (!entityManager) {
+      logger.error(`singularCode ${options.singularCode} 无效`);
+      return;
+    }
+
+    let data: any[] = [];
+    try {
+      data = isLoadDetail ? await this.fetchDetailPages(options) : await this.fetchListPages(options);
+    } catch (err: any) {
+      await this.server.getService<EventLogService>("eventLogService").createLog({
+        sourceType: "app",
+        eventTypeCode: "kis.syncExternalToInternal",
+        level: "error",
+        message: `同步 ${externalEntityTypeName} 失败。获取外部实体信息失败。${err.message}`,
+        details: (err as Error).stack,
+        data: {
+          options,
+        },
+      });
+    }
     // console.log(`Fetched ${data.length} items from ${options.url}`)
     const filteredData = options.filter ? data.filter(options.filter) : data;
     // console.log(`Filtered ${filteredData.length} items from ${options.url}`)
     const entities = (await Promise.all(filteredData.map(options.mapToEntity))).filter((item) => item != null);
     // console.log(`Mapped ${entities.length} items from ${options.url}`)
-    const entityManager = options.singularCode ? this.server.getEntityManager(options.singularCode) : null;
 
-    for (const entity of entities) {
-      try {
-        if (!entityManager) break;
-        isLoadDetail ? await entityManager.updateEntityById(entity) : await entityManager.createEntity({ routeContext, entity });
-      } catch (e: any) {
-        if (e.code === "23505") {
-          // console.error(`Entity with code ${entity.code} already exists or id ${entity.id} updated`);
-        } else {
-          console.error(e);
+    logger.info(`共有 ${entities.length} 个 ${externalEntityTypeName} 待同步。`);
+    if (entities.length) {
+      for (const entity of entities) {
+        try {
+          isLoadDetail
+            ? await entityManager.updateEntityById({ id: entity.id, entityToSave: entity })
+            : await entityManager.createEntity({ routeContext, entity });
+        } catch (err: any) {
+          if (err.code === "23505") {
+            // console.error(`Entity with code ${entity.code} already exists or id ${entity.id} updated`);
+          } else {
+            await this.server.getService<EventLogService>("eventLogService").createLog({
+              sourceType: "app",
+              eventTypeCode: "kis.syncExternalToInternal",
+              level: "error",
+              message: `同步 ${externalEntityTypeName} 错误。${err.message}`,
+              details: (err as Error).stack,
+              data: {
+                options,
+                isLoadDetail,
+                entity,
+              },
+            });
+            console.error(err);
+          }
         }
       }
     }
+
+    logger.info(`${externalEntityTypeName} 同步完成。`);
     // this.ctx.logger.info(`${options.singularCode} entities ${isLoadDetail ? 'detail' : 'list'} synced`);
   }
 
@@ -238,6 +286,7 @@ class KisDataSync {
     const syncBaseFunctions = [
       //  同步单位
       this.createListSyncFunction(routeContext, {
+        externalEntityTypeName: "单位",
         url: "/koas/APP006992/api/MeasureUnit/List",
         singularCode: "base_unit",
         mapToEntity: async (item: any) =>
@@ -252,6 +301,7 @@ class KisDataSync {
       }),
       // 同步物料分类
       this.createListSyncFunction(routeContext, {
+        externalEntityTypeName: "物料分类",
         url: "/koas/APP006992/api/Material/List",
         singularCode: "base_material_category",
         mapToEntity: async (item: any) => {
@@ -279,6 +329,7 @@ class KisDataSync {
       }),
       // 同步部门
       this.createListSyncFunction(routeContext, {
+        externalEntityTypeName: "部门",
         url: "/koas/APP006992/api/Department/List",
         singularCode: "oc_department",
         mapToEntity: async (item: any) => {
@@ -290,9 +341,10 @@ class KisDataSync {
             externalCode: item.FItemID,
           } as SaveOcDepartmentInput;
         },
-      }),    
+      }),
       // 同步员工
       this.createListSyncFunction(routeContext, {
+        externalEntityTypeName: "员工",
         url: "/koas/APP006992/api/Employee/List",
         singularCode: "oc_user",
         mapToEntity: async (item: any) => {
@@ -308,8 +360,9 @@ class KisDataSync {
         },
         // filter: (item: any) => item?.EmpID && item.EmpID !== 0,
       }),
-      // 同步员工
+      // 同步用户
       this.createListSyncFunction(routeContext, {
+        externalEntityTypeName: "用户",
         url: "/koas/APP006992/api/User/List",
         singularCode: "oc_user",
         mapToEntity: async (item: any) => {
@@ -325,7 +378,7 @@ class KisDataSync {
           } as SaveOcUserInput;
         },
         // filter: (item: any) => item?.EmpID && item.EmpID !== 0,
-      }),  
+      }),
       // this.createListSyncFunction({
       //   url: "/koas/APP006992/api/StockPlaceGroup/List",
       //   singularCode: "base_location",
@@ -341,6 +394,7 @@ class KisDataSync {
       // }),
       // 同步仓库
       this.createListSyncFunction(routeContext, {
+        externalEntityTypeName: "仓库",
         url: "/koas/APP006992/api/Stock/List",
         singularCode: "base_location",
         mapToEntity: async (item: any) => {
@@ -354,6 +408,7 @@ class KisDataSync {
       }),
       // 同步库位
       this.createListSyncFunction(routeContext, {
+        externalEntityTypeName: "库位",
         url: "/koas/APP006992/api/StockPlace/List",
         singularCode: "base_location",
         mapToEntity: async (item: any) => {
@@ -377,6 +432,7 @@ class KisDataSync {
     const syncFunctions = [
       // 同步物料
       this.createListSyncFunction(routeContext, {
+        externalEntityTypeName: "物料",
         url: "/koas/APP006992/api/Material/List",
         singularCode: "base_material",
         mapToEntity: async (item: any) => {
@@ -395,6 +451,7 @@ class KisDataSync {
       }),
       // 同步员工
       this.createListSyncFunction(routeContext, {
+        externalEntityTypeName: "员工",
         url: "/koas/APP006992/api/Employee/List",
         singularCode: "oc_user",
         mapToEntity: async (item: any) => {
@@ -412,6 +469,7 @@ class KisDataSync {
       }),
       // 同步物流供应商
       this.createListSyncFunction(routeContext, {
+        externalEntityTypeName: "物流供应商",
         url: "/koas/APP006992/api/item/list",
         singularCode: "base_partner",
         mapToEntity: async (item: any) => {
@@ -431,6 +489,7 @@ class KisDataSync {
       }),
       // 同步合作伙伴（供应商）
       this.createListSyncFunction(routeContext, {
+        externalEntityTypeName: "供应商",
         url: "/koas/APP006992/api/Vendor/List",
         singularCode: "base_partner",
         mapToEntity: async (item: any) => {
@@ -448,6 +507,7 @@ class KisDataSync {
       }),
       // 同步合作伙伴（客户）
       this.createListSyncFunction(routeContext, {
+        externalEntityTypeName: "客户",
         url: "/koas/APP006992/api/Customer/List",
         singularCode: "base_partner",
         mapToEntity: async (item: any) => {
@@ -485,6 +545,7 @@ class KisDataSync {
 
     const syncDetailFunctions = [
       this.createDetailSyncFunction(routeContext, {
+        externalEntityTypeName: "物料",
         url: "/koas/APP006992/api/Material/GetListDetails",
         singularCode: "base_material",
         mapToEntity: async (item: any) => {
@@ -539,6 +600,7 @@ class KisDataSync {
 
     const syncFunctions = [
       this.createListSyncFunction(routeContext, {
+        externalEntityTypeName: "ICInventory",
         url: "/koas/APP007104/api/ICInventory/List",
         singularCode: "mom_good_transfer",
         mapToEntity: async (item: any) => {
@@ -617,8 +679,9 @@ class KisDataSync {
     const partnerMap = new Map(partners.map((partner) => [partner.externalCode, partner]));
 
     const syncFunctions = [
-      // 委外加工出库红字
+      // 委外加工出库红字单
       this.createListSyncFunction(routeContext, {
+        externalEntityTypeName: "委外加工出库红字单",
         url: "/koas/app007104/api/subcontractdelivery/list",
         singularCode: "mom_inventory_application",
         mapToEntity: async (item: any) => {
@@ -669,6 +732,7 @@ class KisDataSync {
       }),
       // 采购入库通知单
       this.createListSyncFunction(routeContext, {
+        externalEntityTypeName: "采购入库通知单",
         url: "/koas/app007140/api/materialreceiptnotice/list",
         singularCode: "mom_inventory_application",
         mapToEntity: async (item: any) => {
@@ -724,6 +788,7 @@ class KisDataSync {
       }),
       // 采购退货出库通知单
       this.createListSyncFunction(routeContext, {
+        externalEntityTypeName: "采购退货出库通知单",
         url: "/koas/app007140/api/materialreturnnotice/list",
         singularCode: "mom_inventory_application",
         mapToEntity: async (item: any) => {
@@ -772,6 +837,7 @@ class KisDataSync {
       }),
       // 销售退货入库通知单
       this.createListSyncFunction(routeContext, {
+        externalEntityTypeName: "销售退货入库通知单",
         url: "/koas/app007099/api/goodsreturnnotice/list",
         singularCode: "mom_inventory_application",
         mapToEntity: async (item: any) => {
@@ -820,6 +886,7 @@ class KisDataSync {
       }),
       // 销售退货入库通知单
       this.createListSyncFunction(routeContext, {
+        externalEntityTypeName: "销售退货入库通知单",
         url: "/koas/app007099/api/goodsreturnnotice/list",
         singularCode: "mom_inventory_application",
         mapToEntity: async (item: any) => {
@@ -868,6 +935,7 @@ class KisDataSync {
       }),
       // 销售订单（当通知单用）
       this.createListSyncFunction(routeContext, {
+        externalEntityTypeName: "销售订单",
         url: "/koas/app007099/api/salesorder/list",
         singularCode: "mom_inventory_application",
         mapToEntity: async (item: any) => {

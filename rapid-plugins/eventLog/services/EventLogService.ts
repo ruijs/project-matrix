@@ -10,47 +10,51 @@ export default class EventLogService {
   }
 
   async createLog(input: CreateEventLogInput) {
-    const eventLog: Partial<SysEventLog> = {
-      sourceType: input.sourceType || "user",
-      sourceName: input.sourceName,
-      level: input.level || "info",
-      message: input.message || "",
-    };
-
-    if (input.time) {
-      eventLog.time = input.time;
-    }
-
-    const { eventTypeCode } = input;
-
-    if (eventTypeCode) {
-      const eventTypeManager = this.#server.getEntityManager<SysEventType>("sys_event_type");
-      let eventType = await eventTypeManager.findEntity({
-        filters: [
-          {
-            operator: "eq",
-            field: "code",
-            value: eventTypeCode,
-          },
-        ],
-      });
-
-      if (!eventType) {
-        eventType = await eventTypeManager.createEntity({
-          entity: {
-            code: eventTypeCode,
-            name: eventTypeCode,
-          } as Partial<SysEventType>,
-        });
-      }
-      eventLog.eventType = {
-        id: eventType.id,
+    try {
+      const eventLog: Partial<SysEventLog> = {
+        sourceType: input.sourceType || "user",
+        sourceName: input.sourceName,
+        level: input.level || "info",
+        message: input.message || "",
       };
-    }
 
-    await this.#server.getEntityManager<SysEventLog>("sys_event_log").createEntity({
-      entity: eventLog,
-      postponeUniquenessCheck: true,
-    });
+      if (input.time) {
+        eventLog.time = input.time;
+      }
+
+      const { eventTypeCode } = input;
+
+      if (eventTypeCode) {
+        const eventTypeManager = this.#server.getEntityManager<SysEventType>("sys_event_type");
+        let eventType = await eventTypeManager.findEntity({
+          filters: [
+            {
+              operator: "eq",
+              field: "code",
+              value: eventTypeCode,
+            },
+          ],
+        });
+
+        if (!eventType) {
+          eventType = await eventTypeManager.createEntity({
+            entity: {
+              code: eventTypeCode,
+              name: eventTypeCode,
+            } as Partial<SysEventType>,
+          });
+        }
+        eventLog.eventType = {
+          id: eventType.id,
+        };
+      }
+
+      await this.#server.getEntityManager<SysEventLog>("sys_event_log").createEntity({
+        entity: eventLog,
+        postponeUniquenessCheck: true,
+      });
+    } catch (error: any) {
+      this.#server.getLogger().error(`创建事件日志失败：%s`, error.message, { error });
+    }
   }
 }
