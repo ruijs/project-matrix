@@ -24,6 +24,7 @@ import {
   SettingPlugin,
   CacheFactory,
   LicensePlugin,
+  RouteContext,
 } from "@ruiapp/rapid-core";
 import { createRapidRequestHandler } from "@ruiapp/rapid-express";
 
@@ -38,6 +39,8 @@ import BpmPlugin from "rapid-plugins/bpm/BpmPlugin";
 import { DingTalkPlugin } from "@ruiapp/ding-talk-plugin";
 import { getRapidAppDefinitionFromRapidServer } from "~/utils/app-definition-utility";
 import { parseBoolean } from "~/utils/boolean-utils";
+import EventLogPlugin from "rapid-plugins/eventLog/EventLogPlugin";
+import EventLogService from "rapid-plugins/eventLog/services/EventLogService";
 
 const isDevelopmentEnv = process.env.NODE_ENV === "development";
 
@@ -151,6 +154,7 @@ export async function startServer() {
       new MetaManagePlugin(),
       new DataManagePlugin(),
       new RouteManagePlugin(),
+      new EventLogPlugin(),
       new SequencePlugin(),
       new WebhooksPlugin(),
       new AuthPlugin(),
@@ -191,6 +195,17 @@ export async function startServer() {
   app.listen(port, () => {
     logger.info("Express server listening on port %d", port);
   });
+
+  try {
+    rapidServer.getService<EventLogService>("eventLogService").createLog({
+      sourceType: "sys",
+      level: "info",
+      eventTypeCode: "sys.applicationStartUp",
+      message: "应用启动成功。",
+    });
+  } catch (ex) {
+    rapidServer.getLogger().error(ex);
+  }
 }
 
 function createRemixRequestHandler(rapidServer: RapidServer) {

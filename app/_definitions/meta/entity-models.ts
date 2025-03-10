@@ -151,6 +151,12 @@ import setting$SystemSettingItemSetting from '../models/entities/setting/SystemS
 import sys$SysAction from '../models/entities/sys/SysAction';
 import sys$SysActionGroup from '../models/entities/sys/SysActionGroup';
 import sys$SysAuditLog from '../models/entities/sys/SysAuditLog';
+import sys$SysEventLog from '../models/entities/sys/SysEventLog';
+import sys$SysEventType from '../models/entities/sys/SysEventType';
+import sys$SysExternalEntity from '../models/entities/sys/SysExternalEntity';
+import sys$SysExternalEntityType from '../models/entities/sys/SysExternalEntityType';
+import sys$SysModule from '../models/entities/sys/SysModule';
+import sys$SysPlugin from '../models/entities/sys/SysPlugin';
 import sys$SysWebhook from '../models/entities/sys/SysWebhook';
 import utility$Notification from '../models/entities/utility/Notification';
 
@@ -306,6 +312,12 @@ const entityDefinitions = [
   sys$SysAction,
   sys$SysActionGroup,
   sys$SysAuditLog,
+  sys$SysEventLog,
+  sys$SysEventType,
+  sys$SysExternalEntity,
+  sys$SysExternalEntityType,
+  sys$SysModule,
+  sys$SysPlugin,
   sys$SysWebhook,
   utility$Notification,
 ];
@@ -461,6 +473,12 @@ const configuredEntities:TRapidEntity[] = [
   autoConfigureRapidEntity(sys$SysAction, entityDefinitions),
   autoConfigureRapidEntity(sys$SysActionGroup, entityDefinitions),
   autoConfigureRapidEntity(sys$SysAuditLog, entityDefinitions),
+  autoConfigureRapidEntity(sys$SysEventLog, entityDefinitions),
+  autoConfigureRapidEntity(sys$SysEventType, entityDefinitions),
+  autoConfigureRapidEntity(sys$SysExternalEntity, entityDefinitions),
+  autoConfigureRapidEntity(sys$SysExternalEntityType, entityDefinitions),
+  autoConfigureRapidEntity(sys$SysModule, entityDefinitions),
+  autoConfigureRapidEntity(sys$SysPlugin, entityDefinitions),
   autoConfigureRapidEntity(sys$SysWebhook, entityDefinitions),
   autoConfigureRapidEntity(utility$Notification, entityDefinitions),
 ];

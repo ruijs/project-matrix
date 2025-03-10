@@ -60,12 +60,15 @@ const dictionaryCodes = [
   'QualificationState',
   'QualitativeInspectionDetermineType',
   'QuantityType',
-  'SysAuditLogMethod',
-  'SysAuditLogTarget',
   'UndeletedDeletedState',
   'UnitType',
   'UserSecretLevel',
   'WarehouseStrategy',
   'SettingItemType',
+  'SysAuditLogMethod',
+  'SysAuditLogTarget',
+  'SysEventLogLevel',
+  'SysEventSourceType',
+  'SysExternalEntitySyncState',
 ] as const;
 export type TDictionaryCodes = typeof dictionaryCodes[number];
