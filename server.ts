@@ -197,7 +197,7 @@ export async function startServer() {
   });
 
   try {
-    rapidServer.getService<EventLogService>("eventLogService").createLog({
+    await rapidServer.getService<EventLogService>("eventLogService").createLog({
       sourceType: "sys",
       level: "info",
       eventTypeCode: "sys.applicationStartUp",
