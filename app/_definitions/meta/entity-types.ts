@@ -61,6 +61,9 @@ import type {
   SettingItemType,
   SysAuditLogMethod,
   SysAuditLogTarget,
+  SysEventLogLevel,
+  SysEventSourceType,
+  SysExternalEntitySyncState,
   UndeletedDeletedState,
   UnitType,
   WarehouseStrategy,
@@ -10670,6 +10673,420 @@ export interface SysAuditLog {
  * 系统操作
  */
 export type SaveSysAuditLogInput = Omit<SysAuditLog, 'id' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>;
+
+/**
+ * 事件日志
+ */
+export interface SysEventLog {
+  /**
+   * id
+   */
+  id: number;
+  /**
+   * 时间
+   */
+  time: string;
+  /**
+   * 来源类型
+   */
+  sourceType: SysEventSourceType;
+  /**
+   * 来源名称
+   */
+  sourceName?: string;
+  /**
+   * 级别
+   */
+  level: SysEventLogLevel;
+  /**
+   * 信息
+   */
+  message: string;
+  /**
+   * 事件类型
+   */
+  eventType?: Partial<SysEventType>;
+  /**
+   * 操作人
+   */
+  operator?: Partial<OcUser>;
+  /**
+   * 操作对象类型
+   */
+  targetTypeCode?: string;
+  /**
+   * 操作对象id
+   */
+  targetId?: number;
+  /**
+   * 操作对象编号
+   */
+  targetCode?: string;
+  /**
+   * 操作对象名称
+   */
+  targetName?: string;
+  /**
+   * IP地址
+   */
+  ip?: string;
+  /**
+   * 详情
+   */
+  details?: string;
+  /**
+   * 数据
+   */
+  data?: Record<string, any>;
+  /**
+   * 创建时间
+   */
+  createdAt?: string;
+  /**
+   * 创建人
+   */
+  createdBy?: Partial<OcUser>;
+  /**
+   * 更新时间
+   */
+  updatedAt?: string;
+  /**
+   * 更新人
+   */
+  updatedBy?: Partial<OcUser>;
+  /**
+   * 删除时间
+   */
+  deletedAt?: string;
+  /**
+   * 删除人
+   */
+  deletedBy?: Partial<OcUser>;
+}
+
+/**
+ * 事件日志
+ */
+export type SaveSysEventLogInput = Omit<SysEventLog, 'id' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>;
+
+/**
+ * 事件类型
+ */
+export interface SysEventType {
+  /**
+   * id
+   */
+  id: number;
+  /**
+   * 模块
+   */
+  module?: Partial<SysModule>;
+  /**
+   * 编码
+   */
+  code: string;
+  /**
+   * 名称
+   */
+  name: string;
+  /**
+   * 描述
+   */
+  description?: string;
+  /**
+   * 排序号
+   */
+  orderNum: number;
+  /**
+   * 创建时间
+   */
+  createdAt?: string;
+  /**
+   * 创建人
+   */
+  createdBy?: Partial<OcUser>;
+  /**
+   * 更新时间
+   */
+  updatedAt?: string;
+  /**
+   * 更新人
+   */
+  updatedBy?: Partial<OcUser>;
+  /**
+   * 删除时间
+   */
+  deletedAt?: string;
+  /**
+   * 删除人
+   */
+  deletedBy?: Partial<OcUser>;
+}
+
+/**
+ * 事件类型
+ */
+export type SaveSysEventTypeInput = Omit<SysEventType, 'id' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>;
+
+/**
+ * 外部实体
+ */
+export interface SysExternalEntity {
+  /**
+   * id
+   */
+  id: number;
+  /**
+   * 外部实体类型
+   */
+  externalTypeCode: string;
+  /**
+   * 外部实体Id
+   */
+  externalId: string;
+  /**
+   * 外部实体编码
+   */
+  externalCode?: string;
+  /**
+   * 外部实体数据
+   */
+  externalData?: Record<string, any>;
+  /**
+   * 内部实体类型
+   */
+  internalTypeCode?: string;
+  /**
+   * 内部实体Id
+   */
+  internalId?: string;
+  /**
+   * 内部实体编码
+   */
+  internalCode?: string;
+  /**
+   * 同步状态
+   */
+  syncState?: SysExternalEntitySyncState;
+  /**
+   * 同步时间
+   */
+  syncTime?: string;
+  /**
+   * 同步尝试次数
+   */
+  syncAttempt?: number;
+  /**
+   * 同步错误信息
+   */
+  syncError?: string;
+  /**
+   * 创建时间
+   */
+  createdAt?: string;
+  /**
+   * 创建人
+   */
+  createdBy?: Partial<OcUser>;
+  /**
+   * 更新时间
+   */
+  updatedAt?: string;
+  /**
+   * 更新人
+   */
+  updatedBy?: Partial<OcUser>;
+  /**
+   * 删除时间
+   */
+  deletedAt?: string;
+  /**
+   * 删除人
+   */
+  deletedBy?: Partial<OcUser>;
+}
+
+/**
+ * 外部实体
+ */
+export type SaveSysExternalEntityInput = Omit<SysExternalEntity, 'id' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>;
+
+/**
+ * 外部实体类型
+ */
+export interface SysExternalEntityType {
+  /**
+   * id
+   */
+  id: number;
+  /**
+   * 编码
+   */
+  code: string;
+  /**
+   * 名称
+   */
+  name: string;
+  /**
+   * 描述
+   */
+  description?: string;
+  /**
+   * 内部实体类型
+   */
+  internalEntityTypeCode?: string;
+  /**
+   * 外部实体ID字段
+   */
+  internalEntityExternalIdField?: string;
+  /**
+   * 外部实体编号字段
+   */
+  internalEntityExternalCodeField?: string;
+  /**
+   * 配置
+   */
+  config?: Record<string, any>;
+  /**
+   * 创建时间
+   */
+  createdAt?: string;
+  /**
+   * 创建人
+   */
+  createdBy?: Partial<OcUser>;
+  /**
+   * 更新时间
+   */
+  updatedAt?: string;
+  /**
+   * 更新人
+   */
+  updatedBy?: Partial<OcUser>;
+  /**
+   * 删除时间
+   */
+  deletedAt?: string;
+  /**
+   * 删除人
+   */
+  deletedBy?: Partial<OcUser>;
+}
+
+/**
+ * 外部实体类型
+ */
+export type SaveSysExternalEntityTypeInput = Omit<SysExternalEntityType, 'id' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>;
+
+/**
+ * 系统模块
+ */
+export interface SysModule {
+  /**
+   * id
+   */
+  id: number;
+  /**
+   * 编码
+   */
+  code: string;
+  /**
+   * 名称
+   */
+  name: string;
+  /**
+   * 描述
+   */
+  description?: string;
+  /**
+   * 排序号
+   */
+  orderNum: number;
+  /**
+   * 创建时间
+   */
+  createdAt?: string;
+  /**
+   * 创建人
+   */
+  createdBy?: Partial<OcUser>;
+  /**
+   * 更新时间
+   */
+  updatedAt?: string;
+  /**
+   * 更新人
+   */
+  updatedBy?: Partial<OcUser>;
+  /**
+   * 删除时间
+   */
+  deletedAt?: string;
+  /**
+   * 删除人
+   */
+  deletedBy?: Partial<OcUser>;
+}
+
+/**
+ * 系统模块
+ */
+export type SaveSysModuleInput = Omit<SysModule, 'id' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>;
+
+/**
+ * 系统插件
+ */
+export interface SysPlugin {
+  /**
+   * id
+   */
+  id: number;
+  /**
+   * 编码
+   */
+  code: string;
+  /**
+   * 名称
+   */
+  name: string;
+  /**
+   * 描述
+   */
+  description?: string;
+  /**
+   * 排序号
+   */
+  orderNum: number;
+  /**
+   * 创建时间
+   */
+  createdAt?: string;
+  /**
+   * 创建人
+   */
+  createdBy?: Partial<OcUser>;
+  /**
+   * 更新时间
+   */
+  updatedAt?: string;
+  /**
+   * 更新人
+   */
+  updatedBy?: Partial<OcUser>;
+  /**
+   * 删除时间
+   */
+  deletedAt?: string;
+  /**
+   * 删除人
+   */
+  deletedBy?: Partial<OcUser>;
+}
+
+/**
+ * 系统插件
+ */
+export type SaveSysPluginInput = Omit<SysPlugin, 'id' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>;
 
 /**
  * Webhook

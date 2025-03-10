@@ -603,28 +603,6 @@ export type QuantityType =
   ;
 
 /**
- * 操作方法
- */
-export type SysAuditLogMethod =
-  | 'update'
-  | 'delete'
-  ;
-
-/**
- * 操作对象
- */
-export type SysAuditLogTarget =
-  | 'base_material'
-  | 'mom_inventory_application'
-  | 'mom_inventory_operation'
-  | 'mom_inspection_sheet'
-  | 'mom_inspection_rule'
-  | 'mom_inspection_characteristic'
-  | 'mom_inspection_measurement'
-  | 'mom_good_transfer'
-  ;
-
-/**
  * 未删除/已删除状态
  */
 export type UndeletedDeletedState =
@@ -673,4 +651,57 @@ export type SettingItemType =
   | 'datetime'
   | 'file'
   | 'json'
+  ;
+
+/**
+ * 操作方法
+ */
+export type SysAuditLogMethod =
+  | 'update'
+  | 'delete'
+  ;
+
+/**
+ * 操作对象
+ */
+export type SysAuditLogTarget =
+  | 'base_material'
+  | 'mom_inventory_application'
+  | 'mom_inventory_operation'
+  | 'mom_inspection_sheet'
+  | 'mom_inspection_rule'
+  | 'mom_inspection_characteristic'
+  | 'mom_inspection_measurement'
+  | 'mom_good_transfer'
+  ;
+
+/**
+ * 日志级别
+ */
+export type SysEventLogLevel =
+  | 'info'
+  | 'warn'
+  | 'error'
+  | 'crit'
+  | 'emerg'
+  ;
+
+/**
+ * 事件来源类型
+ */
+export type SysEventSourceType =
+  | 'sys'
+  | 'plugin'
+  | 'app'
+  | 'user'
+  ;
+
+/**
+ * 同步结果
+ */
+export type SysExternalEntitySyncState =
+  | 'pending'
+  | 'processing'
+  | 'success'
+  | 'failed'
   ;

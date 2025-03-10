@@ -67,6 +67,9 @@ import WarehouseStrategy from '../models/data-dictionaries/WarehouseStrategy';
 import setting$SettingItemType from '../models/data-dictionaries/setting/SettingItemType';
 import sys$SysAuditLogMethod from '../models/data-dictionaries/sys/SysAuditLogMethod';
 import sys$SysAuditLogTarget from '../models/data-dictionaries/sys/SysAuditLogTarget';
+import sys$SysEventLogLevel from '../models/data-dictionaries/sys/SysEventLogLevel';
+import sys$SysEventSourceType from '../models/data-dictionaries/sys/SysEventSourceType';
+import sys$SysExternalEntitySyncState from '../models/data-dictionaries/sys/SysExternalEntitySyncState';
 
 export default [
   ActiveInactiveState,
@@ -137,4 +140,7 @@ export default [
   setting$SettingItemType,
   sys$SysAuditLogMethod,
   sys$SysAuditLogTarget,
+  sys$SysEventLogLevel,
+  sys$SysEventSourceType,
+  sys$SysExternalEntitySyncState,
 ] as TRapidDataDictionary[];
