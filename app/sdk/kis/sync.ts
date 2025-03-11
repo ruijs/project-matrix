@@ -264,14 +264,24 @@ class KisDataSync {
   // Create sync function for general entities
   private createListSyncFunction(routeContext: RouteContext, options: SyncOptions) {
     return async () => {
-      await this.syncEntities(routeContext, options, false);
+      try {
+        await this.syncEntities(routeContext, options, false);
+      } catch (error: any) {
+        this.server.getLogger().error(`同步${options.externalEntityTypeName}出错：%s`, error.message, { error });
+        console.error("Error during inventory sync:", error);
+      }
     };
   }
 
   // Create sync function for detailed entities
   private createDetailSyncFunction(routeContext: RouteContext, options: SyncOptions) {
     return async () => {
-      await this.syncEntities(routeContext, options, true);
+      try {
+        await this.syncEntities(routeContext, options, true);
+      } catch (error: any) {
+        this.server.getLogger().error(`同步${options.externalEntityTypeName}出错：%s`, error.message, { error });
+        console.error("Error during inventory sync:", error);
+      }
     };
   }
 
@@ -987,10 +997,8 @@ class KisDataSync {
       }),
     ];
 
-    try {
-      await Promise.all(syncFunctions.map((syncFunc) => syncFunc()));
-    } catch (error) {
-      console.error("Error during inventory sync:", error);
+    for (const syncFunc of syncFunctions) {
+      await syncFunc();
     }
   }
 
