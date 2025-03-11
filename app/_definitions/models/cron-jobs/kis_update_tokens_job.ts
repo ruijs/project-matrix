@@ -5,7 +5,8 @@ import { SaveKisConfigInput } from "~/_definitions/meta/entity-types";
 export default {
   code: "kis-update-tokens-job",
 
-  cronTime: "* * * * *",
+  // 每隔10分钟刷新一次token
+  cronTime: "*/10 * * * *",
 
   async handler(ctx: ActionHandlerContext) {
     const { server, logger } = ctx;
