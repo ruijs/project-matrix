@@ -4,6 +4,8 @@ import KisInventoryOperationAPI, { WarehouseEntry } from "~/sdk/kis/inventory";
 import { getNowString } from "~/utils/time-utils";
 import KisHelper from "~/sdk/kis/helper";
 import dayjs from "dayjs";
+import EventLogService from "rapid-plugins/eventLog/services/EventLogService";
+import { CreateEventLogInput } from "rapid-plugins/eventLog/EventLogPluginTypes";
 
 export type CreateGoodTransferInput = {
   operationId: number;
@@ -113,6 +115,9 @@ export async function handleKisOperation(server: IRpdServer, routeContext: Route
   }
 
   if (inventoryOperation.state === "done") {
+    let externalEntityTypeName = "";
+    let kisRequest: any = null;
+
     const kisConfig = await server.getEntityManager<KisConfig>("kis_config").findEntity({ routeContext });
 
     if (kisConfig) {
@@ -190,6 +195,7 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
           // TODO: 生成KIS入库单
           switch (inventoryOperation?.businessType?.name) {
             // case "采购入库":
+            //   externalEntityTypeName = "外购入库";
             //   const allInspected = transfers.every((transfer) => transfer?.inspect_state);
             //   if (!allInspected) {
             //     console.log("All items must be inspected before creating a purchase receipt.");
@@ -217,7 +223,7 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
             //   }
 
             //   if (entries.length > 0) {
-            //     kisResponse = await kisOperationApi.createPurchaseReceipt({
+            //     kisRequest = {
             //       Object: {
             //         Head: {
             //           Fdate: getNowString(),
@@ -234,10 +240,12 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
             //         },
             //         Entry: entries,
             //       },
-            //     });
+            //     };
+            //     kisResponse = await kisOperationApi.createPurchaseReceipt(kisRequest);
             //   }
             //   break;
             case "生产入库":
+              externalEntityTypeName = "产品入库";
               for (const transfer of transfers) {
                 entries.push({
                   FItemID: transfer.material_external_code,
@@ -256,7 +264,7 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
                 });
               }
 
-              kisResponse = await kisOperationApi.createProductReceipt({
+              kisRequest = {
                 Object: {
                   Head: {
                     Fdate: getNowString(),
@@ -271,9 +279,11 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
                   },
                   Entry: entries,
                 },
-              });
+              };
+              kisResponse = await kisOperationApi.createProductReceipt(kisRequest);
               break;
             case "委外加工入库":
+              externalEntityTypeName = "委外加工入库";
               for (const transfer of transfers) {
                 entries.push({
                   FItemID: transfer.material_external_code,
@@ -292,7 +302,7 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
                 });
               }
 
-              kisResponse = await kisOperationApi.createSubcontractReceipt({
+              kisRequest = {
                 Object: {
                   Head: {
                     Fdate: getNowString(),
@@ -307,9 +317,11 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
                   },
                   Entry: entries,
                 },
-              });
+              };
+              kisResponse = await kisOperationApi.createSubcontractReceipt(kisRequest);
               break;
             case "生产退料入库":
+              externalEntityTypeName = "生产领料红字";
               for (const transfer of transfers) {
                 entries.push({
                   FItemID: transfer.material_external_code,
@@ -329,7 +341,7 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
                 });
               }
 
-              kisResponse = await kisOperationApi.createPickingList({
+              kisRequest = {
                 Object: {
                   Head: {
                     Fdate: getNowString(),
@@ -346,9 +358,11 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
                   },
                   Entry: entries,
                 },
-              });
+              };
+              kisResponse = await kisOperationApi.createPickingList(kisRequest);
               break;
             case "销售退货入库":
+              externalEntityTypeName = "销售出库红字";
               transfers.forEach((transfer, idx) => {
                 let entity: any = {
                   FItemID: transfer.material_external_code,
@@ -378,7 +392,7 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
                 entries.push(entity);
               });
 
-              kisResponse = await kisOperationApi.createSalesDelivery({
+              kisRequest = {
                 Object: {
                   Head: {
                     Fdate: getNowString(),
@@ -398,9 +412,11 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
                   },
                   Entry: entries,
                 },
-              });
+              };
+              kisResponse = await kisOperationApi.createSalesDelivery(kisRequest);
               break;
             case "其它原因入库":
+              externalEntityTypeName = "其他入库";
               for (const transfer of transfers) {
                 entries.push({
                   FItemID: transfer.material_external_code,
@@ -419,7 +435,7 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
                 });
               }
 
-              kisResponse = await kisOperationApi.createMiscellaneousReceipt({
+              kisRequest = {
                 Object: {
                   Head: {
                     Fdate: getNowString(),
@@ -434,9 +450,11 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
                   },
                   Entry: entries,
                 },
-              });
+              };
+              kisResponse = await kisOperationApi.createMiscellaneousReceipt(kisRequest);
               break;
             case "其它原因出库退货入库":
+              externalEntityTypeName = "其他出库红字";
               for (const transfer of transfers) {
                 let entity: any = {
                   FItemID: transfer.material_external_code,
@@ -460,7 +478,7 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
                 entries.push(entity);
               }
 
-              kisResponse = await kisOperationApi.createMiscellaneousDelivery({
+              kisRequest = {
                 Object: {
                   Head: {
                     Fdate: getNowString(),
@@ -475,7 +493,8 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
                   },
                   Entry: entries,
                 },
-              });
+              };
+              kisResponse = await kisOperationApi.createMiscellaneousDelivery(kisRequest);
               break;
             default:
               break;
@@ -483,6 +502,7 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
         } else if (inventoryOperation.operationType === "out") {
           switch (inventoryOperation?.businessType?.name) {
             case "销售出库":
+              externalEntityTypeName = "销售出库";
               transfers.forEach((transfer, idx) => {
                 let entity: any = {
                   FItemID: transfer.material_external_code,
@@ -514,7 +534,7 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
                 entries.push(entity);
               });
 
-              kisResponse = await kisOperationApi.createSalesDelivery({
+              kisRequest = {
                 Object: {
                   Head: {
                     Fdate: getNowString(),
@@ -534,9 +554,11 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
                   },
                   Entry: entries,
                 },
-              });
+              };
+              kisResponse = await kisOperationApi.createSalesDelivery(kisRequest);
               break;
             case "委外加工出库":
+              externalEntityTypeName = "委外加工出库";
               for (const transfer of transfers) {
                 entries.push({
                   FItemID: transfer.material_external_code,
@@ -555,7 +577,7 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
                 });
               }
 
-              kisResponse = await kisOperationApi.createSubcontractdelivery({
+              kisRequest = {
                 Object: {
                   Head: {
                     Fdate: getNowString(),
@@ -571,9 +593,11 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
                   },
                   Entry: entries,
                 },
-              });
+              };
+              kisResponse = await kisOperationApi.createSubcontractdelivery(kisRequest);
               break;
             case "采购退货出库":
+              externalEntityTypeName = "外购入库红字";
               for (const transfer of transfers) {
                 entries.push({
                   FItemID: transfer.material_external_code,
@@ -593,7 +617,7 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
                 });
               }
 
-              kisResponse = await kisOperationApi.createPurchaseReceipt({
+              kisRequest = {
                 Object: {
                   Head: {
                     Fdate: getNowString(),
@@ -610,9 +634,11 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
                   },
                   Entry: entries,
                 },
-              });
+              };
+              kisResponse = await kisOperationApi.createPurchaseReceipt(kisRequest);
               break;
             case "生产入库退货出库":
+              externalEntityTypeName = "产品入库红字";
               for (const transfer of transfers) {
                 entries.push({
                   FItemID: transfer.material_external_code,
@@ -631,7 +657,7 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
                 });
               }
 
-              kisResponse = await kisOperationApi.createProductReceipt({
+              kisRequest = {
                 Object: {
                   Head: {
                     Fdate: getNowString(),
@@ -646,9 +672,11 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
                   },
                   Entry: entries,
                 },
-              });
+              };
+              kisResponse = await kisOperationApi.createProductReceipt(kisRequest);
               break;
             case "其它原因出库":
+              externalEntityTypeName = "其他出库";
               for (const transfer of transfers) {
                 let entity: any = {
                   FItemID: transfer.material_external_code,
@@ -672,7 +700,7 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
                 entries.push(entity);
               }
 
-              kisResponse = await kisOperationApi.createMiscellaneousDelivery({
+              kisRequest = {
                 Object: {
                   Head: {
                     Fdate: getNowString(),
@@ -687,9 +715,11 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
                   },
                   Entry: entries,
                 },
-              });
+              };
+              kisResponse = await kisOperationApi.createMiscellaneousDelivery(kisRequest);
               break;
             case "领料出库":
+              externalEntityTypeName = "生产领料";
               for (const transfer of transfers) {
                 entries.push({
                   FItemID: transfer.material_external_code,
@@ -709,7 +739,7 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
                 });
               }
 
-              kisResponse = await kisOperationApi.createPickingList({
+              kisRequest = {
                 Object: {
                   Head: {
                     Fdate: getNowString(),
@@ -726,7 +756,8 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
                   },
                   Entry: entries,
                 },
-              });
+              };
+              kisResponse = await kisOperationApi.createPickingList(kisRequest);
               break;
             default:
               break;
@@ -734,6 +765,27 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
         }
 
         if (kisResponse) {
+          const eventLog: CreateEventLogInput = {
+            sourceType: "app",
+            eventTypeCode: "kis.syncInternalToExternal",
+            targetTypeCode: "mom_inventory_application",
+            targetCode: inventoryApplication.code,
+            message: "",
+            data: {
+              kisRequest,
+              kisResponse,
+            },
+          };
+
+          if (kisResponse.errorCode) {
+            eventLog.level = "error";
+            eventLog.message = `KIS${externalEntityTypeName}单据写入失败。WMS${inventoryApplication.businessType?.name}单号：${inventoryApplication.code}。${kisResponse.description}`;
+          } else {
+            eventLog.level = "info";
+            eventLog.message = `KIS${externalEntityTypeName}单据写入成功。WMS${inventoryApplication.businessType?.name}单号：${inventoryApplication.code}。KIS单号：${kisResponse.data.FBillNo}`;
+          }
+          await server.getService<EventLogService>("eventLogService").createLog(eventLog);
+
           if (kisResponse.data?.FBillNo) {
             await inventoryOperationManager.updateEntityById({
               routeContext,
