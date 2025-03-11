@@ -47,7 +47,14 @@ const isDevelopmentEnv = process.env.NODE_ENV === "development";
 const BUILD_DIR = path.join(process.cwd(), "build");
 
 export async function startServer() {
-  const logLevel = process.env.RAPID_LOG_LEVEL || (isDevelopmentEnv ? "debug" : "info");
+  const envFromProcess = process.env;
+  const env = {
+    get: (name: string, defaultValue = "") => {
+      return envFromProcess[name] || defaultValue;
+    },
+  };
+
+  const logLevel = env.get("RAPID_LOG_LEVEL", isDevelopmentEnv ? "debug" : "info");
   const logger = createAppLogger({
     level: logLevel,
   });
@@ -65,7 +72,8 @@ export async function startServer() {
   // more aggressive with this caching.
   app.use(express.static("public", { maxAge: "1h" }));
 
-  if (isDevelopmentEnv) {
+  const expressLogDisabled = parseBoolean(env.get("EXPRESS_LOG_DISABLED", "false"));
+  if (isDevelopmentEnv || !expressLogDisabled) {
     app.use(
       expressWinston.logger({
         format: format.combine(format.timestamp(), format.splat()),
@@ -80,7 +88,7 @@ export async function startServer() {
     );
   }
 
-  const customizeAPI = process.env.CUSTOMIZE_SERVICE_URL || "http://127.0.0.1:3001";
+  const customizeAPI = env.get("CUSTOMIZE_SERVICE_URL", "http://127.0.0.1:3001");
   app.use(
     "/api/customize",
     createProxyMiddleware({
@@ -91,13 +99,6 @@ export async function startServer() {
       },
     }),
   );
-
-  const envFromProcess = process.env;
-  const env = {
-    get: (name: string, defaultValue = "") => {
-      return envFromProcess[name] || defaultValue;
-    },
-  };
 
   const defaultJWTKey =
     "DyYR1em73ZR5s3rUV32ek3FCZBMxE0YMjuPCvpyQKn+MhCQwlwCiN+8ghgTYcoijtLhKX4G93DPxsJOIuf/ub5qRi0lx5AnHEYGQ8c2zpxJ873viF7marKQ7k5dtBU83f0Oki3aeugSeAfYbOzeK49+LopkgjDeQikgLMyC4JFo=";

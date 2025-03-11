@@ -209,8 +209,6 @@ async function listGoodOutTransfers(server: IRpdServer, routeContext: RouteConte
   const transfers = await server.queryDatabaseObject(stmt, [input.operationId], routeContext.getDbTransactionClient());
 
   const transferOutputs = transfers.map((item) => {
-    console.log(item.completed_amount, item.total_amount, item.waiting_amount);
-
     return {
       operationId: item.operation_id,
       material: item.material,
