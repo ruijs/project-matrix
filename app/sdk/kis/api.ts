@@ -73,7 +73,8 @@ class KingdeeSDK {
 
   private async request<T>(config: AxiosRequestConfig): Promise<AxiosResponse<T>> {
     try {
-      await this.ensureTokensAreValid();
+      await this.refreshTokensIfNecessary();
+
       return await this.axiosInstance.request<T>(config);
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -85,18 +86,19 @@ class KingdeeSDK {
     }
   }
 
-  public async ensureTokensAreValid(): Promise<void> {
+  /**
+   * 当accessToken或者authData即将过期时刷新
+   * @param expiresInSeconds 刷新提前时间，即：在多少秒内过期则刷新。默认为600秒。
+   */
+  public async refreshTokensIfNecessary(expiresInSeconds: number = 600): Promise<void> {
     const now = Math.floor(Date.now() / 1000);
-    if (now >= this.accessTokenExpireIn - 600) {
+
+    if (now >= this.accessTokenExpireIn - expiresInSeconds || now >= this.sessionIdExpireIn - expiresInSeconds) {
       await this.refreshAccessToken();
     }
-    if (now >= this.refreshAuthDataTokenExpireIn - 600) {
+
+    if (now >= this.refreshAuthDataTokenExpireIn - expiresInSeconds) {
       await this.refreshAuthData();
-      await this.refreshAccessToken();
-    }
-    if (now >= this.sessionIdExpireIn - 600) {
-      await this.refreshAuthData();
-      await this.refreshAccessToken();
     }
   }
 
@@ -118,7 +120,6 @@ class KingdeeSDK {
     const response = await this.axiosInstance.request<any>(config);
     const result = response.data;
     if (result.errcode) {
-      this.#logger.error("获取AccessToken失败。", { result });
       throw newKisApiError("获取AccessToken失败。", result);
     }
     const data = result.data;
@@ -161,7 +162,6 @@ class KingdeeSDK {
     const response = await this.axiosInstance.request<any>(config);
     const result = response.data;
     if (result.errcode) {
-      this.#logger.error("获取业务接口网关和auth_data失败。", { result });
       throw newKisApiError("获取业务接口网关和auth_data失败。", result);
     }
     const data = result.data;
@@ -190,7 +190,6 @@ class KingdeeSDK {
     const response = await this.axiosInstance.request<any>(config);
     const result = response.data;
     if (result.errcode) {
-      this.#logger.error("刷新AccessToken失败。", { result });
       throw newKisApiError("刷新AccessToken失败。", result);
     }
     const data = result.data;
@@ -220,7 +219,6 @@ class KingdeeSDK {
     const response = await this.axiosInstance.request<any>(config);
     const result = response.data;
     if (result.errcode) {
-      this.#logger.error("刷新AuthData失败。", { result });
       throw newKisApiError("刷新AuthData失败。", result);
     }
     const data = result.data;
@@ -253,7 +251,6 @@ class KingdeeSDK {
     const response = await this.axiosInstance.request<any>(config);
     const result = response.data;
     if (result.errcode) {
-      this.#logger.error("获取KIS云用户登录态失败。", { result });
       throw newKisApiError("获取KIS云用户登录态失败。", result);
     }
     const data = result.data;
@@ -288,7 +285,6 @@ class KingdeeSDK {
     const response = await this.axiosInstance.request<any>(config);
     const result = response.data;
     if (result.errcode) {
-      this.#logger.error("获取账套信息失败。", { result });
       throw newKisApiError("获取账套信息失败。", result);
     }
     const data = result.data;
@@ -326,7 +322,6 @@ class KingdeeSDK {
     const response = await this.axiosInstance.request<any>(config);
     const result = response.data;
     if (result.errcode) {
-      this.#logger.error("获取生态应用列表失败。", { result });
       throw newKisApiError("获取生态应用列表失败。", result);
     }
     const data = result.data;
@@ -364,7 +359,6 @@ class KingdeeSDK {
     const response = await this.axiosInstance.request<any>(config);
     const result = response.data;
     if (result.errcode) {
-      this.#logger.error("获取业务接口网关和auth_data失败。", { result });
       throw newKisApiError("获取业务接口网关和auth_data失败。", result);
     }
     const data = result.data;
@@ -425,7 +419,7 @@ export type KisApiResultBase = {
 };
 
 export function newKisApiError(message: string, apiResult: KisApiResultBase) {
-  const error = new Error(`${message} ${apiResult.description}`);
+  const error = new Error(`${message} KIS接口错误: ${apiResult.errcode}, ${apiResult.description}`);
   error.name = "KisApiError";
   return error;
 }
