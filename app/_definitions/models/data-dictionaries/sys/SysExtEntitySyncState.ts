@@ -1,7 +1,7 @@
 import type { RapidDataDictionary } from "@ruiapp/rapid-extension";
 
 export default {
-  code: "SysExternalEntitySyncState",
+  code: "SysExtEntitySyncState",
   name: "同步结果",
   valueType: "string",
   level: "sys",

@@ -1,13 +1,13 @@
 import type { RapidPage, SonicEntityListRockConfig } from "@ruiapp/rapid-extension";
 
 const page: RapidPage = {
-  code: "sys_external_entity_list",
+  code: "sys_ext_entity_list",
   name: "外部实体",
   title: "外部实体",
   view: [
     {
       $type: "sonicEntityList",
-      entityCode: "SysExternalEntity",
+      entityCode: "SysExtEntity",
       viewMode: "table",
       selectionMode: "none",
       orderBy: [
@@ -27,7 +27,7 @@ const page: RapidPage = {
         },
       ],
       searchForm: {
-        entityCode: "SysExternalEntity",
+        entityCode: "SysExtEntity",
         items: [
           {
             type: "auto",
@@ -99,7 +99,7 @@ const page: RapidPage = {
         },
         {
           type: "auto",
-          code: "syncAttempt",
+          code: "syncAttempts",
           width: "100px",
         },
         {

@@ -13,6 +13,7 @@
     "start": "cross-env NODE_ENV=production ts-node-esm --project ./tsconfig-node.json -r tsconfig-paths/register ./index.ts",
     "gen-meta": "ts-node-esm --project ./tsconfig-node.json -r dotenv/config -r tsconfig-paths/register ./app/tools/gen-meta.ts",
     "update-rpd-models": "ts-node-esm --project ./tsconfig-node.json -r dotenv/config -r tsconfig-paths/register ./app/tools/update-rpd-models.ts",
+    "run-sync-job": "cross-env NODE_ENV=development ts-node-esm -r dotenv/config -r tsconfig-paths/register ./run-sync-job.ts",
     "test": "echo \"Error: no test specified\"",
     "gen:svg-icons": "npx @svgr/cli --out-dir ./app/shopfloor-extension/rocks/custom-icons/components -- ./app/shopfloor-extension/rocks/custom-icons/svgs",
     "fmt:code": "prettier . --write"

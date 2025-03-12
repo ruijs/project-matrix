@@ -699,7 +699,7 @@ export type SysEventSourceType =
 /**
  * 同步结果
  */
-export type SysExternalEntitySyncState =
+export type SysExtEntitySyncState =
   | 'pending'
   | 'processing'
   | 'success'

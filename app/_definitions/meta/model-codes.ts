@@ -152,8 +152,8 @@ export const entitySingularCodes = [
   'sys_audit_log',
   'sys_event_log',
   'sys_event_type',
-  'sys_external_entity',
-  'sys_external_entity_type',
+  'sys_ext_entity',
+  'sys_ext_entity_type',
   'sys_module',
   'sys_plugin',
   'webhook',
@@ -2736,7 +2736,7 @@ const entityFieldCodes = {
     'deletedAt',
     'deletedBy',
   ],
-  'SysExternalEntity': [
+  'SysExtEntity': [
     'id',
     'externalTypeCode',
     'externalId',
@@ -2756,7 +2756,7 @@ const entityFieldCodes = {
     'deletedAt',
     'deletedBy',
   ],
-  'SysExternalEntityType': [
+  'SysExtEntityType': [
     'id',
     'code',
     'name',

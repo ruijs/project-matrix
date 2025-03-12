@@ -11,7 +11,7 @@ export default {
   async handler(ctx: ActionHandlerContext) {
     const { server } = ctx;
 
-    await syncKisAuditStatus(ctx, server);
+    // await syncKisAuditStatus(ctx, server);
   },
 } satisfies CronJobConfiguration;
 

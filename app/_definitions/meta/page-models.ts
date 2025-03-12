@@ -122,7 +122,7 @@ import sys$SysActionListPage from '../models/pages/sys/SysActionListPage';
 import sys$SysAuditLogListPage from '../models/pages/sys/SysAuditLogListPage';
 import sys$SysEventLogListPage from '../models/pages/sys/SysEventLogListPage';
 import sys$SysEventTypeListPage from '../models/pages/sys/SysEventTypeListPage';
-import sys$SysExternalEntityListPage from '../models/pages/sys/SysExternalEntityListPage';
+import sys$SysExtEntityListPage from '../models/pages/sys/SysExtEntityListPage';
 import sys$SysPrinterListPage from '../models/pages/sys/SysPrinterListPage';
 import sys$SysSubSystemListPage from '../models/pages/sys/SysSubSystemListPage';
 import sys$SysWebhookListPage from '../models/pages/sys/SysWebhookListPage';
@@ -251,7 +251,7 @@ export default [
   sys$SysAuditLogListPage,
   sys$SysEventLogListPage,
   sys$SysEventTypeListPage,
-  sys$SysExternalEntityListPage,
+  sys$SysExtEntityListPage,
   sys$SysPrinterListPage,
   sys$SysSubSystemListPage,
   sys$SysWebhookListPage,

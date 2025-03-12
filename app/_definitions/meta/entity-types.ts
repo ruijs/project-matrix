@@ -63,7 +63,7 @@ import type {
   SysAuditLogTarget,
   SysEventLogLevel,
   SysEventSourceType,
-  SysExternalEntitySyncState,
+  SysExtEntitySyncState,
   UndeletedDeletedState,
   UnitType,
   WarehouseStrategy,
@@ -10827,7 +10827,7 @@ export type SaveSysEventTypeInput = Omit<SysEventType, 'id' | 'createdAt' | 'cre
 /**
  * 外部实体
  */
-export interface SysExternalEntity {
+export interface SysExtEntity {
   /**
    * id
    */
@@ -10863,7 +10863,7 @@ export interface SysExternalEntity {
   /**
    * 同步状态
    */
-  syncState?: SysExternalEntitySyncState;
+  syncState?: SysExtEntitySyncState;
   /**
    * 同步时间
    */
@@ -10905,12 +10905,12 @@ export interface SysExternalEntity {
 /**
  * 外部实体
  */
-export type SaveSysExternalEntityInput = Omit<SysExternalEntity, 'id' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>;
+export type SaveSysExtEntityInput = Omit<SysExtEntity, 'id' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>;
 
 /**
  * 外部实体类型
  */
-export interface SysExternalEntityType {
+export interface SysExtEntityType {
   /**
    * id
    */
@@ -10972,7 +10972,7 @@ export interface SysExternalEntityType {
 /**
  * 外部实体类型
  */
-export type SaveSysExternalEntityTypeInput = Omit<SysExternalEntityType, 'id' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>;
+export type SaveSysExtEntityTypeInput = Omit<SysExtEntityType, 'id' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>;
 
 /**
  * 系统模块

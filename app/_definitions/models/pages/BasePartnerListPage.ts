@@ -49,7 +49,7 @@ const page: RapidPage = {
       ],
       orderBy: [
         {
-          field: "name",
+          field: "code",
         },
       ],
       pageSize: 20,

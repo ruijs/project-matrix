@@ -153,8 +153,8 @@ import sys$SysActionGroup from '../models/entities/sys/SysActionGroup';
 import sys$SysAuditLog from '../models/entities/sys/SysAuditLog';
 import sys$SysEventLog from '../models/entities/sys/SysEventLog';
 import sys$SysEventType from '../models/entities/sys/SysEventType';
-import sys$SysExternalEntity from '../models/entities/sys/SysExternalEntity';
-import sys$SysExternalEntityType from '../models/entities/sys/SysExternalEntityType';
+import sys$SysExtEntity from '../models/entities/sys/SysExtEntity';
+import sys$SysExtEntityType from '../models/entities/sys/SysExtEntityType';
 import sys$SysModule from '../models/entities/sys/SysModule';
 import sys$SysPlugin from '../models/entities/sys/SysPlugin';
 import sys$SysWebhook from '../models/entities/sys/SysWebhook';
@@ -314,8 +314,8 @@ const entityDefinitions = [
   sys$SysAuditLog,
   sys$SysEventLog,
   sys$SysEventType,
-  sys$SysExternalEntity,
-  sys$SysExternalEntityType,
+  sys$SysExtEntity,
+  sys$SysExtEntityType,
   sys$SysModule,
   sys$SysPlugin,
   sys$SysWebhook,
@@ -475,8 +475,8 @@ const configuredEntities:TRapidEntity[] = [
   autoConfigureRapidEntity(sys$SysAuditLog, entityDefinitions),
   autoConfigureRapidEntity(sys$SysEventLog, entityDefinitions),
   autoConfigureRapidEntity(sys$SysEventType, entityDefinitions),
-  autoConfigureRapidEntity(sys$SysExternalEntity, entityDefinitions),
-  autoConfigureRapidEntity(sys$SysExternalEntityType, entityDefinitions),
+  autoConfigureRapidEntity(sys$SysExtEntity, entityDefinitions),
+  autoConfigureRapidEntity(sys$SysExtEntityType, entityDefinitions),
   autoConfigureRapidEntity(sys$SysModule, entityDefinitions),
   autoConfigureRapidEntity(sys$SysPlugin, entityDefinitions),
   autoConfigureRapidEntity(sys$SysWebhook, entityDefinitions),

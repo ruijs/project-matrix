@@ -4,7 +4,7 @@ import type { RapidEntity } from "@ruiapp/rapid-extension";
 
 const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
   namespace: "sys",
-  code: "SysExternalEntityType",
+  code: "SysExtEntityType",
   name: "外部实体类型",
   fields: [
     {
@@ -49,7 +49,7 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
   ],
   indexes: [
     {
-      name: "uidx_sys_external_entity_types_code",
+      name: "uidx_sys_ext_entity_types_code",
       unique: true,
       properties: [
         {

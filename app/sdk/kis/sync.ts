@@ -326,8 +326,10 @@ class KisDataSync {
         url: "/koas/APP006992/api/Material/List",
         singularCode: "base_material_category",
         mapToEntity: async (item: any) => {
+          // 以物料的上级ID作为外部编码，查找WMS中的物料分类id
           const parentId = this.materialCategories.find((cat) => cat.externalCode === String(item.FParentID))?.id;
 
+          // 如果找不到分类id，并且此物料存在上级物料，则跳过
           if (!parentId && item.FParentID !== 0) {
             // console.log(`Parent category not found for item ${item.FName}`)
             return null;
