@@ -1,4 +1,4 @@
-import { cloneDeep, merge, omit, property } from "lodash";
+import { cloneDeep, merge, omit, orderBy, property } from "lodash";
 import type { RapidPage, RapidEntityFormConfig } from "@ruiapp/rapid-extension";
 import { materialFormatStrTemplate } from "~/utils/fmt";
 import type { RockEvent } from "@ruiapp/move-style";
@@ -264,6 +264,18 @@ function getFormConfig(formType: "newForm" | "editForm") {
           listFilterFields: ["name", "code", "specification"],
           requestParams: {
             properties: ["id", "code", "name", "specification", "defaultUnit", "category"],
+            fixedFilters: [
+              {
+                operator: "eq",
+                field: "state",
+                value: "enabled",
+              },
+            ],
+            orderBy: [
+              {
+                field: "code",
+              },
+            ],
             keepNonPropertyFields: true,
           },
           columns: [
