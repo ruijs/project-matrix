@@ -122,11 +122,7 @@ export default [
 ] satisfies EntityWatcher<any>[];
 
 function validateInventoryApplication(application: MomInventoryApplication) {
-  // 物品数量不能为0
-  const applicationItems: Partial<MomInventoryApplicationItem>[] | undefined = application.items;
-  if (!applicationItems || !applicationItems.length) {
-    throw new Error("物品明细项不能为空。");
-  }
+  const applicationItems: Partial<MomInventoryApplicationItem>[] | undefined = application.items || [];
 
   for (const applicationItem of applicationItems) {
     const quantity = applicationItem.quantity || 0;

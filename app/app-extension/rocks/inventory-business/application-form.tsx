@@ -14,6 +14,7 @@ import type { ColumnProps } from "antd/lib/table";
 import { decimalSum } from "~/utils/decimal";
 import SaleLotNumSelect from "./saleLotNumSelect";
 import { renderInventoryManagerDisplayLabel } from "~/app-extension/utils/inventory-manager-utility";
+import { FindEntityOptions } from "@ruiapp/rapid-core";
 
 const LotSelect = memo<{
   isSalesOut: boolean;
@@ -724,7 +725,7 @@ export default {
                   dataIndex: "material",
                   width: 180,
                   render: (_, r, i) => {
-                    let fixedFilters: any[] = [];
+                    let fixedFilters: FindEntityOptions["filters"] = [];
                     if (operationType === "out" && warehouseId) {
                       fixedFilters.push({
                         field: "warehouse_id",
@@ -745,6 +746,11 @@ export default {
                               field: "material",
                               operator: "exists",
                               filters: [
+                                {
+                                  operator: "eq",
+                                  field: "state",
+                                  value: "enabled",
+                                },
                                 {
                                   operator: "or",
                                   filters: [
@@ -784,7 +790,7 @@ export default {
                                   category: true,
                                 },
                               },
-                              // orderBy: [{ field: "code" }],
+                              orderBy: [{ field: "material.code" }],
                             },
                           },
                           value: r.material?.id,
@@ -833,8 +839,14 @@ export default {
                           url: "/app/base_materials/operations/find",
                           method: "post",
                           params: {
-                            fixedFilters,
-                            properties: ["id", "code", "name", "specification", "defaultUnit", "category"],
+                            fixedFilters: [
+                              {
+                                operator: "eq",
+                                field: "state",
+                                value: "enabled",
+                              },
+                            ],
+                            properties: ["id", "code", "name", "specification", "defaultUnit", "category", "state"],
                             orderBy: [{ field: "code" }],
                           },
                         },
