@@ -1,5 +1,5 @@
-import KingdeeSDK from "~/sdk/kis/api";
-import { ActionHandlerContext, IRpdServer, RouteContext, UpdateEntityByIdOptions } from "@ruiapp/rapid-core";
+import KingdeeSDK, { newKisApiError } from "~/sdk/kis/api";
+import { ActionHandlerContext, IRpdServer, Logger, RouteContext, UpdateEntityByIdOptions } from "@ruiapp/rapid-core";
 import KisHelper from "~/sdk/kis/helper";
 import {
   BaseLocation,
@@ -35,6 +35,7 @@ interface SyncOptions {
 class KisDataSync {
   private api!: KingdeeSDK;
   private server: IRpdServer;
+  private logger: Logger;
   private ctx: ActionHandlerContext;
   private materialCategories: BaseMaterialCategory[] = [];
   private partnerCategories: BasePartnerCategory[] = [];
@@ -43,6 +44,7 @@ class KisDataSync {
 
   constructor(server: IRpdServer, ctx: ActionHandlerContext) {
     this.server = server;
+    this.logger = server.getLogger();
     this.ctx = ctx;
   }
 
@@ -95,17 +97,26 @@ class KisDataSync {
 
   // Retry mechanism for API requests
   private async retryApiRequest(url: string, payload: object, retries: number = 3): Promise<any> {
-    let attempts = 0;
-    while (attempts < retries) {
+    let attempts = 1;
+    let apiResult;
+    while (attempts <= retries) {
       const response = await this.api.PostResourceRequest(url, payload);
-      if (response.data.errcode === 0) {
+      apiResult = response.data || {};
+      const errcode = apiResult.errcode;
+      if (!errcode) {
         return response;
       }
-      console.error(`API ${url} request failed (attempt ${attempts + 1}):`, url, response.data);
-      attempts += 1;
-      await this.sleep(2000); // Wait before retrying
+
+      if (errcode === 11202) {
+        // 触发流控
+        this.logger.warn(`API request failed (attempt ${attempts}), url: ${url}, apiResult: ${JSON.stringify(apiResult)}`);
+        attempts += 1;
+        await this.sleep(2000); // Wait before retrying
+      } else {
+        throw newKisApiError(`Failed to fetch data from ${url}.`, apiResult);
+      }
     }
-    throw new Error(`Failed to fetch data from ${url} after ${retries} attempts`);
+    throw newKisApiError(`Failed to fetch data from ${url} after ${retries} attempts`, apiResult);
   }
 
   // Fetch paginated list from the API

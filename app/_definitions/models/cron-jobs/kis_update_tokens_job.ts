@@ -1,19 +1,19 @@
 import type { ActionHandlerContext, CronJobConfiguration, IRpdServer } from "@ruiapp/rapid-core";
 import KingdeeSDK from "~/sdk/kis/api";
 import { SaveKisConfigInput } from "~/_definitions/meta/entity-types";
+import EventLogService from "rapid-plugins/eventLog/services/EventLogService";
+
+// 每隔10分钟刷新一次token
+const refreshIntervalMinutes = 10;
 
 export default {
   code: "kis-update-tokens-job",
 
-  // 每隔10分钟刷新一次token
-  cronTime: "*/10 * * * *",
+  cronTime: `*/${refreshIntervalMinutes} * * * *`,
 
   async handler(ctx: ActionHandlerContext) {
-    const { server, logger } = ctx;
-    // handle kis config
+    const { server } = ctx;
     await refreshKisTokens(ctx, server);
-
-    logger.info("Finished kis update tokens job...");
   },
 } satisfies CronJobConfiguration;
 
@@ -39,24 +39,43 @@ async function refreshKisTokens(ctx: ActionHandlerContext, server: IRpdServer) {
     gatewayRouterAddr: ksc.gateway_router_addr,
   });
 
-  await kis.ensureTokensAreValid();
+  try {
+    const expiresInSeconds = refreshIntervalMinutes * 1.5 * 60;
+    await kis.refreshTokensIfNecessary(expiresInSeconds);
 
-  // update kis config
-
-  const result = await kisConfigManager.updateEntityById({
-    routeContext,
-    id: ksc.id,
-    entityToSave: {
-      access_token: kis.accessToken,
-      access_token_expire_in: kis.accessTokenExpireIn,
-      auth_data: kis.authData,
-      refresh_auth_data_token: kis.refreshAuthDataToken,
-      refresh_auth_data_token_expire_in: kis.refreshAuthDataTokenExpireIn,
-      session_id: kis.sessionId,
-      session_id_expire_in: kis.sessionIdExpireIn,
-      gateway_router_addr: kis.gatewayRouterAddr,
-    } as SaveKisConfigInput,
-  });
-
-  console.log("Kis config updated:", result);
+    // update kis config
+    await kisConfigManager.updateEntityById({
+      routeContext,
+      id: ksc.id,
+      entityToSave: {
+        access_token: kis.accessToken,
+        access_token_expire_in: kis.accessTokenExpireIn,
+        auth_data: kis.authData,
+        refresh_auth_data_token: kis.refreshAuthDataToken,
+        refresh_auth_data_token_expire_in: kis.refreshAuthDataTokenExpireIn,
+        session_id: kis.sessionId,
+        session_id_expire_in: kis.sessionIdExpireIn,
+        gateway_router_addr: kis.gatewayRouterAddr,
+      } as SaveKisConfigInput,
+    });
+  } catch (error: any) {
+    server.getLogger().error("刷新KIS token失败。", { error });
+    server.getService<EventLogService>("eventLogService").createLog({
+      sourceType: "app",
+      eventTypeCode: "kis.refreshToken",
+      level: "error",
+      message: `刷新KIS token失败。`,
+      details: (error as Error).stack,
+      data: {
+        accessToken: kis.accessToken,
+        accessTokenExpireIn: kis.accessTokenExpireIn,
+        authData: kis.authData,
+        refreshAuthDataToken: kis.refreshAuthDataToken,
+        refreshAuthDataTokenExpireIn: kis.refreshAuthDataTokenExpireIn,
+        sessionId: kis.sessionId,
+        sessionIdExpireIn: kis.sessionIdExpireIn,
+        gatewayRouterAddr: kis.gatewayRouterAddr,
+      },
+    });
+  }
 }
