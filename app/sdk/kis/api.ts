@@ -73,8 +73,6 @@ class KingdeeSDK {
 
   private async request<T>(config: AxiosRequestConfig): Promise<AxiosResponse<T>> {
     try {
-      await this.refreshTokensIfNecessary();
-
       return await this.axiosInstance.request<T>(config);
     } catch (error) {
       if (axios.isAxiosError(error)) {
