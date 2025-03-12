@@ -247,7 +247,7 @@ const page: RapidPage = {
               properties: ["id", "code", "name", "parent", "orderNum"],
               orderBy: [
                 {
-                  field: "orderNum",
+                  field: "code",
                 },
               ],
             },
@@ -266,7 +266,7 @@ const page: RapidPage = {
           properties: ["id", "code", "name", "parent", "orderNum"],
           orderBy: [
             {
-              field: "orderNum",
+              field: "code",
             },
           ],
         },

@@ -65,7 +65,7 @@ const page: RapidPage = {
       ],
       orderBy: [
         {
-          field: "createdAt",
+          field: "code",
         },
       ],
       convertListToTree: true,
