@@ -463,7 +463,7 @@ class KisDataSync {
             code: item.FNumber,
             name: item.FName,
             externalCode: item.FItemID,
-            state: "enabled",
+            state: "disabled",
             category: { id: category?.id },
           } as SaveBaseMaterialInput;
         },
