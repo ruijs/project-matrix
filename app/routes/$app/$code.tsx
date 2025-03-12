@@ -207,7 +207,6 @@ export default function Index() {
       entities,
       dataDictionaries,
     });
-    console.debug("[RUI][ReactPlayer] RUI page config:", ruiPageConfig);
     return new Page(framework, ruiPageConfig);
   }, [pageCode, sdPage, entities, dataDictionaries, pageAccessAllowed]);
 
