@@ -33,6 +33,14 @@ const page: RapidPage = {
           field: "name",
         },
       ],
+      listActions: [
+        {
+          $type: "sonicToolbarNewEntityButton",
+          text: "新建",
+          icon: "PlusOutlined",
+          actionStyle: "primary",
+        },
+      ],
       extraActions: [
         {
           $type: "sonicToolbarFormItem",
