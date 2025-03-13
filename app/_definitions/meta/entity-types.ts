@@ -4718,10 +4718,6 @@ export interface MomInventoryApplication {
    */
   department?: Partial<OcDepartment>;
   /**
-   * 供应商
-   */
-  supplier?: Partial<BasePartner>;
-  /**
    * 创建时间
    */
   createdAt?: string;
@@ -10875,7 +10871,7 @@ export interface SysExternalEntity {
   /**
    * 同步尝试次数
    */
-  syncAttempt?: number;
+  syncAttempts?: number;
   /**
    * 同步错误信息
    */
