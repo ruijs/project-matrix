@@ -2,12 +2,15 @@ import type { ActionHandlerContext, CronJobConfiguration, IRpdServer } from "@ru
 import KingdeeSDK from "~/sdk/kis/api";
 import { SaveKisConfigInput } from "~/_definitions/meta/entity-types";
 import EventLogService from "rapid-plugins/eventLog/services/EventLogService";
+import { getBooleanEnvValue } from "~/utils/env-utils";
 
 // 每隔10分钟刷新一次token
 const refreshIntervalMinutes = 10;
 
 export default {
   code: "kis-update-tokens-job",
+
+  disabled: getBooleanEnvValue("KIS_REFRESH_TOKENS_JOB_DISABLED"),
 
   cronTime: `*/${refreshIntervalMinutes} * * * *`,
 

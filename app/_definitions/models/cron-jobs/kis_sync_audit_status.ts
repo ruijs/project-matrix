@@ -4,15 +4,14 @@ import KisDataSync from "~/sdk/kis/sync";
 export default {
   code: "kis-sync-audit-status",
 
+  disabled: true,
+
   cronTime: "*/5 * * * *",
 
   async handler(ctx: ActionHandlerContext) {
-    const { server, logger } = ctx;
-    logger.info("Executing kis sync audit status...");
+    const { server } = ctx;
 
-    // await syncKisData(ctx, server);
-
-    logger.info("Finished kis sync audit status...");
+    await syncKisAuditStatus(ctx, server);
   },
 } satisfies CronJobConfiguration;
 

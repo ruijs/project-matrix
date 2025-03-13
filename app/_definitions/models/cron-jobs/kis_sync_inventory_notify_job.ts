@@ -1,8 +1,11 @@
 import type { ActionHandlerContext, CronJobConfiguration, IRpdServer } from "@ruiapp/rapid-core";
 import KisDataSync from "~/sdk/kis/sync";
+import { getBooleanEnvValue } from "~/utils/env-utils";
 
 export default {
   code: "kis-sync-inventory-notify-job",
+
+  disabled: getBooleanEnvValue("KIS_SYNC_INVENTORY_APPLICATIONS_JOB_DISABLED"),
 
   cronTime: "*/5 * * * *",
 
