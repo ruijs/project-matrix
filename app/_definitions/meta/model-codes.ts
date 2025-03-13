@@ -1276,7 +1276,6 @@ const entityFieldCodes = {
     'kisResponse',
     'inspectState',
     'department',
-    'supplier',
     'createdAt',
     'createdBy',
     'updatedAt',

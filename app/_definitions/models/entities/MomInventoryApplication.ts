@@ -1,7 +1,7 @@
 import type { TDictionaryCodes } from "../../meta/data-dictionary-codes";
 import type { TEntitySingularCodes } from "../../meta/model-codes";
 import type { RapidEntity } from "@ruiapp/rapid-extension";
-import type {PropertySequenceConfig} from "@ruiapp/rapid-core";
+import type { PropertySequenceConfig } from "@ruiapp/rapid-core";
 
 const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
   namespace: "mom",
@@ -19,7 +19,7 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
             segments: [
               {
                 type: "literal",
-                content: "WA-"
+                content: "WA-",
               },
               {
                 type: "year",
@@ -117,7 +117,7 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
       name: "供应商",
       type: "relation",
       targetSingularCode: "base_partner",
-      targetIdColumnName: "partner_id",
+      targetIdColumnName: "supplier_id",
     },
     {
       code: "customer",
@@ -229,13 +229,6 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
       type: "relation",
       targetSingularCode: "oc_department",
       targetIdColumnName: "department_id",
-    },
-    {
-      code: "supplier",
-      name: "供应商",
-      type: "relation",
-      targetSingularCode: "base_partner",
-      targetIdColumnName: "supplier_id",
     },
   ],
 };
