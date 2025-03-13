@@ -7,6 +7,7 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
   code: "MomPrintTemplate",
   name: "打印模版",
   description: "打印模版",
+  softDelete: true,
   fields: [
     {
       code: "name",

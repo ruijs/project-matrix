@@ -7,6 +7,7 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
   code: "MomInspectionCategory",
   name: "检验类型",
   description: "检验类型，如：来料检验、出货检验、生产过程检验等。",
+  softDelete: true,
   fields: [
     {
       code: "code",

@@ -6,6 +6,7 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
   namespace: "mom",
   code: "MomWarehouse",
   name: "仓库",
+  softDelete: true,
   fields: [
     {
       code: "building",

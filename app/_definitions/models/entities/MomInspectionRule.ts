@@ -7,6 +7,7 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
   code: "MomInspectionRule",
   name: "检验规则",
   description: "设置被检物品在不同检验类型/场景下需要检验哪些特征，各个特征的理论值、合格条件等。",
+  softDelete: true,
   fields: [
     {
       code: "name",

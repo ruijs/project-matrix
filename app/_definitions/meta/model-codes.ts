@@ -2748,7 +2748,7 @@ const entityFieldCodes = {
     'internalCode',
     'syncState',
     'syncTime',
-    'syncAttempt',
+    'syncAttempts',
     'syncError',
     'createdAt',
     'createdBy',
