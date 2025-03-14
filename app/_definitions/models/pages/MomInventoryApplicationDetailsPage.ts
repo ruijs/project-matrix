@@ -646,7 +646,10 @@ const page: RapidPage = {
               pageSize: -1,
               orderBy: [
                 {
-                  field: "orderNum",
+                  field: "material.code",
+                },
+                {
+                  field: "lotNum",
                 },
               ],
               extraProperties: ["binNum", "application", "inspectState"],
