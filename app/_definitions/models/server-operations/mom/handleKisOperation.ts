@@ -6,6 +6,7 @@ import KisHelper from "~/sdk/kis/helper";
 import dayjs from "dayjs";
 import EventLogService from "rapid-plugins/eventLog/services/EventLogService";
 import { CreateEventLogInput } from "rapid-plugins/eventLog/EventLogPluginTypes";
+import { KisApiResult } from "~/sdk/kis/api";
 
 export type CreateGoodTransferInput = {
   operationId: number;
@@ -162,7 +163,7 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
           properties: ["id", "inspector"],
         });
 
-        let kisResponse: any;
+        let kisResponse: KisApiResult | undefined;
 
         let locationCode = "";
         const warehouse = inventoryApplication?.to || inventoryApplication?.from;
@@ -777,7 +778,7 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
             },
           };
 
-          if (kisResponse.errorCode) {
+          if (kisResponse.errcode) {
             eventLog.level = "error";
             eventLog.message = `KIS${externalEntityTypeName}单据写入失败。WMS${inventoryApplication.businessType?.name}单号：${inventoryApplication.code}。${kisResponse.description}`;
           } else {

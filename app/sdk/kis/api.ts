@@ -411,12 +411,13 @@ export function getKisSignature(options: GetKisSignatureOptions) {
   return sha256.digest("hex");
 }
 
-export type KisApiResultBase = {
+export type KisApiResult<TData = any> = {
   errcode: number;
   description: string;
+  data: TData;
 };
 
-export function newKisApiError(message: string, apiResult: KisApiResultBase) {
+export function newKisApiError(message: string, apiResult: KisApiResult) {
   const error = new Error(`${message} KIS接口错误: ${apiResult.errcode}, ${apiResult.description}`);
   error.name = "KisApiError";
   return error;
