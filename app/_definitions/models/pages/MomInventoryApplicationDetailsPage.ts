@@ -646,7 +646,10 @@ const page: RapidPage = {
               pageSize: -1,
               orderBy: [
                 {
-                  field: "orderNum",
+                  field: "material.code",
+                },
+                {
+                  field: "lotNum",
                 },
               ],
               extraProperties: ["binNum", "application", "inspectState"],
@@ -704,6 +707,7 @@ const page: RapidPage = {
                   type: "auto",
                   code: "quantity",
                   width: "100px",
+                  summaryMethod: "sum",
                 },
                 {
                   type: "auto",
@@ -717,6 +721,7 @@ const page: RapidPage = {
                   type: "auto",
                   code: "acceptQuantity",
                   width: "100px",
+                  summaryMethod: "sum",
                   $exps: {
                     _hidden: `_.get(_.first(_.get($stores.detail, 'data.list')), 'operationType') !== 'in'`,
                   },
@@ -725,6 +730,7 @@ const page: RapidPage = {
                   type: "auto",
                   code: "acceptPalletCount",
                   width: "100px",
+                  summaryMethod: "sum",
                   $exps: {
                     _hidden: `_.get(_.first(_.get($stores.detail, 'data.list')), 'operationType') !== 'in'`,
                   },

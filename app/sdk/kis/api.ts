@@ -105,9 +105,9 @@ class KingdeeSDK {
       url: `/koas/oauth2/access_token?client_id=${this.clientId}&client_secret=${this.clientSecret}`,
       method: "POST",
       headers: {
-        "Kis-State": this.machineId,
-        "Kis-Timestamp": `${Math.floor(Date.now() / 1000)}`,
-        "Kis-Traceid": uuidv4(),
+        "Kis-State": uuidv4(), // Unique request id
+        "Kis-Timestamp": `${Math.floor(Date.now() / 1000)}`, // Current timestamp
+        "Kis-Traceid": this.machineId, // Use unique machine ID
         "Kis-Ver": "1.0",
       },
       data: {
@@ -131,18 +131,19 @@ class KingdeeSDK {
 
   public async getAuthData(): Promise<void> {
     const timestamp = `${Math.floor(Date.now() / 1000)}`;
-    const traceID = uuidv4();
+    const stateUuid = uuidv4();
+    const traceID = this.machineId;
 
     const config: AxiosRequestConfig = {
       url: `/koas/user/get_service_gateway?access_token=${this.accessToken}`,
       method: "POST",
       headers: {
-        "Kis-State": this.machineId,
+        "Kis-State": stateUuid,
         "Kis-Timestamp": timestamp,
         "Kis-Traceid": traceID,
         "Kis-Ver": "1.0",
         "KIS-Signature": getKisSignature({
-          state: this.machineId,
+          state: stateUuid,
           sessionId: this.sessionId,
           traceID,
           sessionSecret: this.sessionSecret,
@@ -175,9 +176,9 @@ class KingdeeSDK {
       url: `/koas/user/refresh_login_access_token?access_token=${this.accessToken}`,
       method: "POST",
       headers: {
-        "Kis-State": this.machineId,
-        "Kis-Timestamp": `${Math.floor(Date.now() / 1000)}`,
-        "Kis-Traceid": uuidv4(),
+        "Kis-State": uuidv4(), // Unique request id
+        "Kis-Timestamp": `${Math.floor(Date.now() / 1000)}`, // Current timestamp
+        "Kis-Traceid": this.machineId, // Use unique machine ID
         "Kis-Ver": "1.0",
       },
       data: {
@@ -203,9 +204,9 @@ class KingdeeSDK {
       url: `/koas/user/refresh_auth_data?client_id=${this.clientId}&client_secret=${this.clientSecret}`,
       method: "POST",
       headers: {
-        "Kis-State": this.machineId,
-        "Kis-Timestamp": `${Math.floor(Date.now() / 1000)}`,
-        "Kis-Traceid": uuidv4(),
+        "Kis-State": uuidv4(), // Unique request id
+        "Kis-Timestamp": `${Math.floor(Date.now() / 1000)}`, // Current timestamp
+        "Kis-Traceid": this.machineId, // Use unique machine ID
         "Kis-Ver": "1.0",
       },
       data: {
@@ -229,16 +230,13 @@ class KingdeeSDK {
   }
 
   public async getUserLoginStatus(): Promise<any> {
-    const timestamp = `${Math.floor(Date.now() / 1000)}`;
-    const traceID = uuidv4();
-
     const config: AxiosRequestConfig = {
       url: `/koas/user/login_status?access_token=${this.accessToken}`,
       method: "POST",
       headers: {
-        "Kis-State": this.machineId,
-        "Kis-Timestamp": timestamp,
-        "Kis-Traceid": traceID,
+        "Kis-State": uuidv4(), // Unique request id
+        "Kis-Timestamp": `${Math.floor(Date.now() / 1000)}`, // Current timestamp
+        "Kis-Traceid": this.machineId, // Use unique machine ID
         "Kis-Ver": "1.0",
       },
       data: {
@@ -257,18 +255,19 @@ class KingdeeSDK {
 
   public async listAccounts(): Promise<any> {
     const timestamp = `${Math.floor(Date.now() / 1000)}`;
-    const traceID = uuidv4();
+    const stateUuid = uuidv4();
+    const traceID = this.machineId;
 
     const config: AxiosRequestConfig = {
       url: `/koas/user/account?access_token=${this.accessToken}`,
       method: "POST",
       headers: {
-        "Kis-State": this.machineId,
+        "Kis-State": stateUuid,
         "Kis-Timestamp": timestamp,
         "Kis-Traceid": traceID,
         "Kis-Ver": "1.0",
         "KIS-Signature": getKisSignature({
-          state: this.machineId,
+          state: stateUuid,
           sessionId: this.sessionId,
           traceID,
           sessionSecret: this.sessionSecret,
@@ -291,18 +290,19 @@ class KingdeeSDK {
 
   public async getAccountAppList(options: GetAccountAppListOptions): Promise<any> {
     const timestamp = `${Math.floor(Date.now() / 1000)}`;
-    const traceID = uuidv4();
+    const stateUuid = uuidv4();
+    const traceID = this.machineId;
 
     const config: AxiosRequestConfig = {
       url: `/koas/user/account_applist?access_token=${this.accessToken}`,
       method: "POST",
       headers: {
-        "Kis-State": this.machineId,
+        "Kis-State": stateUuid,
         "Kis-Timestamp": timestamp,
         "Kis-Traceid": traceID,
         "Kis-Ver": "1.0",
         "KIS-Signature": getKisSignature({
-          state: this.machineId,
+          state: stateUuid,
           sessionId: this.sessionId,
           traceID,
           sessionSecret: this.sessionSecret,
@@ -369,9 +369,9 @@ class KingdeeSDK {
       method: "POST",
       headers: {
         "Kis-Authdata": this.authData,
-        "Kis-State": this.machineId, // Use unique machine ID
+        "Kis-State": uuidv4(), // Unique request id
         "Kis-Timestamp": `${Math.floor(Date.now() / 1000)}`, // Current timestamp
-        "Kis-Traceid": uuidv4(), // Unique trace ID
+        "Kis-Traceid": this.machineId, // Use unique machine ID
         "Kis-Ver": "1.0",
         "X-Gw-Router-Addr": this.gatewayRouterAddr,
       },
@@ -411,12 +411,13 @@ export function getKisSignature(options: GetKisSignatureOptions) {
   return sha256.digest("hex");
 }
 
-export type KisApiResultBase = {
+export type KisApiResult<TData = any> = {
   errcode: number;
   description: string;
+  data: TData;
 };
 
-export function newKisApiError(message: string, apiResult: KisApiResultBase) {
+export function newKisApiError(message: string, apiResult: KisApiResult) {
   const error = new Error(`${message} KIS接口错误: ${apiResult.errcode}, ${apiResult.description}`);
   error.name = "KisApiError";
   return error;

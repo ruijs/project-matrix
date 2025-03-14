@@ -16,13 +16,23 @@ export default class EventLogService {
         sourceName: input.sourceName,
         level: input.level || "info",
         message: input.message || "",
+        targetTypeCode: input.targetTypeCode,
+        targetCode: input.targetCode,
+        targetId: input.targetId,
+        targetName: input.targetName,
+        details: input.details,
+        data: input.data,
       };
 
-      if (input.time) {
-        eventLog.time = input.time;
+      const { eventTypeCode, operatorId, time } = input;
+
+      if (time) {
+        eventLog.time = time;
       }
 
-      const { eventTypeCode } = input;
+      if (operatorId) {
+        eventLog.operator = { id: operatorId };
+      }
 
       if (eventTypeCode) {
         const eventTypeManager = this.#server.getEntityManager<SysEventType>("sys_event_type");

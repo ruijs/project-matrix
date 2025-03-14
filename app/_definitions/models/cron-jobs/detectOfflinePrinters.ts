@@ -7,12 +7,9 @@ export default {
   cronTime: "*/2 * * * *",
 
   async handler(ctx: ActionHandlerContext) {
-    const { server, routerContext: routeContext, logger } = ctx;
-    logger.info("Executing detectOfflinePrinters job...");
+    const { server, routerContext: routeContext } = ctx;
 
     const printerService = server.getService<PrinterService>("printerService");
     await printerService.detectOfflinePrinters(routeContext);
-
-    logger.info("Finished detectOfflinePrinters job...");
   },
 } satisfies CronJobConfiguration;

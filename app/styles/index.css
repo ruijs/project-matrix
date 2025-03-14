@@ -119,3 +119,7 @@
 .ant-menu-dark.ant-menu-dark:not(.ant-menu-horizontal) .ant-menu-item-selected {
   background-color: rgba(255, 255, 255, 0.3);
 }
+
+.rapid-table .ant-table-summary .ant-table-cell {
+  background-color: #eff3ff;
+}

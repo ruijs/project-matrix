@@ -1,3 +1,5 @@
+import "dotenv/config";
+
 import process from "process";
 import path from "path";
 import express from "express";
@@ -24,7 +26,6 @@ import {
   SettingPlugin,
   CacheFactory,
   LicensePlugin,
-  RouteContext,
 } from "@ruiapp/rapid-core";
 import { createRapidRequestHandler } from "@ruiapp/rapid-express";
 
@@ -32,7 +33,6 @@ import serverOperations from "./app/_definitions/meta/server-operations";
 import entityWatchers from "./app/_definitions/meta/entity-watchers";
 import cronJobs from "./app/_definitions/meta/cron-jobs";
 
-import "dotenv/config";
 import { RedisCacheProvider, RedisClientFactory } from "@ruiapp/redis-facility";
 import PrinterPlugin from "rapid-plugins/printerService/PrinterPlugin";
 import BpmPlugin from "rapid-plugins/bpm/BpmPlugin";

@@ -4,15 +4,14 @@ import KisDataSync from "~/sdk/kis/sync";
 export default {
   code: "kis-sync-inventory-data-job",
 
+  disabled: true,
+
   cronTime: "40 9 * * *",
 
   async handler(ctx: ActionHandlerContext) {
-    const { server, logger } = ctx;
-    logger.info("Executing kis inventory data sync job...");
+    const { server } = ctx;
 
     // await syncKisInventoryData(ctx, server);
-
-    logger.info("Finished kis inventory data sync job...");
   },
 } satisfies CronJobConfiguration;
 

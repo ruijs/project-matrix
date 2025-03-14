@@ -1,4 +1,4 @@
-import KingdeeSDK from "~/sdk/kis/api";
+import KingdeeSDK, { KisApiResult } from "~/sdk/kis/api";
 
 export interface WarehouseEntry {
   Famount?: number;
@@ -23,7 +23,7 @@ export interface WarehouseEntry {
   FSecCoefficient?: number;
   FUnitID?: string;
   FDeptID?: number;
-  FPlanMode:number;
+  FPlanMode: number;
   FReProduceType?: number;
   FSCStockID?: string;
   FSourceBillNo?: string;
@@ -41,7 +41,7 @@ export interface WarehousePayload {
       FBillerID?: string;
       FBillNo?: string;
       Fdate: string;
-      FSettleDate?: string
+      FSettleDate?: string;
       FDCStockID?: string;
       FSCStockID?: string;
       FDCSPID?: string;
@@ -66,7 +66,6 @@ export interface WarehousePayload {
       FHeadSelfB0165?: string; // 销售发货单号
       FHeadSelfS0193?: string; // 合同号
       FWLCompany?: string; // 物流公司
-
     };
     Entry: Array<WarehouseEntry>;
   };
@@ -126,12 +125,6 @@ export interface WarehouseTransferPayload {
   };
 }
 
-interface ApiResponse<T> {
-  errcode: number;
-  description: string;
-  data: T;
-}
-
 interface WarehouseResponseData {
   FID: number;
   FBillNo: string;
@@ -146,71 +139,68 @@ class KisInventoryOperationAPI {
 
   // Utility function to pause execution
   private sleep(ms: number) {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
   // Retry mechanism for API requests
-  private async apiRequest<T>(url: string, payload: object): Promise<ApiResponse<T>> {
+  private async apiRequest<T>(url: string, payload: object): Promise<KisApiResult<T>> {
     const response = await this.api.PostResourceRequest(url, payload, true);
-    return response.data as ApiResponse<T>;
+    return response.data as KisApiResult<T>;
   }
 
   // 产成品入库单
-  public async createProductReceipt(payload: WarehousePayload): Promise<ApiResponse<WarehouseResponseData>> {
+  public async createProductReceipt(payload: WarehousePayload): Promise<KisApiResult<WarehouseResponseData>> {
     const url = "/koas/app007104/api/productreceipt/create";
     return await this.apiRequest<WarehouseResponseData>(url, payload);
   }
 
   // 生产领料单
-  public async createPickingList(payload: WarehousePayload): Promise<ApiResponse<WarehouseResponseData>> {
+  public async createPickingList(payload: WarehousePayload): Promise<KisApiResult<WarehouseResponseData>> {
     const url = "/koas/app007104/api/pickinglist/create";
     return await this.apiRequest<WarehouseResponseData>(url, payload);
   }
 
   // 外购入库单
-  public async createPurchaseReceipt(payload: WarehousePayload): Promise<ApiResponse<WarehouseResponseData>> {
+  public async createPurchaseReceipt(payload: WarehousePayload): Promise<KisApiResult<WarehouseResponseData>> {
     const url = "/koas/app007104/api/purchasereceipt/create";
     return await this.apiRequest<WarehouseResponseData>(url, payload);
   }
 
   // 销售出库单
-  public async createSalesDelivery(payload: WarehousePayload): Promise<ApiResponse<WarehouseResponseData>> {
+  public async createSalesDelivery(payload: WarehousePayload): Promise<KisApiResult<WarehouseResponseData>> {
     const url = "/koas/app007104/api/salesdelivery/create";
     return await this.apiRequest<WarehouseResponseData>(url, payload);
   }
 
   // 调拨单
-  public async createStockTransfer(payload: WarehouseTransferPayload): Promise<ApiResponse<WarehouseResponseData>> {
+  public async createStockTransfer(payload: WarehouseTransferPayload): Promise<KisApiResult<WarehouseResponseData>> {
     const url = "/koas/app007104/api/stocktransfer/create";
     return await this.apiRequest<WarehouseResponseData>(url, payload);
   }
 
   // 委外加工入库单
-  public async createSubcontractReceipt(payload: WarehousePayload): Promise<ApiResponse<WarehouseResponseData>> {
+  public async createSubcontractReceipt(payload: WarehousePayload): Promise<KisApiResult<WarehouseResponseData>> {
     const url = "/koas/app007104/api/subcontractreceipt/create";
     return await this.apiRequest<WarehouseResponseData>(url, payload);
   }
 
   // 委外加工出库单
-  public async createSubcontractdelivery(payload: WarehousePayload): Promise<ApiResponse<WarehouseResponseData>> {
+  public async createSubcontractdelivery(payload: WarehousePayload): Promise<KisApiResult<WarehouseResponseData>> {
     const url = "/koas/app007104/api/subcontractdelivery/create";
     return await this.apiRequest<WarehouseResponseData>(url, payload);
   }
 
-
   // 其他入库
-  public async createMiscellaneousReceipt(payload: WarehousePayload): Promise<ApiResponse<WarehouseResponseData>> {
+  public async createMiscellaneousReceipt(payload: WarehousePayload): Promise<KisApiResult<WarehouseResponseData>> {
     const url = "/koas/app007104/api/miscellaneousreceipt/create";
     return await this.apiRequest<WarehouseResponseData>(url, payload);
   }
 
   // 其他出库
-  public async createMiscellaneousDelivery(payload: WarehousePayload): Promise<ApiResponse<WarehouseResponseData>> {
+  public async createMiscellaneousDelivery(payload: WarehousePayload): Promise<KisApiResult<WarehouseResponseData>> {
     const url = "/koas/app007104/api/miscellaneousdelivery/create";
     return await this.apiRequest<WarehouseResponseData>(url, payload);
   }
-
-
 }
 
 export default KisInventoryOperationAPI;
