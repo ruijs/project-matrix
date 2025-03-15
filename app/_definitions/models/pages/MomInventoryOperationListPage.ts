@@ -60,9 +60,22 @@ const formConfig: Partial<RapidEntityFormConfig> = {
     {
       type: "auto",
       code: "warehouse",
-      label: "入库仓库",
-      $exps: {
-        _hidden: "!($self.form.getFieldValue('operationType') === 'in' && $self.form.getFieldValue('sourceType') === 'selfMade')",
+      label: "仓库",
+      formControlProps: {
+        columns: [
+          { title: "编号", code: "code", width: "100px" },
+          { title: "名称", code: "name" },
+        ],
+        requestParams: {
+          fixedFilters: [
+            {
+              field: "type",
+              operator: "eq",
+              value: "warehouse",
+            },
+          ],
+          orderBy: [{ field: "code" }],
+        },
       },
     },
     {

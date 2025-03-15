@@ -66,6 +66,18 @@ const formConfig: Partial<RapidEntityFormConfig> = {
     {
       type: "auto",
       code: "department",
+      formControlProps: {
+        listFilterFields: ["code", "name"],
+        columns: [
+          { title: "编码", code: "code", width: "100px" },
+          { title: "名称", code: "name" },
+        ],
+        requestConfig: {
+          url: "/app/oc_departments/operations/find",
+          method: "post",
+          params: { orderBy: [{ field: "code" }] },
+        },
+      },
       $exps: {
         label: `(['其它原因出库', '其它原因出库退货入库', '领料出库', '生产退料入库'].includes($self.form.getFieldValue('businessType')?.name)) ? '领料部门' : 
                (['其它原因入库', '采购入库', '采购退货出库'].includes($self.form.getFieldValue('businessType')?.name)) ? '部门' :

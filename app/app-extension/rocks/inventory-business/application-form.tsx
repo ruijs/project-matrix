@@ -394,13 +394,16 @@ export default {
                   $type: "rapidTableSelect",
                   $id: `${props.$id}_department`,
                   placeholder: "请选择",
-                  listFilterFields: ["name"],
+                  listFilterFields: ["code", "name"],
                   searchPlaceholder: "名称搜索",
-                  columns: [{ title: "名称", code: "name" }],
+                  columns: [
+                    { title: "编码", code: "code", width: "100px" },
+                    { title: "名称", code: "name" },
+                  ],
                   requestConfig: {
                     url: "/app/oc_departments/operations/find",
                     method: "post",
-                    params: { orderBy: [{ field: "name" }] },
+                    params: { orderBy: [{ field: "code" }] },
                   },
                 },
               })}
