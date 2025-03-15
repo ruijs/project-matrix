@@ -63,7 +63,7 @@ importers:
         specifier: ~0.4.12
         version: 0.4.12(lodash@4.17.21)
       '@ruiapp/rapid-core':
-        specifier: ~0.8.6
+        specifier: ~0.8.7
         version: 0.8.7(nodemailer@6.9.16)(winston@3.11.0)
       '@ruiapp/rapid-express':
         specifier: ~0.2.0
