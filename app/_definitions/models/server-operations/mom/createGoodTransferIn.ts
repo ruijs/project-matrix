@@ -181,7 +181,7 @@ async function createGoodTransferIn(routeContext: RouteContext, server: IRpdServ
 
 function createGoodInput(
   material: BaseMaterial,
-  unit: BaseUnit | null,
+  unit: BaseUnit | undefined,
   input: CreateGoodTransferInput,
   validityDate: string,
   binNum: string,
