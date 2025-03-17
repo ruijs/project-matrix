@@ -20,3 +20,11 @@ export function arrayToTree<TA>(arr: TA[], parent?: any, option?: ArrayToTreeOpt
       };
     });
 }
+
+export function chunkArray<TItem>(array: TItem[], chunkSize: number): TItem[][] {
+  const results: any[][] = [];
+  for (let i = 0; i < array.length; i += chunkSize) {
+    results.push(array.slice(i, chunkSize + i));
+  }
+  return results;
+}

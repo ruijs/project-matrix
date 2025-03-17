@@ -4,7 +4,7 @@ import type { RapidEntity } from "@ruiapp/rapid-extension";
 
 const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
   namespace: "sys",
-  code: "SysExternalEntity",
+  code: "SysExtEntity",
   name: "外部实体",
   fields: [
     {
@@ -48,7 +48,7 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
       code: "syncState",
       name: "同步状态",
       type: "option",
-      dataDictionary: "SysExternalEntitySyncState",
+      dataDictionary: "SysExtEntitySyncState",
     },
     {
       code: "syncTime",
@@ -56,7 +56,7 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
       type: "datetime",
     },
     {
-      code: "syncAttempt",
+      code: "syncAttempts",
       name: "同步尝试次数",
       type: "integer",
     },
@@ -68,7 +68,7 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
   ],
   indexes: [
     {
-      name: "uidx_sys_external_entities_type_and_id",
+      name: "uidx_sys_ext_entities_type_and_id",
       unique: true,
       properties: [
         {

@@ -2,9 +2,9 @@ import "dotenv/config";
 
 import process from "process";
 import path from "path";
-import express from "express";
+import express, { Application } from "express";
 import compression from "compression";
-import { format, transports } from "winston";
+import { format, Logger, transports } from "winston";
 import expressWinston from "express-winston";
 import { createRequestHandler } from "@remix-run/express";
 import { createProxyMiddleware } from "http-proxy-middleware";
@@ -41,64 +41,36 @@ import { getRapidAppDefinitionFromRapidServer } from "~/utils/app-definition-uti
 import { parseBoolean } from "~/utils/boolean-utils";
 import EventLogPlugin from "rapid-plugins/eventLog/EventLogPlugin";
 import EventLogService from "rapid-plugins/eventLog/services/EventLogService";
+import EntitySyncPlugin from "rapid-plugins/entitySync/EntitySyncPlugin";
+import syncContracts from "sync-contracts";
 
 const isDevelopmentEnv = process.env.NODE_ENV === "development";
 
 const BUILD_DIR = path.join(process.cwd(), "build");
 
-export async function startServer() {
-  const envFromProcess = process.env;
-  const env = {
-    get: (name: string, defaultValue = "") => {
-      return envFromProcess[name] || defaultValue;
-    },
-  };
+const envFromProcess = process.env;
+const env = {
+  get: (name: string, defaultValue = "") => {
+    return envFromProcess[name] || defaultValue;
+  },
+};
 
+export function createLogger() {
   const logLevel = env.get("RAPID_LOG_LEVEL", isDevelopmentEnv ? "debug" : "info");
   const logger = createAppLogger({
     level: logLevel,
   });
-  const app = express();
 
-  app.use(compression());
+  return logger;
+}
 
-  // http://expressjs.com/en/advanced/best-practice-security.html#at-a-minimum-disable-x-powered-by-header
-  app.disable("x-powered-by");
-
-  // Remix fingerprints its assets so we can cache forever.
-  app.use("/build", express.static("public/build", { immutable: true, maxAge: "1y" }));
-
-  // Everything else (like favicon.ico) is cached for an hour. You may want to be
-  // more aggressive with this caching.
-  app.use(express.static("public", { maxAge: "1h" }));
-
-  const expressLogDisabled = parseBoolean(env.get("EXPRESS_LOG_DISABLED", "false"));
-  if (isDevelopmentEnv || !expressLogDisabled) {
-    app.use(
-      expressWinston.logger({
-        format: format.combine(format.timestamp(), format.splat()),
-        transports: [
-          new transports.Console({
-            format: consoleFormat(),
-          }),
-        ],
-        meta: false,
-        expressFormat: true,
-      }),
-    );
-  }
-
-  const customizeAPI = env.get("CUSTOMIZE_SERVICE_URL", "http://127.0.0.1:3001");
-  app.use(
-    "/api/customize",
-    createProxyMiddleware({
-      target: customizeAPI,
-      changeOrigin: true,
-      pathRewrite: {
-        "^/api/customize": "/",
-      },
-    }),
-  );
+export async function createRapidServer(logger: Logger, envs: any) {
+  envs = Object.assign({}, process.env, envs || {});
+  const env = {
+    get: (name: string, defaultValue = "") => {
+      return envs[name] || defaultValue;
+    },
+  };
 
   const defaultJWTKey =
     "DyYR1em73ZR5s3rUV32ek3FCZBMxE0YMjuPCvpyQKn+MhCQwlwCiN+8ghgTYcoijtLhKX4G93DPxsJOIuf/ub5qRi0lx5AnHEYGQ8c2zpxJ873viF7marKQ7k5dtBU83f0Oki3aeugSeAfYbOzeK49+LopkgjDeQikgLMyC4JFo=";
@@ -171,11 +143,59 @@ export async function startServer() {
       new PrinterPlugin(),
       new BpmPlugin(),
       new DingTalkPlugin(),
+      new EntitySyncPlugin({
+        syncContracts,
+      }),
     ],
     entityWatchers,
     cronJobs,
   });
-  await rapidServer.start();
+
+  return rapidServer;
+}
+
+export async function createExpressApp(rapidServer: RapidServer) {
+  const app = express();
+
+  app.use(compression());
+
+  // http://expressjs.com/en/advanced/best-practice-security.html#at-a-minimum-disable-x-powered-by-header
+  app.disable("x-powered-by");
+
+  // Remix fingerprints its assets so we can cache forever.
+  app.use("/build", express.static("public/build", { immutable: true, maxAge: "1y" }));
+
+  // Everything else (like favicon.ico) is cached for an hour. You may want to be
+  // more aggressive with this caching.
+  app.use(express.static("public", { maxAge: "1h" }));
+
+  const expressLogDisabled = parseBoolean(env.get("EXPRESS_LOG_DISABLED", "false"));
+  if (isDevelopmentEnv || !expressLogDisabled) {
+    app.use(
+      expressWinston.logger({
+        format: format.combine(format.timestamp(), format.splat()),
+        transports: [
+          new transports.Console({
+            format: consoleFormat(),
+          }),
+        ],
+        meta: false,
+        expressFormat: true,
+      }),
+    );
+  }
+
+  const customizeAPI = env.get("CUSTOMIZE_SERVICE_URL", "http://127.0.0.1:3001");
+  app.use(
+    "/api/customize",
+    createProxyMiddleware({
+      target: customizeAPI,
+      changeOrigin: true,
+      pathRewrite: {
+        "^/api/customize": "/",
+      },
+    }),
+  );
 
   const rapidRequestHandler = createRapidRequestHandler(rapidServer as any);
   app.use("/api", (req, res, next) => {
@@ -191,6 +211,13 @@ export async function startServer() {
         }
       : createRemixRequestHandler(rapidServer),
   );
+
+  return app;
+}
+
+export async function startWebServer(logger: Logger, rapidServer: RapidServer, app: Application) {
+  await rapidServer.start();
+
   const port = process.env.PORT || 3000;
 
   app.listen(port, () => {

@@ -69,6 +69,6 @@ const dictionaryCodes = [
   'SysAuditLogTarget',
   'SysEventLogLevel',
   'SysEventSourceType',
-  'SysExternalEntitySyncState',
+  'SysExtEntitySyncState',
 ] as const;
 export type TDictionaryCodes = typeof dictionaryCodes[number];

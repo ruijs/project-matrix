@@ -417,6 +417,18 @@ export type KisApiResult<TData = any> = {
   data: TData;
 };
 
+export type KisListApiResultData<TListItem = any> = {
+  List: TListItem[];
+  CurrentPage: number;
+  ItemsOfPage: number;
+  TotalItems: number;
+  TotalPages: number;
+  HasPreviousPage: boolean;
+  HasNextPage: boolean;
+};
+
+export type KisListApiResult = KisApiResult<KisListApiResultData>;
+
 export function newKisApiError(message: string, apiResult: KisApiResult) {
   const error = new Error(`${message} KIS接口错误: ${apiResult.errcode}, ${apiResult.description}`);
   error.name = "KisApiError";

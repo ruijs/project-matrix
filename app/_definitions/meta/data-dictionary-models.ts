@@ -69,7 +69,7 @@ import sys$SysAuditLogMethod from '../models/data-dictionaries/sys/SysAuditLogMe
 import sys$SysAuditLogTarget from '../models/data-dictionaries/sys/SysAuditLogTarget';
 import sys$SysEventLogLevel from '../models/data-dictionaries/sys/SysEventLogLevel';
 import sys$SysEventSourceType from '../models/data-dictionaries/sys/SysEventSourceType';
-import sys$SysExternalEntitySyncState from '../models/data-dictionaries/sys/SysExternalEntitySyncState';
+import sys$SysExtEntitySyncState from '../models/data-dictionaries/sys/SysExtEntitySyncState';
 
 export default [
   ActiveInactiveState,
@@ -142,5 +142,5 @@ export default [
   sys$SysAuditLogTarget,
   sys$SysEventLogLevel,
   sys$SysEventSourceType,
-  sys$SysExternalEntitySyncState,
+  sys$SysExtEntitySyncState,
 ] as TRapidDataDictionary[];
