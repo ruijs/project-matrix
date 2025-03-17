@@ -21,3 +21,19 @@ export function formatDateTimeWithoutTimezone(dateTime?: string) {
   }
   return dayjs(dateTime).format("YYYY-MM-DD HH:mm:ss.SSS");
 }
+
+export function formatMomentDate(m: any) {
+  if (!m) {
+    return "";
+  }
+
+  return m.format("YYYY-MM-DD");
+}
+
+export function formatMomentDateTime(m: any) {
+  if (!m) {
+    return "";
+  }
+
+  return m.format("YYYY-MM-DD HH:mm:ss.SSS");
+}

@@ -305,7 +305,8 @@ const page: RapidPage = {
           $type: "antdButton",
           href: `/api/app/exportExcel?type=application`,
           $exps: {
-            href: "'/api/app/exportExcel?type=application&businessType=' + $scope.vars.businessType + '&applicant=' + $scope.vars.applicant + '&createdAt=' + $scope.vars.createdAt + '&endAt=' + $scope.vars.endAt + '&operationState=' + $scope.vars.operationState + '&material=' + $scope.vars.material + '&lotNum=' + $scope.vars.lotNum + '&biller=' + $scope.vars.biller + '&warehouse=' + $scope.vars.warehouse",
+            href: "'/api/app/exportExcel?type=application&'+ qs.stringify({businessType: $scope.vars.businessType, applicant: $scope.vars.applicant, createdAt: $functions.formatMomentDate($scope.vars.createdAt), endAt: $functions.formatMomentDate($scope.vars.endAt), operationState: $scope.vars.operationState, material: $scope.vars.material, lotNum: $scope.vars.lotNum, biller: $scope.vars.biller, warehouse: $scope.vars.warehouse})",
+            //'businessType=' + $scope.vars.businessType + '&applicant=' + $scope.vars.applicant + '&createdAt=' + $scope.vars.createdAt + '&endAt=' + $scope.vars.endAt + '&operationState=' + $scope.vars.operationState + '&material=' + $scope.vars.material + '&lotNum=' + $scope.vars.lotNum + '&biller=' + $scope.vars.biller + '&warehouse=' + $scope.vars.warehouse",
           },
           children: [
             {

@@ -144,7 +144,7 @@ export async function createRapidServer(logger: Logger, envs: any) {
       new BpmPlugin(),
       new DingTalkPlugin(),
       new EntitySyncPlugin({
-        syncContracts,
+        syncContracts: [],
       }),
     ],
     entityWatchers,
@@ -216,8 +216,6 @@ export async function createExpressApp(rapidServer: RapidServer) {
 }
 
 export async function startWebServer(logger: Logger, rapidServer: RapidServer, app: Application) {
-  await rapidServer.start();
-
   const port = process.env.PORT || 3000;
 
   app.listen(port, () => {
