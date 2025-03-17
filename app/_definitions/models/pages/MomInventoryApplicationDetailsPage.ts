@@ -1,5 +1,5 @@
 import { cloneDeep, merge, omit, orderBy, property } from "lodash";
-import type { RapidPage, RapidEntityFormConfig } from "@ruiapp/rapid-extension";
+import type { RapidPage, RapidEntityFormConfig, SonicEntityListRockConfig } from "@ruiapp/rapid-extension";
 import { materialFormatStrTemplate } from "~/utils/fmt";
 import type { RockEvent } from "@ruiapp/move-style";
 
@@ -826,7 +826,7 @@ const page: RapidPage = {
                 "fixedFilters[0].filters[0].value": "$rui.parseQuery().id",
                 "newForm.fixedFields.application": "$rui.parseQuery().id",
               },
-            },
+            } satisfies SonicEntityListRockConfig,
           ],
         },
       ],
