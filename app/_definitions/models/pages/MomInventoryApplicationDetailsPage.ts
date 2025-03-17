@@ -683,11 +683,15 @@ const page: RapidPage = {
                   code: "lotNum",
                   width: "180px",
                 },
-                // {
-                //   type: "auto",
-                //   code: "binNum",
-                //   width: "100px",
-                // },
+                {
+                  type: "auto",
+                  code: "binNum",
+                  title: "托盘号",
+                  width: "180px",
+                  $exps: {
+                    _hidden: "_.get(_.first(_.get($stores.detail, 'data.list')), 'businessType.name') !== '领料出库'",
+                  },
+                },
                 // {
                 //   type: "auto",
                 //   code: "serialNum",
