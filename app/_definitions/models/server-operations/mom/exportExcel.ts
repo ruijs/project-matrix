@@ -8,6 +8,8 @@ import type {
   MomMaterialLotInventoryBalance,
 } from "~/_definitions/meta/entity-types";
 import { EntityFilterOptions } from "@ruiapp/rapid-extension/src/types/rapid-entity-types";
+import { isArray, map } from "lodash";
+import dayjs from "dayjs";
 
 // 导出类型定义
 export type ExportExcelInput = {
@@ -89,7 +91,16 @@ export default {
   async handler(ctx: ActionHandlerContext) {
     try {
       const { server, routerContext: routeContext } = ctx;
-      const input: ExportExcelInput = ctx.input;
+      const input: ExportExcelInput = ctx.input || {};
+
+      // 对input数组类型参数的兼容处理
+      const params = input as any;
+      for (const key in params) {
+        const paramValue = params[key];
+        if (isArray(paramValue)) {
+          params[key] = paramValue.join(",");
+        }
+      }
 
       // 验证输入类型
       if (!Object.keys(EXCEL_HEADERS).includes(input.type)) {
@@ -97,7 +108,7 @@ export default {
       }
 
       const exportExcel = await handleExportByType(routeContext, server, input);
-      const filename = `${input.type}_${new Date().toISOString().split("T")[0]}.xlsx`;
+      const filename = `${getNameOfExportType(input.type)}-${dayjs().format("YYYYMMDD-HHmmss")}.xlsx`;
 
       ctx.routerContext.response.headers.set("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
       ctx.routerContext.response.headers.set("Content-Disposition", `attachment; filename="${encodeURIComponent(filename)}"`);
@@ -117,13 +128,13 @@ function buildDateFilters(input: ExportExcelInput): EntityFilterOptions[] {
     filters.push({ operator: "gte", field: "createdAt", value: input.createdAtFrom });
   }
   if (input.createdAtTo) {
-    filters.push({ operator: "lte", field: "createdAt", value: input.createdAtTo });
+    filters.push({ operator: "lte", field: "createdAt", value: getNextDate(input.createdAtTo) });
   }
   if (input.createdAt && input.createdAt !== "undefined") {
     filters.push({ operator: "gte", field: "createdAt", value: input.createdAt });
   }
   if (input.endAt && input.endAt !== "undefined") {
-    filters.push({ operator: "lte", field: "createdAt", value: input.endAt });
+    filters.push({ operator: "lte", field: "createdAt", value: getNextDate(input.endAt) });
   }
 
   return filters;
@@ -158,6 +169,23 @@ function buildCommonFilters(input: ExportExcelInput): EntityFilterOptions[] {
   }
 
   return filters;
+}
+
+async function getNameOfExportType(type: string) {
+  switch (type) {
+    case "application":
+      return "库存操作报表";
+    case "inventory":
+      return "库存结存报表";
+    case "goods":
+      return "货品报表";
+    case "operation":
+      return "库存操作报表";
+    case "inspection":
+      return "检验记录报表";
+    default:
+      return "";
+  }
 }
 
 async function handleExportByType(routeContext: RouteContext, server: IRpdServer, input: ExportExcelInput) {
@@ -305,7 +333,7 @@ async function fetchGoodTransfers(routeContext: RouteContext, server: IRpdServer
     filters.push({ operator: "gte", field: "createdAt", value: input.createdAtFrom });
   }
   if (input.createdAtTo) {
-    filters.push({ operator: "lte", field: "createdAt", value: input.createdAtTo });
+    filters.push({ operator: "lte", field: "createdAt", value: getNextDate(input.createdAtTo) });
   }
 
   return server.getEntityManager<MomGoodTransfer>("mom_good_transfer").findEntities({
@@ -332,6 +360,10 @@ async function fetchGoodTransfers(routeContext: RouteContext, server: IRpdServer
     },
     orderBy: [{ field: "id", desc: false }],
   });
+}
+
+function getNextDate(date: string) {
+  return dayjs(date).add(1, "day").format("YYYY-MM-DD");
 }
 
 async function fetchInspectionMeasurements(routeContext: RouteContext, server: IRpdServer, input: ExportExcelInput) {
@@ -369,7 +401,7 @@ async function fetchInspectionMeasurements(routeContext: RouteContext, server: I
     filters.push({ operator: "gte", field: "createdAt", value: input.createdAtFrom });
   }
   if (input?.endAt && input.endAt !== "undefined") {
-    filters.push({ operator: "lte", field: "createdAt", value: input.createdAtTo });
+    filters.push({ operator: "lte", field: "createdAt", value: getNextDate(input.createdAtTo) });
   }
   if (input?.state && input.state !== "undefined") {
     filters.push({
@@ -465,13 +497,13 @@ async function fetchApplicationItems(routeContext: RouteContext, server: IRpdSer
     filters.push({ operator: "gte", field: "createdAt", value: input.createdAtFrom });
   }
   if (input?.createdAtTo) {
-    filters.push({ operator: "lte", field: "createdAt", value: input.createdAtTo });
+    filters.push({ operator: "lte", field: "createdAt", value: getNextDate(input.createdAtTo) });
   }
   if (input?.createdAt && input.createdAt !== "undefined") {
-    filters.push({ operator: "gte", field: "createdAt", value: input.createdAtFrom });
+    filters.push({ operator: "gte", field: "createdAt", value: input.createdAt });
   }
   if (input?.endAt && input.endAt !== "undefined") {
-    filters.push({ operator: "lte", field: "createdAt", value: input.createdAtTo });
+    filters.push({ operator: "lte", field: "createdAt", value: getNextDate(input.endAt) });
   }
   if (input?.businessType && input.businessType !== "undefined") {
     filters.push({
@@ -510,7 +542,7 @@ async function fetchApplicationItems(routeContext: RouteContext, server: IRpdSer
           operator: "in",
           field: "warehouse_id",
           value: input.warehouse.split(","),
-        }
+        },
       ],
     });
   }
