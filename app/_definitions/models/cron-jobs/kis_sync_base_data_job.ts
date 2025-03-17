@@ -57,7 +57,7 @@ async function syncKisBaseData(ctx: ActionHandlerContext, server: IRpdServer) {
   const syncContracts = [
     syncKisUnit,
     syncKisStock,
-    syncKisStockPlace,
+    // syncKisStockPlace,
     syncKisDepartment,
     syncKisEmployee,
     syncKisUser,
