@@ -191,6 +191,7 @@ export default {
                 orderBy: [
                   {
                     field: "location.code",
+                    desc: true,
                   },
                 ],
               },
