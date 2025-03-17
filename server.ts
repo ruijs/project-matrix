@@ -43,6 +43,7 @@ import EventLogPlugin from "rapid-plugins/eventLog/EventLogPlugin";
 import EventLogService from "rapid-plugins/eventLog/services/EventLogService";
 import EntitySyncPlugin from "rapid-plugins/entitySync/EntitySyncPlugin";
 import syncContracts from "sync-contracts";
+import { getBooleanEnvValue } from "~/utils/env-utils";
 
 const isDevelopmentEnv = process.env.NODE_ENV === "development";
 
@@ -124,7 +125,9 @@ export async function createRapidServer(logger: Logger, envs: any) {
       }),
     ],
     plugins: [
-      new MetaManagePlugin(),
+      new MetaManagePlugin({
+        syncDatabaseSchemaOnLoaded: getBooleanEnvValue("RAPID_SYNC_DATABASE_SCHEMA_ON_LOADED"),
+      }),
       new DataManagePlugin(),
       new RouteManagePlugin(),
       new EventLogPlugin(),
