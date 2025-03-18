@@ -126,7 +126,7 @@ export async function createRapidServer(logger: Logger, envs: any) {
     ],
     plugins: [
       new MetaManagePlugin({
-        syncDatabaseSchemaOnLoaded: getBooleanEnvValue("RAPID_SYNC_DATABASE_SCHEMA_ON_LOADED"),
+        syncDatabaseSchemaOnLoaded: parseBoolean(env.get("RAPID_SYNC_DATABASE_SCHEMA_ON_LOADED", "false")),
       }),
       new DataManagePlugin(),
       new RouteManagePlugin(),

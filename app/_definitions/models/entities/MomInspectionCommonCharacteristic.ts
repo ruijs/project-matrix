@@ -40,6 +40,23 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
       type: "text",
     },
     {
+      code: "kind",
+      name: "检验类型",
+      type: "option",
+      dataDictionary: "InspectionKind",
+    },
+    {
+      code: "qualitativeDetermineType",
+      name: "可选项",
+      type: "option",
+      dataDictionary: "QualitativeInspectionDetermineType",
+    },
+    {
+      code: "norminal",
+      name: "标准值",
+      type: "text",
+    },
+    {
       code: "config",
       name: "配置",
       type: "json",

@@ -6,11 +6,12 @@ import { Alert, Button, Form, Input, InputNumber, message, Modal, Select, Space,
 import { useDebounceFn, useSetState } from "ahooks";
 import { v4 as uuidv4 } from "uuid";
 import rapidApi from "~/rapidApi";
-import { find, get, groupBy, map, orderBy, split, uniqBy } from "lodash";
+import { find, get, groupBy, isNil, isNumber, map, orderBy, split, uniqBy } from "lodash";
 import rapidAppDefinition from "~/rapidAppDefinition";
 import { useEffect, useState } from "react";
 import { isCharacterMeasurementValueQualified } from "~/utils/calculate";
 import { renderCharacteristicQualifiedConditions } from "~/utils/inspection-utility";
+import { roundWithPrecision } from "~/utils/number-utils";
 
 export default {
   $type: "inspectionMeasurement",
@@ -149,11 +150,20 @@ export default {
             });
           };
 
+          if (r.locked) {
+            if (isNil(r.measuredValue)) {
+              return "";
+            } else if (isNumber(r.measuredValue)) {
+              return roundWithPrecision(r.measuredValue, 4);
+            } else {
+              return `${r.measuredValue}`;
+            }
+          }
+
           switch (r.kind) {
             case "quantitative":
               return (
                 <InputNumber
-                  placeholder="请输入"
                   disabled={r.locked}
                   style={{ width: "100%", maxWidth: 260 }}
                   value={r.measuredValue}
@@ -246,10 +256,10 @@ export default {
         dataIndex: "result",
         width: 300,
         render: (_, r) => {
-          if (r.measuredValue || r.measuredValue == 0) {
+          if (!isNil(r.measuredValue)) {
             const isOk = isCharacterMeasurementValueQualified(r, r.measuredValue);
             if (isOk == null) {
-              return;
+              return "-";
             }
             return isOk ? <Tag color="green">合格</Tag> : <Tag color="red">不合格</Tag>;
           } else {
