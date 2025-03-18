@@ -55,7 +55,7 @@ const EXCEL_HEADERS = {
     "合格状态",
     "检验时间",
   ],
-  application: ["申请单号", "操作类型", "物料", "批号", "数量"],
+  application: ["申请单号", "操作类型", "物料号", "物料名称", "物料规格", "批号", "计划数量", "实际数量", "备注", "领料用途", "加工单位", "加工要求"],
 };
 
 // 状态映射
@@ -171,7 +171,7 @@ function buildCommonFilters(input: ExportExcelInput): EntityFilterOptions[] {
   return filters;
 }
 
-async function getNameOfExportType(type: string) {
+function getNameOfExportType(type: string) {
   switch (type) {
     case "application":
       return "库存操作报表";
@@ -556,10 +556,10 @@ async function fetchApplicationItems(routeContext: RouteContext, server: IRpdSer
   return server.getEntityManager<MomInventoryApplicationItem>("mom_inventory_application_item").findEntities({
     routeContext,
     filters: filters,
-    properties: ["id", "application", "lotNum", "binNum", "material", "quantity", "material"],
+    properties: ["id", "application", "lotNum", "binNum", "material", "quantity", "remark", "acceptQuantity", "material"],
     relations: {
       application: {
-        properties: ["id", "code", "businessType"],
+        properties: ["id", "code", "fUse", "businessType", "supplier"],
       },
     },
     orderBy: [{ field: "id", desc: false }],
@@ -628,12 +628,21 @@ function flattenInspectionMeasurement(measurement: MomInspectionMeasurement) {
 }
 
 function flattenApplicationItem(item: MomInventoryApplicationItem) {
+  const businessTypeName = item.application?.businessType?.name || "";
+
   return {
     code: item.application?.code,
     businessType: item.application?.businessType?.name,
-    material: `${item.material?.code}-${item.material?.name}-${item.material?.specification}`,
+    materialCode: item.material?.code || "",
+    materialName: item.material?.name || "",
+    materialSpecification: item.material?.specification || "",
     lotNum: item.lotNum,
     quantity: item.quantity,
+    actualQuantity: item.acceptQuantity,
+    remark: ["生产入库", "领料出库"].includes(businessTypeName) ? item.remark || "" : "",
+    fUse: ["领料出库"].includes(businessTypeName) ? item.application?.fUse || "" : "",
+    supplier: ["委外加工出库", "委外加工入库"].includes(businessTypeName) ? item.application?.supplier?.name || "" : "",
+    requirement: ["委外加工出库"].includes(businessTypeName) ? item.application?.fUse || "" : "",
   };
 }
 

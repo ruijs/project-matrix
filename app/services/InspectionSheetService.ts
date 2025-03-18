@@ -25,6 +25,10 @@ export async function updateInspectionSheetInspectionResult(server: IRpdServer, 
     properties: ["id", "round", "sampleCode", "isQualified", "quantitativeValue", "qualitativeValue", "characteristic"],
   });
 
+  if (!measurements.length) {
+    return;
+  }
+
   const measurementsByCharacteristic = measurements.reduce((map, measurement) => {
     if (!measurement.characteristic) {
       return map;

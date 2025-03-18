@@ -13,7 +13,7 @@ import {
   OcUser,
 } from "~/_definitions/meta/entity-types";
 import { renderMaterial } from "~/app-extension/rocks/material-label-renderer/MaterialLabelRenderer";
-import { lockMeasurementsOfInspectionSheet } from "~/services/InspectionSheetService";
+import { lockMeasurementsOfInspectionSheet, updateInspectionSheetInspectionResult } from "~/services/InspectionSheetService";
 
 export default [
   {
@@ -111,157 +111,94 @@ export default [
         },
       });
 
-      // 更新检验结果
-      const momInspectionMeasurementManager = server.getEntityManager<MomInspectionMeasurement>("mom_inspection_measurement");
-      const measurements = await momInspectionMeasurementManager.findEntities({
-        routeContext,
-        filters: [{ operator: "eq", field: "sheet_id", value: inspectionSheetId }],
-        properties: ["id", "characteristic", "isQualified", "createdAt", "qualitativeValue", "quantitativeValue"],
-      });
-
-      // 获取每个特性的最新测量值
-      const latestMeasurement = measurements.reduce((acc, item) => {
-        const characteristicId = item.characteristic?.id;
-        if (characteristicId && item.createdAt) {
-          if (!acc[characteristicId] || (acc[characteristicId]?.createdAt || 0) < item.createdAt) {
-            acc[characteristicId] = item;
-          }
-        }
-        return acc;
-      }, {} as Record<string, MomInspectionMeasurement>);
-
-      // 检查是否所有测量值都已完成
-      const allMeasurementsComplete = Object.values(latestMeasurement).every((item) => {
-        const characteristic = item.characteristic as { measurementType?: string };
-        if (characteristic?.measurementType === "qualitative") {
-          return item.qualitativeValue !== null && item.qualitativeValue !== undefined;
-        } else {
-          return item.quantitativeValue !== null && item.quantitativeValue !== undefined;
-        }
-      });
-
-      if (allMeasurementsComplete) {
-        let result = "qualified";
-
-        // 只检查必检项的合格情况
-        const hasUnqualifiedMustPass = Object.values(latestMeasurement).some((item) => item.characteristic?.mustPass && !item.isQualified);
-
-        // 如果有必检项不合格，则整体不合格
-        if (hasUnqualifiedMustPass) {
-          result = "unqualified";
-        }
-
-        // 只有当结果发生变化时才更新
-        if (inspectionSheet?.result !== result) {
-          await server.getEntityManager<MomInspectionSheet>("mom_inspection_sheet").updateEntityById({
-            routeContext,
-            id: inspectionSheetId,
-            entityToSave: {
-              result: result,
-            },
-          });
-        }
-      }
-
-      if (changes) {
-        if (ctx?.routerContext?.state.userId) {
-          await server.getEntityManager("sys_audit_log").createEntity({
-            routeContext,
-            entity: {
-              user: { id: ctx?.routerContext?.state.userId },
-              targetSingularCode: "mom_inspection_sheet",
-              targetSingularName: `检验单 - ${inspectionSheet?.code}`,
-              method: "update",
-              changes: changes,
-              before: before,
-            },
-          });
-        }
-      }
-
-      // 如果检验单关联了库存操作单以及库存业务申请单，则更新库存业务申请中对应批次物料的检验状态
-      if (inspectionSheet?.inventoryOperation?.application && inspectionSheet?.lotNum && inspectionSheet?.result) {
-        const momInventoryApplicationItemManager = server.getEntityManager<MomInventoryApplicationItem>("mom_inventory_application_item");
-        const momInventoryApplicationItem = await momInventoryApplicationItemManager.findEntity({
-          routeContext,
-          filters: [
-            { operator: "eq", field: "lotNum", value: inspectionSheet.lotNum },
-            {
-              operator: "eq",
-              field: "operation_id",
-              value: inspectionSheet.inventoryOperation.application.id,
-            },
-          ],
-          properties: ["id"],
-        });
-
-        if (momInventoryApplicationItem) {
-          await momInventoryApplicationItemManager.updateEntityById({
-            routeContext,
-            id: momInventoryApplicationItem.id,
-            entityToSave: {
-              inspectState: inspectionSheet.result,
-            },
-          });
-        }
-
-        // 当检验申请中所有批次的物料都检验完成，将检验单的检验状态设置成已完成。
-        const momInventoryApplicationItems = await momInventoryApplicationItemManager.findEntities({
-          routeContext,
-          filters: [
-            {
-              operator: "eq",
-              field: "operation_id",
-              value: inspectionSheet.inventoryOperation.application.id,
-            },
-          ],
-          properties: ["id", "inspectState"],
-        });
-
-        if (momInventoryApplicationItems.length > 0) {
-          // every item has been inspected, then update the application state to inspected
-          const allInspected = momInventoryApplicationItems.every((item) => item?.inspectState);
-          if (allInspected) {
-            await server.getEntityManager<MomInventoryApplication>("mom_inventory_application").updateEntityById({
-              routeContext,
-              id: inspectionSheet.inventoryOperation.application.id,
-              entityToSave: {
-                inspectState: "inspected",
-              },
-            });
-          }
-        }
-      }
-
       // 当用户点击提交检验记录按钮后:
       // - 将检验值锁定，不允许修改。
+      // - 更新检验单的检验状态
       if (changes.hasOwnProperty("state") && changes.state === "inspected") {
+        await updateInspectionSheetInspectionResult(server, routeContext, inspectionSheetId);
         await lockMeasurementsOfInspectionSheet(server, routeContext, inspectionSheetId);
       }
 
-      // 保持批次的`合格证状态`与检验单的`检验结果`一致
-      if (after.lotNum && after.material_id) {
-        const lotManager = server.getEntityManager<BaseLot>("base_lot");
-        const lot = await lotManager.findEntity({
-          routeContext,
-          filters: [
-            { operator: "eq", field: "lotNum", value: inspectionSheet?.lotNum },
-            {
-              operator: "eq",
-              field: "material_id",
-              value: inspectionSheet?.material?.id,
-            },
-          ],
-          properties: ["id"],
-        });
-        if (lot && after.result) {
-          await lotManager.updateEntityById({
+      // 审批通过后，更新操作单以及对应批次的检验结果
+      if (changes.hasOwnProperty("approvalState") && changes.approvalState === "approved") {
+        // 如果检验单关联了库存操作单以及库存业务申请单，则更新库存业务申请中对应批次物料的检验状态
+        if (inspectionSheet?.inventoryOperation?.application && inspectionSheet?.lotNum && inspectionSheet?.result) {
+          const momInventoryApplicationItemManager = server.getEntityManager<MomInventoryApplicationItem>("mom_inventory_application_item");
+          const momInventoryApplicationItem = await momInventoryApplicationItemManager.findEntity({
             routeContext,
-            id: lot.id,
-            entityToSave: {
-              qualificationState: inspectionSheet?.result,
-            },
+            filters: [
+              { operator: "eq", field: "lotNum", value: inspectionSheet.lotNum },
+              {
+                operator: "eq",
+                field: "operation_id",
+                value: inspectionSheet.inventoryOperation.application.id,
+              },
+            ],
+            properties: ["id"],
           });
+
+          if (momInventoryApplicationItem) {
+            await momInventoryApplicationItemManager.updateEntityById({
+              routeContext,
+              id: momInventoryApplicationItem.id,
+              entityToSave: {
+                inspectState: inspectionSheet.result,
+              },
+            });
+          }
+
+          // 当检验申请中所有批次的物料都检验完成，将检验单的检验状态设置成已完成。
+          const momInventoryApplicationItems = await momInventoryApplicationItemManager.findEntities({
+            routeContext,
+            filters: [
+              {
+                operator: "eq",
+                field: "operation_id",
+                value: inspectionSheet.inventoryOperation.application.id,
+              },
+            ],
+            properties: ["id", "inspectState"],
+          });
+
+          if (momInventoryApplicationItems.length > 0) {
+            // every item has been inspected, then update the application state to inspected
+            const allInspected = momInventoryApplicationItems.every((item) => item?.inspectState);
+            if (allInspected) {
+              await server.getEntityManager<MomInventoryApplication>("mom_inventory_application").updateEntityById({
+                routeContext,
+                id: inspectionSheet.inventoryOperation.application.id,
+                entityToSave: {
+                  inspectState: "inspected",
+                },
+              });
+            }
+          }
+        }
+
+        // 保持批次的`合格证状态`与检验单的`检验结果`一致
+        if (after.lotNum && after.material_id) {
+          const lotManager = server.getEntityManager<BaseLot>("base_lot");
+          const lot = await lotManager.findEntity({
+            routeContext,
+            filters: [
+              { operator: "eq", field: "lotNum", value: inspectionSheet?.lotNum },
+              {
+                operator: "eq",
+                field: "material_id",
+                value: inspectionSheet?.material?.id,
+              },
+            ],
+            properties: ["id"],
+          });
+          if (lot && after.result) {
+            await lotManager.updateEntityById({
+              routeContext,
+              id: lot.id,
+              entityToSave: {
+                qualificationState: inspectionSheet?.result,
+              },
+            });
+          }
         }
       }
 
@@ -284,6 +221,18 @@ export default [
           });
         }
       }
+
+      await server.getEntityManager("sys_audit_log").createEntity({
+        routeContext,
+        entity: {
+          user: { id: ctx?.routerContext?.state.userId },
+          targetSingularCode: "mom_inspection_sheet",
+          targetSingularName: `检验单 - ${inspectionSheet?.code}`,
+          method: "update",
+          changes: changes,
+          before: before,
+        },
+      });
     },
   },
   {
@@ -322,9 +271,6 @@ export default [
   {
     eventName: "entity.create",
     modelSingularCode: "mom_inspection_sheet",
-    /**
-     * 创建检验单时，尝试发送钉钉工作通知给相关用户
-     */
     handler: async (ctx: EntityWatchHandlerContext<"entity.create">) => {
       const { server, payload, routerContext: routeContext } = ctx;
       const inspectionSheet = payload.after;
@@ -333,6 +279,7 @@ export default [
       await lockMeasurementsOfInspectionSheet(server, routeContext, inspectionSheet.id);
 
       try {
+        // 创建检验单时，尝试发送钉钉工作通知给相关用户
         trySendInspectionSheetNotification(server, routeContext, inspectionSheet);
       } catch (err: any) {
         server.getLogger().error("发生检验单通知失败：%s", err.message);
