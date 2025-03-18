@@ -134,7 +134,7 @@ async function parseInspectionSheetImportFile(
 
   // 准备通用检验特征信息
   const commonCharManager = server.getEntityManager<MomInspectionCommonCharacteristic>("mom_inspection_common_characteristic");
-  const commonChars = await commonCharManager.findEntities({
+  const commonCharacters = await commonCharManager.findEntities({
     routeContext,
     filters: [
       {
@@ -163,7 +163,7 @@ async function parseInspectionSheetImportFile(
       columnType = "sheetProperty";
     } else {
       // 检查是不是记录检测设备号的列
-      const charOfInstrumentCodeTitle = find(commonChars, (commonChar: MomInspectionCommonCharacteristic) => {
+      const charOfInstrumentCodeTitle = find(commonCharacters, (commonChar: MomInspectionCommonCharacteristic) => {
         const instrumentCodePropertySetting = find(get(commonChar, "config.measurementImportSettings.properties"), {
           propertyCode: "instrumentCode",
           columnTitle,
@@ -264,6 +264,7 @@ async function parseInspectionSheetImportFile(
     const validationContext = {
       row,
       pqcInspectionCategory,
+      commonCharacters,
     };
 
     for (let colIndex = 0; colIndex < columns.length; colIndex++) {
@@ -507,6 +508,7 @@ async function validateCellValueOfInspectorName(options: CellValueValidationOpti
 
 async function validateCellValueOfMeasurementField(options: CellValueValidationOptions): Promise<ImportDataError | null> {
   const { validationContext, column, cell, cellText } = options;
+  const commonCharacters: MomInspectionCommonCharacteristic[] = validationContext.commonCharacters;
 
   // 获取检验特征信息
   const material = validationContext.material as BaseMaterial;
@@ -522,16 +524,23 @@ async function validateCellValueOfMeasurementField(options: CellValueValidationO
   }
 
   const character = find(characteristics, (item) => item.name === charName);
+  let characterKind = character?.kind;
 
   if (cellText) {
     if (!character) {
-      return {
-        message: `检验值无效。${material.specification}的检验规则中未配置名为“${charName}”的检验特征。`,
-        cellAddress: cell.address,
-      };
+      const commonCharacter = find(commonCharacters, (item) => item.name === charName);
+      if (commonCharacter) {
+        // 如果填写了检验值，并且能找到对应的通用检验项则不报错，因为导入时会自动创建可跳过且不做合格判定的检验项。
+        characterKind = commonCharacter.kind;
+      } else {
+        return {
+          message: `检验值无效。${material.specification}的检验规则中未配置名为“${charName}”的检验特征。`,
+          cellAddress: cell.address,
+        };
+      }
     }
 
-    if (character.kind === "quantitative") {
+    if (characterKind === "quantitative") {
       if (Number.isNaN(parseFloat(cellText))) {
         return {
           message: `检验值无效。“${charName}”为定量检验，其结果必须为数值。`,

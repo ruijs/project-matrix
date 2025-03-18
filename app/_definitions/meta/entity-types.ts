@@ -3612,6 +3612,18 @@ export interface MomInspectionCommonCharacteristic {
    */
   unitName?: string;
   /**
+   * 检验类型
+   */
+  kind?: InspectionKind;
+  /**
+   * 可选项
+   */
+  qualitativeDetermineType?: QualitativeInspectionDetermineType;
+  /**
+   * 标准值
+   */
+  norminal?: string;
+  /**
    * 配置
    */
   config?: Record<string, any>;

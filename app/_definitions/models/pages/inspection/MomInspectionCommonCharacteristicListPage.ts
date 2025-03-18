@@ -13,11 +13,37 @@ const formConfig: Partial<RapidEntityFormConfig> = {
     },
     {
       type: "auto",
-      code: "category",
+      code: "kind",
     },
     {
       type: "auto",
       code: "unitName",
+      $exps: {
+        hidden: "$self.form.getFieldValue('kind') !== 'quantitative'",
+      },
+    },
+    {
+      type: "auto",
+      code: "qualitativeDetermineType",
+      $exps: {
+        hidden: "$self.form.getFieldValue('kind') !== 'qualitative'",
+      },
+    },
+    {
+      type: "auto",
+      code: "norminal",
+      formControlType: "rapidSelect",
+      formControlProps: {
+        listDataSource: {
+          data: {
+            list: [],
+          },
+        },
+      },
+      $exps: {
+        "formControlProps.listDataSource.data.list": "$self.form.getFieldValue('qualitativeNorminalValues') || []",
+        hidden: "$self.form.getFieldValue('kind') !== 'qualitative' || !$self.form.getFieldValue('qualitativeDetermineType')",
+      },
     },
     {
       type: "textarea",
@@ -31,6 +57,37 @@ const formConfig: Partial<RapidEntityFormConfig> = {
   defaultFormFields: {
     orderNum: 0,
   },
+  onValuesChange: [
+    {
+      $action: "script",
+      script: `
+        const changedValues = event.args[0] || {};
+        if(changedValues.hasOwnProperty('qualitativeDetermineType')) {
+          const _ = event.framework.getExpressionVars()._;
+          const rapidAppDefinition = event.framework.getExpressionVars().rapidAppDefinition;
+          const dictionary = _.find(rapidAppDefinition.getDataDictionaries(), function(d) { return d.code === 'QualitativeInspectionDetermineType'; });
+          const item = _.find(_.get(dictionary, 'entries'), function(item) { return item.value === changedValues.qualitativeDetermineType; });
+          const values = _.map(_.split(_.get(item, 'name'), '/'), function(v) { return { name: v, id: v } });
+          event.page.sendComponentMessage(event.sender.$id, {
+            name: "setFieldsValue",
+            payload: {
+              norminal: null,
+              qualitativeNorminalValues: values || [],
+            }
+          });
+        }else if(changedValues.hasOwnProperty('kind')){
+          event.page.sendComponentMessage(event.sender.$id, {
+            name: "setFieldsValue",
+            payload: {
+              norminal: null,
+              qualitativeDetermineType: null,
+              qualitativeNorminalValues: [],
+            }
+          });
+        }
+      `,
+    },
+  ],
 };
 
 const page: RapidPage = {
@@ -93,8 +150,23 @@ const page: RapidPage = {
         },
         {
           type: "auto",
+          code: "kind",
+          width: "150px",
+        },
+        {
+          type: "auto",
           code: "unitName",
           width: "50px",
+        },
+        {
+          type: "auto",
+          code: "qualitativeDetermineType",
+          width: "150px",
+        },
+        {
+          type: "auto",
+          code: "norminal",
+          width: "150px",
         },
         {
           type: "auto",

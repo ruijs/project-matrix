@@ -6,11 +6,13 @@ import {
   BaseMaterial,
   MomInspectionCategory,
   MomInspectionCharacteristic,
+  MomInspectionCommonCharacteristic,
   MomInspectionMeasurement,
   MomInspectionRule,
   MomInspectionSheet,
   MomInspectionSheetSample,
   OcUser,
+  SaveMomInspectionCharacteristicInput,
 } from "~/_definitions/meta/entity-types";
 import { productInspectionImportSettingsIgnoredCharNames } from "~/settings/productInspectionImportSettings";
 import type { ProductionInspectionSheetImportColumn } from "~/types/production-inspection-sheet-import-types";
@@ -68,6 +70,18 @@ export default {
       throw new Error("未找到名为“产成品检验”的检验类型。");
     }
 
+    // 准备通用检验特征信息
+    const commonCharManager = server.getEntityManager<MomInspectionCommonCharacteristic>("mom_inspection_common_characteristic");
+    const commonCharacters = await commonCharManager.findEntities({
+      routeContext,
+      filters: [
+        {
+          operator: "null",
+          field: "deletedAt",
+        },
+      ],
+    });
+
     const inspectionSheetManager = server.getEntityManager<MomInspectionSheet>("mom_inspection_sheet");
 
     const inspectionSheetsToSave: Partial<MomInspectionSheet>[] = [];
@@ -79,6 +93,7 @@ export default {
         routeContext,
         importContext: {
           pqcInspectionCategory,
+          commonCharacters,
         },
         columns,
         row,
@@ -140,6 +155,7 @@ export default {
 async function convertDataRowToInspectionSheet(options: ImportInspectionSheetOptions): Promise<Partial<MomInspectionSheet>> {
   const { server, routeContext, importContext, columns, row } = options;
   const { pqcInspectionCategory } = importContext;
+  const commonCharacters: MomInspectionCommonCharacteristic[] = importContext.commonCharacters;
 
   const inspectionSample: Partial<MomInspectionSheetSample> = {
     code: "1",
@@ -223,6 +239,8 @@ async function convertDataRowToInspectionSheet(options: ImportInspectionSheetOpt
           inspectionSheet.material = {
             id: material.id,
           };
+        } else {
+          throw new Error(`不存在牌号为“${cellText}”的产品。`);
         }
 
         const inspectionRuleManager = server.getEntityManager<MomInspectionRule>("mom_inspection_rule");
@@ -299,16 +317,39 @@ async function convertDataRowToInspectionSheet(options: ImportInspectionSheetOpt
 
         if (inspectionRules.length) {
           inspectionRule = inspectionRules[0];
+        } else {
+          throw new Error(`产品 ${material?.specification} 没有配置“${pqcInspectionCategory.name}”规则。`);
         }
       }
 
       const charName = column.charName;
-      const character = find(inspectionRule?.characteristics, (char: MomInspectionCharacteristic) => {
+      let character = find(inspectionRule?.characteristics, (char: MomInspectionCharacteristic) => {
         return char.name === column.charName;
-      }) as MomInspectionCharacteristic | undefined;
+      }) as MomInspectionCharacteristic;
 
       if (!character) {
-        throw new Error(`检验值无效。${material!.specification}的检验规则中未配置名为“${charName}”的检验特征。`);
+        const commonCharacter = find(commonCharacters, (item) => item.name === charName);
+        if (!commonCharacter) {
+          throw new Error(`检验值无效。${material!.specification}的检验规则中未配置名为“${charName}”的检验特征。`);
+        }
+
+        character = await server.getEntityManager<MomInspectionCharacteristic>("mom_inspection_characteristic").createEntity({
+          routeContext,
+          entity: {
+            rule: { id: inspectionRule?.id },
+            name: charName,
+            kind: commonCharacter.kind || "quantitative",
+            isCommon: true,
+            skippable: true,
+            mustPass: false,
+            qualitativeDetermineType: commonCharacter.qualitativeDetermineType,
+            norminal: commonCharacter.norminal,
+            unitName: commonCharacter.unitName,
+            orderNum: 99,
+          } satisfies SaveMomInspectionCharacteristicInput,
+        });
+
+        inspectionRule.characteristics?.push(character);
       }
 
       let measurement = find<Partial<MomInspectionMeasurement>>(inspectionSample.measurements, (item) => get(item, "characteristic.id") === character.id);
