@@ -13,8 +13,12 @@ export function isCharacterMeasurementValueQualified(characteristic: Partial<Mom
 
   const { kind, upperLimit, lowerLimit, upperTol, lowerTol, determineType, qualitativeDetermineType } = characteristic as Required<MomInspectionCharacteristic>;
 
+  if (isNil(measuredValue)) {
+    return null;
+  }
+
   if (kind === "quantitative") {
-    if (isNil(measuredValue) || isNaN(measuredValue)) {
+    if (isNaN(measuredValue)) {
       return null;
     }
 
@@ -44,6 +48,7 @@ export function isCharacterMeasurementValueQualified(characteristic: Partial<Mom
     }
   } else if (kind === "qualitative") {
     // 定性
+
     if (!qualitativeDetermineType) {
       return null;
     }
