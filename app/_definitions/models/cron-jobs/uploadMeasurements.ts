@@ -57,7 +57,7 @@ export default {
           ],
           pagination: {
             offset: 0,
-            limit: 100,
+            limit: 50,
           },
         });
 
@@ -85,7 +85,7 @@ export default {
               isReported: true,
             },
           });
-          await waitSeconds(100);
+          await waitSeconds(200);
 
           // if (measurement.process?.config?.notifyEnabled) {
           //   notifyEnabled = true;
@@ -95,6 +95,8 @@ export default {
           //   isOutSpecification = true;
           // }
         }
+
+        await waitSeconds(1000*10);
 
         // if (isOutSpecification && notifyEnabled) {
         //   await yidaAPI.uploadProductionMeasurementsAudit(measurements);
