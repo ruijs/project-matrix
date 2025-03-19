@@ -3,7 +3,7 @@ import type { BaseLot, MomInspectionSheet } from "~/_definitions/meta/entity-typ
 import {
   lockMeasurementsOfInspectionSheet,
   trySendInspectionSheetNotification,
-  updateInspectionSheetInspectionResult,
+  refreshInspectionSheetInspectionResult,
   updateQualificationStateOfRelatedApplicationItem,
   updateQualificationStateOfRelatedLot,
 } from "~/services/InspectionSheetService";
@@ -113,7 +113,7 @@ export default [
       // - 更新检验单的检验状态
       if (changes.hasOwnProperty("state") && changes.state === "inspected") {
         await lockMeasurementsOfInspectionSheet(server, routeContext, inspectionSheetId);
-        await updateInspectionSheetInspectionResult(server, routeContext, inspectionSheetId);
+        await refreshInspectionSheetInspectionResult(server, routeContext, inspectionSheetId);
       }
 
       // 审批通过后，更新操作单以及对应批次的检验结果

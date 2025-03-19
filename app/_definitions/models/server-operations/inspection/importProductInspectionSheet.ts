@@ -14,6 +14,7 @@ import {
   OcUser,
   SaveMomInspectionCharacteristicInput,
 } from "~/_definitions/meta/entity-types";
+import { refreshInspectionSheetInspectionResult } from "~/services/InspectionSheetService";
 import { productInspectionImportSettingsIgnoredCharNames } from "~/settings/productInspectionImportSettings";
 import type { ProductionInspectionSheetImportColumn } from "~/types/production-inspection-sheet-import-types";
 
@@ -119,7 +120,7 @@ export default {
           inspectionSheetToSave.samples[0].id = currentInspectionSheet.samples[0].id;
         }
 
-        await inspectionSheetManager.updateEntityById({
+        const newInspectionSheet = await inspectionSheetManager.updateEntityById({
           routeContext,
           id: currentInspectionSheet.id,
           entityToSave: inspectionSheetToSave,
@@ -135,16 +136,19 @@ export default {
             },
           },
         });
+
+        await refreshInspectionSheetInspectionResult(server, routeContext, newInspectionSheet.id);
       } else {
         inspectionSheetToSave.state = "inspected";
         inspectionSheetToSave.approvalState = "approving";
         //TODO: set approvalState ?
-        await inspectionSheetManager.createEntity({
+        const newInspectionSheet = await inspectionSheetManager.createEntity({
           routeContext,
           entity: {
             ...inspectionSheetToSave,
           } as Partial<MomInspectionSheet>,
         });
+        await refreshInspectionSheetInspectionResult(server, routeContext, newInspectionSheet.id);
       }
     }
 

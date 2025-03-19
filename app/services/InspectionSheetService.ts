@@ -28,7 +28,7 @@ import { isCharactorMeasured } from "~/utils/inspection-utility";
  * @param routeContext
  * @param inspectionSheetId
  */
-export async function updateInspectionSheetInspectionResult(server: IRpdServer, routeContext: RouteContext, inspectionSheetId: number) {
+export async function refreshInspectionSheetInspectionResult(server: IRpdServer, routeContext: RouteContext, inspectionSheetId: number) {
   const inspectionSheetManager = server.getEntityManager<MomInspectionSheet>("mom_inspection_sheet");
   const inspectionMeasurementManager = server.getEntityManager<MomInspectionMeasurement>("mom_inspection_measurement");
 

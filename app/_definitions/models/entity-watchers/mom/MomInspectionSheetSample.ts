@@ -1,5 +1,5 @@
 import { getEntityRelationTargetId, type EntityWatcher, type EntityWatchHandlerContext } from "@ruiapp/rapid-core";
-import { updateInspectionSheetInspectionResult } from "~/services/InspectionSheetService";
+import { refreshInspectionSheetInspectionResult } from "~/services/InspectionSheetService";
 
 export default [
   {
@@ -30,7 +30,7 @@ export default [
       let after = payload.after;
 
       const inspectionSheetId = getEntityRelationTargetId(after, "sheet", "sheet_id");
-      await updateInspectionSheetInspectionResult(server, routeContext, inspectionSheetId);
+      await refreshInspectionSheetInspectionResult(server, routeContext, inspectionSheetId);
     },
   },
   {
@@ -43,7 +43,7 @@ export default [
 
       if (changes.hasOwnProperty("isQualified")) {
         const inspectionSheetId = getEntityRelationTargetId(after, "sheet", "sheet_id");
-        await updateInspectionSheetInspectionResult(server, routeContext, inspectionSheetId);
+        await refreshInspectionSheetInspectionResult(server, routeContext, inspectionSheetId);
       }
     },
   },

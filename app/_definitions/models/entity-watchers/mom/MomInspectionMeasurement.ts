@@ -1,6 +1,6 @@
 import { getEntityRelationTargetId, type EntityWatcher, type EntityWatchHandlerContext } from "@ruiapp/rapid-core";
 import { MomInspectionCharacteristic, MomInspectionMeasurement, type MomInspectionSheet } from "~/_definitions/meta/entity-types";
-import { updateInspectionSheetInspectionResult } from "~/services/InspectionSheetService";
+import { refreshInspectionSheetInspectionResult } from "~/services/InspectionSheetService";
 import { isCharacterMeasurementValueQualified } from "~/utils/calculate";
 
 export default [
@@ -40,7 +40,7 @@ export default [
       const after = payload.after;
 
       // const inspectionSheetId = getEntityRelationTargetId(after, "sheet", "sheet_id");
-      // await updateInspectionSheetInspectionResult(server, routeContext, inspectionSheetId);
+      // await refreshInspectionSheetInspectionResult(server, routeContext, inspectionSheetId);
     },
   },
   {
@@ -85,7 +85,7 @@ export default [
 
       if (changes.hasOwnProperty("qualitativeValue") || changes.hasOwnProperty("quantitativeValue")) {
         // const inspectionSheetId = getEntityRelationTargetId(after, "sheet", "sheet_id");
-        // await updateInspectionSheetInspectionResult(server, routeContext, inspectionSheetId);
+        // await refreshInspectionSheetInspectionResult(server, routeContext, inspectionSheetId);
       }
 
       if (changes.hasOwnProperty("isQualified")) {
