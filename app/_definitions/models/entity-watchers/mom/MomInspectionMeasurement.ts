@@ -39,8 +39,8 @@ export default [
 
       const after = payload.after;
 
-      const inspectionSheetId = getEntityRelationTargetId(after, "sheet", "sheet_id");
-      await updateInspectionSheetInspectionResult(server, routeContext, inspectionSheetId);
+      // const inspectionSheetId = getEntityRelationTargetId(after, "sheet", "sheet_id");
+      // await updateInspectionSheetInspectionResult(server, routeContext, inspectionSheetId);
     },
   },
   {
@@ -84,8 +84,8 @@ export default [
       const changes = payload.changes;
 
       if (changes.hasOwnProperty("qualitativeValue") || changes.hasOwnProperty("quantitativeValue")) {
-        const inspectionSheetId = getEntityRelationTargetId(after, "sheet", "sheet_id");
-        await updateInspectionSheetInspectionResult(server, routeContext, inspectionSheetId);
+        // const inspectionSheetId = getEntityRelationTargetId(after, "sheet", "sheet_id");
+        // await updateInspectionSheetInspectionResult(server, routeContext, inspectionSheetId);
       }
 
       if (changes.hasOwnProperty("isQualified")) {
