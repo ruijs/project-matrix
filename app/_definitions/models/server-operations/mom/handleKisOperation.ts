@@ -104,6 +104,7 @@ export async function handleKisOperation(server: IRpdServer, routeContext: Route
       "items",
       "fDeliveryCode",
       "express",
+      "depositDate",
     ],
     relations: {
       department: {
