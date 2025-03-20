@@ -1,8 +1,6 @@
-import type { ActionHandlerContext, EntityWatcher, EntityWatchHandlerContext, IRpdServer, RouteContext } from "@ruiapp/rapid-core";
+import type { EntityWatcher, EntityWatchHandlerContext, IRpdServer, RouteContext } from "@ruiapp/rapid-core";
 import { MomInventoryOperationType } from "~/_definitions/meta/data-dictionary-types";
 import {
-  BaseLocation,
-  KisConfig,
   MomGood,
   MomGoodTransfer,
   MomInventoryApplication,
@@ -17,12 +15,13 @@ import {
 } from "~/_definitions/meta/entity-types";
 import InventoryStatService, { StatTableConfig } from "~/services/InventoryStatService";
 import KisHelper from "~/sdk/kis/helper";
-import KisInventoryOperationAPI, { WarehouseEntry } from "~/sdk/kis/inventory";
+import KisInventoryOperationAPI from "~/sdk/kis/inventory";
 import rapidApi from "~/rapidApi";
-import { getNowString } from "~/utils/time-utils";
 import dayjs from "dayjs";
 import { isPlainObject } from "lodash";
 import { handleKisOperation } from "~/_definitions/models/server-operations/mom/handleKisOperation";
+import { CreateEventLogInput } from "rapid-plugins/eventLog/EventLogPluginTypes";
+import EventLogService from "rapid-plugins/eventLog/services/EventLogService";
 
 export default [
   {
@@ -310,8 +309,19 @@ export default [
           // 上报金蝶KIS云
           try {
             await handleKisOperation(server, routeContext, { operationId: after.id });
-          } catch (e) {
-            console.log(e);
+          } catch (ex: any) {
+            const eventLog: CreateEventLogInput = {
+              sourceType: "app",
+              level: "error",
+              eventTypeCode: "kis.syncInternalToExternal",
+              targetTypeCode: "mom_inventory_operation",
+              targetCode: after.code,
+              message: `KIS单据写入失败。WMS单号：${after.code}。${ex.message}`,
+              details: ex.stack,
+            };
+
+            await server.getService<EventLogService>("eventLogService").createLog(eventLog);
+            console.log(ex);
           }
         }
 
