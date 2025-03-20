@@ -1,6 +1,6 @@
 import ExcelJS from "exceljs";
 import type { ActionHandlerContext, IRpdServer, RouteContext, ServerOperation } from "@ruiapp/rapid-core";
-import { find, get, isArray } from "lodash";
+import { find, get, isArray, isString } from "lodash";
 import type {
   ProductionInspectionSheetImportColumn,
   ParseProductInspectionSheetTableResult,
@@ -9,20 +9,35 @@ import type {
   ProductionInspectionSheetImportMeasurementValueColumn,
 } from "~/types/production-inspection-sheet-import-types";
 import dayjs from "dayjs";
-import {
-  BaseMaterial,
-  MomInspectionCategory,
-  MomInspectionCharacteristic,
-  MomInspectionCommonCharacteristic,
-  MomInspectionRule,
-  OcUser,
-} from "~/_definitions/meta/entity-types";
+import { BaseMaterial, MomInspectionCategory, MomInspectionCommonCharacteristic, MomInspectionRule, OcUser } from "~/_definitions/meta/entity-types";
 import { productInspectionImportSettingsIgnoredCharNames } from "~/settings/productInspectionImportSettings";
 
 type CodeInferOption<TCode = string> = {
   name: string;
   code: TCode;
 };
+
+export interface CellValueValidationOptions {
+  server: IRpdServer;
+  routeContext: RouteContext;
+  validationContext: CellValueValidationContext;
+  column: ProductionInspectionSheetImportColumn;
+  cell: ExcelJS.Cell;
+  cellText: string;
+}
+
+export interface CellValueValidationContext {
+  row?: ExcelJS.Row;
+  pqcInspectionCategory: MomInspectionCategory;
+  commonCharacters: MomInspectionCommonCharacteristic[];
+  caches: {
+    materials: Map<string, any>;
+    inspectionRules: Map<string, any>;
+    users: Map<string, any>;
+  };
+  materialOfCurrentRow?: BaseMaterial;
+  inspectionRuleOfCurrentRow?: MomInspectionRule;
+}
 
 const sheetPropertyItems: CodeInferOption<InspectionSheetPropertyCode>[] = [
   { name: "批号", code: "lotNum" },
@@ -86,7 +101,12 @@ function getCellText(cell: ExcelJS.Cell): string | null {
   if (cell.type === ExcelJS.ValueType.Date) {
     return dayjs(cell.value as Date).format("YYYY-MM-DD");
   }
-  return cell.text;
+
+  const cellText = cell.text;
+  if (!isString(cellText)) {
+    return "";
+  }
+  return cellText;
 }
 
 function getCellDateText(cell: ExcelJS.Cell): string | null {
@@ -111,7 +131,7 @@ function getCellDateText(cell: ExcelJS.Cell): string | null {
     // 不要使用dayjs().add()方法，有bug
     return dayjs(msOfMinDay + (numValue - 2) * msOfOneDay).format("YYYY-MM-DD");
   }
-  return cell.text;
+  return getCellText(cell);
 }
 
 async function parseInspectionSheetImportFile(
@@ -119,6 +139,7 @@ async function parseInspectionSheetImportFile(
   server: IRpdServer,
   fileBuffer: ArrayBuffer,
 ): Promise<ParseProductInspectionSheetTableResult> {
+  const logger = server.getLogger();
   const workbook = new ExcelJS.Workbook();
   await workbook.xlsx.load(fileBuffer);
 
@@ -231,11 +252,26 @@ async function parseInspectionSheetImportFile(
   }
 
   let rowNum = 2;
+
+  const validationContext: CellValueValidationContext = {
+    pqcInspectionCategory,
+    commonCharacters,
+    caches: {
+      materials: new Map(),
+      inspectionRules: new Map(),
+      users: new Map(),
+    },
+  };
+
   while (true) {
     const row = sheet.getRow(rowNum);
     if (!row) {
       break;
     }
+
+    validationContext.row = row;
+
+    logger.info(`正在解析第${rowNum}行`);
 
     const currentRecord: any[] = [];
     let noneEmptyCellCount = 0;
@@ -260,12 +296,6 @@ async function parseInspectionSheetImportFile(
     if (noneEmptyCellCount === 0) {
       break;
     }
-
-    const validationContext = {
-      row,
-      pqcInspectionCategory,
-      commonCharacters,
-    };
 
     for (let colIndex = 0; colIndex < columns.length; colIndex++) {
       const column = columns[colIndex];
@@ -304,15 +334,6 @@ function inferPropertyOrParameterCode<TCode = string>(inferOptions: CodeInferOpt
   }
 
   return null;
-}
-
-export interface CellValueValidationOptions {
-  server: IRpdServer;
-  routeContext: RouteContext;
-  validationContext: Record<string, any>;
-  column: ProductionInspectionSheetImportColumn;
-  cell: ExcelJS.Cell;
-  cellText: string;
 }
 
 async function validateCellValue(options: CellValueValidationOptions): Promise<ImportDataError | null> {
@@ -357,91 +378,116 @@ async function validateCellValueOfLotNum(options: CellValueValidationOptions): P
 
 async function validateCellValueOfMaterialAbbr(options: CellValueValidationOptions): Promise<ImportDataError | null> {
   const { routeContext, validationContext, server, cell, cellText } = options;
-  if (!cellText) {
+
+  const materialAbbr = cellText;
+  if (!materialAbbr) {
     return {
       message: "产品不能为空。",
       cellAddress: cell.address,
     };
   }
 
-  // 根据规格搜索产品
-  const materialManager = server.getEntityManager<BaseMaterial>("base_material");
-  const materials = await materialManager.findEntities({
-    routeContext,
-    filters: [
-      {
-        operator: "eq",
-        field: "specification",
-        value: cellText,
-      },
-      {
-        operator: "startsWith",
-        field: "code",
-        value: "03.",
-      },
-      {
-        operator: "null",
-        field: "deletedAt",
-      },
-    ],
-  });
+  const materialsCache = validationContext.caches.materials;
+  let materials: BaseMaterial[];
+
+  if (materialsCache.has(materialAbbr)) {
+    materials = materialsCache.get(materialAbbr);
+  } else {
+    // 根据规格搜索产品
+    const materialManager = server.getEntityManager<BaseMaterial>("base_material");
+    materials = await materialManager.findEntities({
+      routeContext,
+      filters: [
+        {
+          operator: "eq",
+          field: "specification",
+          value: materialAbbr,
+        },
+        {
+          operator: "startsWith",
+          field: "code",
+          value: "03.",
+        },
+        {
+          operator: "null",
+          field: "deletedAt",
+        },
+      ],
+    });
+
+    materialsCache.set(materialAbbr, materials);
+  }
 
   if (!materials.length) {
     return {
-      message: `不存在牌号为“${cellText}”的产品。`,
+      message: `不存在牌号为“${materialAbbr}”的产品。`,
       cellAddress: cell.address,
     };
   }
 
   if (materials.length > 1) {
     return {
-      message: `存在多个牌号为“${cellText}”的产品。`,
+      message: `存在多个牌号为“${materialAbbr}”的产品。`,
       cellAddress: cell.address,
     };
   }
 
-  const material = materials[0];
-  validationContext.material = material;
+  let material: BaseMaterial = materials[0];
+
+  validationContext.materialOfCurrentRow = material;
 
   const pqcInspectionCategory: MomInspectionCategory = validationContext.pqcInspectionCategory;
 
-  const inspectionRuleManager = server.getEntityManager<MomInspectionRule>("mom_inspection_rule");
-  const inspectionRules = await inspectionRuleManager.findEntities({
-    routeContext,
-    relations: {
-      characteristics: {
-        relations: {
-          commonChar: true,
+  const inspectionRulesCache = validationContext.caches.inspectionRules;
+  let inspectionRule: MomInspectionRule | null;
+
+  if (inspectionRulesCache.has(materialAbbr)) {
+    inspectionRule = inspectionRulesCache.get(materialAbbr);
+  } else {
+    const inspectionRuleManager = server.getEntityManager<MomInspectionRule>("mom_inspection_rule");
+    const inspectionRules = await inspectionRuleManager.findEntities({
+      routeContext,
+      relations: {
+        characteristics: {
+          relations: {
+            commonChar: true,
+          },
         },
       },
-    },
-    filters: [
-      {
-        operator: "eq",
-        field: "category_id",
-        value: pqcInspectionCategory.id,
-      },
-      {
-        operator: "eq",
-        field: "material_id",
-        value: material.id,
-      },
-      {
-        operator: "null",
-        field: "customer_id",
-      },
-    ],
-  });
+      filters: [
+        {
+          operator: "eq",
+          field: "category_id",
+          value: pqcInspectionCategory.id,
+        },
+        {
+          operator: "eq",
+          field: "material_id",
+          value: material.id,
+        },
+        {
+          operator: "null",
+          field: "customer_id",
+        },
+      ],
+    });
 
-  if (!inspectionRules.length) {
+    if (inspectionRules.length) {
+      inspectionRule = inspectionRules[0];
+    } else {
+      inspectionRule = null;
+    }
+    inspectionRulesCache.set(materialAbbr, inspectionRule);
+  }
+
+  if (!inspectionRule) {
     return {
       message: `产品 ${material.specification} 没有配置“${pqcInspectionCategory.name}”规则。`,
       cellAddress: cell.address,
     };
   }
 
-  const inspectionRule = inspectionRules[0];
-  validationContext.inspectionRule = inspectionRule;
+  validationContext.inspectionRuleOfCurrentRow = inspectionRule;
   return null;
 }
 
@@ -465,40 +511,49 @@ async function validateCellValueOfResult(options: CellValueValidationOptions): P
 }
 
 async function validateCellValueOfInspectorName(options: CellValueValidationOptions): Promise<ImportDataError | null> {
-  const { routeContext, server, cell, cellText } = options;
-  if (!cellText) {
+  const { routeContext, server, validationContext, cell, cellText: userName } = options;
+  if (!userName) {
     return {
       message: "检验人不能为空。",
       cellAddress: cell.address,
     };
   }
 
-  const userManager = server.getEntityManager<OcUser>("oc_user");
-  const userCount = await userManager.count({
-    routeContext,
-    filters: [
-      {
-        operator: "eq",
-        field: "name",
-        value: cellText,
-      },
-      {
-        operator: "null",
-        field: "deletedAt",
-      },
-    ],
-  });
+  const usersCache = validationContext.caches.users;
+
+  let userCount: number;
+  if (usersCache.has(userName)) {
+    userCount = usersCache.get(userName);
+  } else {
+    const userManager = server.getEntityManager<OcUser>("oc_user");
+    userCount = await userManager.count({
+      routeContext,
+      filters: [
+        {
+          operator: "eq",
+          field: "name",
+          value: userName,
+        },
+        {
+          operator: "null",
+          field: "deletedAt",
+        },
+      ],
+    });
+
+    usersCache.set(userName, userCount);
+  }
 
   if (!userCount) {
     return {
-      message: `不存在名为“${cellText}”的用户。`,
+      message: `不存在名为“${userName}”的用户。`,
       cellAddress: cell.address,
     };
   }
 
   if (userCount > 1) {
     return {
-      message: `存在多个名为“${cellText}”的用户。`,
+      message: `存在多个名为“${userName}”的用户。`,
       cellAddress: cell.address,
     };
   }
@@ -511,13 +566,13 @@ async function validateCellValueOfMeasurementField(options: CellValueValidationO
   const commonCharacters: MomInspectionCommonCharacteristic[] = validationContext.commonCharacters;
 
   // 获取检验特征信息
-  const material = validationContext.material as BaseMaterial;
-  const inspectionRule = validationContext.inspectionRule as MomInspectionRule;
-  if (!inspectionRule) {
+  const materialOfCurrentRow = validationContext.materialOfCurrentRow as BaseMaterial;
+  const inspectionRuleOfCurrentRow = validationContext.inspectionRuleOfCurrentRow as MomInspectionRule;
+  if (!materialOfCurrentRow || !inspectionRuleOfCurrentRow) {
     return null;
   }
 
-  const characteristics = inspectionRule.characteristics!;
+  const characteristics = inspectionRuleOfCurrentRow.characteristics!;
   const charName = (column as ProductionInspectionSheetImportMeasurementValueColumn).charName;
   if (productInspectionImportSettingsIgnoredCharNames.includes(charName)) {
     return null;
@@ -534,7 +589,7 @@ async function validateCellValueOfMeasurementField(options: CellValueValidationO
         characterKind = commonCharacter.kind;
       } else {
         return {
-          message: `检验值无效。${material.specification}的检验规则中未配置名为“${charName}”的检验特征。`,
+          message: `检验值无效。${materialOfCurrentRow.specification}的检验规则中未配置名为“${charName}”的检验特征。`,
           cellAddress: cell.address,
         };
       }
@@ -543,7 +598,7 @@ async function validateCellValueOfMeasurementField(options: CellValueValidationO
     if (characterKind === "quantitative") {
       if (Number.isNaN(parseFloat(cellText))) {
         return {
-          message: `检验值无效。“${charName}”为定量检验，其结果必须为数值。`,
+          message: `检验值无效。${materialOfCurrentRow.specification}的“${charName}”为定量检验，其结果必须为数值。`,
           cellAddress: cell.address,
         };
       }
@@ -551,7 +606,7 @@ async function validateCellValueOfMeasurementField(options: CellValueValidationO
   } else {
     if (character && !character.skippable) {
       return {
-        message: `必须检验 ${charName}，检验值不能为空。`,
+        message: `检验值不能为空。${materialOfCurrentRow.specification} 必须检验“${charName}”。`,
         cellAddress: cell.address,
       };
     }

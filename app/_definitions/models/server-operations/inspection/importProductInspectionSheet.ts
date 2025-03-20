@@ -1,5 +1,6 @@
 import { getNowStringWithTimezone, type ActionHandlerContext, type IRpdServer, type RouteContext, type ServerOperation } from "@ruiapp/rapid-core";
 import EntityManager from "@ruiapp/rapid-core/dist/dataAccess/entityManager";
+import dayjs from "dayjs";
 import { find, get, sample } from "lodash";
 import { InspectionResult } from "~/_definitions/meta/data-dictionary-types";
 import {
@@ -17,6 +18,7 @@ import {
 import { refreshInspectionSheetInspectionResult } from "~/services/InspectionSheetService";
 import { productInspectionImportSettingsIgnoredCharNames } from "~/settings/productInspectionImportSettings";
 import type { ProductionInspectionSheetImportColumn } from "~/types/production-inspection-sheet-import-types";
+import { formatDateTimeWithoutTimezone } from "~/utils/time-utils";
 
 export interface ImportInspectionSheetsOptions {
   columns: ProductionInspectionSheetImportColumn[];
@@ -27,9 +29,22 @@ export interface ImportInspectionSheetsOptions {
 export interface ImportInspectionSheetOptions {
   server: IRpdServer;
   routeContext: RouteContext;
-  importContext: Record<string, any>;
+  importContext: ImportInspectionSheetContext;
   columns: ProductionInspectionSheetImportColumn[];
   row: any[];
+}
+
+export interface ImportInspectionSheetContext {
+  row?: any[];
+  pqcInspectionCategory: MomInspectionCategory;
+  commonCharacters: MomInspectionCommonCharacteristic[];
+  caches: {
+    materials: Map<string, any>;
+    inspectionRules: Map<string, any>;
+    users: Map<string, any>;
+  };
+  materialOfCurrentRow?: BaseMaterial;
+  inspectionRuleOfCurrentRow?: MomInspectionRule;
 }
 
 export default {
@@ -39,6 +54,7 @@ export default {
 
   async handler(ctx: ActionHandlerContext) {
     const { server, routerContext: routeContext, input } = ctx;
+    const logger = server.getLogger();
 
     const currentUserId = routeContext.state.userId;
     if (!currentUserId) {
@@ -83,83 +99,52 @@ export default {
       ],
     });
 
-    const inspectionSheetManager = server.getEntityManager<MomInspectionSheet>("mom_inspection_sheet");
+    const importContext: ImportInspectionSheetContext = {
+      pqcInspectionCategory,
+      commonCharacters,
+      caches: {
+        materials: new Map(),
+        inspectionRules: new Map(),
+        users: new Map(),
+      },
+    };
 
-    const inspectionSheetsToSave: Partial<MomInspectionSheet>[] = [];
-    for (let rowIndex = 1; rowIndex < data.length; rowIndex++) {
-      const row = data[rowIndex];
+    const inspectionSheetsSaved: Partial<MomInspectionSheet>[] = [];
+    for (let rowNum = 1; rowNum < data.length; rowNum++) {
+      const row = data[rowNum];
 
       const importOptions: ImportInspectionSheetOptions = {
         server,
         routeContext,
-        importContext: {
-          pqcInspectionCategory,
-          commonCharacters,
-        },
+        importContext,
         columns,
         row,
       };
-      const inspectionSheet = await convertDataRowToInspectionSheet(importOptions);
-      inspectionSheetsToSave.push(inspectionSheet);
-    }
 
-    for (const inspectionSheetToSave of inspectionSheetsToSave) {
-      const currentInspectionSheet = await findCurrentInspectionSheet(server, routeContext, inspectionSheetManager, inspectionSheetToSave);
-      if (currentInspectionSheet) {
-        if (
-          currentInspectionSheet.state === "inspected" &&
-          (currentInspectionSheet.approvalState === "approved" || currentInspectionSheet.approvalState === "rejected")
-        ) {
+      try {
+        const inspectionSheet = await convertDataRowToInspectionSheet(importOptions);
+        if (!inspectionSheet) {
+          logger.error(`R${rowNum}: 无效的检验记录。`);
           continue;
         }
 
-        inspectionSheetToSave.state = "inspected";
-        inspectionSheetToSave.approvalState = "approving";
-
-        if (currentInspectionSheet.samples && currentInspectionSheet.samples.length === 1 && inspectionSheetToSave.samples) {
-          inspectionSheetToSave.samples[0].id = currentInspectionSheet.samples[0].id;
-        }
-
-        const newInspectionSheet = await inspectionSheetManager.updateEntityById({
-          routeContext,
-          id: currentInspectionSheet.id,
-          entityToSave: inspectionSheetToSave,
-          relationPropertiesToUpdate: {
-            samples: {
-              relationRemoveMode: "delete",
-              relationPropertiesToUpdate: {
-                measurements: {
-                  relationRemoveMode: "delete",
-                  propertiesToUpdate: ["quantitativeValue", "qualitativeValue", "isQualified", "inspector", "instrumentCode"],
-                },
-              },
-            },
-          },
-        });
-
-        await refreshInspectionSheetInspectionResult(server, routeContext, newInspectionSheet.id);
-      } else {
-        inspectionSheetToSave.state = "inspected";
-        inspectionSheetToSave.approvalState = "approving";
-        //TODO: set approvalState ?
-        const newInspectionSheet = await inspectionSheetManager.createEntity({
-          routeContext,
-          entity: {
-            ...inspectionSheetToSave,
-          } as Partial<MomInspectionSheet>,
-        });
-        await refreshInspectionSheetInspectionResult(server, routeContext, newInspectionSheet.id);
+        await saveInspectionSheet(server, routeContext, inspectionSheet);
+        inspectionSheetsSaved.push(inspectionSheet);
+      } catch (ex: any) {
+        logger.error("保存检验记录失败。%s", ex.message);
       }
     }
 
-    ctx.output = { result: "ok", inspectionSheetsToSave };
+    ctx.output = { result: "ok", inspectionSheetsToSave: inspectionSheetsSaved };
   },
 } satisfies ServerOperation;
 
-async function convertDataRowToInspectionSheet(options: ImportInspectionSheetOptions): Promise<Partial<MomInspectionSheet>> {
+async function convertDataRowToInspectionSheet(options: ImportInspectionSheetOptions): Promise<Partial<MomInspectionSheet> | null> {
   const { server, routeContext, importContext, columns, row } = options;
-  const { pqcInspectionCategory } = importContext;
+  const { pqcInspectionCategory, caches } = importContext;
   const commonCharacters: MomInspectionCommonCharacteristic[] = importContext.commonCharacters;
+
+  const { materials: materialsCache, users: usersCache, inspectionRules: inspectionRulesCache } = caches;
 
   const inspectionSample: Partial<MomInspectionSheetSample> = {
     code: "1",
@@ -170,6 +155,9 @@ async function convertDataRowToInspectionSheet(options: ImportInspectionSheetOpt
     sampleCount: 1,
     samples: [inspectionSample],
   };
+
+  // 将检验时间设置为导入时间
+  inspectionSheet.inspectedAt = getNowStringWithTimezone();
 
   let material: BaseMaterial | undefined;
   let inspectionRule: MomInspectionRule | undefined;
@@ -191,101 +179,131 @@ async function convertDataRowToInspectionSheet(options: ImportInspectionSheetOpt
         };
 
         inspectionSheet.result = resultValueMap[cellText];
+      } else if (propertyCode === "sampleDeliveryTime" || propertyCode === "productionTime") {
+        if (!cellText) {
+          inspectionSheet[propertyCode] = undefined;
+        } else {
+          inspectionSheet[propertyCode] = formatDateTimeWithoutTimezone(cellText);
+        }
       } else if (propertyCode === "inspectorName") {
         // 查找检验员
-        const userManager = server.getEntityManager<OcUser>("oc_user");
-        const users = await userManager.findEntities({
-          routeContext,
-          filters: [
-            {
-              operator: "eq",
-              field: "name",
-              value: cellText,
-            },
-            {
-              operator: "null",
-              field: "deletedAt",
-            },
-          ],
-        });
 
-        if (users.length) {
+        let user: OcUser;
+        if (usersCache.has(cellText)) {
+          user = usersCache.get(cellText);
+        } else {
+          const userManager = server.getEntityManager<OcUser>("oc_user");
+          const users = await userManager.findEntities({
+            routeContext,
+            filters: [
+              {
+                operator: "eq",
+                field: "name",
+                value: cellText,
+              },
+              {
+                operator: "null",
+                field: "deletedAt",
+              },
+            ],
+          });
+
+          user = users[0] || null;
+          usersCache.set(cellText, users[0]);
+        }
+
+        if (user) {
           inspectionSheet.inspector = {
-            id: users[0].id,
+            id: user.id,
           };
         }
       } else if (propertyCode === "materialAbbr") {
         // 根据规格搜索产品
-        const materialManager = server.getEntityManager<BaseMaterial>("base_material");
-        const materials = await materialManager.findEntities({
-          routeContext,
-          filters: [
-            {
-              operator: "eq",
-              field: "specification",
-              value: cellText,
-            },
-            {
-              operator: "startsWith",
-              field: "code",
-              value: "03.",
-            },
-            {
-              operator: "null",
-              field: "deletedAt",
-            },
-          ],
-        });
+        let materials: BaseMaterial[];
+        if (materialsCache.has(cellText)) {
+          materials = materialsCache.get(cellText);
+        } else {
+          const materialManager = server.getEntityManager<BaseMaterial>("base_material");
+          materials = await materialManager.findEntities({
+            routeContext,
+            filters: [
+              {
+                operator: "eq",
+                field: "specification",
+                value: cellText,
+              },
+              {
+                operator: "startsWith",
+                field: "code",
+                value: "03.",
+              },
+              {
+                operator: "null",
+                field: "deletedAt",
+              },
+            ],
+          });
+
+          materialsCache.set(cellText, materials);
+        }
+
+        if (!materials.length || materials.length > 1) {
+          return null;
+        }
 
         material = materials[0];
+        importContext.materialOfCurrentRow = material;
+        inspectionSheet.material = {
+          id: material.id,
+        };
 
-        if (materials.length) {
-          inspectionSheet.material = {
-            id: material.id,
-          };
+        let inspectionRule: MomInspectionRule;
+        if (inspectionRulesCache.has(cellText)) {
+          inspectionRule = inspectionRulesCache.get(cellText);
         } else {
-          throw new Error(`不存在牌号为“${cellText}”的产品。`);
-        }
-
-        const inspectionRuleManager = server.getEntityManager<MomInspectionRule>("mom_inspection_rule");
-        const inspectionRules = await inspectionRuleManager.findEntities({
-          routeContext,
-          relations: {
-            characteristics: {
-              relations: {
-                commonChar: true,
+          const inspectionRuleManager = server.getEntityManager<MomInspectionRule>("mom_inspection_rule");
+          const inspectionRules = await inspectionRuleManager.findEntities({
+            routeContext,
+            relations: {
+              characteristics: {
+                relations: {
+                  commonChar: true,
+                },
               },
             },
-          },
-          filters: [
-            {
-              operator: "eq",
-              field: "category_id",
-              value: pqcInspectionCategory.id,
-            },
-            {
-              operator: "eq",
-              field: "material_id",
-              value: material.id,
-            },
-            {
-              operator: "null",
-              field: "customer_id",
-            },
-          ],
-        });
+            filters: [
+              {
+                operator: "eq",
+                field: "category_id",
+                value: pqcInspectionCategory.id,
+              },
+              {
+                operator: "eq",
+                field: "material_id",
+                value: material.id,
+              },
+              {
+                operator: "null",
+                field: "customer_id",
+              },
+            ],
+          });
 
-        if (inspectionRules.length) {
-          inspectionSheet.rule = {
-            id: inspectionRules[0].id,
-          };
+          inspectionRule = inspectionRules[0];
+          inspectionRulesCache.set(cellText, inspectionRule);
         }
+
+        if (!inspectionRule) {
+          return null;
+        }
+        importContext.inspectionRuleOfCurrentRow = inspectionRule;
+
+        inspectionSheet.rule = {
+          id: inspectionRule.id,
+        };
       } else {
         inspectionSheet[propertyCode] = cellText;
       }
-
-      // 将检验时间设置为导入时间
-      inspectionSheet.inspectedAt = getNowStringWithTimezone();
     } else {
       if (!cellText) {
         continue;
@@ -296,38 +314,11 @@ async function convertDataRowToInspectionSheet(options: ImportInspectionSheetOpt
       }
 
       if (!inspectionRule) {
-        const inspectionRuleManager = server.getEntityManager<MomInspectionRule>("mom_inspection_rule");
-        const inspectionRules = await inspectionRuleManager.findEntities({
-          routeContext,
-          relations: {
-            characteristics: {
-              relations: {
-                commonChar: true,
-              },
-            },
-          },
-          filters: [
-            {
-              operator: "eq",
-              field: "material_id",
-              value: material!.id,
-            },
-            {
-              operator: "null",
-              field: "customer_id",
-            },
-          ],
-        });
-
-        if (inspectionRules.length) {
-          inspectionRule = inspectionRules[0];
-        } else {
-          throw new Error(`产品 ${material?.specification} 没有配置“${pqcInspectionCategory.name}”规则。`);
-        }
+        continue;
       }
 
       const charName = column.charName;
-      let character = find(inspectionRule?.characteristics, (char: MomInspectionCharacteristic) => {
+      let character = find(inspectionRule.characteristics, (char: MomInspectionCharacteristic) => {
         return char.name === column.charName;
       }) as MomInspectionCharacteristic;
 
@@ -370,7 +361,14 @@ async function convertDataRowToInspectionSheet(options: ImportInspectionSheetOpt
           measurement.qualitativeValue = cellText;
         } else {
           const cellValue = parseFloat(cellText);
-          if (!Number.isNaN(cellValue)) {
+          if (Number.isNaN(cellValue)) {
+            // 尝试兼容处理多轮检验值的记录形式
+            const values = cellText.split("/");
+            const actualValue = parseFloat(values[0]);
+            if (!Number.isNaN(actualValue)) {
+              measurement.quantitativeValue = actualValue;
+            }
+          } else {
             measurement.quantitativeValue = cellValue;
           }
         }
@@ -378,6 +376,10 @@ async function convertDataRowToInspectionSheet(options: ImportInspectionSheetOpt
         measurement.instrumentCode = cellText;
       }
     }
+  }
+
+  if (inspectionSheet.sampleDeliveryTime) {
+    inspectionSheet.inspectedAt = inspectionSheet.sampleDeliveryTime;
   }
 
   return inspectionSheet;
@@ -425,4 +427,54 @@ async function findCurrentInspectionSheet(
   });
 
   return entity;
+}
+
+async function saveInspectionSheet(server: IRpdServer, routeContext: RouteContext, inspectionSheet: Partial<MomInspectionSheet>) {
+  const inspectionSheetManager = server.getEntityManager<MomInspectionSheet>("mom_inspection_sheet");
+  const currentInspectionSheet = await findCurrentInspectionSheet(server, routeContext, inspectionSheetManager, inspectionSheet);
+  if (currentInspectionSheet) {
+    if (
+      currentInspectionSheet.state === "inspected" &&
+      (currentInspectionSheet.approvalState === "approved" || currentInspectionSheet.approvalState === "rejected")
+    ) {
+      return;
+    }
+
+    inspectionSheet.state = "inspected";
+    inspectionSheet.approvalState = "approving";
+
+    if (currentInspectionSheet.samples && currentInspectionSheet.samples.length === 1 && inspectionSheet.samples) {
+      inspectionSheet.samples[0].id = currentInspectionSheet.samples[0].id;
+    }
+
+    const newInspectionSheet = await inspectionSheetManager.updateEntityById({
+      routeContext,
+      id: currentInspectionSheet.id,
+      entityToSave: inspectionSheet,
+      relationPropertiesToUpdate: {
+        samples: {
+          relationRemoveMode: "delete",
+          relationPropertiesToUpdate: {
+            measurements: {
+              relationRemoveMode: "delete",
+              propertiesToUpdate: ["quantitativeValue", "qualitativeValue", "isQualified", "inspector", "instrumentCode"],
+            },
+          },
+        },
+      },
+    });
+
+    await refreshInspectionSheetInspectionResult(server, routeContext, newInspectionSheet.id);
+  } else {
+    inspectionSheet.state = "inspected";
+    inspectionSheet.approvalState = "approving";
+    //TODO: set approvalState ?
+    const newInspectionSheet = await inspectionSheetManager.createEntity({
+      routeContext,
+      entity: {
+        ...inspectionSheet,
+      } as Partial<MomInspectionSheet>,
+    });
+    await refreshInspectionSheetInspectionResult(server, routeContext, newInspectionSheet.id);
+  }
 }

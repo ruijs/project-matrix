@@ -1,6 +1,6 @@
 import { DownloadOutlined, InboxOutlined, LeftOutlined, LoadingOutlined } from "@ant-design/icons";
 import { Rock, SimpleRockConfig } from "@ruiapp/move-style";
-import { Button, Divider, Form, FormInstance, message, Result, Select, Space, Steps, Upload, UploadProps } from "antd";
+import { Button, Checkbox, Divider, Form, FormInstance, Input, message, Result, Select, Space, Steps, Upload, UploadProps } from "antd";
 import { useEffect, useState } from "react";
 import ExcelDataPreviewer from "~/components/ExcelDataPreviewer";
 import ExcelDataPreviewer from "~/components/ExcelDataPreviewer";
@@ -27,6 +27,7 @@ export default {
     const [previewData, setPreviewData] = useState<PreviewData>();
     const [importingState, setImportingState] = useState<ImportingState>("importing");
     const [importFailedMessage, setImportFailedMessage] = useState("");
+    const [ignoreErrors, setIgnoreErrors] = useState(false);
     const downloadUrl = `/api/app/downloadProductInspectionSheetImportTemplate`;
     const uploadUrl = `/api/app/uploadProductInspectionSheetImportFile`;
     const importUrl = `/app/importProductInspectionSheet`;
@@ -95,6 +96,10 @@ export default {
       }
     };
 
+    const onCheckboxIgnoreErrorsClick = () => {
+      setIgnoreErrors(!ignoreErrors);
+    };
+
     return (
       <>
         <Steps
@@ -137,9 +142,11 @@ export default {
           <div style={{ padding: "20px 0" }}>
             <PreviewStepToolbar
               form={importingForm}
-              importDisabled={!!(validationErrors && validationErrors.length)}
+              importDisabled={!ignoreErrors && !!(validationErrors && validationErrors.length)}
               setStep={setStep}
               onConfirmImportClick={onConfirmImportClick}
+              ignoreErrors={ignoreErrors}
+              onCheckboxIgnoreErrorsClick={onCheckboxIgnoreErrorsClick}
             />
             <div style={{ padding: "20px 0" }}>
               <ExcelDataPreviewer data={previewData} height="500px" />
@@ -152,9 +159,11 @@ export default {
             </div>
             <PreviewStepToolbar
               form={importingForm}
-              importDisabled={!!(validationErrors && validationErrors.length)}
+              importDisabled={!ignoreErrors && !!(validationErrors && validationErrors.length)}
               setStep={setStep}
               onConfirmImportClick={onConfirmImportClick}
+              ignoreErrors={ignoreErrors}
+              onCheckboxIgnoreErrorsClick={onCheckboxIgnoreErrorsClick}
             />
           </div>
         )}
@@ -200,14 +209,16 @@ export default {
 
 interface PreviewStepToolbarProps {
   setStep: any;
+  ignoreErrors: boolean;
   importDisabled?: boolean;
   form: FormInstance<{
     importingMode: ImportingMode;
   }>;
   onConfirmImportClick: any;
+  onCheckboxIgnoreErrorsClick: any;
 }
 
-function PreviewStepToolbar({ form, setStep, onConfirmImportClick, importDisabled }: PreviewStepToolbarProps) {
+function PreviewStepToolbar({ form, setStep, onConfirmImportClick, ignoreErrors, importDisabled, onCheckboxIgnoreErrorsClick }: PreviewStepToolbarProps) {
   return (
     <div style={{ display: "flex", justifyContent: "space-between" }}>
       <div>
@@ -217,6 +228,10 @@ function PreviewStepToolbar({ form, setStep, onConfirmImportClick, importDisable
       </div>
       <div>
         <Form form={form} layout="inline" initialValues={{ importingMode: "overwrite" }} style={{ alignItems: "center" }}>
+          <Form.Item>
+            <Checkbox checked={!!ignoreErrors} onClick={onCheckboxIgnoreErrorsClick} />
+            忽略错误检验记录
+          </Form.Item>
           <Form.Item style={{ marginRight: 0 }}>
             <Button size="large" type="primary" disabled={importDisabled} onClick={onConfirmImportClick}>
               确认导入
