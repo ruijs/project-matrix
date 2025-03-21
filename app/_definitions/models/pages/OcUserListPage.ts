@@ -189,7 +189,7 @@ const page: RapidPage = {
               },
             ],
           },
-          onModalOk: [
+          onFormSubmit: [
             {
               $action: "sendHttpRequest",
               url: `/api/resetPassword`,
