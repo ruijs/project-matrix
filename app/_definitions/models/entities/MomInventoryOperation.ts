@@ -1,7 +1,7 @@
 import type { TDictionaryCodes } from "../../meta/data-dictionary-codes";
 import type { TEntitySingularCodes } from "../../meta/model-codes";
 import type { RapidEntity } from "@ruiapp/rapid-extension";
-import type {PropertySequenceConfig} from "@ruiapp/rapid-core";
+import type { PropertySequenceConfig } from "@ruiapp/rapid-core";
 
 const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
   namespace: "mom",
@@ -20,7 +20,7 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
             segments: [
               {
                 type: "literal",
-                content: "WO-"
+                content: "WO-",
               },
               {
                 type: "year",
@@ -63,7 +63,7 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
     },
     {
       code: "application",
-      name: "申请单信息",
+      name: "申请单",
       type: "relation",
       targetSingularCode: "mom_inventory_application",
       targetIdColumnName: "application_id",
@@ -163,7 +163,7 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
       code: "processed",
       name: "是否处理",
       type: "boolean",
-      defaultValue: "false"
+      defaultValue: "false",
     },
   ],
 };

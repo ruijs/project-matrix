@@ -91,6 +91,12 @@
   border-top: 1px solid #eee;
 }
 
+.rui-page-section .ant-page-header {
+  position: inherit;
+  padding: 0;
+  box-shadow: none;
+}
+
 .rui-toolbar {
   display: flex;
   padding-top: 12px;
