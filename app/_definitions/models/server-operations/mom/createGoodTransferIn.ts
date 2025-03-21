@@ -131,8 +131,8 @@ async function createGoodTransferIn(routeContext: RouteContext, server: IRpdServ
 
   for (const goodInput of goods) {
     totalWeight += goodInput.quantity || 0;
-    const good = await findOrCreateGood(goodManager, goodInput);
-    await createGoodTransfer(goodTransferManager, input.operationId, good, input?.print, input.locationId);
+    const good = await findOrCreateGood(routeContext, goodManager, goodInput);
+    await createGoodTransfer(routeContext, goodTransferManager, input.operationId, good, input?.print, input.locationId);
   }
 
   // 根据库存业务类型配置，自动生成对应检验类型的检验单
@@ -206,8 +206,9 @@ function createGoodInput(
   return saveInput;
 }
 
-async function findOrCreateGood(goodManager: any, input: SaveMomGoodInput) {
+async function findOrCreateGood(routeContext: RouteContext, goodManager: any, input: SaveMomGoodInput) {
   let good = await goodManager.findEntity({
+    routeContext,
     filters: [
       { operator: "eq", field: "material_id", value: input.material?.id },
       { operator: "eq", field: "lot_num", value: input.lotNum },
@@ -217,8 +218,9 @@ async function findOrCreateGood(goodManager: any, input: SaveMomGoodInput) {
   });
 
   if (!good) {
-    good = await goodManager.createEntity({ entity: input });
+    good = await goodManager.createEntity({ routeContext, entity: input });
     good = await goodManager.findEntity({
+      routeContext,
       filters: [{ operator: "eq", field: "id", value: good.id }],
       properties: ["id", "material", "lotNum", "binNum", "quantity", "unit", "lot"],
     });
@@ -227,7 +229,14 @@ async function findOrCreateGood(goodManager: any, input: SaveMomGoodInput) {
   return good;
 }
 
-async function createGoodTransfer(goodTransferManager: any, operationId: number, good: MomGood, print: boolean = false, locationId?: number) {
+async function createGoodTransfer(
+  routeContext: RouteContext,
+  goodTransferManager: any,
+  operationId: number,
+  good: MomGood,
+  print: boolean = false,
+  locationId?: number,
+) {
   let saveInput = {
     operation: { id: operationId },
     good: { id: good.id },
@@ -246,6 +255,7 @@ async function createGoodTransfer(goodTransferManager: any, operationId: number,
   }
 
   await goodTransferManager.createEntity({
+    routeContext,
     entity: saveInput,
   });
 }

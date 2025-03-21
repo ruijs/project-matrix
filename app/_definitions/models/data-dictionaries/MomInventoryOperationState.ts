@@ -6,8 +6,8 @@ export default {
   valueType: "string",
   level: "app",
   entries: [
-    { name: "待执行", value: "pending", color: "red" },
-    { name: "执行中", value: "processing", color: "orange" },
+    { name: "待执行", value: "pending", color: "orange" },
+    { name: "执行中", value: "processing", color: "blue" },
     { name: "已完成", value: "done", color: "green" },
   ],
 } as RapidDataDictionary;

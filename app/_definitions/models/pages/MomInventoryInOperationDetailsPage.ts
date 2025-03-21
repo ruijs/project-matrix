@@ -1,5 +1,6 @@
 import { cloneDeep } from "lodash";
 import type { RapidPage, RapidEntityFormConfig } from "@ruiapp/rapid-extension";
+import { title } from "process";
 
 const materialFormItemConfig: RapidEntityFormConfig["items"][0] = {
   type: "auto",
@@ -232,9 +233,8 @@ const page: RapidPage = {
   // permissionCheck: {any: []},
   view: [
     {
-      $type: "rapidEntityForm",
+      $type: "sonicEntityDetails",
       entityCode: "MomInventoryOperation",
-      mode: "view",
       column: 3,
       extraProperties: ["application"],
       relations: {
@@ -248,10 +248,12 @@ const page: RapidPage = {
           },
         },
       },
+      titlePropertyCode: "code",
+      statePropertyCode: "state",
       items: [
         {
           type: "auto",
-          code: "code",
+          code: "warehouse",
         },
         {
           type: "auto",
@@ -260,8 +262,14 @@ const page: RapidPage = {
         {
           type: "auto",
           code: "businessType",
+        },
+        {
+          type: "auto",
+          code: "application",
+          rendererType: "rapidLinkRenderer",
           rendererProps: {
-            format: "{{name}}",
+            text: "{{code}}",
+            url: "/pages/mom_inventory_application_details?id={{id}}",
           },
         },
         {
@@ -270,22 +278,11 @@ const page: RapidPage = {
         },
         {
           type: "auto",
-          code: "state",
-        },
-        {
-          type: "auto",
           code: "contractNum",
         },
         {
           type: "auto",
           code: "supplier",
-          rendererProps: {
-            format: "{{name}}",
-          },
-        },
-        {
-          type: "auto",
-          code: "approvalState",
         },
         {
           type: "auto",
@@ -293,14 +290,6 @@ const page: RapidPage = {
           $exps: {
             _hidden: "!($stores.detail?.data?.list[0]?.businessType.name === '领料出库')",
           },
-        },
-        {
-          type: "auto",
-          code: "warehouse",
-          label: "仓库",
-          // $exps: {
-          //   _hidden: "!($stores.detail?.data?.list[0]?.businessType.name === '生产入库')",
-          // },
         },
         {
           type: "auto",

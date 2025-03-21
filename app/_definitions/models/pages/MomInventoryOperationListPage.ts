@@ -295,6 +295,11 @@ const page: RapidPage = {
       extraProperties: ["operationType", "transfers", "state", "approvalState"],
       columns: [
         {
+          type: "auto",
+          code: "state",
+          width: "100px",
+        },
+        {
           type: "link",
           code: "code",
           // rendererType: "rapidLinkRenderer",
@@ -333,6 +338,7 @@ const page: RapidPage = {
           type: "auto",
           title: "仓库",
           code: "warehouse",
+          width: "150px",
           rendererProps: {
             format: "{{name}}",
           },

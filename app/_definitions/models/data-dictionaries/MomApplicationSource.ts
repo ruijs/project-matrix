@@ -1,4 +1,4 @@
-import type {RapidDataDictionary} from "@ruiapp/rapid-extension";
+import type { RapidDataDictionary } from "@ruiapp/rapid-extension";
 
 export default {
   code: "MomApplicationSource",
@@ -6,7 +6,7 @@ export default {
   valueType: "string",
   level: "app",
   entries: [
-    { name: "金蝶KIS", value: "kis", color: "red" },
-    { name: "手动创建", value: "manual", color: "orange" },
+    { name: "金蝶KIS", value: "kis" },
+    { name: "手动创建", value: "manual" },
   ],
 } as RapidDataDictionary;

@@ -803,6 +803,12 @@ const page: RapidPage = {
       pageSize: 20,
       columns: [
         {
+          type: "auto",
+          code: "operationState",
+          label: "操作状态",
+          width: "100px",
+        },
+        {
           type: "link",
           code: "code",
           // rendererType: 'rapidLinkRenderer',
@@ -815,7 +821,7 @@ const page: RapidPage = {
           type: "auto",
           code: "warehouse",
           title: "仓库",
-          width: "120px",
+          width: "100px",
           rendererType: "text",
           rendererProps: {
             $exps: {
@@ -826,7 +832,7 @@ const page: RapidPage = {
         {
           type: "auto",
           code: "source",
-          width: "120px",
+          width: "80px",
         },
         // {
         //   type: "auto",
@@ -860,7 +866,7 @@ const page: RapidPage = {
         {
           type: "auto",
           code: "applicant",
-          width: "150px",
+          width: "120px",
           rendererProps: {
             format: "{{name}}",
           },
@@ -868,7 +874,7 @@ const page: RapidPage = {
         {
           type: "auto",
           code: "biller",
-          width: "150px",
+          width: "120px",
           rendererProps: {
             format: "{{name}}",
           },
@@ -883,11 +889,6 @@ const page: RapidPage = {
         //   code: "state",
         //   width: "150px",
         // },
-        {
-          type: "auto",
-          code: "operationState",
-          width: "150px",
-        },
       ],
       actions: [
         {

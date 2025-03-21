@@ -120,7 +120,7 @@ export default [
           for (const goodTransfer of goodTransfers) {
             const materialId = goodTransfer.material?.id;
             const lotNum = goodTransfer.lotNum;
-            
+
             if (!materialId || !lotNum || !goodTransfer.quantity) continue;
 
             if (!materialAcceptCountMap[materialId]) {
@@ -436,7 +436,7 @@ export default [
           for (const goodTransfer of goodTransfers) {
             const materialId = goodTransfer.material?.id;
             const lotNum = goodTransfer.lotNum;
-            
+
             if (!materialId || !lotNum || !goodTransfer.quantity) continue;
 
             if (!materialAcceptCountMap[materialId]) {
