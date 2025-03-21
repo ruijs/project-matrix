@@ -1,6 +1,6 @@
 /* eslint-disable no-empty */
 /* eslint-disable array-callback-return */
-import { type Rock } from "@ruiapp/move-style";
+import { RockInstanceContext, type Rock } from "@ruiapp/move-style";
 import type { TableProps } from "antd";
 import { Alert, Button, Form, Input, InputNumber, message, Modal, Select, Space, Spin, Table, Tag } from "antd";
 import { useDebounceFn, useSetState } from "ahooks";
@@ -12,6 +12,7 @@ import { useEffect, useState } from "react";
 import { isCharacterMeasurementValueQualified } from "~/utils/calculate";
 import { renderCharacteristicQualifiedConditions } from "~/utils/inspection-utility";
 import { roundWithPrecision } from "~/utils/number-utils";
+import { renderRock } from "@ruiapp/react-renderer";
 
 export default {
   $type: "inspectionMeasurement",
@@ -50,7 +51,7 @@ export default {
       onSuccess() {},
     });
 
-    const { modal, actionPop } = useConfigForm({ sheetId: Info?.id, onOk: () => {} });
+    const { modal, actionPop } = useConfigForm(context, props, { sheetId: Info?.id, onOk: () => {} });
 
     const batchupdateInspectionMeasurement = (inspection: any, id: string) => {
       const currentData = inspection.find((item: any) => item.round === Info?.round)?.data || [];
@@ -955,7 +956,7 @@ function useSetConfigCheckRule(options: { sheetId: string }) {
   return { loading, ...state, loadCheckRuleList, setConfigCheckRule };
 }
 
-function useConfigForm(options: { sheetId: string; onOk: (value: any) => void }) {
+function useConfigForm(context: RockInstanceContext, hostProps: any, options: { sheetId: string; onOk: (value: any) => void }) {
   const { onOk } = options;
   const [open, setOpen] = useState<boolean>(false);
   const [formItems, setFormItems] = useState<any[]>([]);
@@ -964,7 +965,7 @@ function useConfigForm(options: { sheetId: string; onOk: (value: any) => void })
 
   const modal = (
     <Modal
-      title="温馨提示"
+      title="检验单设置"
       open={open}
       destroyOnClose
       closable={false}
@@ -984,9 +985,33 @@ function useConfigForm(options: { sheetId: string; onOk: (value: any) => void })
       <Alert message="提示：检测到当前检验单配置异常，请补全以下配置" type="error" />
       <Form style={{ marginTop: 20 }} form={form} labelCol={{ span: 6 }}>
         {formItems.map((item, index) => {
+          if (item.type == "select") {
+            return (
+              <Form.Item key={index} name={item.name} label={item.label} rules={[{ required: true }]}>
+                {renderRock({
+                  context,
+                  rockConfig: {
+                    $type: "rapidTableSelect",
+                    $id: `${hostProps.$id}_supplier`,
+                    placeholder: "请选择",
+                    listFilterFields: ["name"],
+                    searchPlaceholder: "名称搜索",
+                    columns: [{ title: "名称", code: "name" }],
+                    requestConfig: {
+                      url: "/mom/mom_inspection_rules/operations/find",
+                      method: "post",
+                      params: {
+                        orderBy: [{ field: "name" }],
+                      },
+                    },
+                  },
+                })}
+              </Form.Item>
+            );
+          }
           return (
             <Form.Item key={index} name={item.name} label={item.label} rules={[{ required: true }]}>
-              {item.type === "select" ? <Select style={{ width: 300 }} options={checkRules}></Select> : <InputNumber style={{ width: 300 }} />}
+              <InputNumber style={{ width: "100%" }} />
             </Form.Item>
           );
         })}

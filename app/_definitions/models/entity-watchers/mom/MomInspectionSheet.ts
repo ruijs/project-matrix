@@ -1,19 +1,13 @@
-import { DingTalkService } from "@ruiapp/ding-talk-plugin";
-import { DingTalkMessage } from "@ruiapp/ding-talk-plugin/dist/server-sdk/dingTalkSdkTypes";
-import { getEntityRelationTargetId, IRpdServer, RouteContext, type EntityWatcher, type EntityWatchHandlerContext } from "@ruiapp/rapid-core";
-import { flatten, get, map } from "lodash";
+import type { EntityWatcher, EntityWatchHandlerContext } from "@ruiapp/rapid-core";
+import type { BaseLot, MomInspectionSheet } from "~/_definitions/meta/entity-types";
 import {
-  BaseLot,
-  BaseMaterial,
-  MomInspectionMeasurement,
-  MomInspectionRule,
-  MomInspectionSheet,
-  MomInventoryApplication,
-  MomInventoryApplicationItem,
-  OcUser,
-} from "~/_definitions/meta/entity-types";
-import { renderMaterial } from "~/app-extension/rocks/material-label-renderer/MaterialLabelRenderer";
-import { lockMeasurementsOfInspectionSheet, updateInspectionSheetInspectionResult } from "~/services/InspectionSheetService";
+  lockMeasurementsOfInspectionSheet,
+  trySendInspectionSheetNotification,
+  refreshInspectionSheetInspectionResult,
+  updateQualificationStateOfRelatedApplicationItem,
+  updateQualificationStateOfRelatedLot,
+} from "~/services/InspectionSheetService";
+import { refreshInventoryApplicationInspectionState } from "~/services/InventoryApplicationService";
 
 export default [
   {
@@ -110,116 +104,34 @@ export default [
           },
         },
       });
+      if (!inspectionSheet) {
+        return;
+      }
 
       // 当用户点击提交检验记录按钮后:
       // - 将检验值锁定，不允许修改。
       // - 更新检验单的检验状态
       if (changes.hasOwnProperty("state") && changes.state === "inspected") {
-        await updateInspectionSheetInspectionResult(server, routeContext, inspectionSheetId);
         await lockMeasurementsOfInspectionSheet(server, routeContext, inspectionSheetId);
+        await refreshInspectionSheetInspectionResult(server, routeContext, inspectionSheetId);
       }
 
       // 审批通过后，更新操作单以及对应批次的检验结果
       if (changes.hasOwnProperty("approvalState") && changes.approvalState === "approved") {
-        // 如果检验单关联了库存操作单以及库存业务申请单，则更新库存业务申请中对应批次物料的检验状态
-        if (inspectionSheet?.inventoryOperation?.application && inspectionSheet?.lotNum && inspectionSheet?.result) {
-          const momInventoryApplicationItemManager = server.getEntityManager<MomInventoryApplicationItem>("mom_inventory_application_item");
-          const momInventoryApplicationItem = await momInventoryApplicationItemManager.findEntity({
-            routeContext,
-            filters: [
-              { operator: "eq", field: "lotNum", value: inspectionSheet.lotNum },
-              {
-                operator: "eq",
-                field: "operation_id",
-                value: inspectionSheet.inventoryOperation.application.id,
-              },
-            ],
-            properties: ["id"],
-          });
-
-          if (momInventoryApplicationItem) {
-            await momInventoryApplicationItemManager.updateEntityById({
-              routeContext,
-              id: momInventoryApplicationItem.id,
-              entityToSave: {
-                inspectState: inspectionSheet.result,
-              },
-            });
-          }
-
-          // 当检验申请中所有批次的物料都检验完成，将检验单的检验状态设置成已完成。
-          const momInventoryApplicationItems = await momInventoryApplicationItemManager.findEntities({
-            routeContext,
-            filters: [
-              {
-                operator: "eq",
-                field: "operation_id",
-                value: inspectionSheet.inventoryOperation.application.id,
-              },
-            ],
-            properties: ["id", "inspectState"],
-          });
-
-          if (momInventoryApplicationItems.length > 0) {
-            // every item has been inspected, then update the application state to inspected
-            const allInspected = momInventoryApplicationItems.every((item) => item?.inspectState);
-            if (allInspected) {
-              await server.getEntityManager<MomInventoryApplication>("mom_inventory_application").updateEntityById({
-                routeContext,
-                id: inspectionSheet.inventoryOperation.application.id,
-                entityToSave: {
-                  inspectState: "inspected",
-                },
-              });
-            }
-          }
-        }
-
         // 保持批次的`合格证状态`与检验单的`检验结果`一致
-        if (after.lotNum && after.material_id) {
-          const lotManager = server.getEntityManager<BaseLot>("base_lot");
-          const lot = await lotManager.findEntity({
-            routeContext,
-            filters: [
-              { operator: "eq", field: "lotNum", value: inspectionSheet?.lotNum },
-              {
-                operator: "eq",
-                field: "material_id",
-                value: inspectionSheet?.material?.id,
-              },
-            ],
-            properties: ["id"],
-          });
-          if (lot && after.result) {
-            await lotManager.updateEntityById({
-              routeContext,
-              id: lot.id,
-              entityToSave: {
-                qualificationState: inspectionSheet?.result,
-              },
-            });
-          }
-        }
+        await updateQualificationStateOfRelatedLot(server, routeContext, after);
+
+        const inventoryApplication = inspectionSheet.inventoryOperation?.application;
+        // 如果检验单关联了库存操作单以及库存业务申请单，则更新库存业务申请中对应批次物料的检验状态
+        await updateQualificationStateOfRelatedApplicationItem(server, routeContext, inspectionSheet, inventoryApplication);
+
+        // 当出入库申请中所有批次的物料都检验完成，将出入库申请单的检验状态设置成已完成。
+        await refreshInventoryApplicationInspectionState(server, routeContext, inventoryApplication);
       }
 
-      // 当变更 处理方式 时，更新对应批次的合格信息：
-      // 1. 更新处理方式：特采、退货、强制合格
-      // 2. 是否让步接收：当处理方式为特采时，表示让步接收
-      // 3. 是否合格。检验结果为合格，或者处理方式为强制合格时，设置为合格。
+      // 当变更 处理方式 时，更新对应批次的合格信息
       if (changes.hasOwnProperty("treatment")) {
-        if (after.lot_id) {
-          const isAOD = changes.treatment === "special";
-          const qualified = inspectionSheet?.result === "qualified" ? true : changes.treatment === "forced";
-          await server.getEntityManager<BaseLot>("base_lot").updateEntityById({
-            routeContext,
-            id: inspectionSheet?.lot?.id,
-            entityToSave: {
-              treatment: changes.treatment,
-              isAOD: isAOD,
-              qualificationState: qualified ? "qualified" : "unqualified",
-            },
-          });
-        }
+        await updateQualificationStateOfRelatedLot(server, routeContext, after);
       }
 
       await server.getEntityManager("sys_audit_log").createEntity({
@@ -287,81 +199,3 @@ export default [
     },
   },
 ] satisfies EntityWatcher<any>[];
-
-async function trySendInspectionSheetNotification(server: IRpdServer, routeContext: RouteContext, inspectionSheet: MomInspectionSheet) {
-  if (inspectionSheet.state === "inspected") {
-    return;
-  }
-
-  const ruleId = getEntityRelationTargetId(inspectionSheet, "rule", "rule_id");
-  if (!ruleId) {
-    return;
-  }
-
-  const ruleManager = server.getEntityManager<MomInspectionRule>("mom_inspection_rule");
-  const inspectionRule = await ruleManager.findById({
-    routeContext,
-    id: ruleId,
-    relations: {
-      category: {
-        relations: {
-          notificationSubscribers: {
-            properties: ["id", "name"],
-          },
-        },
-      },
-    },
-  });
-  if (!inspectionRule) {
-    return;
-  }
-
-  const inspectionCategory = inspectionRule.category;
-  if (!inspectionCategory) {
-    return;
-  }
-
-  const enableDingTalkNotification = get(inspectionCategory, "config.enableDingTalkNotification");
-  if (!enableDingTalkNotification) {
-    return;
-  }
-
-  const notificationSubscribers: Partial<OcUser>[] = get(inspectionCategory, "notificationSubscribers") || [];
-  if (!notificationSubscribers.length) {
-    return;
-  }
-
-  const subscriberIds = flatten(map(notificationSubscribers, (item) => item.id)) as number[];
-  // const allExternalAccounts = flatten(map(notificationSubscribers, (item) => item.accounts));
-  // const allDingTalkAccounts = filter(allExternalAccounts, (item) => item.providerCode === "dingTalk");
-  // const dingUserIds = map(allDingTalkAccounts, (item) => item.externalAccountId);
-
-  const sheetCode = inspectionSheet.code;
-  const lotNum = inspectionSheet.lotNum;
-
-  const materialId = getEntityRelationTargetId(inspectionSheet, "material", "material_id");
-  const materialManager = server.getEntityManager<BaseMaterial>("base_material");
-  const material = await materialManager.findById({
-    routeContext,
-    id: materialId,
-  });
-
-  let dingTalkNotificationContent = get(inspectionCategory, "config.dingTalkNotificationContent", "检验任务提醒");
-  dingTalkNotificationContent += `\n\n`;
-  dingTalkNotificationContent += `- 检验单号：${sheetCode || ""}\n`;
-  dingTalkNotificationContent += `- 检验单类型：${inspectionCategory.name || ""}\n`;
-  dingTalkNotificationContent += `- 物料：${renderMaterial(material as any)}\n`;
-  dingTalkNotificationContent += `- 批号：${lotNum || ""}\n`;
-
-  const dingTalkMessage: DingTalkMessage = {
-    msgtype: "markdown",
-    markdown: {
-      title: "检验任务提醒",
-      text: dingTalkNotificationContent,
-    },
-  };
-  const logger = server.getLogger();
-  logger.info("发送检验任务通知。", { subscriberIds, dingTalkMessage });
-  const dingTalkService = server.getService<DingTalkService>("dingTalkService");
-  await dingTalkService.sendWorkMessage(routeContext, subscriberIds, dingTalkMessage);
-}

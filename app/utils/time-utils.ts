@@ -19,7 +19,13 @@ export function formatDateTimeWithoutTimezone(dateTime?: string) {
   if (!dateTime) {
     return "";
   }
-  return dayjs(dateTime).format("YYYY-MM-DD HH:mm:ss.SSS");
+
+  const d = dayjs(dateTime);
+  if (!d.isValid()) {
+    return "";
+  }
+
+  return d.format("YYYY-MM-DD HH:mm:ss.SSS");
 }
 
 export function formatMomentDate(m: any) {

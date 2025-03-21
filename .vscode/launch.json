@@ -7,6 +7,7 @@
     {
       "request": "launch",
       "name": "Launch Program",
+      "outputCapture": "std",
       "type": "node",
       "program": "${workspaceFolder}/index.ts",
       "cwd": "${workspaceFolder}",

@@ -1,5 +1,6 @@
 import { Table, TableProps } from "antd";
 import { ColumnType } from "antd/lib/table";
+import { memo } from "react";
 
 export interface ExcelDataPreviewerProps {
   data?: any[][];
@@ -25,4 +26,4 @@ const ExcelDataPreviewer: React.FC<ExcelDataPreviewerProps> = (props) => {
   return <Table scroll={{ x: "100%", y: height }} columns={columns} dataSource={dataSource} size="small" pagination={false} />;
 };
 
-export default ExcelDataPreviewer;
+export default memo(ExcelDataPreviewer);
