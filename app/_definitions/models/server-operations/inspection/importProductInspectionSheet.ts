@@ -1,4 +1,4 @@
-import { getNowStringWithTimezone, type ActionHandlerContext, type IRpdServer, type RouteContext, type ServerOperation } from "@ruiapp/rapid-core";
+import { getNowStringWithTimezone, IDatabaseClient, RouteContext, type ActionHandlerContext, type IRpdServer, type ServerOperation } from "@ruiapp/rapid-core";
 import EntityManager from "@ruiapp/rapid-core/dist/dataAccess/entityManager";
 import dayjs from "dayjs";
 import { find, get, sample } from "lodash";
@@ -27,8 +27,6 @@ export interface ImportInspectionSheetsOptions {
 }
 
 export interface ImportInspectionSheetOptions {
-  server: IRpdServer;
-  routeContext: RouteContext;
   importContext: ImportInspectionSheetContext;
   columns: ProductionInspectionSheetImportColumn[];
   row: any[];
@@ -110,28 +108,49 @@ export default {
     };
 
     const inspectionSheetsSaved: Partial<MomInspectionSheet>[] = [];
-    for (let rowNum = 1; rowNum < data.length; rowNum++) {
-      const row = data[rowNum];
 
-      const importOptions: ImportInspectionSheetOptions = {
-        server,
-        routeContext,
-        importContext,
-        columns,
-        row,
-      };
+    let operationContext: RouteContext | null = null;
+    operationContext = routeContext.clone();
+    let transactionDbClient: IDatabaseClient | undefined;
 
-      try {
-        const inspectionSheet = await convertDataRowToInspectionSheet(importOptions);
-        if (!inspectionSheet) {
-          logger.error(`R${rowNum}: 无效的检验记录。`);
-          continue;
+    try {
+      transactionDbClient = await operationContext.initDbTransactionClient();
+
+      for (let rowNum = 1; rowNum < data.length; rowNum++) {
+        logger.info(`导入进度：${rowNum}/${data.length}`);
+        const row = data[rowNum];
+
+        const importOptions: ImportInspectionSheetOptions = {
+          importContext,
+          columns,
+          row,
+        };
+
+        // operationContext = routeContext;
+        let inspectionSheet: Partial<MomInspectionSheet> | null = null;
+
+        try {
+          await operationContext.beginDbTransaction();
+
+          inspectionSheet = await convertDataRowToInspectionSheet(server, operationContext, importOptions);
+          if (!inspectionSheet) {
+            logger.error(`R${rowNum}: 无效的检验记录。`);
+          } else {
+            await saveInspectionSheet(server, operationContext, inspectionSheet);
+            inspectionSheetsSaved.push(inspectionSheet);
+          }
+
+          await operationContext.commitDbTransaction();
+        } catch (ex: any) {
+          logger.error("保存检验记录失败。%s", ex.message);
+          await operationContext.rollbackDbTransaction();
         }
-
-        await saveInspectionSheet(server, routeContext, inspectionSheet);
-        inspectionSheetsSaved.push(inspectionSheet);
-      } catch (ex: any) {
-        logger.error("保存检验记录失败。%s", ex.message);
+      }
+    } catch (ex: any) {
+      logger.error("处理检验记录文件异常。%s", ex.message);
+    } finally {
+      if (transactionDbClient) {
+        transactionDbClient.release();
       }
     }
 
@@ -139,8 +158,12 @@ export default {
   },
 } satisfies ServerOperation;
 
-async function convertDataRowToInspectionSheet(options: ImportInspectionSheetOptions): Promise<Partial<MomInspectionSheet> | null> {
-  const { server, routeContext, importContext, columns, row } = options;
+async function convertDataRowToInspectionSheet(
+  server: IRpdServer,
+  routeContext: RouteContext,
+  options: ImportInspectionSheetOptions,
+): Promise<Partial<MomInspectionSheet> | null> {
+  const { importContext, columns, row } = options;
   const { pqcInspectionCategory, caches } = importContext;
   const commonCharacters: MomInspectionCommonCharacteristic[] = importContext.commonCharacters;
 
@@ -257,7 +280,6 @@ async function convertDataRowToInspectionSheet(options: ImportInspectionSheetOpt
           id: material.id,
         };
 
-        let inspectionRule: MomInspectionRule;
         if (inspectionRulesCache.has(cellText)) {
           inspectionRule = inspectionRulesCache.get(cellText);
         } else {
@@ -331,7 +353,7 @@ async function convertDataRowToInspectionSheet(options: ImportInspectionSheetOpt
         character = await server.getEntityManager<MomInspectionCharacteristic>("mom_inspection_characteristic").createEntity({
           routeContext,
           entity: {
-            rule: { id: inspectionRule?.id },
+            rule: { id: inspectionRule.id },
             name: charName,
             kind: commonCharacter.kind || "quantitative",
             isCommon: true,
