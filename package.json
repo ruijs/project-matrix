@@ -43,7 +43,7 @@
     "@ruiapp/move-style": "~0.4.12",
     "@ruiapp/rapid-core": "~0.8.10",
     "@ruiapp/rapid-express": "~0.2.0",
-    "@ruiapp/rapid-extension": "~0.5.16",
+    "@ruiapp/rapid-extension": "~0.5.17",
     "@ruiapp/react-renderer": "~0.4.3",
     "@ruiapp/react-rocks": "~0.4.2",
     "@ruiapp/redis-facility": "~0.1.0",
