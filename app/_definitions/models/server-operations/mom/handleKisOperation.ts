@@ -505,6 +505,10 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
         } else if (inventoryOperation.operationType === "out") {
           switch (inventoryOperation?.businessType?.name) {
             case "销售出库":
+              if (!inventoryApplication.depositDate) {
+                throw new Error("销售出库单的出库日期不能为空。");
+              }
+
               externalEntityTypeName = "销售出库";
               transfers.forEach((transfer, idx) => {
                 let entity: any = {
@@ -526,8 +530,8 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
                   Famount: transfer.quantity.toFixed(2),
                   FPlanMode: 14036,
                   Fnote: transfer.remark,
-                  // 财务要求：使用制单日期作为生产日期
-                  FEntrySelfB0170: dayjs().format("YYYY-MM-DDT00:00:00"),
+                  // 财务要求：使用出库日期作为生产日期
+                  FEntrySelfB0170: dayjs(inventoryApplication.depositDate).format("YYYY-MM-DDT00:00:00"),
                 };
 
                 if (locationCode !== "") {
@@ -540,7 +544,7 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
               kisRequest = {
                 Object: {
                   Head: {
-                    Fdate: dayjs(inventoryApplication.depositDate || undefined).format("YYYY-MM-DD HH:mm:ss.SSS"),
+                    Fdate: dayjs(inventoryApplication.depositDate).format("YYYY-MM-DD HH:mm:ss.SSS"),
                     FFManagerID: inventoryApplication?.fFManager?.externalCode || inventoryApplication?.createdBy?.externalCode,
                     FSManagerID: inventoryApplication?.fSManager?.externalCode || inventoryApplication?.createdBy?.externalCode,
                     FBillerID: inventoryApplication?.biller?.externalUserCode,
