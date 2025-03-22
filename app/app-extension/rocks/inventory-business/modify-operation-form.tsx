@@ -1,15 +1,13 @@
 import { useNavigate } from "@remix-run/react";
 import { RockEvent, RockInstanceContext, type Rock } from "@ruiapp/move-style";
-import { useDebounceFn, useSetState } from "ahooks";
-import { Button, Form, Input, InputNumber, Select, Space, Table } from "antd";
-import { memo, useEffect, useMemo, useState } from "react";
-import rapidApi, { rapidApiRequest } from "~/rapidApi";
+import { useDebounceFn } from "ahooks";
+import { Button, Form, Input, InputNumber, Space, Table } from "antd";
+import { memo } from "react";
+import rapidApi from "~/rapidApi";
 import { PlusOutlined } from "@ant-design/icons";
 import { renderRock } from "@ruiapp/react-renderer";
-import { forEach, isEmpty, last, omit, pick, split } from "lodash";
+import { forEach, isEmpty, last, pick } from "lodash";
 import dayjs from "dayjs";
-import { materialFormatStrTemplate } from "~/utils/fmt";
-import { ColumnProps } from "antd/lib/table";
 import { decimalSum } from "~/utils/decimal";
 
 const LotSelect = memo<{
@@ -486,7 +484,7 @@ export default {
                         $id: `${i}_material`,
                         placeholder: "请选择",
                         dropdownMatchSelectWidth: 500,
-                        listTextFormat: materialFormatStrTemplate,
+                        labelRendererType: "materialLabelRenderer",
                         listFilterFields: ["name", "code", "specification"],
                         searchPlaceholder: "物品信息搜索",
                         columns: [

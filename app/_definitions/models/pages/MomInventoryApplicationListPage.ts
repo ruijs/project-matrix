@@ -1,4 +1,4 @@
-import { cloneDeep, multiply } from "lodash";
+import { cloneDeep, multiply, orderBy } from "lodash";
 import type { RapidPage, RapidEntityFormConfig } from "@ruiapp/rapid-extension";
 
 const formConfig: Partial<RapidEntityFormConfig> = {
@@ -429,6 +429,7 @@ const page: RapidPage = {
                 url: `/app/base_materials/operations/find`,
                 params: {
                   properties: ["id", "name", "code", "specification"],
+                  orderBy: [{ field: "code" }],
                 },
               },
               onSelectedRecord: [

@@ -1,7 +1,5 @@
-import { cloneDeep, merge, omit, orderBy, property } from "lodash";
+import { cloneDeep, omit } from "lodash";
 import type { RapidPage, RapidEntityFormConfig, SonicEntityListRockConfig } from "@ruiapp/rapid-extension";
-import { materialFormatStrTemplate } from "~/utils/fmt";
-import type { RockEvent } from "@ruiapp/move-style";
 
 const materialFormItemConfig: RapidEntityFormConfig["items"][0] = {
   type: "auto",
@@ -260,7 +258,7 @@ function getFormConfig(formType: "newForm" | "editForm") {
         formControlProps: {
           entityCode: "BaseMaterial",
           dropdownMatchSelectWidth: 500,
-          listTextFormat: materialFormatStrTemplate,
+          labelRendererType: "materialLabelRenderer",
           listFilterFields: ["name", "code", "specification"],
           requestParams: {
             properties: ["id", "code", "name", "specification", "defaultUnit", "category"],

@@ -1,5 +1,4 @@
 import type { RapidPage } from "@ruiapp/rapid-extension";
-import { materialFormatStrTemplate } from "~/utils/fmt";
 
 const page: RapidPage = {
   code: "mom_inspection_sheet_details",
@@ -46,19 +45,7 @@ const page: RapidPage = {
         {
           code: "material",
           type: "auto",
-          rendererProps: {
-            format: materialFormatStrTemplate,
-          },
-          formControlProps: {
-            dropdownMatchSelectWidth: 500,
-            listTextFormat: materialFormatStrTemplate,
-            listFilterFields: ["name", "code", "specification"],
-            columns: [
-              { code: "code", title: "编号", width: 120 },
-              { code: "name", title: "名称", width: 120 },
-              { code: "specification", title: "规格", width: 120 },
-            ],
-          },
+          rendererType: "materialLabelRenderer",
         },
         {
           type: "auto",

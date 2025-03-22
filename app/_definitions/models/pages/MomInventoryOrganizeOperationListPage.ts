@@ -1,6 +1,5 @@
 import { cloneDeep } from "lodash";
 import type { RapidPage, RapidEntityFormConfig } from "@ruiapp/rapid-extension";
-import { materialFormatStrTemplate } from "~/utils/fmt";
 
 const formConfig: Partial<RapidEntityFormConfig> = {
   items: [],
@@ -78,9 +77,7 @@ const page: RapidPage = {
           code: "material",
           title: "物料",
           width: "200px",
-          rendererProps: {
-            format: materialFormatStrTemplate,
-          },
+          rendererType: "materialLabelRenderer",
         },
         {
           type: "auto",

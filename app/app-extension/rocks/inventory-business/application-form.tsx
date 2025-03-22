@@ -9,7 +9,6 @@ import { PlusOutlined } from "@ant-design/icons";
 import { renderRock } from "@ruiapp/react-renderer";
 import { forEach, isEmpty, last, pick } from "lodash";
 import dayjs from "dayjs";
-import { materialFormatStrTemplate } from "~/utils/fmt";
 import type { ColumnProps } from "antd/lib/table";
 import { decimalSum } from "~/utils/decimal";
 import SaleLotNumSelect from "./saleLotNumSelect";
@@ -830,7 +829,7 @@ export default {
                         $id: `${i}_material`,
                         placeholder: "请选择",
                         dropdownMatchSelectWidth: 500,
-                        listTextFormat: materialFormatStrTemplate,
+                        labelRendererType: "materialLabelRenderer",
                         listFilterFields: ["name", "code", "specification"],
                         searchPlaceholder: "物品信息搜索",
                         columns: [
