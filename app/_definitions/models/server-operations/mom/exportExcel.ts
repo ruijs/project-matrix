@@ -55,7 +55,7 @@ const EXCEL_HEADERS = {
     "合格状态",
     "检验时间",
   ],
-  application: ["申请单号", "操作类型", "物料号", "物料名称", "物料规格", "批号", "计划数量", "实际数量", "备注", "领料用途", "加工单位", "加工要求"],
+  application: ["申请单号", "操作类型", "仓库", "物料号", "物料名称", "物料规格", "批号", "计划数量", "实际数量", "备注", "领料用途", "加工单位", "加工要求"],
 };
 
 // 状态映射
@@ -559,7 +559,7 @@ async function fetchApplicationItems(routeContext: RouteContext, server: IRpdSer
     properties: ["id", "application", "lotNum", "binNum", "material", "quantity", "remark", "acceptQuantity", "material"],
     relations: {
       application: {
-        properties: ["id", "code", "fUse", "businessType", "supplier"],
+        properties: ["id", "code", "operationType", "fUse", "businessType", "supplier", "from", "to"],
       },
     },
     orderBy: [{ field: "id", desc: false }],
@@ -628,11 +628,23 @@ function flattenInspectionMeasurement(measurement: MomInspectionMeasurement) {
 }
 
 function flattenApplicationItem(item: MomInventoryApplicationItem) {
-  const businessTypeName = item.application?.businessType?.name || "";
+  const application = item.application;
+  const businessTypeName = application?.businessType?.name || "";
+  const operationType = application?.operationType;
+
+  let warehouseName: string;
+  if (operationType === "in") {
+    warehouseName = application?.to?.name || "";
+  } else if (operationType === "out") {
+    warehouseName = application?.from?.name || "";
+  } else {
+    warehouseName = "";
+  }
 
   return {
-    code: item.application?.code,
-    businessType: item.application?.businessType?.name,
+    code: application?.code,
+    businessType: application?.businessType?.name,
+    warehouse: warehouseName,
     materialCode: item.material?.code || "",
     materialName: item.material?.name || "",
     materialSpecification: item.material?.specification || "",
@@ -640,9 +652,9 @@ function flattenApplicationItem(item: MomInventoryApplicationItem) {
     quantity: item.quantity,
     actualQuantity: item.acceptQuantity,
     remark: ["生产入库", "领料出库"].includes(businessTypeName) ? item.remark || "" : "",
-    fUse: ["领料出库"].includes(businessTypeName) ? item.application?.fUse || "" : "",
-    supplier: ["委外加工出库", "委外加工入库"].includes(businessTypeName) ? item.application?.supplier?.name || "" : "",
-    requirement: ["委外加工出库"].includes(businessTypeName) ? item.application?.fUse || "" : "",
+    fUse: ["领料出库"].includes(businessTypeName) ? application?.fUse || "" : "",
+    supplier: ["委外加工出库", "委外加工入库"].includes(businessTypeName) ? application?.supplier?.name || "" : "",
+    requirement: ["委外加工出库"].includes(businessTypeName) ? application?.fUse || "" : "",
   };
 }
 

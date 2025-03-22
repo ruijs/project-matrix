@@ -125,25 +125,16 @@ const page: RapidPage = {
           type: "auto",
           code: "material.code",
           title: "物料编号",
-          // rendererProps: {
-          //   format: "{{code}}",
-          // },
         },
         {
           type: "auto",
           code: "material.name",
           title: "物料名称",
-          // rendererProps: {
-          //   format: "{{name}}",
-          // },
         },
         {
           type: "auto",
           code: "material.specification",
           title: "规格",
-          // rendererProps: {
-          //   format: "{{specification}}",
-          // },
         },
         {
           type: "auto",
@@ -163,9 +154,6 @@ const page: RapidPage = {
           type: "auto",
           code: "unit",
           width: "100px",
-          rendererProps: {
-            format: "{{name}}",
-          },
         },
       ],
       actionsColumnWidth: "200px",
