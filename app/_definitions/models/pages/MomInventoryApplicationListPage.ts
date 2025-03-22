@@ -408,7 +408,7 @@ const page: RapidPage = {
               allowClear: true,
               dropdownMatchSelectWidth: 500,
               multiply: false,
-              listTextFormat: "{{code}} {{name}}（{{specification}}）",
+              labelRendererType: "materialLabelRenderer",
               listValueFieldName: "id",
               listFilterFields: ["name", "code", "specification"],
               searchPlaceholder: "搜索物料编码、 名称、 规格",
@@ -416,7 +416,12 @@ const page: RapidPage = {
                 {
                   title: "物品",
                   code: "material",
-                  format: "{{code}} {{name}}（{{specification}}）",
+                  rendererType: "materialLabelRenderer",
+                  rendererProps: {
+                    $exps: {
+                      value: "$slot.record",
+                    },
+                  },
                   width: 260,
                 },
               ],
@@ -469,7 +474,6 @@ const page: RapidPage = {
               allowClear: true,
               dropdownMatchSelectWidth: 500,
               multiply: false,
-              listTextFormat: "{{lotNum}}",
               listValueFieldName: "lotNum",
               listFilterFields: ["lotNum"],
               searchPlaceholder: "搜索批号",
@@ -478,13 +482,23 @@ const page: RapidPage = {
                   title: "批号",
                   code: "lotNum",
                   format: "{{lotNum}}",
-                  width: 260,
+                  width: 200,
+                },
+                {
+                  title: "物料",
+                  code: "material",
+                  rendererType: "materialLabelRenderer",
                 },
               ],
               requestConfig: {
                 url: `/app/base_lots/operations/find`,
                 params: {
                   properties: ["id", "lotNum"],
+                  relations: {
+                    material: {
+                      properties: ["id", "code", "name", "specification"],
+                    },
+                  },
                 },
               },
               onSelectedRecord: [

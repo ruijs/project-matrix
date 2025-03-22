@@ -164,7 +164,7 @@ export default {
           title: "检验状态",
           code: "lot.qualificationState",
           width: 100,
-          render: (record: any) => {
+          render: (value: any, record: any) => {
             switch (record.lot?.qualificationState) {
               case "inspectFree":
                 return <Tag color="green">免检</Tag>;
