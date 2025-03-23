@@ -10,11 +10,11 @@ import {
 } from "~/_definitions/meta/entity-types";
 
 const syncKisInventoryMaterialReceiptNotice: KisToWmsSyncContract<any, MomInventoryApplication> = {
-  name: "syncKisInventoryMaterialReceiptNotice",
+  name: "syncKisInventoryMaterialReturnNotice",
   enabled: true,
   jobCronTime: "0 0/10 * * * *",
-  sourceEntityTypeCode: "materialreceiptnotice",
-  sourceEntityTypeName: "外购入库通知单",
+  sourceEntityTypeCode: "materialreturnnotice",
+  sourceEntityTypeName: "采购退货出库通知单",
   sourceEntityIdField: "Head.FInterID",
   sourceEntityCodeField: "Head.FBillNo",
   sourceEntityDisplayField: "Head.FBillNo",
@@ -54,7 +54,7 @@ const syncKisInventoryMaterialReceiptNotice: KisToWmsSyncContract<any, MomInvent
           {
             operator: "eq",
             field: "name",
-            value: "采购入库",
+            value: "采购退货出库",
           },
         ],
       });
@@ -83,11 +83,10 @@ const syncKisInventoryMaterialReceiptNotice: KisToWmsSyncContract<any, MomInvent
 
       const inventoryApplication: Partial<MomInventoryApplication> = {
         code: head.FBillNo,
-        contractNum: head.FHeadSelfP0338,
         businessType,
         supplier,
         applicant,
-        operationType: "in",
+        operationType: "out",
         state: "approved",
         operationState: "pending",
         source: "kis",

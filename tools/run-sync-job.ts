@@ -9,6 +9,7 @@ import syncKisSupplier from "../sync-contracts/syncKisSupplier";
 import syncKisCustomer from "../sync-contracts/syncKisCustomer";
 import syncKisMaterialDetail from "../sync-contracts/syncKisMaterialDetail";
 import syncKisInventoryMaterialReceiptNotice from "../sync-contracts/inventory/syncKisInventoryMaterialReceiptNotice";
+import syncKisInventoryMaterialReturnNotice from "../sync-contracts/inventory/syncKisInventoryMaterialReturnNotice";
 
 async function run() {
   const logger = createLogger();
@@ -18,7 +19,7 @@ async function run() {
   await rapidServer.start();
 
   const routeContext = RouteContext.newSystemOperationContext(rapidServer);
-  await rapidServer.getService<EntitySyncService>("entitySyncService").performSyncCycle(routeContext, syncKisInventoryMaterialReceiptNotice);
+  await rapidServer.getService<EntitySyncService>("entitySyncService").performSyncCycle(routeContext, syncKisInventoryMaterialReturnNotice);
 }
 
 run();
