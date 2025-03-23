@@ -20,6 +20,12 @@ export default {
   },
 } satisfies ServerOperation;
 
+/**
+ * 使用OAuth的auth_code（authorization_code）换取用户的access_token以及账套的authentication data。
+ * @param server
+ * @param routeContext
+ * @param input
+ */
 async function refreshToken(server: IRpdServer, routeContext: RouteContext, input: TokenInput) {
   const kisApi = await new KisHelper(server).NewAPIClient(server.getLogger());
   await kisApi.getAccessToken(input.code);

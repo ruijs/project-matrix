@@ -85,21 +85,23 @@ class KingdeeSDK {
   }
 
   /**
-   * 当accessToken或者authData即将过期时刷新
+   * 当accessToken即将过期时刷新
    * @param expiresInSeconds 刷新提前时间，即：在多少秒内过期则刷新。默认为600秒。
    */
-  public async refreshTokensIfNecessary(expiresInSeconds: number = 600): Promise<void> {
+  public async refreshAccessTokenIfNecessary(expiresInSeconds: number = 600): Promise<void> {
     const now = Math.floor(Date.now() / 1000);
 
     if (now >= this.accessTokenExpireIn - expiresInSeconds || now >= this.sessionIdExpireIn - expiresInSeconds) {
       await this.refreshAccessToken();
     }
-
-    if (now >= this.refreshAuthDataTokenExpireIn - expiresInSeconds) {
-      await this.refreshAuthData();
-    }
   }
 
+  /**
+   * 使用OAuth2返回的auth_code换取access_token。
+   *
+   * [接口文档](https://open.jdy.com/#/files/api/detail?index=3&categrayId=dded94c553614747b2c9b8b49c396aa6&id=6793ab51e5cb44948a3fd5ca829a6954)
+   * @param code Oauth2授权认证后返回的Authorization Code
+   */
   public async getAccessToken(code: string): Promise<void> {
     const config: AxiosRequestConfig = {
       url: `/koas/oauth2/access_token?client_id=${this.clientId}&client_secret=${this.clientSecret}`,
@@ -129,6 +131,11 @@ class KingdeeSDK {
     this.sessionSecret = data.session_secret;
   }
 
+  /**
+   * 获取业务接口网关和auth_data
+   *
+   * [接口文档](https://open.jdy.com/#/files/api/detail?index=2&categrayId=dded94c553614747b2c9b8b49c396aa6&id=38c630f3dc7a4211955d824955326216)
+   */
   public async getAuthData(): Promise<void> {
     const timestamp = `${Math.floor(Date.now() / 1000)}`;
     const stateUuid = uuidv4();

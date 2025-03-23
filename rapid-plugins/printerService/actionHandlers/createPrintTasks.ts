@@ -10,7 +10,7 @@ export async function handler(plugin: PrinterPlugin, ctx: ActionHandlerContext, 
   const { routerContext: routeContext } = ctx;
   const input: CreatePrintTasksInput = ctx.input;
 
-  ctx.logger.warn("createPrintTasks: " + JSON.stringify(input));
+  ctx.logger.debug("createPrintTasks: " + JSON.stringify(input));
 
   await plugin.printerService.createPrintTasks(routeContext, input);
 
