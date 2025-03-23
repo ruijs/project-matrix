@@ -2,7 +2,7 @@ import { useNavigate } from "@remix-run/react";
 import { RockEvent, RockInstanceContext, type Rock } from "@ruiapp/move-style";
 import { useDebounceFn } from "ahooks";
 import { Button, Form, Input, InputNumber, Space, Table } from "antd";
-import { memo } from "react";
+import { memo, useState } from "react";
 import rapidApi from "~/rapidApi";
 import { PlusOutlined } from "@ant-design/icons";
 import { renderRock } from "@ruiapp/react-renderer";
