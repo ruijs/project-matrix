@@ -21,7 +21,7 @@ export default {
 
   disabled: getBooleanEnvValue("KIS_SYNC_BASE_DATA_JOB_DISABLED"),
 
-  cronTime: "* */1 * * *",
+  cronTime: "0 0 * * * *",
 
   jobOptions: {
     runOnInit: false,
