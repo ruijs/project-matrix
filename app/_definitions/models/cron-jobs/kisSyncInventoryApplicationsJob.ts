@@ -2,6 +2,10 @@ import type { ActionHandlerContext, CronJobConfiguration, IRpdServer } from "@ru
 import EntitySyncService from "rapid-plugins/entitySync/services/EntitySyncService";
 import EventLogService from "rapid-plugins/eventLog/services/EventLogService";
 import syncKisInventoryMaterialReceiptNotice from "sync-contracts/inventory/syncKisInventoryMaterialReceiptNotice";
+import syncKisInventoryMaterialReturnNotice from "sync-contracts/inventory/syncKisInventoryMaterialReturnNotice";
+import syncKisGoodsReturnNotice from "sync-contracts/sales/syncKisGoodsReturnNotice";
+import syncKisSalesOrder from "sync-contracts/sales/syncKisSalesOrder";
+import syncKisSubcontractDelivery from "sync-contracts/subcontracting/syncKisSubcontractDelivery";
 import KisDataSync from "~/sdk/kis/sync";
 import { getBooleanEnvValue } from "~/utils/env-utils";
 
@@ -29,7 +33,13 @@ async function syncKisInventoryApplications(ctx: ActionHandlerContext, server: I
   const { routerContext: routeContext } = ctx;
   const entitySyncService = server.getService<EntitySyncService>("entitySyncService");
 
-  const syncContracts = [syncKisInventoryMaterialReceiptNotice];
+  const syncContracts = [
+    syncKisInventoryMaterialReceiptNotice,
+    syncKisInventoryMaterialReturnNotice,
+    syncKisSalesOrder,
+    syncKisGoodsReturnNotice,
+    syncKisSubcontractDelivery,
+  ];
 
   for (const syncContract of syncContracts) {
     try {
