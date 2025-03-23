@@ -25,6 +25,7 @@ const syncKisMaterialCategory: KisToWmsSyncContract<any, BaseMaterialCategory> =
     },
   },
   assistantCreator: genKisToWmsSyncAssistantCreator({
+    appCode: "APP006992",
     async sourceEntityFilter(syncContext, source) {
       // FDetail 为 true 表示物料，否则表示物料分类
       return !source.FDetail;

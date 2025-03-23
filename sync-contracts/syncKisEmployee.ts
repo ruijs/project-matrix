@@ -21,6 +21,7 @@ const syncKisEmployee: KisToWmsSyncContract<any, OcUser> = {
     fetchAll: true,
   },
   assistantCreator: genKisToWmsSyncAssistantCreator({
+    appCode: "APP006992",
     async mapToTargetEntity(syncContext, source): Promise<Partial<OcUser>> {
       return {
         login: source.FName,

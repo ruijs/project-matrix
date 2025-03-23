@@ -24,6 +24,7 @@ const syncKisMaterial: KisToWmsSyncContract<any, BaseMaterial> = {
     },
   },
   assistantCreator: genKisToWmsSyncAssistantCreator({
+    appCode: "APP006992",
     async mapToTargetEntity(syncContext, source): Promise<Partial<BaseMaterial>> {
       const { server } = syncContext;
       const category = await server.getEntityManager<BaseMaterialCategory>("base_material_category").findEntity({

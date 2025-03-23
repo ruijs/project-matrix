@@ -27,6 +27,16 @@ export type FetchKisEntitiesApiName = "List" | "GetListDetails";
 
 export type GenKisToWmsSyncAssistantCreatorOptions<TSourceEntity, TTargetEntity, TSyncContextState> = {
   /**
+   * KIS appCode。
+   *
+   * - APP006992 基础资料相关接口
+   * - app007104 仓储管理
+   * - app007140 采购管理
+   * - app007099 销售管理
+   */
+  appCode: string;
+
+  /**
    * 获取源实体的接口名。默认为List
    */
   fetchSourceEntitiesApiName?: FetchKisEntitiesApiName;
@@ -68,6 +78,7 @@ export function genKisToWmsSyncAssistantCreator<TSourceEntity, TTargetEntity ext
       server,
       routeContext,
       contract,
+      appCode: options.appCode,
       fetchSourceEntitiesApiName: options.fetchSourceEntitiesApiName,
       handleFetchSourceEntities: options.handleFetchSourceEntities,
       sourceEntityFilter: options.sourceEntityFilter,
@@ -99,6 +110,11 @@ export type KisToWmsSyncAssistantInitOptions<TSourceEntity, TTargetEntity, TSync
   server: IRpdServer;
   routeContext: RouteContext;
   contract: KisToWmsSyncContract<TSourceEntity, TTargetEntity, TSyncContextState>;
+
+  /**
+   * KIS appCode。
+   */
+  appCode: string;
 
   /**
    * 获取源实体的接口名。默认为List
@@ -141,6 +157,8 @@ export default class KisToWmsSyncAssistant<TSourceEntity, TTargetEntity extends 
 
   private targetEntityManager: EntityManager<TTargetEntity>;
 
+  private appCode: string;
+
   private fetchSourceEntitiesApiName?: FetchKisEntitiesApiName;
 
   private handleFetchSourceEntities?: FuncHandleFetchSourceEntities<TSourceEntity, TTargetEntity, TSyncContextState>;
@@ -157,6 +175,7 @@ export default class KisToWmsSyncAssistant<TSourceEntity, TTargetEntity extends 
 
     this.targetEntityManager = this.server.getEntityManager<TTargetEntity>(this.contract.targetEntityTypeCode);
 
+    this.appCode = options.appCode;
     this.fetchSourceEntitiesApiName = options.fetchSourceEntitiesApiName;
     this.handleFetchSourceEntities = options.handleFetchSourceEntities;
     this.sourceEntityFilter = options.sourceEntityFilter;
@@ -193,7 +212,7 @@ export default class KisToWmsSyncAssistant<TSourceEntity, TTargetEntity extends 
         ...fetchSourceOptions?.requestParams,
       };
       const apiName = "List";
-      const url = `/koas/APP006992/api/${this.contract.sourceEntityTypeCode}/${apiName}`;
+      const url = `/koas/${this.appCode}/api/${this.contract.sourceEntityTypeCode}/${apiName}`;
       const response = await this.kis.PostResourceRequest(url, request);
 
       const apiResult: KisListApiResult = response.data || {};
