@@ -16,7 +16,7 @@ const syncKisSupplier: KisToWmsSyncContract<any, BasePartner> = {
   targetEntityCodeField: "code",
   targetEntityNameField: "name",
   targetEntityUniqueKeys: ["externalCode", "code"],
-  targetEntityFieldsToUpdate: ["code", "name", "externalCode", "categories"],
+  targetEntityFieldsToUpdate: ["code", "name", "externalCode"],
   fetchSourceOptions: {
     fetchAll: true,
     requestParams: {
