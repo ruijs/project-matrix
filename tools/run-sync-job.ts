@@ -10,6 +10,9 @@ import syncKisCustomer from "../sync-contracts/syncKisCustomer";
 import syncKisMaterialDetail from "../sync-contracts/syncKisMaterialDetail";
 import syncKisInventoryMaterialReceiptNotice from "../sync-contracts/inventory/syncKisInventoryMaterialReceiptNotice";
 import syncKisInventoryMaterialReturnNotice from "../sync-contracts/inventory/syncKisInventoryMaterialReturnNotice";
+import syncKisSalesOrder from "../sync-contracts/sales/syncKisSalesOrder";
+import syncKisGoodsReturnNotice from "../sync-contracts/sales/syncKisGoodsReturnNotice";
+import syncKisSubcontractDelivery from "../sync-contracts/subcontracting/syncKisSubcontractDelivery";
 
 async function run() {
   const logger = createLogger();
@@ -19,7 +22,7 @@ async function run() {
   await rapidServer.start();
 
   const routeContext = RouteContext.newSystemOperationContext(rapidServer);
-  await rapidServer.getService<EntitySyncService>("entitySyncService").performSyncCycle(routeContext, syncKisInventoryMaterialReturnNotice);
+  await rapidServer.getService<EntitySyncService>("entitySyncService").performSyncCycle(routeContext, syncKisSubcontractDelivery);
 }
 
 run();
