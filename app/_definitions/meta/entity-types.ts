@@ -5113,7 +5113,7 @@ export interface MomInventoryOperation {
    */
   businessType?: Partial<MomInventoryBusinessType>;
   /**
-   * 申请单信息
+   * 申请单
    */
   application?: Partial<MomInventoryApplication>;
   /**
