@@ -13,7 +13,7 @@ export default {
 
   disabled: getBooleanEnvValue("KIS_REFRESH_ACCESS_TOKEN_JOB_DISABLED"),
 
-  cronTime: `* * */1 * * *`,
+  cronTime: `0 0 * * * *`,
 
   async handler(ctx: ActionHandlerContext) {
     const { server } = ctx;
