@@ -20,6 +20,7 @@ const syncKisUnit: KisToWmsSyncContract<any, BaseUnit> = {
     fetchAll: true,
   },
   assistantCreator: genKisToWmsSyncAssistantCreator({
+    appCode: "APP006992",
     async mapToTargetEntity(syncContext, source): Promise<Partial<BaseUnit>> {
       return {
         code: source.FNumber,

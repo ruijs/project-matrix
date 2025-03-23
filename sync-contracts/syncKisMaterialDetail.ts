@@ -25,6 +25,7 @@ const syncKisMaterialDetail: KisToWmsSyncContract<any, BaseMaterial> = {
     requestParams: {},
   },
   assistantCreator: genKisToWmsSyncAssistantCreator({
+    appCode: "APP006992",
     fetchSourceEntitiesApiName: "GetListDetails",
 
     async handleFetchSourceEntities(syncContext) {

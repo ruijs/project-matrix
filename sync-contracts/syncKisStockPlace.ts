@@ -21,6 +21,7 @@ const syncKisStockPlace: KisToWmsSyncContract<any, BaseLocation> = {
     fetchAll: true,
   },
   assistantCreator: genKisToWmsSyncAssistantCreator({
+    appCode: "APP006992",
     async mapToTargetEntity(syncContext, source): Promise<Partial<BaseLocation>> {
       const { server } = syncContext;
       const parent = await server.getEntityManager<BaseLocation>("base_location").findEntity({

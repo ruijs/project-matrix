@@ -91,8 +91,9 @@ export type EntitySyncContract<TSourceEntity = any, TTargetEntity = any, TSyncCo
   targetEntityUniqueKeys: (keyof TTargetEntity | (keyof TTargetEntity)[])[];
 
   /**
-   * 需要同步更新目标实体的哪些字段。
-   * 此设置会被用来判断是否需要更新目标实体。没有设置的其它字段不会被更新，以避免目标系统中修改过的信息被覆盖。
+   * 需要同步更新目标实体的哪些字段，此设置会被用来判断是否需要更新目标实体。
+   * - 没有设置的其它字段不会被更新，以避免目标系统中修改过的信息被覆盖。
+   * - 如果希望源实体同步后不再被更新，可将此项设置为空数组。
    */
   targetEntityFieldsToUpdate: string[];
 

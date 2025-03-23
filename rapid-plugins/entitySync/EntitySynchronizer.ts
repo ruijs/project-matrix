@@ -60,8 +60,8 @@ export async function performSyncCycle<TSourceEntity = any, TTargetEntity = any,
         sourceEntity,
       });
     } catch (ex: any) {
-      const sourceId = (sourceEntity as any)[contract.sourceEntityIdField] || "";
-      const sourceCode = contract.sourceEntityCodeField ? (sourceEntity as any)[contract.sourceEntityCodeField] || "" : "";
+      const sourceId = get(sourceEntity, contract.sourceEntityIdField, "");
+      const sourceCode = contract.sourceEntityCodeField ? get(sourceEntity, contract.sourceEntityCodeField, "") : "";
       logger.error("实体同步失败。%s 源实体类型：%s，Id：%s，Code：%s", ex.message, contract.sourceEntityTypeCode, sourceId, sourceCode);
     }
   }
