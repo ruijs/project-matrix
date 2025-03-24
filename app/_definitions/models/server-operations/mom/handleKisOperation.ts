@@ -151,7 +151,10 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
 
       if (inventoryOperation.approvalState === "approved") {
         let entries: WarehouseEntry[] = [];
-        const warehouseId = inventoryApplication?.to?.externalCode || inventoryApplication?.from?.externalCode;
+        const warehouseId = parseInt(inventoryApplication?.to?.externalCode || inventoryApplication?.from?.externalCode || "", 10);
+        if (isNaN(warehouseId)) {
+          throw new Error("无法获取仓库信息。");
+        }
 
         const inspectionSheet = await server.getEntityManager<MomInspectionSheet>("mom_inspection_sheet").findEntity({
           routeContext,
@@ -167,26 +170,26 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
 
         let kisResponse: KisApiResult | undefined;
 
-        let locationCode = "";
+        let locationCode = 0;
         const warehouse = inventoryApplication?.to || inventoryApplication?.from;
         switch (warehouse?.name) {
           case "原料库":
-            locationCode = "1320";
+            locationCode = 1320;
             break;
           case "成品库":
-            locationCode = "1321";
+            locationCode = 1321;
             break;
           case "包材库":
-            locationCode = "2";
+            locationCode = 2;
             break;
           case "次品库":
-            locationCode = "4";
+            locationCode = 4;
             break;
           case "周转库":
-            locationCode = "5";
+            locationCode = 5;
             break;
           case "外租仓库":
-            locationCode = "";
+            locationCode = 0;
             break;
           default:
             break;
@@ -388,7 +391,7 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
                   Fnote: transfer.remark,
                 };
 
-                if (locationCode !== "") {
+                if (locationCode !== 0) {
                   entity.FDCSPID = locationCode;
                 }
 
@@ -474,7 +477,7 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
                   FPlanMode: 14036,
                 };
 
-                if (locationCode !== "") {
+                if (locationCode !== 0) {
                   entity.FDCSPID = locationCode;
                 }
 
@@ -509,32 +512,38 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
                 throw new Error("销售出库单的出库日期不能为空。");
               }
 
+              if (!inventoryApplication.externalCode) {
+                throw new Error("源单内码不能为空。");
+              }
+
               externalEntityTypeName = "销售出库";
               transfers.forEach((transfer, idx) => {
+                const entryId = idx + 1;
                 let entity: any = {
-                  FItemID: transfer.material_external_code,
-                  FQty: transfer.quantity.toFixed(2),
-                  Fauxqty: transfer.quantity.toFixed(2),
-                  FAuxQtyMust: transfer.must_quantity.toFixed(2),
+                  FEntryID: entryId,
+                  FItemID: parseInt(transfer.material_external_code, 10),
+                  FQty: parseFloat(transfer.quantity.toFixed(2)),
+                  Fauxqty: parseFloat(transfer.quantity.toFixed(2)),
+                  FAuxQtyMust: parseFloat(transfer.must_quantity.toFixed(2)),
                   FDCStockID: warehouseId,
                   FBatchNo: transfer.lot_num,
-                  FUnitID: transfer.unit_external_code,
-                  FSourceTranType: "81",
-                  FSourceInterId: inventoryApplication?.externalCode,
-                  FSourceBillNo: inventoryApplication?.code,
-                  FSourceEntryID: idx + 1,
-                  FOrderBillNo: inventoryApplication?.code,
-                  FOrderInterID: inventoryApplication?.externalCode,
-                  FOrderEntryID: idx + 1,
+                  FUnitID: parseInt(transfer.unit_external_code, 10),
+                  FSourceTranType: 81,
+                  FSourceInterId: parseInt(inventoryApplication.externalCode!, 10),
+                  FSourceBillNo: inventoryApplication.code,
+                  FSourceEntryID: 0, // idx + 1,
+                  FOrderBillNo: inventoryApplication.code,
+                  FOrderInterID: parseInt(inventoryApplication.externalCode!, 10),
+                  FOrderEntryID: 0, // idx + 1,
                   FAuxPrice: 1,
-                  Famount: transfer.quantity.toFixed(2),
+                  Famount: parseFloat(transfer.quantity.toFixed(2)),
                   FPlanMode: 14036,
                   Fnote: transfer.remark,
                   // 财务要求：使用出库日期作为生产日期
                   FEntrySelfB0170: dayjs(inventoryApplication.depositDate).format("YYYY-MM-DDT00:00:00"),
                 };
 
-                if (locationCode !== "") {
+                if (locationCode !== 0) {
                   entity.FDCSPID = locationCode;
                 }
 
@@ -700,7 +709,7 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
                   FPlanMode: 14036,
                 };
 
-                if (locationCode !== "") {
+                if (locationCode !== 0) {
                   entity.FDCSPID = locationCode;
                 }
 

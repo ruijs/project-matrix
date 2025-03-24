@@ -7,8 +7,8 @@ export interface WarehouseEntry {
   Fauxqty: number;
   FAuxQtyMust: number;
   FBatchNo?: string;
-  FDCSPID?: string;
-  FDCStockID?: string;
+  FDCSPID?: number;
+  FDCStockID?: number;
   FEntryID?: number;
   FICMOBillNo?: string;
   FICMOInterID?: number;
@@ -25,7 +25,7 @@ export interface WarehouseEntry {
   FDeptID?: number;
   FPlanMode: number;
   FReProduceType?: number;
-  FSCStockID?: string;
+  FSCStockID?: number;
   FSourceBillNo?: string;
   FSourceTranType?: string;
   FSourceInterId?: string;
