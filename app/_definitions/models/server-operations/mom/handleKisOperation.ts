@@ -425,17 +425,16 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
               externalEntityTypeName = "其他入库";
               for (const transfer of transfers) {
                 entries.push({
-                  FItemID: transfer.material_external_code,
-                  FQty: transfer.quantity.toFixed(2),
-                  Fauxqty: transfer.quantity.toFixed(2),
-                  FAuxQtyMust: transfer.must_quantity.toFixed(2),
-                  // FDCSPID: locationCode,
+                  FItemID: parseInt(transfer.material_external_code, 10),
+                  FQty: parseFloat(transfer.quantity.toFixed(2)),
+                  Fauxqty: parseFloat(transfer.quantity.toFixed(2)),
+                  FAuxQtyMust: parseFloat(transfer.must_quantity.toFixed(2)),
+                  FDCSPID: locationCode,
                   FDCStockID: warehouseId,
                   FBatchNo: transfer.lot_num,
-                  FUnitID: transfer.unit_external_code,
-                  // FMTONo: transfer.lot_num,
+                  FUnitID: parseInt(transfer.unit_external_code, 10),
                   FAuxPrice: 1,
-                  Famount: transfer.quantity.toFixed(2),
+                  Famount: parseFloat(transfer.quantity.toFixed(2)),
                   FPlanMode: 14036,
                   Fnote: transfer.remark,
                 });
@@ -445,7 +444,7 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
                 Object: {
                   Head: {
                     Fdate: getNowString(),
-                    // FDCStockID: warehouseId,
+                    FDCStockID: warehouseId,
                     FFManagerID: inventoryApplication?.fFManager?.externalCode || inventoryApplication?.createdBy?.externalCode,
                     FSManagerID: inventoryApplication?.fSManager?.externalCode || inventoryApplication?.createdBy?.externalCode,
                     FBillerID: inventoryApplication?.biller?.externalUserCode,
