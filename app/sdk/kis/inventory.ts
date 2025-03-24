@@ -12,7 +12,7 @@ export interface WarehouseEntry {
   FEntryID?: number;
   FICMOBillNo?: string;
   FICMOInterID?: number;
-  FItemID?: string;
+  FItemID?: number;
   FKFDate?: string;
   FKFPeriod?: number;
   FMTONo?: string;
@@ -21,7 +21,7 @@ export interface WarehouseEntry {
   FSecQty?: number;
   FQtyMust?: number;
   FSecCoefficient?: number;
-  FUnitID?: string;
+  FUnitID?: number;
   FDeptID?: number;
   FPlanMode: number;
   FReProduceType?: number;

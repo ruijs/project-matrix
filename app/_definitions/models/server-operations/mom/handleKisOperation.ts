@@ -210,14 +210,14 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
             //   for (const transfer of transfers) {
             //     if (transfer?.qualification_state && transfer.qualification_state === "qualified") {
             //       entries.push({
-            //         FItemID: transfer.material_external_code,
-            //         FQty: transfer.quantity.toFixed(2),
-            //         Fauxqty: transfer.quantity.toFixed(2),
-            //         FAuxQtyMust: transfer.must_quantity.toFixed(2),
+            //         FItemID: parseInt(transfer.material_external_code, 10),
+            //         FQty: parseFloat(transfer.quantity.toFixed(2)),
+            //         Fauxqty: parseFloat(transfer.quantity.toFixed(2)),
+            //         FAuxQtyMust: parseFloat(transfer.must_quantity.toFixed(2)),
             //         FDCSPID: locationCode,
             //         FDCStockID: warehouseId,
             //         FBatchNo: transfer.lot_num,
-            //         FUnitID: transfer.unit_external_code,
+            //         FUnitID: parseInt(transfer.unit_external_code, 10),
             //         // FMTONo: transfer.lot_num,
             //         // FSecQty: transfer.quantity,
             //         // FSecCoefficient: 1,
@@ -254,17 +254,17 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
               externalEntityTypeName = "产品入库";
               for (const transfer of transfers) {
                 entries.push({
-                  FItemID: transfer.material_external_code,
-                  FQty: transfer.quantity.toFixed(2),
-                  Fauxqty: transfer.quantity.toFixed(2),
-                  FAuxQtyMust: transfer.must_quantity.toFixed(2),
+                  FItemID: parseInt(transfer.material_external_code, 10),
+                  FQty: parseFloat(transfer.quantity.toFixed(2)),
+                  Fauxqty: parseFloat(transfer.quantity.toFixed(2)),
+                  FAuxQtyMust: parseFloat(transfer.must_quantity.toFixed(2)),
                   FDCSPID: locationCode,
                   FDCStockID: warehouseId,
                   FBatchNo: transfer.lot_num,
-                  FUnitID: transfer.unit_external_code,
+                  FUnitID: parseInt(transfer.unit_external_code, 10),
                   // FMTONo: transfer.lot_num,
                   FAuxPrice: 1,
-                  Famount: transfer.quantity.toFixed(2),
+                  Famount: parseFloat(transfer.quantity.toFixed(2)),
                   FPlanMode: 14036,
                   Fnote: transfer.remark,
                 });
@@ -292,17 +292,17 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
               externalEntityTypeName = "委外加工入库";
               for (const transfer of transfers) {
                 entries.push({
-                  FItemID: transfer.material_external_code,
-                  FQty: transfer.quantity.toFixed(2),
-                  Fauxqty: transfer.quantity.toFixed(2),
-                  FAuxQtyMust: transfer.must_quantity.toFixed(2),
+                  FItemID: parseInt(transfer.material_external_code, 10),
+                  FQty: parseFloat(transfer.quantity.toFixed(2)),
+                  Fauxqty: parseFloat(transfer.quantity.toFixed(2)),
+                  FAuxQtyMust: parseFloat(transfer.must_quantity.toFixed(2)),
                   // FDCSPID: locationCode,
                   FDCStockID: warehouseId,
                   FBatchNo: transfer.lot_num,
-                  FUnitID: transfer.unit_external_code,
+                  FUnitID: parseInt(transfer.unit_external_code, 10),
                   // FMTONo: transfer.lot_num,
                   FAuxPrice: 1,
-                  Famount: transfer.quantity.toFixed(2),
+                  Famount: parseFloat(transfer.quantity.toFixed(2)),
                   FPlanMode: 14036,
                   Fnote: transfer.remark,
                 });
@@ -330,17 +330,17 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
               externalEntityTypeName = "生产领料红字";
               for (const transfer of transfers) {
                 entries.push({
-                  FItemID: transfer.material_external_code,
-                  FQty: transfer.quantity.toFixed(2),
-                  Fauxqty: transfer.quantity.toFixed(2),
-                  FAuxQtyMust: transfer.must_quantity.toFixed(2),
+                  FItemID: parseInt(transfer.material_external_code, 10),
+                  FQty: parseFloat(transfer.quantity.toFixed(2)),
+                  Fauxqty: parseFloat(transfer.quantity.toFixed(2)),
+                  FAuxQtyMust: parseFloat(transfer.must_quantity.toFixed(2)),
                   FDCSPID: locationCode,
                   FSCStockID: warehouseId,
                   FBatchNo: transfer.lot_num,
-                  FUnitID: transfer.unit_external_code,
+                  FUnitID: parseInt(transfer.unit_external_code, 10),
                   // FMTONo: transfer.lot_num,
                   FAuxPrice: 1,
-                  Famount: transfer.quantity.toFixed(2),
+                  Famount: parseFloat(transfer.quantity.toFixed(2)),
                   FPlanMode: 14036,
                   FReProduceType: 1059,
                   Fnote: transfer.remark,
@@ -371,13 +371,13 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
               externalEntityTypeName = "销售出库红字";
               transfers.forEach((transfer, idx) => {
                 let entity: any = {
-                  FItemID: transfer.material_external_code,
-                  FQty: transfer.quantity.toFixed(2),
-                  Fauxqty: transfer.quantity.toFixed(2),
-                  FAuxQtyMust: transfer.must_quantity.toFixed(2),
+                  FItemID: parseInt(transfer.material_external_code, 10),
+                  FQty: parseFloat(transfer.quantity.toFixed(2)),
+                  Fauxqty: parseFloat(transfer.quantity.toFixed(2)),
+                  FAuxQtyMust: parseFloat(transfer.must_quantity.toFixed(2)),
                   FDCStockID: warehouseId,
                   FBatchNo: transfer.lot_num,
-                  FUnitID: transfer.unit_external_code,
+                  FUnitID: parseInt(transfer.unit_external_code, 10),
                   FSourceTranType: "81",
                   FSourceInterId: inventoryApplication?.externalCode,
                   FSourceBillNo: inventoryApplication?.code,
@@ -386,7 +386,7 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
                   FOrderInterID: inventoryApplication?.externalCode,
                   FOrderEntryID: idx + 1,
                   FAuxPrice: 1,
-                  Famount: transfer.quantity.toFixed(2),
+                  Famount: parseFloat(transfer.quantity.toFixed(2)),
                   FPlanMode: 14036,
                   Fnote: transfer.remark,
                 };
@@ -462,16 +462,15 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
               externalEntityTypeName = "其他出库红字";
               for (const transfer of transfers) {
                 let entity: any = {
-                  FItemID: transfer.material_external_code,
-                  FQty: transfer.quantity.toFixed(2),
-                  Fauxqty: transfer.quantity.toFixed(2),
-                  FAuxQtyMust: transfer.must_quantity.toFixed(2),
+                  FItemID: parseInt(transfer.material_external_code, 10),
+                  FQty: parseFloat(transfer.quantity.toFixed(2)),
+                  Fauxqty: parseFloat(transfer.quantity.toFixed(2)),
+                  FAuxQtyMust: parseFloat(transfer.must_quantity.toFixed(2)),
                   FDCStockID: warehouseId,
                   FBatchNo: transfer.lot_num,
-                  FUnitID: transfer.unit_external_code,
-                  // FMTONo: transfer.lot_num,
+                  FUnitID: parseInt(transfer.unit_external_code, 10),
                   FAuxPrice: 1,
-                  Famount: transfer.quantity.toFixed(2),
+                  Famount: parseFloat(transfer.quantity.toFixed(2)),
                   Fnote: transfer.remark,
                   FPlanMode: 14036,
                 };
@@ -576,17 +575,17 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
               externalEntityTypeName = "委外加工出库";
               for (const transfer of transfers) {
                 entries.push({
-                  FItemID: transfer.material_external_code,
-                  FQty: transfer.quantity.toFixed(2),
-                  Fauxqty: transfer.quantity.toFixed(2),
-                  FAuxQtyMust: transfer.must_quantity.toFixed(2),
+                  FItemID: parseInt(transfer.material_external_code, 10),
+                  FQty: parseFloat(transfer.quantity.toFixed(2)),
+                  Fauxqty: parseFloat(transfer.quantity.toFixed(2)),
+                  FAuxQtyMust: parseFloat(transfer.must_quantity.toFixed(2)),
                   FDCSPID: locationCode,
                   FDCStockID: warehouseId,
                   FBatchNo: transfer.lot_num,
-                  FUnitID: transfer.unit_external_code,
+                  FUnitID: parseInt(transfer.unit_external_code, 10),
                   // FMTONo: transfer.lot_num,
                   FAuxPrice: 1,
-                  Famount: transfer.quantity.toFixed(2),
+                  Famount: parseFloat(transfer.quantity.toFixed(2)),
                   FPlanMode: 14036,
                   Fnote: transfer.remark,
                 });
@@ -615,14 +614,14 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
               externalEntityTypeName = "外购入库红字";
               for (const transfer of transfers) {
                 entries.push({
-                  FItemID: transfer.material_external_code,
-                  FQty: transfer.quantity.toFixed(2),
-                  Fauxqty: transfer.quantity.toFixed(2),
-                  FAuxQtyMust: transfer.must_quantity.toFixed(2),
+                  FItemID: parseInt(transfer.material_external_code, 10),
+                  FQty: parseFloat(transfer.quantity.toFixed(2)),
+                  Fauxqty: parseFloat(transfer.quantity.toFixed(2)),
+                  FAuxQtyMust: parseFloat(transfer.must_quantity.toFixed(2)),
                   FDCSPID: locationCode,
                   FDCStockID: warehouseId,
                   FBatchNo: transfer.lot_num,
-                  FUnitID: transfer.unit_external_code,
+                  FUnitID: parseInt(transfer.unit_external_code, 10),
                   // FMTONo: transfer.lot_num,
                   // FSecQty: transfer.quantity,
                   // FSecCoefficient: 1,
@@ -656,17 +655,17 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
               externalEntityTypeName = "产品入库红字";
               for (const transfer of transfers) {
                 entries.push({
-                  FItemID: transfer.material_external_code,
-                  FQty: transfer.quantity.toFixed(2),
-                  Fauxqty: transfer.quantity.toFixed(2),
-                  FAuxQtyMust: transfer.must_quantity.toFixed(2),
+                  FItemID: parseInt(transfer.material_external_code, 10),
+                  FQty: parseFloat(transfer.quantity.toFixed(2)),
+                  Fauxqty: parseFloat(transfer.quantity.toFixed(2)),
+                  FAuxQtyMust: parseFloat(transfer.must_quantity.toFixed(2)),
                   FDCSPID: locationCode,
                   FDCStockID: warehouseId,
                   FBatchNo: transfer.lot_num,
-                  FUnitID: transfer.unit_external_code,
+                  FUnitID: parseInt(transfer.unit_external_code, 10),
                   // FMTONo: transfer.lot_num,
                   FAuxPrice: 1,
-                  Famount: transfer.quantity.toFixed(2),
+                  Famount: parseFloat(transfer.quantity.toFixed(2)),
                   FPlanMode: 14036,
                   Fnote: transfer.remark,
                 });
@@ -694,16 +693,16 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
               externalEntityTypeName = "其他出库";
               for (const transfer of transfers) {
                 let entity: any = {
-                  FItemID: transfer.material_external_code,
-                  FQty: transfer.quantity.toFixed(2),
-                  Fauxqty: transfer.quantity.toFixed(2),
-                  FAuxQtyMust: transfer.must_quantity.toFixed(2),
+                  FItemID: parseInt(transfer.material_external_code, 10),
+                  FQty: parseFloat(transfer.quantity.toFixed(2)),
+                  Fauxqty: parseFloat(transfer.quantity.toFixed(2)),
+                  FAuxQtyMust: parseFloat(transfer.must_quantity.toFixed(2)),
                   FDCStockID: warehouseId,
                   FBatchNo: transfer.lot_num,
-                  FUnitID: transfer.unit_external_code,
+                  FUnitID: parseInt(transfer.unit_external_code, 10),
                   // FMTONo: transfer.lot_num,
                   FAuxPrice: 1,
-                  Famount: transfer.quantity.toFixed(2),
+                  Famount: parseFloat(transfer.quantity.toFixed(2)),
                   Fnote: transfer.remark,
                   FPlanMode: 14036,
                 };
@@ -737,17 +736,17 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
               externalEntityTypeName = "生产领料";
               for (const transfer of transfers) {
                 entries.push({
-                  FItemID: transfer.material_external_code,
-                  FQty: transfer.quantity.toFixed(2),
-                  Fauxqty: transfer.quantity.toFixed(2),
-                  FAuxQtyMust: transfer.must_quantity.toFixed(2),
+                  FItemID: parseInt(transfer.material_external_code, 10),
+                  FQty: parseFloat(transfer.quantity.toFixed(2)),
+                  Fauxqty: parseFloat(transfer.quantity.toFixed(2)),
+                  FAuxQtyMust: parseFloat(transfer.must_quantity.toFixed(2)),
                   FDCSPID: locationCode,
                   FSCStockID: warehouseId,
                   FBatchNo: transfer.lot_num,
-                  FUnitID: transfer.unit_external_code,
+                  FUnitID: parseInt(transfer.unit_external_code, 10),
                   // FMTONo: transfer.lot_num,
                   FAuxPrice: 1,
-                  Famount: transfer.quantity.toFixed(2),
+                  Famount: parseFloat(transfer.quantity.toFixed(2)),
                   FPlanMode: 14036,
                   FReProduceType: 1059,
                   Fnote: transfer.remark,
