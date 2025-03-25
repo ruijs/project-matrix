@@ -67,6 +67,7 @@ const dictionaryCodes = [
   'SettingItemType',
   'SysAuditLogMethod',
   'SysAuditLogTarget',
+  'SysCronJobRunningResult',
   'SysEventLogLevel',
   'SysEventSourceType',
   'SysExtEntitySyncState',

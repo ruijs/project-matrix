@@ -151,6 +151,7 @@ import setting$SystemSettingItemSetting from '../models/entities/setting/SystemS
 import sys$SysAction from '../models/entities/sys/SysAction';
 import sys$SysActionGroup from '../models/entities/sys/SysActionGroup';
 import sys$SysAuditLog from '../models/entities/sys/SysAuditLog';
+import sys$SysCronJob from '../models/entities/sys/SysCronJob';
 import sys$SysEventLog from '../models/entities/sys/SysEventLog';
 import sys$SysEventType from '../models/entities/sys/SysEventType';
 import sys$SysExtEntity from '../models/entities/sys/SysExtEntity';
@@ -312,6 +313,7 @@ const entityDefinitions = [
   sys$SysAction,
   sys$SysActionGroup,
   sys$SysAuditLog,
+  sys$SysCronJob,
   sys$SysEventLog,
   sys$SysEventType,
   sys$SysExtEntity,
@@ -473,6 +475,7 @@ const configuredEntities:TRapidEntity[] = [
   autoConfigureRapidEntity(sys$SysAction, entityDefinitions),
   autoConfigureRapidEntity(sys$SysActionGroup, entityDefinitions),
   autoConfigureRapidEntity(sys$SysAuditLog, entityDefinitions),
+  autoConfigureRapidEntity(sys$SysCronJob, entityDefinitions),
   autoConfigureRapidEntity(sys$SysEventLog, entityDefinitions),
   autoConfigureRapidEntity(sys$SysEventType, entityDefinitions),
   autoConfigureRapidEntity(sys$SysExtEntity, entityDefinitions),

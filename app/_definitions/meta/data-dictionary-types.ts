@@ -676,6 +676,15 @@ export type SysAuditLogTarget =
   ;
 
 /**
+ * 定时任务运行结果
+ */
+export type SysCronJobRunningResult =
+  | 'success'
+  | 'failed'
+  | 'error'
+  ;
+
+/**
  * 日志级别
  */
 export type SysEventLogLevel =
