@@ -1,4 +1,4 @@
-import type { EntityWatcher, EntityWatchHandlerContext } from "@ruiapp/rapid-core";
+import { getEntityRelationTargetId, type EntityWatcher, type EntityWatchHandlerContext } from "@ruiapp/rapid-core";
 import type { BaseLot, MomInspectionSheet } from "~/_definitions/meta/entity-types";
 import {
   lockMeasurementsOfInspectionSheet,
@@ -6,6 +6,7 @@ import {
   refreshInspectionSheetInspectionResult,
   updateQualificationStateOfRelatedApplicationItem,
   updateQualificationStateOfRelatedLot,
+  determineInspectionSheetInspectionResult,
 } from "~/services/InspectionSheetService";
 import { refreshInventoryApplicationInspectionState } from "~/services/InventoryApplicationService";
 
@@ -16,25 +17,22 @@ export default [
     handler: async (ctx: EntityWatchHandlerContext<"entity.beforeUpdate">) => {
       const { server, routerContext: routeContext, payload } = ctx;
 
-      const before = payload.before;
-      let changes = payload.changes;
+      const before = payload.before as MomInspectionSheet;
+      let changes = payload.changes as Partial<MomInspectionSheet>;
 
-      if (before.hasOwnProperty("lotNum")) {
+      if (changes.hasOwnProperty("lotNum")) {
+        const materialId = getEntityRelationTargetId(before, "material", "material_id");
         const lotManager = server.getEntityManager<BaseLot>("base_lot");
         const lot = await lotManager.findEntity({
           routeContext,
           filters: [
             { operator: "eq", field: "lotNum", value: before.lotNum },
-            {
-              operator: "eq",
-              field: "material_id",
-              value: before.material?.id || before.material_id,
-            },
+            { operator: "eq", field: "material_id", value: materialId },
           ],
           properties: ["id"],
         });
         if (lot) {
-          changes.lot = { id: lot?.id };
+          changes.lot = { id: lot.id };
         }
       }
 
@@ -44,6 +42,7 @@ export default [
 
       // 当用户点击提交检验记录按钮时，检验单状态更新为已检验，将当前用户设置为检验员
       if (changes.hasOwnProperty("state") && changes.state === "inspected") {
+        changes.result = await determineInspectionSheetInspectionResult(server, routeContext, before.id);
         changes.inspector = routeContext?.state.userId;
       }
     },
@@ -113,7 +112,6 @@ export default [
       // - 更新检验单的检验状态
       if (changes.hasOwnProperty("state") && changes.state === "inspected") {
         await lockMeasurementsOfInspectionSheet(server, routeContext, inspectionSheetId);
-        await refreshInspectionSheetInspectionResult(server, routeContext, inspectionSheetId);
       }
 
       // 审批通过后，更新操作单以及对应批次的检验结果
