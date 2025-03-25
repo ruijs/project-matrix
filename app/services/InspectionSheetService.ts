@@ -17,7 +17,7 @@ import { renderMaterial } from "~/app-extension/rocks/material-label-renderer/Ma
 import { isCharactorMeasured } from "~/utils/inspection-utility";
 
 /**
- * 更新检验单的检验结果。
+ * 判定检验单的检验结果。
  * 检验单检验结果判定规则：
  * - 如果检验项设置为不可跳过，则必须填写检验值。
  * - 如存在不可跳过的检验项没有填写检验值，则不进行检查单的检验结果判断。
@@ -28,8 +28,7 @@ import { isCharactorMeasured } from "~/utils/inspection-utility";
  * @param routeContext
  * @param inspectionSheetId
  */
-export async function refreshInspectionSheetInspectionResult(server: IRpdServer, routeContext: RouteContext, inspectionSheetId: number) {
-  const inspectionSheetManager = server.getEntityManager<MomInspectionSheet>("mom_inspection_sheet");
+export async function determineInspectionSheetInspectionResult(server: IRpdServer, routeContext: RouteContext, inspectionSheetId: number) {
   const inspectionMeasurementManager = server.getEntityManager<MomInspectionMeasurement>("mom_inspection_measurement");
 
   const measurements = await inspectionMeasurementManager.findEntities({
@@ -70,7 +69,7 @@ export async function refreshInspectionSheetInspectionResult(server: IRpdServer,
   }, new Map() as Map<number, MomInspectionMeasurement[]>);
 
   let allUnskippableCharactersMeasured = true;
-  let sheetQualificationResult: MomInspectionSheet["result"] | null = "qualified";
+  let sheetQualificationResult: MomInspectionSheet["result"] | undefined = "qualified";
   for (const measurementsOfCharacteristic of measurementsByCharacteristic.values()) {
     for (const measurement of measurementsOfCharacteristic) {
       const characteristic = measurement.characteristic as MomInspectionCharacteristic;
@@ -91,9 +90,21 @@ export async function refreshInspectionSheetInspectionResult(server: IRpdServer,
   }
 
   if (!allUnskippableCharactersMeasured) {
-    sheetQualificationResult = null;
+    sheetQualificationResult = undefined;
   }
 
+  return sheetQualificationResult;
+}
+
+/**
+ * 刷新检验单的检验结果。
+ * @param server
+ * @param routeContext
+ * @param inspectionSheetId
+ */
+export async function refreshInspectionSheetInspectionResult(server: IRpdServer, routeContext: RouteContext, inspectionSheetId: number) {
+  const sheetQualificationResult = await determineInspectionSheetInspectionResult(server, routeContext, inspectionSheetId);
+  const inspectionSheetManager = server.getEntityManager<MomInspectionSheet>("mom_inspection_sheet");
   await inspectionSheetManager.updateEntityById({
     routeContext,
     id: inspectionSheetId,

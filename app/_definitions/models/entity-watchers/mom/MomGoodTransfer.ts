@@ -565,6 +565,13 @@ export default [
   },
 ] satisfies EntityWatcher<any>[];
 
+/**
+ * 保存物料批次信息，如一个物料的批次号不能重复。
+ * @param server
+ * @param routeContext
+ * @param lot
+ * @returns
+ */
 async function saveMaterialLotInfo(server: IRpdServer, routeContext: RouteContext, lot: SaveBaseLotInput) {
   if (!lot.lotNum || !lot.material || !lot.material.id) {
     throw new Error("lotNum and material are required when saving lot info.");
