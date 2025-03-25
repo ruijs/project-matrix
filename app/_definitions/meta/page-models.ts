@@ -120,6 +120,7 @@ import setting$SystemSettingItemSettingPage from '../models/pages/setting/System
 import setting$SystemSettingsPage from '../models/pages/setting/SystemSettingsPage';
 import sys$SysActionListPage from '../models/pages/sys/SysActionListPage';
 import sys$SysAuditLogListPage from '../models/pages/sys/SysAuditLogListPage';
+import sys$SysCronJobListPage from '../models/pages/sys/SysCronJobListPage';
 import sys$SysEventLogListPage from '../models/pages/sys/SysEventLogListPage';
 import sys$SysEventTypeListPage from '../models/pages/sys/SysEventTypeListPage';
 import sys$SysExtEntityListPage from '../models/pages/sys/SysExtEntityListPage';
@@ -249,6 +250,7 @@ export default [
   setting$SystemSettingsPage,
   sys$SysActionListPage,
   sys$SysAuditLogListPage,
+  sys$SysCronJobListPage,
   sys$SysEventLogListPage,
   sys$SysEventTypeListPage,
   sys$SysExtEntityListPage,

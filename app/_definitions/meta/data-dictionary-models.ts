@@ -67,6 +67,7 @@ import WarehouseStrategy from '../models/data-dictionaries/WarehouseStrategy';
 import setting$SettingItemType from '../models/data-dictionaries/setting/SettingItemType';
 import sys$SysAuditLogMethod from '../models/data-dictionaries/sys/SysAuditLogMethod';
 import sys$SysAuditLogTarget from '../models/data-dictionaries/sys/SysAuditLogTarget';
+import sys$SysCronJobRunningResult from '../models/data-dictionaries/sys/SysCronJobRunningResult';
 import sys$SysEventLogLevel from '../models/data-dictionaries/sys/SysEventLogLevel';
 import sys$SysEventSourceType from '../models/data-dictionaries/sys/SysEventSourceType';
 import sys$SysExtEntitySyncState from '../models/data-dictionaries/sys/SysExtEntitySyncState';
@@ -140,6 +141,7 @@ export default [
   setting$SettingItemType,
   sys$SysAuditLogMethod,
   sys$SysAuditLogTarget,
+  sys$SysCronJobRunningResult,
   sys$SysEventLogLevel,
   sys$SysEventSourceType,
   sys$SysExtEntitySyncState,

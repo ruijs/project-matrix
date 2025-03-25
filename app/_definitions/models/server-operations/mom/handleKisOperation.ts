@@ -72,6 +72,10 @@ export async function handleKisOperation(server: IRpdServer, routeContext: Route
     return;
   }
 
+  if (inventoryOperation?.businessType?.name === "采购入库") {
+    return;
+  }
+
   const inventoryApplication = await inventoryApplicationManager.findEntity({
     routeContext,
     filters: [

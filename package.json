@@ -14,7 +14,7 @@
     "gen-meta": "ts-node-esm --project ./tsconfig-node.json -r dotenv/config -r tsconfig-paths/register ./app/tools/gen-meta.ts",
     "update-rpd-models": "ts-node-esm --project ./tsconfig-node.json -r dotenv/config -r tsconfig-paths/register ./app/tools/update-rpd-models.ts",
     "run-sync-job": "cross-env NODE_ENV=development ts-node-esm -r dotenv/config -r tsconfig-paths/register ./tools/run-sync-job.ts",
-    "sync-database-schema": "cross-env NODE_ENV=development ts-node-esm -r dotenv/config -r tsconfig-paths/register ./tools/sync-database-schema.ts",
+    "sync-db-schema": "cross-env NODE_ENV=development ts-node-esm -r dotenv/config -r tsconfig-paths/register ./tools/sync-db-schema.ts",
     "test": "echo \"Error: no test specified\"",
     "gen:svg-icons": "npx @svgr/cli --out-dir ./app/shopfloor-extension/rocks/custom-icons/components -- ./app/shopfloor-extension/rocks/custom-icons/svgs",
     "fmt:code": "prettier . --write"
@@ -41,7 +41,7 @@
     "@ruiapp/echarts-extension": "~0.4.0",
     "@ruiapp/monaco-extension": "~0.4.0",
     "@ruiapp/move-style": "~0.4.12",
-    "@ruiapp/rapid-core": "~0.8.10",
+    "@ruiapp/rapid-core": "~0.8.12",
     "@ruiapp/rapid-express": "~0.2.0",
     "@ruiapp/rapid-extension": "~0.5.20",
     "@ruiapp/react-renderer": "~0.4.3",
