@@ -393,6 +393,13 @@ function getFormConfig(formType: "newForm" | "editForm") {
       method: "post",
       url: "/app/createInventoryApplicationItems",
     },
+    ...(formType === "newForm"
+      ? {
+          $exps: {
+            "defaultFormFields.remark": "_.get(_.last(_.get($page.getScope('applicationItemList-scope').stores.list, 'data.list')), 'remark') || ''",
+          },
+        }
+      : {}),
   };
 
   return formConfig;
