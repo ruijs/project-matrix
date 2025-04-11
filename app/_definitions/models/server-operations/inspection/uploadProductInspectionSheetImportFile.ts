@@ -143,7 +143,7 @@ async function parseInspectionSheetImportFile(
   const workbook = new ExcelJS.Workbook();
   await workbook.xlsx.load(fileBuffer);
 
-  const sheet = workbook.getWorksheet(1);
+  const sheet = workbook.worksheets[0];
   if (!sheet) {
     throw new Error("未找到有效的工作表。");
   }
