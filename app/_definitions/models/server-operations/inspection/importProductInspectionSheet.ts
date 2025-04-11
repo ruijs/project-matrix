@@ -4,6 +4,7 @@ import dayjs from "dayjs";
 import { find, get, sample } from "lodash";
 import { InspectionResult } from "~/_definitions/meta/data-dictionary-types";
 import {
+  BaseLot,
   BaseMaterial,
   MomInspectionCategory,
   MomInspectionCharacteristic,
@@ -154,7 +155,7 @@ export default {
       }
     }
 
-    ctx.output = { result: "ok", inspectionSheetsToSave: inspectionSheetsSaved };
+    ctx.output = { result: "ok", inspectionSheetsSaved: inspectionSheetsSaved };
   },
 } satisfies ServerOperation;
 
@@ -179,7 +180,7 @@ async function convertDataRowToInspectionSheet(
     samples: [inspectionSample],
   };
 
-  // 将检验时间设置为导入时间
+  // 将检验时间默认设置为导入时间
   inspectionSheet.inspectedAt = getNowStringWithTimezone();
 
   let material: BaseMaterial | undefined;
@@ -270,11 +271,54 @@ async function convertDataRowToInspectionSheet(
           materialsCache.set(cellText, materials);
         }
 
-        if (!materials.length || materials.length > 1) {
+        if (!materials.length) {
           return null;
+        } else if (materials.length === 1) {
+          material = materials[0];
+        } else {
+          const lotNum = inspectionSheet.lotNum;
+          if (!lotNum) {
+            return null;
+          }
+
+          const materialIds = materials.map((material) => material.id);
+          const lotManager = server.getEntityManager<BaseLot>("base_lot");
+          const lots = await lotManager.findEntities({
+            routeContext,
+            filters: [
+              {
+                operator: "eq",
+                field: "lotNum",
+                value: lotNum,
+              },
+              {
+                operator: "in",
+                field: "material_id",
+                value: materialIds,
+              },
+              {
+                operator: "null",
+                field: "deletedAt",
+              },
+            ],
+            keepNonPropertyFields: true,
+          });
+
+          if (!lots.length || lots.length > 1) {
+            return null;
+          }
+
+          const materialId = (lots[0] as any).material_id;
+          if (!materialId) {
+            return null;
+          }
+
+          material = materials.find((item) => item.id === materialId);
+          if (!material) {
+            return null;
+          }
         }
 
-        material = materials[0];
         importContext.materialOfCurrentRow = material;
         inspectionSheet.material = {
           id: material.id,
