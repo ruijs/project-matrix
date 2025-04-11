@@ -9,7 +9,7 @@ import type {
   ProductionInspectionSheetImportMeasurementValueColumn,
 } from "~/types/production-inspection-sheet-import-types";
 import dayjs from "dayjs";
-import { BaseMaterial, MomInspectionCategory, MomInspectionCommonCharacteristic, MomInspectionRule, OcUser } from "~/_definitions/meta/entity-types";
+import { BaseLot, BaseMaterial, MomInspectionCategory, MomInspectionCommonCharacteristic, MomInspectionRule, OcUser } from "~/_definitions/meta/entity-types";
 import { productInspectionImportSettingsIgnoredCharNames } from "~/settings/productInspectionImportSettings";
 
 type CodeInferOption<TCode = string> = {
@@ -28,6 +28,7 @@ export interface CellValueValidationOptions {
 
 export interface CellValueValidationContext {
   row?: ExcelJS.Row;
+  columns: ProductionInspectionSheetImportColumn[];
   pqcInspectionCategory: MomInspectionCategory;
   commonCharacters: MomInspectionCommonCharacteristic[];
   caches: {
@@ -85,7 +86,7 @@ export default {
   },
 } satisfies ServerOperation;
 
-function getCellText(cell: ExcelJS.Cell): string | null {
+function getCellText(cell: ExcelJS.Cell | undefined): string | null {
   if (!cell) {
     return null;
   }
@@ -254,6 +255,7 @@ async function parseInspectionSheetImportFile(
   let rowNum = 2;
 
   const validationContext: CellValueValidationContext = {
+    columns,
     pqcInspectionCategory,
     commonCharacters,
     caches: {
@@ -334,6 +336,27 @@ function inferPropertyOrParameterCode<TCode = string>(inferOptions: CodeInferOpt
   }
 
   return null;
+}
+
+function findCellTextByPropertyCode(row: ExcelJS.Row, columns: ProductionInspectionSheetImportColumn[], columnCode: string): string | null {
+  const column: ProductionInspectionSheetImportColumn | undefined = find(columns, (col) => {
+    if (col.type === "sheetProperty") {
+      return col.propertyCode === columnCode;
+    }
+    return null;
+  }) as any;
+
+  if (!column) {
+    return null;
+  }
+
+  const cell = row.getCell(column.colNum);
+  const cellText = getCellText(cell);
+  if (!cellText) {
+    return null;
+  }
+
+  return cellText.trim();
 }
 
 async function validateCellValue(options: CellValueValidationOptions): Promise<ImportDataError | null> {
@@ -426,10 +449,44 @@ async function validateCellValueOfMaterialAbbr(options: CellValueValidationOptio
   }
 
   if (materials.length > 1) {
-    return {
-      message: `存在多个牌号为“${materialAbbr}”的产品。`,
-      cellAddress: cell.address,
-    };
+    // 尝试根据批号查找对应的产品
+    const lotNum = findCellTextByPropertyCode(validationContext.row!, validationContext.columns, "lotNum");
+    const materialIds = materials.map((material) => material.id);
+    const lotManager = server.getEntityManager<BaseLot>("base_lot");
+    const lots = await lotManager.findEntities({
+      routeContext,
+      filters: [
+        {
+          operator: "eq",
+          field: "lotNum",
+          value: lotNum,
+        },
+        {
+          operator: "in",
+          field: "material_id",
+          value: materialIds,
+        },
+        {
+          operator: "null",
+          field: "deletedAt",
+        },
+      ],
+    });
+
+    if (!lots.length) {
+      return {
+        message: `存在多个牌号为“${materialAbbr}”的产品，且系统中不存在批号为“${lotNum}”且物料牌号为“${materialAbbr}”的批次记录，无法确定物料。`,
+        cellAddress: cell.address,
+      };
+    } else if (lots.length > 1) {
+      return {
+        message: `存在多个牌号为“${materialAbbr}”的产品，且系统中存在多个批号为“${lotNum}”且物料牌号为“${materialAbbr}”的批次记录，无法确定物料。`,
+        cellAddress: cell.address,
+      };
+    } else {
+      // lots.length === 1
+      return null;
+    }
   }
 
   let material: BaseMaterial = materials[0];

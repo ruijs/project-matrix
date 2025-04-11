@@ -27,6 +27,7 @@ export default {
     const [previewData, setPreviewData] = useState<PreviewData>();
     const [importingState, setImportingState] = useState<ImportingState>("importing");
     const [importFailedMessage, setImportFailedMessage] = useState("");
+    const [inspectionSheetsSaved, setInspectionSheetsSaved] = useState<any[]>([]);
     const [ignoreErrors, setIgnoreErrors] = useState(false);
     const downloadUrl = `/api/app/downloadProductInspectionSheetImportTemplate`;
     const uploadUrl = `/api/app/uploadProductInspectionSheetImportFile`;
@@ -83,6 +84,7 @@ export default {
 
         if (response.status === 200) {
           setImportingState("imported");
+          setInspectionSheetsSaved(response.data.inspectionSheetsSaved || []);
         } else {
           const error = response.data.error;
           message.error(error.message);
@@ -176,7 +178,7 @@ export default {
               title={importingState === "importing" ? "正在导入，请稍候……" : importingState === "failed" ? "导入失败" : "导入成功。"}
               subTitle={
                 importingState === "imported"
-                  ? `成功导入${(previewData!.length - 1).toString()}条记录。`
+                  ? `成功导入${inspectionSheetsSaved.length.toString()}条记录。`
                   : importingState === "failed"
                   ? importFailedMessage
                   : ""
