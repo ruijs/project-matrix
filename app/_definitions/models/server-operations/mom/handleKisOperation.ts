@@ -268,7 +268,7 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
                   FUnitID: parseInt(transfer.unit_external_code, 10),
                   // FMTONo: transfer.lot_num,
                   // FAuxPrice: 1,
-                  Famount: parseFloat(transfer.quantity.toFixed(2)),
+                  // Famount: parseFloat(transfer.quantity.toFixed(2)),
                   FPlanMode: 14036,
                   Fnote: transfer.remark,
                 });
@@ -306,7 +306,7 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
                   FUnitID: parseInt(transfer.unit_external_code, 10),
                   // FMTONo: transfer.lot_num,
                   // FAuxPrice: 1,
-                  Famount: parseFloat(transfer.quantity.toFixed(2)),
+                  // Famount: parseFloat(transfer.quantity.toFixed(2)),
                   FPlanMode: 14036,
                   Fnote: transfer.remark,
                 });
@@ -344,7 +344,7 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
                   FUnitID: parseInt(transfer.unit_external_code, 10),
                   // FMTONo: transfer.lot_num,
                   // FAuxPrice: 1,
-                  Famount: parseFloat(transfer.quantity.toFixed(2)),
+                  // Famount: parseFloat(transfer.quantity.toFixed(2)),
                   FPlanMode: 14036,
                   FReProduceType: 1059,
                   Fnote: transfer.remark,
@@ -390,7 +390,7 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
                   FOrderInterID: inventoryApplication?.externalCode,
                   FOrderEntryID: idx + 1,
                   // FAuxPrice: 1,
-                  Famount: parseFloat(transfer.quantity.toFixed(2)),
+                  // Famount: parseFloat(transfer.quantity.toFixed(2)),
                   FPlanMode: 14036,
                   Fnote: transfer.remark,
                 };
@@ -438,7 +438,7 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
                   FBatchNo: transfer.lot_num,
                   FUnitID: parseInt(transfer.unit_external_code, 10),
                   // FAuxPrice: 1,
-                  Famount: parseFloat(transfer.quantity.toFixed(2)),
+                  // Famount: parseFloat(transfer.quantity.toFixed(2)),
                   FPlanMode: 14036,
                   Fnote: transfer.remark,
                 });
@@ -474,7 +474,7 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
                   FBatchNo: transfer.lot_num,
                   FUnitID: parseInt(transfer.unit_external_code, 10),
                   // FAuxPrice: 1,
-                  Famount: parseFloat(transfer.quantity.toFixed(2)),
+                  // Famount: parseFloat(transfer.quantity.toFixed(2)),
                   Fnote: transfer.remark,
                   FPlanMode: 14036,
                 };
@@ -538,7 +538,7 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
                   FOrderInterID: parseInt(inventoryApplication.externalCode!, 10),
                   FOrderEntryID: 0, // idx + 1,
                   // FAuxPrice: 1,
-                  Famount: parseFloat(transfer.quantity.toFixed(2)),
+                  // Famount: parseFloat(transfer.quantity.toFixed(2)),
                   FPlanMode: 14036,
                   Fnote: transfer.remark,
                   // 财务要求：使用出库日期作为生产日期
@@ -589,7 +589,7 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
                   FUnitID: parseInt(transfer.unit_external_code, 10),
                   // FMTONo: transfer.lot_num,
                   // FAuxPrice: 1,
-                  Famount: parseFloat(transfer.quantity.toFixed(2)),
+                  // Famount: parseFloat(transfer.quantity.toFixed(2)),
                   FPlanMode: 14036,
                   Fnote: transfer.remark,
                 });
@@ -669,7 +669,7 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
                   FUnitID: parseInt(transfer.unit_external_code, 10),
                   // FMTONo: transfer.lot_num,
                   // FAuxPrice: 1,
-                  Famount: parseFloat(transfer.quantity.toFixed(2)),
+                  // Famount: parseFloat(transfer.quantity.toFixed(2)),
                   FPlanMode: 14036,
                   Fnote: transfer.remark,
                 });
@@ -706,7 +706,7 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
                   FUnitID: parseInt(transfer.unit_external_code, 10),
                   // FMTONo: transfer.lot_num,
                   // FAuxPrice: 1,
-                  Famount: parseFloat(transfer.quantity.toFixed(2)),
+                  // Famount: parseFloat(transfer.quantity.toFixed(2)),
                   Fnote: transfer.remark,
                   FPlanMode: 14036,
                 };
@@ -750,7 +750,7 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
                   FUnitID: parseInt(transfer.unit_external_code, 10),
                   // FMTONo: transfer.lot_num,
                   // FAuxPrice: 1,
-                  Famount: parseFloat(transfer.quantity.toFixed(2)),
+                  // Famount: parseFloat(transfer.quantity.toFixed(2)),
                   FPlanMode: 14036,
                   FReProduceType: 1059,
                   Fnote: transfer.remark,
