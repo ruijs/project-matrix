@@ -588,8 +588,8 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
                   FBatchNo: transfer.lot_num,
                   FUnitID: parseInt(transfer.unit_external_code, 10),
                   // FMTONo: transfer.lot_num,
-                  // FAuxPrice: 1,
-                  // Famount: parseFloat(transfer.quantity.toFixed(2)),
+                  FAuxPrice: 1,
+                  Famount: parseFloat(transfer.quantity.toFixed(2)),
                   FPlanMode: 14036,
                   Fnote: transfer.remark,
                 });
