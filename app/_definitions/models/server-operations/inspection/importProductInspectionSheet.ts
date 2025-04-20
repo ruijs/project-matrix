@@ -1,7 +1,7 @@
 import { getNowStringWithTimezone, IDatabaseClient, RouteContext, type ActionHandlerContext, type IRpdServer, type ServerOperation } from "@ruiapp/rapid-core";
 import EntityManager from "@ruiapp/rapid-core/dist/dataAccess/entityManager";
 import dayjs from "dayjs";
-import { find, get, sample } from "lodash";
+import { cloneDeep, find, get, sample } from "lodash";
 import { InspectionResult } from "~/_definitions/meta/data-dictionary-types";
 import {
   BaseLot,
@@ -137,8 +137,13 @@ export default {
           if (!inspectionSheet) {
             logger.error(`R${rowNum}: 无效的检验记录。`);
           } else {
-            await saveInspectionSheet(server, operationContext, inspectionSheet);
-            inspectionSheetsSaved.push(inspectionSheet);
+            const lotNums = inspectionSheet.lotNum?.split("\n");
+            for (const lotNum of lotNums || []) {
+              const inspectionSheetToSave = cloneDeep(inspectionSheet);
+              inspectionSheetToSave.lotNum = lotNum.trim();
+              await saveInspectionSheet(server, operationContext, inspectionSheetToSave);
+              inspectionSheetsSaved.push(inspectionSheetToSave);
+            }
           }
 
           await operationContext.commitDbTransaction();
