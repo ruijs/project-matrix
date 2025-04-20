@@ -176,7 +176,7 @@ export default {
             <Result
               status={importingState === "importing" ? "info" : importingState === "failed" ? "error" : "success"}
               icon={importingState === "importing" ? <LoadingOutlined /> : undefined}
-              title={importingState === "importing" ? "正在导入，请稍候……" : importingState === "failed" ? "导入失败" : "导入成功。"}
+              title={importingState === "importing" ? "正在导入，请稍候……" : importingState === "failed" ? "导入失败" : "导入完成"}
               subTitle={
                 importingState === "imported"
                   ? `成功导入${inspectionSheetsSaved.length.toString()}条记录。`
