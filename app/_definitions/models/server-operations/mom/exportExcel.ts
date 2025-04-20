@@ -651,7 +651,7 @@ function flattenApplicationItem(item: MomInventoryApplicationItem) {
     lotNum: item.lotNum,
     quantity: item.quantity,
     actualQuantity: item.acceptQuantity,
-    remark: ["生产入库", "领料出库"].includes(businessTypeName) ? item.remark || "" : "",
+    remark: ["生产入库", "领料出库", "生产入库退货出库"].includes(businessTypeName) ? item.remark || "" : "",
     fUse: ["领料出库"].includes(businessTypeName) ? application?.fUse || "" : "",
     supplier: ["委外加工出库", "委外加工入库"].includes(businessTypeName) ? application?.supplier?.name || "" : "",
     requirement: ["委外加工出库"].includes(businessTypeName) ? application?.fUse || "" : "",
