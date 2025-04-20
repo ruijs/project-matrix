@@ -109,6 +109,7 @@ export default {
     };
 
     const inspectionSheetsSaved: Partial<MomInspectionSheet>[] = [];
+    let errors: string[] = [];
 
     let operationContext: RouteContext | null = null;
     operationContext = routeContext.clone();
@@ -117,9 +118,10 @@ export default {
     try {
       transactionDbClient = await operationContext.initDbTransactionClient();
 
-      for (let rowNum = 1; rowNum < data.length; rowNum++) {
-        logger.info(`导入进度：${rowNum}/${data.length}`);
-        const row = data[rowNum];
+      for (let index = 1; index < data.length; index++) {
+        logger.info(`导入进度：${index}/${data.length}`);
+        const row = data[index];
+        const rowNum = index + 1;
 
         const importOptions: ImportInspectionSheetOptions = {
           importContext,
@@ -135,7 +137,9 @@ export default {
 
           inspectionSheet = await convertDataRowToInspectionSheet(server, operationContext, importOptions);
           if (!inspectionSheet) {
-            logger.error(`R${rowNum}: 无效的检验记录。`);
+            const errorMessage = `第${rowNum}行: 无效的检验记录。`;
+            logger.error(errorMessage);
+            errors.push(errorMessage);
           } else {
             const lotNums = inspectionSheet.lotNum?.split("\n");
             for (const lotNum of lotNums || []) {
@@ -148,7 +152,10 @@ export default {
 
           await operationContext.commitDbTransaction();
         } catch (ex: any) {
-          logger.error("保存检验记录失败。%s", ex.message);
+          const errorMessage = `第${rowNum}行: ${ex.message}`;
+          logger.error(errorMessage);
+          errors.push(errorMessage);
+
           await operationContext.rollbackDbTransaction();
         }
       }
@@ -160,7 +167,7 @@ export default {
       }
     }
 
-    ctx.output = { result: "ok", inspectionSheetsSaved: inspectionSheetsSaved };
+    ctx.output = { result: "ok", errors, inspectionSheetsSaved };
   },
 } satisfies ServerOperation;
 
@@ -199,7 +206,13 @@ async function convertDataRowToInspectionSheet(
 
     if (columnType === "sheetProperty") {
       const { propertyCode } = column;
-      if (propertyCode === "result") {
+      if (propertyCode === "lotNum") {
+        if (!cellText) {
+          throw new Error(`检验记录中批次号不能为空。`);
+        }
+
+        inspectionSheet[propertyCode] = cellText;
+      } else if (propertyCode === "result") {
         const resultValueMap: Record<string, InspectionResult> = {
           合格: "qualified",
           不合格: "unqualified",
@@ -207,7 +220,14 @@ async function convertDataRowToInspectionSheet(
           一次送检不合格: "unqualified",
         };
 
+        if (!cellText) {
+          throw new Error("SPEC判定不能为空。");
+        }
+
         inspectionSheet.result = resultValueMap[cellText];
+        if (!inspectionSheet.result) {
+          throw new Error("无效的SPEC判定值。必须为“一次送检合格”或者“一次送检不合格”");
+        }
       } else if (propertyCode === "sampleDeliveryTime" || propertyCode === "productionTime") {
         if (!cellText) {
           inspectionSheet[propertyCode] = undefined;
@@ -216,6 +236,10 @@ async function convertDataRowToInspectionSheet(
         }
       } else if (propertyCode === "inspectorName") {
         // 查找检验员
+
+        if (!cellText) {
+          throw new Error("检验员不能为空。");
+        }
 
         let user: OcUser;
         if (usersCache.has(cellText)) {
@@ -237,6 +261,10 @@ async function convertDataRowToInspectionSheet(
             ],
           });
 
+          if (users.length > 1) {
+            throw new Error(`存在多个名为“${cellText}”的用户。`);
+          }
+
           user = users[0] || null;
           usersCache.set(cellText, users[0]);
         }
@@ -245,6 +273,8 @@ async function convertDataRowToInspectionSheet(
           inspectionSheet.inspector = {
             id: user.id,
           };
+        } else {
+          throw new Error(`不存在名为“${cellText}”的用户。`);
         }
       } else if (propertyCode === "materialAbbr") {
         // 根据规格搜索产品
@@ -277,13 +307,13 @@ async function convertDataRowToInspectionSheet(
         }
 
         if (!materials.length) {
-          return null;
+          throw new Error(`未找到牌号为“${cellText}”的物料。`);
         } else if (materials.length === 1) {
           material = materials[0];
         } else {
           const lotNum = inspectionSheet.lotNum;
           if (!lotNum) {
-            return null;
+            throw new Error(`检验记录中批次号不能为空。`);
           }
 
           const materialIds = materials.map((material) => material.id);
@@ -310,17 +340,17 @@ async function convertDataRowToInspectionSheet(
           });
 
           if (!lots.length || lots.length > 1) {
-            return null;
+            throw new Error(`无法根据批号推断物料，系统中批次号为“${lotNum}”的物料不唯一。`);
           }
 
           const materialId = (lots[0] as any).material_id;
           if (!materialId) {
-            return null;
+            throw new Error(`无法根据批号推断物料，系统中批次号“${lotNum}”不存在关联物料。`);
           }
 
           material = materials.find((item) => item.id === materialId);
           if (!material) {
-            return null;
+            throw new Error(`无法根据批号推断物料，系统中批次号为“${lotNum}”的物料牌号不是${cellText}。`);
           }
         }
 
@@ -365,7 +395,7 @@ async function convertDataRowToInspectionSheet(
         }
 
         if (!inspectionRule) {
-          return null;
+          throw new Error(`产品 ${material.specification} 没有配置“产成品检验”规则。`);
         }
         importContext.inspectionRuleOfCurrentRow = inspectionRule;
 
@@ -396,7 +426,7 @@ async function convertDataRowToInspectionSheet(
       if (!character) {
         const commonCharacter = find(commonCharacters, (item) => item.name === charName);
         if (!commonCharacter) {
-          throw new Error(`检验值无效。${material!.specification}的检验规则中未配置名为“${charName}”的检验特征。`);
+          throw new Error(`检验值无效。${material!.specification}的检验规则中未配置名为“${charName}”的检验特征，并且该检验特征并非通用检验特征。`);
         }
 
         character = await server.getEntityManager<MomInspectionCharacteristic>("mom_inspection_characteristic").createEntity({

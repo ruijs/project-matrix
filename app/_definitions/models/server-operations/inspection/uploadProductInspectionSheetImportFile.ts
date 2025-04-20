@@ -646,7 +646,7 @@ async function validateCellValueOfMeasurementField(options: CellValueValidationO
         characterKind = commonCharacter.kind;
       } else {
         return {
-          message: `检验值无效。${materialOfCurrentRow.specification}的检验规则中未配置名为“${charName}”的检验特征。`,
+          message: `检验值无效。${materialOfCurrentRow.specification}的检验规则中未配置名为“${charName}”的检验特征，并且该检验特征并非通用检验特征。`,
           cellAddress: cell.address,
         };
       }
