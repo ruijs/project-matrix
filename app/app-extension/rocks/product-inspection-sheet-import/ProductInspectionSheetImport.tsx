@@ -1,8 +1,7 @@
 import { DownloadOutlined, InboxOutlined, LeftOutlined, LoadingOutlined } from "@ant-design/icons";
 import { Rock, SimpleRockConfig } from "@ruiapp/move-style";
-import { Button, Checkbox, Divider, Form, FormInstance, Input, message, Result, Select, Space, Steps, Upload, UploadProps } from "antd";
+import { Alert, Button, Checkbox, Divider, Form, FormInstance, Input, message, Result, Select, Space, Steps, Upload, UploadProps } from "antd";
 import { useEffect, useState } from "react";
-import ExcelDataPreviewer from "~/components/ExcelDataPreviewer";
 import ExcelDataPreviewer from "~/components/ExcelDataPreviewer";
 import ImportDataValidationErrorList from "~/components/ImportDataValidationErrorList";
 import rapidApi from "~/rapidApi";
@@ -27,6 +26,7 @@ export default {
     const [previewData, setPreviewData] = useState<PreviewData>();
     const [importingState, setImportingState] = useState<ImportingState>("importing");
     const [importFailedMessage, setImportFailedMessage] = useState("");
+    const [importErrors, setImportErrors] = useState<string[]>([]);
     const [inspectionSheetsSaved, setInspectionSheetsSaved] = useState<any[]>([]);
     const [ignoreErrors, setIgnoreErrors] = useState(false);
     const downloadUrl = `/api/app/downloadProductInspectionSheetImportTemplate`;
@@ -84,6 +84,7 @@ export default {
 
         if (response.status === 200) {
           setImportingState("imported");
+          setImportErrors(response.data.errors || []);
           setInspectionSheetsSaved(response.data.inspectionSheetsSaved || []);
         } else {
           const error = response.data.error;
@@ -184,22 +185,42 @@ export default {
                   : ""
               }
               extra={
-                importingState === "imported"
-                  ? [
-                      <Button key="viewPackageItemDetail" type="primary" href={`/pages/mom_inspection_sheet_list`}>
-                        查看检测记录
-                      </Button>,
-                      <Button key="importAgain" onClick={() => setStep(0)}>
-                        再次导入
-                      </Button>,
-                    ]
-                  : importingState === "failed"
-                  ? [
-                      <Button key="importAgain" onClick={() => setStep(0)}>
-                        重新导入
-                      </Button>,
-                    ]
-                  : null
+                importingState === "imported" ? (
+                  <div>
+                    <div>
+                      <Space direction="horizontal">
+                        <Button key="viewPackageItemDetail" type="primary" href={`/pages/mom_inspection_sheet_list`}>
+                          查看检测记录
+                        </Button>
+                        <Button key="importAgain" onClick={() => setStep(0)}>
+                          再次导入
+                        </Button>
+                      </Space>
+                    </div>
+                    <div style={{ paddingTop: "20px", textAlign: "left" }}>
+                      {importErrors.length > 0 && (
+                        <Alert
+                          message="以下检验记录未导入成功："
+                          description={
+                            <ul>
+                              {importErrors.map((importError, index) => {
+                                return <li key={index}>{importError}</li>;
+                              })}
+                            </ul>
+                          }
+                          type="warning"
+                          showIcon
+                        />
+                      )}
+                    </div>
+                  </div>
+                ) : importingState === "failed" ? (
+                  [
+                    <Button key="importAgain" onClick={() => setStep(0)}>
+                      重新导入
+                    </Button>,
+                  ]
+                ) : null
               }
             />
           </div>
