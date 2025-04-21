@@ -16,6 +16,53 @@ import type {
 import { renderMaterial } from "~/app-extension/rocks/material-label-renderer/MaterialLabelRenderer";
 import { isCharactorMeasured } from "~/utils/inspection-utility";
 
+export async function getRelatedLotByLotNum(server: IRpdServer, routeContext: RouteContext, inspectionSheet: Partial<MomInspectionSheet>) {
+  let materialId = getEntityRelationTargetId(inspectionSheet, "material", "material_id");
+  if (!materialId) {
+    return;
+  }
+
+  let lotId = getEntityRelationTargetId(inspectionSheet, "lot", "lot_id");
+  if (!lotId) {
+    const lotManager = server.getEntityManager<BaseLot>("base_lot");
+    const lotNum = inspectionSheet.lotNum;
+    if (lotNum) {
+      let lot = await lotManager.findEntity({
+        routeContext,
+        filters: [
+          {
+            operator: "eq",
+            field: "lotNum",
+            value: lotNum,
+          },
+          {
+            operator: "eq",
+            field: "material",
+            value: materialId,
+          },
+        ],
+      });
+
+      if (lot) {
+        return lot;
+      }
+
+      lot = await lotManager.createEntity({
+        routeContext,
+        entity: {
+          material: { id: materialId },
+          lotNum,
+          sourceType: "selfMade",
+          qualificationState: "unqualified",
+          isAOD: false,
+          state: "normal",
+        } satisfies Partial<BaseLot>,
+      });
+      return lot;
+    }
+  }
+}
+
 /**
  * 判定检验单的检验结果。
  * 检验单检验结果判定规则：
