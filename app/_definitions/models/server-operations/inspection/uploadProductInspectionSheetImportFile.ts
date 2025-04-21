@@ -272,6 +272,8 @@ async function parseInspectionSheetImportFile(
     }
 
     validationContext.row = row;
+    validationContext.inspectionRuleOfCurrentRow = undefined;
+    validationContext.materialOfCurrentRow = undefined;
 
     logger.info(`正在解析第${rowNum}行`);
 
