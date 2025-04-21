@@ -1,6 +1,6 @@
 import ExcelJS from "exceljs";
 import type { ActionHandlerContext, IRpdServer, RouteContext, ServerOperation } from "@ruiapp/rapid-core";
-import { find, get, isArray, isString } from "lodash";
+import { find, get, isArray, isNil, isString } from "lodash";
 import type {
   ProductionInspectionSheetImportColumn,
   ParseProductInspectionSheetTableResult,
@@ -95,7 +95,7 @@ function getCellText(cell: ExcelJS.Cell | undefined): string | null {
     return getCellText(cell.master);
   }
 
-  if (!cell.value) {
+  if (isNil(cell.value)) {
     return null;
   }
 
