@@ -1,7 +1,6 @@
 import { getNowStringWithTimezone, IDatabaseClient, RouteContext, type ActionHandlerContext, type IRpdServer, type ServerOperation } from "@ruiapp/rapid-core";
 import EntityManager from "@ruiapp/rapid-core/dist/dataAccess/entityManager";
-import dayjs from "dayjs";
-import { cloneDeep, find, get, sample } from "lodash";
+import { cloneDeep, find, get } from "lodash";
 import { InspectionResult } from "~/_definitions/meta/data-dictionary-types";
 import {
   BaseLot,
@@ -16,7 +15,7 @@ import {
   OcUser,
   SaveMomInspectionCharacteristicInput,
 } from "~/_definitions/meta/entity-types";
-import { refreshInspectionSheetInspectionResult } from "~/services/InspectionSheetService";
+import { approveInspectionSheet, refreshInspectionSheetInspectionResult } from "~/services/InspectionSheetService";
 import { productInspectionImportSettingsIgnoredCharNames } from "~/settings/productInspectionImportSettings";
 import type { ProductionInspectionSheetImportColumn } from "~/types/production-inspection-sheet-import-types";
 import { formatDateTimeWithoutTimezone } from "~/utils/time-utils";
@@ -118,8 +117,10 @@ export default {
     try {
       transactionDbClient = await operationContext.initDbTransactionClient();
 
+      // 第一行是表格header
+      const dataRowCount = data.length - 1;
       for (let index = 1; index < data.length; index++) {
-        logger.info(`导入进度：${index}/${data.length}`);
+        logger.info(`导入进度：${index}/${dataRowCount}`);
         const row = data[index];
         const rowNum = index + 1;
 
@@ -152,15 +153,14 @@ export default {
 
           await operationContext.commitDbTransaction();
         } catch (ex: any) {
-          const errorMessage = `第${rowNum}行: ${ex.message}`;
-          logger.error(errorMessage);
-          errors.push(errorMessage);
+          logger.error(`第${rowNum}行: ${ex.stack}`);
+          errors.push(`第${rowNum}行: ${ex.message}`);
 
           await operationContext.rollbackDbTransaction();
         }
       }
     } catch (ex: any) {
-      logger.error("处理检验记录文件异常。%s", ex.message);
+      logger.error("处理检验记录文件异常。%s", ex.stack);
     } finally {
       if (transactionDbClient) {
         transactionDbClient.release();
@@ -565,17 +565,22 @@ async function saveInspectionSheet(server: IRpdServer, routeContext: RouteContex
       },
     });
 
-    await refreshInspectionSheetInspectionResult(server, routeContext, newInspectionSheet.id);
+    const updatedInspectionSheet = await refreshInspectionSheetInspectionResult(server, routeContext, newInspectionSheet.id);
+    if (updatedInspectionSheet.result) {
+      await approveInspectionSheet(server, routeContext, newInspectionSheet.id);
+    }
   } else {
     inspectionSheet.state = "inspected";
     inspectionSheet.approvalState = "approving";
-    //TODO: set approvalState ?
     const newInspectionSheet = await inspectionSheetManager.createEntity({
       routeContext,
       entity: {
         ...inspectionSheet,
       } as Partial<MomInspectionSheet>,
     });
-    await refreshInspectionSheetInspectionResult(server, routeContext, newInspectionSheet.id);
+    const updatedInspectionSheet = await refreshInspectionSheetInspectionResult(server, routeContext, newInspectionSheet.id);
+    if (updatedInspectionSheet.result) {
+      await approveInspectionSheet(server, routeContext, newInspectionSheet.id);
+    }
   }
 }

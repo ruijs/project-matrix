@@ -1,12 +1,12 @@
 import { getEntityRelationTargetId, type EntityWatcher, type EntityWatchHandlerContext } from "@ruiapp/rapid-core";
-import type { BaseLot, MomInspectionSheet } from "~/_definitions/meta/entity-types";
+import type { MomInspectionSheet } from "~/_definitions/meta/entity-types";
 import {
   lockMeasurementsOfInspectionSheet,
   trySendInspectionSheetNotification,
-  refreshInspectionSheetInspectionResult,
   updateQualificationStateOfRelatedApplicationItem,
   updateQualificationStateOfRelatedLot,
   determineInspectionSheetInspectionResult,
+  getRelatedLotByLotNum,
 } from "~/services/InspectionSheetService";
 import { refreshInventoryApplicationInspectionState } from "~/services/InventoryApplicationService";
 
@@ -20,20 +20,9 @@ export default [
       const before = payload.before as MomInspectionSheet;
       let changes = payload.changes as Partial<MomInspectionSheet>;
 
-      if (changes.hasOwnProperty("lotNum")) {
-        const materialId = getEntityRelationTargetId(before, "material", "material_id");
-        const lotManager = server.getEntityManager<BaseLot>("base_lot");
-        const lot = await lotManager.findEntity({
-          routeContext,
-          filters: [
-            { operator: "eq", field: "lotNum", value: before.lotNum },
-            { operator: "eq", field: "material_id", value: materialId },
-          ],
-          properties: ["id"],
-        });
-        if (lot) {
-          changes.lot = { id: lot.id };
-        }
+      let lotId = getEntityRelationTargetId(before, "lot", "lot_id");
+      if (changes.hasOwnProperty("lotNum") || !lotId) {
+        changes.lot = await getRelatedLotByLotNum(server, routeContext, before);
       }
 
       if (changes.hasOwnProperty("approvalState") && changes.approvalState !== before.approvalState) {
@@ -56,22 +45,7 @@ export default [
       let before = payload.before;
 
       if (before.hasOwnProperty("lotNum")) {
-        const lotManager = server.getEntityManager<BaseLot>("base_lot");
-        const lot = await lotManager.findEntity({
-          routeContext,
-          filters: [
-            { operator: "eq", field: "lotNum", value: before.lotNum },
-            {
-              operator: "eq",
-              field: "material_id",
-              value: before.material?.id || before.material_id,
-            },
-          ],
-          properties: ["id"],
-        });
-        if (lot) {
-          before.lot = { id: lot?.id };
-        }
+        before.lot = await getRelatedLotByLotNum(server, routeContext, before);
       }
     },
   },
@@ -123,6 +97,7 @@ export default [
         // 如果检验单关联了库存操作单以及库存业务申请单，则更新库存业务申请中对应批次物料的检验状态
         await updateQualificationStateOfRelatedApplicationItem(server, routeContext, inspectionSheet, inventoryApplication);
 
+        // TODO: 没有判定检验结果前，应拒绝审批通过
         // 当出入库申请中所有批次的物料都检验完成，将出入库申请单的检验状态设置成已完成。
         await refreshInventoryApplicationInspectionState(server, routeContext, inventoryApplication);
       }
