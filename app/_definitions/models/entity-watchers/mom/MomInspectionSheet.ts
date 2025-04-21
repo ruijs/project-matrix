@@ -123,6 +123,7 @@ export default [
         // 如果检验单关联了库存操作单以及库存业务申请单，则更新库存业务申请中对应批次物料的检验状态
         await updateQualificationStateOfRelatedApplicationItem(server, routeContext, inspectionSheet, inventoryApplication);
 
+        // TODO: 没有判定检验结果前，应拒绝审批通过
         // 当出入库申请中所有批次的物料都检验完成，将出入库申请单的检验状态设置成已完成。
         await refreshInventoryApplicationInspectionState(server, routeContext, inventoryApplication);
       }

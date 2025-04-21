@@ -105,7 +105,7 @@ export async function determineInspectionSheetInspectionResult(server: IRpdServe
 export async function refreshInspectionSheetInspectionResult(server: IRpdServer, routeContext: RouteContext, inspectionSheetId: number) {
   const sheetQualificationResult = await determineInspectionSheetInspectionResult(server, routeContext, inspectionSheetId);
   const inspectionSheetManager = server.getEntityManager<MomInspectionSheet>("mom_inspection_sheet");
-  await inspectionSheetManager.updateEntityById({
+  return await inspectionSheetManager.updateEntityById({
     routeContext,
     id: inspectionSheetId,
     entityToSave: {
@@ -144,12 +144,38 @@ export async function lockMeasurementsOfInspectionSheet(server: IRpdServer, rout
  * @returns
  */
 export async function updateQualificationStateOfRelatedLot(server: IRpdServer, routeContext: RouteContext, inspectionSheet: MomInspectionSheet) {
-  const lotId = getEntityRelationTargetId(inspectionSheet, "lot", "lot_id");
-  if (!lotId) {
+  if (inspectionSheet.result === "uninspected") {
     return;
   }
 
-  if (inspectionSheet.result === "uninspected") {
+  let lotId = getEntityRelationTargetId(inspectionSheet, "lot", "lot_id");
+  let materialId = getEntityRelationTargetId(inspectionSheet, "material", "material_id");
+  if (!lotId) {
+    const lotNum = inspectionSheet.lotNum;
+    if (lotNum) {
+      const lot = await server.getEntityManager<BaseLot>("base_lot").findEntity({
+        routeContext,
+        filters: [
+          {
+            operator: "eq",
+            field: "lotNum",
+            value: lotNum,
+          },
+          {
+            operator: "eq",
+            field: "material",
+            value: materialId,
+          },
+        ],
+      });
+
+      if (lot) {
+        lotId = lot.id;
+      }
+    }
+  }
+
+  if (!lotId) {
     return;
   }
 
@@ -306,4 +332,22 @@ export async function trySendInspectionSheetNotification(server: IRpdServer, rou
   logger.info("发送检验任务通知。", { subscriberIds, dingTalkMessage });
   const dingTalkService = server.getService<DingTalkService>("dingTalkService");
   await dingTalkService.sendWorkMessage(routeContext, subscriberIds, dingTalkMessage);
+}
+
+/**
+ * 检验单审批通过
+ * @param server
+ * @param routeContext
+ * @param inspectionSheetId
+ * @returns
+ */
+export async function approveInspectionSheet(server: IRpdServer, routeContext: RouteContext, inspectionSheetId: number) {
+  const inspectionSheetManager = server.getEntityManager<MomInspectionSheet>("mom_inspection_sheet");
+  return await inspectionSheetManager.updateEntityById({
+    routeContext,
+    id: inspectionSheetId,
+    entityToSave: {
+      approvalState: "approved",
+    } satisfies Partial<MomInspectionSheet>,
+  });
 }
