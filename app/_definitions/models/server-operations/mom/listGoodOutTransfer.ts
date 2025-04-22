@@ -1,4 +1,5 @@
 import type { ActionHandlerContext, IRpdServer, RouteContext, ServerOperation } from "@ruiapp/rapid-core";
+import { find } from "lodash";
 import type { BaseLot, BaseMaterial } from "~/_definitions/meta/entity-types";
 
 export type QueryGoodOutTransferInput = {
@@ -41,6 +42,164 @@ export default {
 } satisfies ServerOperation;
 
 async function listGoodOutTransfers(server: IRpdServer, routeContext: RouteContext, input: QueryGoodOutTransferInput) {
+  const operationId = input.operationId;
+  let sql: string;
+  sql = `
+SELECT mio.id,
+       mio.application_id
+FROM mom_inventory_operations mio
+WHERE mio.id=$1;
+  `;
+  const inventoryOperations = await server.queryDatabaseObject(sql, [operationId], routeContext.getDbTransactionClient());
+  const inventoryOperation = inventoryOperations[0];
+  if (!inventoryOperation) {
+    throw new Error(`未找到id为${operationId}的库存操作单。`);
+  }
+
+  // 查询应出库物料清单
+  sql = `
+SELECT miai.id,
+       miai.material_id,
+       miai.lot_num,
+       miai.bin_num,
+       miai.quantity AS total_amount,
+       jsonb_build_object('id', bm.id,
+                          'code', bm.code,
+                          'name', bm.name,
+                          'specification', bm.specification,
+                          'qualityGuaranteePeriod', bm.quality_guarantee_period,
+                          'defaultUnit',
+                          to_jsonb(bu.*)) AS material
+FROM mom_inventory_application_items miai
+         INNER JOIN base_materials bm ON miai.material_id = bm.id
+         INNER JOIN base_units bu ON bm.default_unit_id = bu.id
+WHERE miai.operation_id = $1
+ORDER BY bm.code, miai.lot_num NULLS LAST, miai.bin_num NULLS LAST;
+  `;
+  const itemsShouldOperate = await server.queryDatabaseObject(sql, [inventoryOperation.application_id], routeContext.getDbTransactionClient());
+
+  // 查询已出库物料清单
+  sql = `
+SELECT mgt.id,
+       mgt.material_id,
+       mgt.lot_num,
+       mgt.bin_num,
+       mgt.quantity
+FROM mom_good_transfers mgt
+WHERE operation_id = $1;
+  `;
+  const itemsTransfered = await server.queryDatabaseObject(sql, [operationId], routeContext.getDbTransactionClient());
+
+  // 统计已出库数量
+  for (const item of itemsShouldOperate) {
+    item.completed_amount = 0;
+    item.transfers = [];
+    item.goods = [];
+  }
+
+  for (const itemTransfered of itemsTransfered) {
+    if (itemTransfered.lot_num && itemTransfered.bin_num) {
+      const itemToOperate = find(itemsShouldOperate, (item) => {
+        return item.material_id === itemTransfered.material_id && item.lot_num === itemTransfered.lot_num && item.bin_num === itemTransfered.bin_num;
+      });
+
+      if (itemToOperate) {
+        itemToOperate.transfers.push(itemTransfered);
+        itemToOperate.completed_amount += itemTransfered.quantity;
+        itemToOperate.binded = true;
+      }
+    }
+  }
+
+  for (const itemTransfered of itemsTransfered) {
+    if (itemTransfered.binded) {
+      continue;
+    }
+
+    if (itemTransfered.lot_num) {
+      const itemToOperate = find(itemsShouldOperate, (item) => {
+        return item.material_id === itemTransfered.material_id && item.lot_num === itemTransfered.lot_num && !item.bin_num;
+      });
+      if (itemToOperate) {
+        itemToOperate.transfers.push(itemTransfered);
+        itemToOperate.completed_amount += itemTransfered.quantity;
+        itemToOperate.binded = true;
+      }
+    }
+  }
+
+  for (const itemTransfered of itemsTransfered) {
+    if (itemTransfered.binded) {
+      continue;
+    }
+
+    const itemToOperate = find(itemsShouldOperate, (item) => {
+      return item.material_id === itemTransfered.material_id && !item.lot_num && !item.bin_num;
+    });
+    if (itemToOperate) {
+      itemToOperate.transfers.push(itemTransfered);
+      itemToOperate.completed_amount += itemTransfered.quantity;
+      itemToOperate.binded = true;
+    }
+  }
+
+  // 统计待出库物料数量，并查询待出库物料所在库位信息
+  for (const item of itemsShouldOperate) {
+    item.waiting_amount = Math.max(item.total_amount - item.completed_amount, 0);
+
+    if (item.waiting_amount === 0) {
+      continue;
+    }
+
+    if (item.lot_num && item.bin_num) {
+      sql = `
+SELECT mg.quantity,
+       jsonb_build_object('id', bl.id, 'name', bl.name, 'code', bl.code) AS location
+FROM mom_goods mg
+    INNER JOIN base_locations bl ON mg.location_id = bl.id
+WHERE mg.material_id = $1
+  AND mg.lot_num = $2
+  AND mg.bin_num = $3
+  AND mg.state = 'normal';
+            `;
+      item.goods = await server.queryDatabaseObject(sql, [item.material_id, item.lot_num, item.bin_num], routeContext.getDbTransactionClient());
+    } else {
+      sql = `
+WITH good_quantity_cte AS (SELECT mg.location_id,
+                                  sum(mg.quantity) AS quantity
+                           FROM mom_goods mg
+                           WHERE mg.material_id = $1
+                             AND mg.lot_num = $2
+                             AND mg.state = 'normal'
+                           GROUP BY mg.location_id)
+SELECT gqc.quantity,
+       jsonb_build_object('id', bl.id, 'name', bl.name, 'code', bl.code) AS location
+FROM base_locations bl
+         INNER JOIN good_quantity_cte gqc ON bl.id = gqc.location_id
+ORDER BY bl.code;
+            `;
+      item.goods = await server.queryDatabaseObject(sql, [item.material_id, item.lot_num], routeContext.getDbTransactionClient());
+    }
+  }
+
+  return itemsShouldOperate.map((item) => {
+    return {
+      id: item.id,
+      operationId,
+      material: item.material,
+      lotNum: item.lot_num,
+      binNum: item.bin_num,
+      totalAmount: item.total_amount,
+      completedAmount: item.completed_amount,
+      waitingAmount: item.waiting_amount,
+      lot: item.lot,
+      goods: item.goods,
+      transfers: item.transfers,
+    };
+  });
+}
+
+async function listGoodOutTransfersLegacy(server: IRpdServer, routeContext: RouteContext, input: QueryGoodOutTransferInput) {
   let stmt = `
 WITH inventory_good_transfers_cte AS (SELECT operation_id,
                                              material_id,
