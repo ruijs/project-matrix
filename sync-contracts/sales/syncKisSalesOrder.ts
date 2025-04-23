@@ -8,6 +8,8 @@ import {
   type MomInventoryApplicationItem,
   type MomInventoryBusinessType,
 } from "~/_definitions/meta/entity-types";
+import { isEqual, map, omit, orderBy } from "lodash";
+import { getEntityRelationTargetId } from "@ruiapp/rapid-core";
 
 const syncKisInventoryMaterialReceiptNotice: KisToWmsSyncContract<any, MomInventoryApplication> = {
   name: "syncKisSalesOrder",
@@ -23,7 +25,7 @@ const syncKisInventoryMaterialReceiptNotice: KisToWmsSyncContract<any, MomInvent
   targetEntityCodeField: "code",
   targetEntityNameField: "code",
   targetEntityUniqueKeys: ["code"],
-  targetEntityFieldsToUpdate: [],
+  targetEntityFieldsToUpdate: ["customer", "applicant", "contractNum", "items"],
   fetchSourceOptions: {
     fetchAll: false,
     fetchPageSize: 50,
@@ -33,6 +35,9 @@ const syncKisInventoryMaterialReceiptNotice: KisToWmsSyncContract<any, MomInvent
         Type: "Desc",
       },
     },
+  },
+  findTargetEntityRelationsOptions: {
+    items: true,
   },
   assistantCreator: genKisToWmsSyncAssistantCreator({
     appCode: "app007099",
@@ -125,6 +130,35 @@ const syncKisInventoryMaterialReceiptNotice: KisToWmsSyncContract<any, MomInvent
       }
 
       return inventoryApplication;
+    },
+
+    async handleShouldUpdate(syncContext, source, targetEntityToSave, currentTargetEntity, changes) {
+      function inventoryApplicationItemMapper(item: Partial<MomInventoryApplicationItem>) {
+        return {
+          orderNum: item.orderNum,
+          material_id: getEntityRelationTargetId(item, "material", "material_id"),
+          quantity: item.quantity,
+          remark: item.remark,
+          fOrderBillNo: item.fOrderBillNo,
+          fSourceBillNo: item.fSourceBillNo,
+        };
+      }
+      const itemsToSave = orderBy(map(targetEntityToSave.items, inventoryApplicationItemMapper), ["orderNum"]);
+      const itemsSaved = orderBy(map(currentTargetEntity.items, inventoryApplicationItemMapper), ["orderNum"]);
+      const itemsChanged = !isEqual(itemsToSave, itemsSaved);
+
+      const isWarehouseAssigned = !!(currentTargetEntity as any).from_warehouse_id;
+
+      const shouldItemsUpdate = !isWarehouseAssigned && itemsChanged;
+
+      if (!shouldItemsUpdate) {
+        delete changes.items;
+      }
+
+      const changesExceptItems = omit(changes, ["items"]);
+      const shouldEntityUpdate =
+        currentTargetEntity.operationState === "pending" && (!!(changesExceptItems && Object.keys(changesExceptItems).length) || shouldItemsUpdate);
+      return shouldEntityUpdate;
     },
   }),
 };

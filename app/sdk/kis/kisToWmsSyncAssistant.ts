@@ -23,6 +23,14 @@ export type FuncHandleFindTargetEntity<TSourceEntity, TTargetEntity, TSyncContex
   predicate: Partial<TTargetEntity>,
 ) => Promise<Partial<TTargetEntity> | undefined>;
 
+export type FuncHandleShouldUpdateTargetEntity<TSourceEntity, TTargetEntity, TSyncContextState> = (
+  syncContext: SyncContext<TSourceEntity, TTargetEntity, TSyncContextState>,
+  source: Partial<TSourceEntity>,
+  targetEntityToSave: Partial<TTargetEntity>,
+  currentTargetEntity: Partial<TTargetEntity>,
+  changes: any,
+) => Promise<boolean | undefined>;
+
 export type FetchKisEntitiesApiName = "List" | "GetListDetails";
 
 export type GenKisToWmsSyncAssistantCreatorOptions<TSourceEntity, TTargetEntity, TSyncContextState> = {
@@ -64,6 +72,8 @@ export type GenKisToWmsSyncAssistantCreatorOptions<TSourceEntity, TTargetEntity,
    * @returns
    */
   handleFindTargetEntity?: FuncHandleFindTargetEntity<TSourceEntity, TTargetEntity, TSyncContextState>;
+
+  handleShouldUpdate?: FuncHandleShouldUpdateTargetEntity<TSourceEntity, TTargetEntity, TSyncContextState>;
 };
 
 export function genKisToWmsSyncAssistantCreator<TSourceEntity, TTargetEntity extends { id: any }, TSyncContextState>(
@@ -84,6 +94,7 @@ export function genKisToWmsSyncAssistantCreator<TSourceEntity, TTargetEntity ext
       sourceEntityFilter: options.sourceEntityFilter,
       mapToTargetEntity: options.mapToTargetEntity,
       handleFindTargetEntity: options.handleFindTargetEntity,
+      handleShouldUpdate: options.handleShouldUpdate,
     });
 
     await assistant.init();
@@ -144,6 +155,8 @@ export type KisToWmsSyncAssistantInitOptions<TSourceEntity, TTargetEntity, TSync
    * @returns
    */
   handleFindTargetEntity?: FuncHandleFindTargetEntity<TSourceEntity, TTargetEntity, TSyncContextState>;
+
+  handleShouldUpdate?: FuncHandleShouldUpdateTargetEntity<TSourceEntity, TTargetEntity, TSyncContextState>;
 };
 
 export default class KisToWmsSyncAssistant<TSourceEntity, TTargetEntity extends { id: any }, TSyncContextState>
@@ -167,6 +180,8 @@ export default class KisToWmsSyncAssistant<TSourceEntity, TTargetEntity extends 
 
   private handleFindTargetEntity?: FuncHandleFindTargetEntity<TSourceEntity, TTargetEntity, TSyncContextState>;
 
+  shouldUpdate?: FuncHandleShouldUpdateTargetEntity<TSourceEntity, TTargetEntity, TSyncContextState>;
+
   constructor(options: KisToWmsSyncAssistantInitOptions<TSourceEntity, TTargetEntity, TSyncContextState>) {
     this.server = options.server;
     this.logger = this.server.getLogger().child({ label: "KisToWmsSyncAssistant" });
@@ -183,6 +198,10 @@ export default class KisToWmsSyncAssistant<TSourceEntity, TTargetEntity extends 
 
     if (options.handleFindTargetEntity) {
       this.handleFindTargetEntity = options.handleFindTargetEntity;
+    }
+
+    if (options.handleShouldUpdate) {
+      this.shouldUpdate = options.handleShouldUpdate;
     }
   }
 
@@ -297,6 +316,7 @@ export default class KisToWmsSyncAssistant<TSourceEntity, TTargetEntity extends 
 
       const entities = await this.targetEntityManager.findEntities({
         filters,
+        relations: this.contract.findTargetEntityRelationsOptions,
         keepNonPropertyFields: true,
       });
 

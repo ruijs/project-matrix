@@ -1,6 +1,6 @@
 import type { IRpdServer, Logger, RouteContext } from "@ruiapp/rapid-core";
 import type { EntitySyncAssistant, EntitySyncContract, EntitySyncDecision, SyncContext } from "./EntitySyncPluginTypes";
-import { get, isNil, pick } from "lodash";
+import { get, isBoolean, isNil, pick } from "lodash";
 
 export type PerformSyncCycleOptions<TSourceEntity = any, TTargetEntity = any> = {
   server: IRpdServer;
@@ -211,7 +211,15 @@ export async function decideSyncAction<TSourceEntity, TTargetEntity, TSyncContex
         targetEntityToSave = pick(targetEntityToSave, contract.targetEntityFieldsToUpdate);
       }
       const changes = await assistant.detectChangedFieldsOfTargetEntity(syncContext, sourceEntity, targetEntityToSave, currentTargetEntity);
-      const shouldUpdate = !!(changes && Object.keys(changes).length);
+      let shouldUpdate = !!(changes && Object.keys(changes).length);
+
+      if (assistant.shouldUpdate) {
+        let shouldUpdateByAssistant = await assistant.shouldUpdate(syncContext, sourceEntity, targetEntityToSave, currentTargetEntity, changes);
+        if (!isNil(shouldUpdateByAssistant) && isBoolean(shouldUpdateByAssistant)) {
+          shouldUpdate = shouldUpdateByAssistant;
+        }
+      }
+
       if (targetEntitySoftDeleted) {
         if (shouldUpdate) {
           return {
