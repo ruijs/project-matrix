@@ -22,7 +22,7 @@ async function run() {
   await rapidServer.start();
 
   const routeContext = RouteContext.newSystemOperationContext(rapidServer);
-  await rapidServer.getService<EntitySyncService>("entitySyncService").performSyncCycle(routeContext, syncKisSubcontractDelivery);
+  await rapidServer.getService<EntitySyncService>("entitySyncService").performSyncCycle(routeContext, syncKisSalesOrder);
 }
 
 run();

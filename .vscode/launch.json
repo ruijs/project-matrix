@@ -21,6 +21,24 @@
         "-r",
         "tsconfig-paths/register"
       ]
+    },
+    {
+      "request": "launch",
+      "name": "run-sync-job",
+      "outputCapture": "std",
+      "type": "node",
+      "program": "${workspaceFolder}/tools/run-sync-job.ts",
+      "cwd": "${workspaceFolder}",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "${workspaceFolder}/node_modules/ts-node/dist/bin-esm.js",
+        "--project",
+        "./tsconfig.json",
+        "-r",
+        "dotenv/config",
+        "-r",
+        "tsconfig-paths/register"
+      ]
     }
   ]
 }

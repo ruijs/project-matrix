@@ -1,4 +1,4 @@
-import { IRpdServer, Logger, RouteContext } from "@ruiapp/rapid-core";
+import { FindEntityOptions, IRpdServer, Logger, RouteContext } from "@ruiapp/rapid-core";
 
 export type EntitySyncPluginInitOptions = {
   syncContracts: EntitySyncContract[];
@@ -96,6 +96,8 @@ export type EntitySyncContract<TSourceEntity = any, TTargetEntity = any, TSyncCo
    * - 如果希望源实体同步后不再被更新，可将此项设置为空数组。
    */
   targetEntityFieldsToUpdate: string[];
+
+  findTargetEntityRelationsOptions?: FindEntityOptions["relations"];
 
   /**
    * 同步助理，负责实体的加载、过滤、转换、保存等。
@@ -223,6 +225,25 @@ export interface EntitySyncAssistant<TSourceEntity = any, TTargetEntity = any, T
     targetEntityToSave: Partial<TTargetEntity>,
     currentTargetEntity: Partial<TTargetEntity>,
   ): Promise<Partial<TTargetEntity> | null>;
+
+  /**
+   * 由 EntityAssistant 决定是否应该更新目标实体。
+   *
+   * 如果没有返回 true 或者 false，则由 EntitySynchronizer 检测目标实体是否发生变化来决定是否更新。
+   * @param syncContext
+   * @param source
+   * @param targetEntityToSave
+   * @param currentTargetEntity
+   * @param changes
+   * @returns
+   */
+  shouldUpdate?: (
+    syncContext: SyncContext<TSourceEntity, TTargetEntity, TSyncContextState>,
+    source: Partial<TSourceEntity>,
+    targetEntityToSave: Partial<TTargetEntity>,
+    currentTargetEntity: Partial<TTargetEntity>,
+    changes: any,
+  ) => Promise<boolean | undefined>;
 }
 
 export type SyncActionType =
