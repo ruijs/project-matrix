@@ -67,11 +67,11 @@ WITH goods_in_stock_cte AS (SELECT mio.id                                       
                                       goods_in_stock_cte.total_shelves,
                                       goods_in_stock_cte.total_amount,
                                       goods_in_stock_cte.in_stock_good_ids,
-                                      goods_checked_cte.checked_amount,
-                                      goods_checked_cte.checked_shelves,
+                                      COALESCE(goods_checked_cte.checked_amount, 0) AS checked_amount,
+                                      COALESCE(goods_checked_cte.checked_shelves, 0) AS checked_shelves,
                                       goods_checked_cte.checked_good_ids
                                FROM goods_in_stock_cte
-                                        INNER JOIN goods_checked_cte
+                                        LEFT JOIN goods_checked_cte
                                                    ON goods_in_stock_cte.material_id = goods_checked_cte.material_id),
      result AS (SELECT ioc.*,
                        greatest(ioc.total_amount - ioc.checked_amount,
