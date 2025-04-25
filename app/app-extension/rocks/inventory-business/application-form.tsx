@@ -192,6 +192,9 @@ export default {
                     field: "location.code",
                     desc: true,
                   },
+                  {
+                    field: "binNum",
+                  },
                 ],
               },
             },

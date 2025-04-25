@@ -260,22 +260,20 @@ function getFormConfig(formType: "newForm" | "editForm") {
           dropdownMatchSelectWidth: 500,
           labelRendererType: "materialLabelRenderer",
           listFilterFields: ["name", "code", "specification"],
-          requestParams: {
-            properties: ["id", "code", "name", "specification", "defaultUnit", "category"],
-            fixedFilters: [
-              {
-                operator: "eq",
-                field: "state",
-                value: "enabled",
-              },
-            ],
-            orderBy: [
-              {
-                field: "code",
-              },
-            ],
-            keepNonPropertyFields: true,
-          },
+          queryProperties: ["id", "code", "name", "specification", "defaultUnit", "category"],
+          fixedFilters: [
+            {
+              operator: "eq",
+              field: "state",
+              value: "enabled",
+            },
+          ],
+          orderBy: [
+            {
+              field: "code",
+            },
+          ],
+          keepNonPropertyFields: true,
           columns: [
             {
               title: "名称",
@@ -311,7 +309,7 @@ function getFormConfig(formType: "newForm" | "editForm") {
               `,
             },
           ],
-        },
+        } satisfies RapidEntityTableSelectConfig,
       },
       // 下拉选择 （只有出库,生产退料入库）
       {
