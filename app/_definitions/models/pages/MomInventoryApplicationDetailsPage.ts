@@ -5,6 +5,7 @@ import type {
   SonicEntityListRockConfig,
   RapidEntityTableSelectConfig,
   RapidToolbarButtonRockConfig,
+  SonicEntityDetailsRockConfig,
 } from "@ruiapp/rapid-extension";
 
 const materialFormItemConfig: RapidEntityFormConfig["items"][0] = {
@@ -426,28 +427,24 @@ const page: RapidPage = {
       statePropertyCode: "operationState",
       items: [
         {
-          type: "auto",
           code: "state",
           $exps: {
             _hidden: `!(['盘亏出库'].includes($self.form.getFieldValue('businessType')?.name))`,
           },
         },
         {
-          type: "auto",
           code: "businessType",
           rendererProps: {
             format: "{{name}}",
           },
         },
         {
-          type: "auto",
           code: "applicant",
           rendererProps: {
             format: "{{name}}",
           },
         },
         {
-          type: "auto",
           code: "fFManager",
           rendererProps: {
             format: "{{name}}",
@@ -457,7 +454,6 @@ const page: RapidPage = {
           },
         },
         {
-          type: "auto",
           code: "fSManager",
           rendererProps: {
             format: "{{name}}",
@@ -467,7 +463,6 @@ const page: RapidPage = {
           },
         },
         {
-          type: "auto",
           code: "department",
           $exps: {
             label: `(['其它原因出库', '其它原因出库退货入库', '领料出库', '生产退料入库'].includes($self.form.getFieldValue('businessType')?.name)) ? '领料部门' : 
@@ -479,7 +474,6 @@ const page: RapidPage = {
           },
         },
         {
-          type: "auto",
           code: "supplier",
           label: "加工单位",
           $exps: {
@@ -487,7 +481,6 @@ const page: RapidPage = {
           },
         },
         {
-          type: "auto",
           code: "fUse",
           $exps: {
             _hidden:
@@ -496,14 +489,12 @@ const page: RapidPage = {
           },
         },
         {
-          type: "auto",
           code: "fPlanSn",
           $exps: {
             _hidden: "!['领料出库','生产退料入库'].includes($self.form.getFieldValue('businessType')?.name)",
           },
         },
         {
-          type: "auto",
           code: "customer",
           rendererProps: {
             format: "{{name}}",
@@ -514,7 +505,6 @@ const page: RapidPage = {
           },
         },
         {
-          type: "auto",
           label: "仓库",
           code: "warehouse",
           rendererType: "text",
@@ -526,29 +516,12 @@ const page: RapidPage = {
           },
         },
         {
-          type: "auto",
           code: "depositDate",
-          fieldType: "date",
           $exps: {
             _hidden: "$self.form.getFieldValue('operationType') !== 'out'",
           },
         },
-        // {
-        //   type: "auto",
-        //   code: "to",
-        //   rendererProps: {
-        //     format: "{{name}}",
-        //   },
-        //   $exps: {
-        //     _hidden: "$self.form.getFieldValue('operationType') !== 'in'",
-        //   },
-        // },
-        // {
-        //   type: "auto",
-        //   code: "state",
-        // },
         {
-          type: "auto",
           code: "createdAt",
         },
       ],
@@ -681,7 +654,7 @@ const page: RapidPage = {
       $exps: {
         entityId: "$rui.parseQuery().id",
       },
-    },
+    } satisfies SonicEntityDetailsRockConfig,
 
     {
       $type: "antdTabs",

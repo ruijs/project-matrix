@@ -119,6 +119,11 @@ const page: RapidPage = {
       extraProperties: ["operationType"],
       columns: [
         {
+          type: "auto",
+          code: "operationState",
+          width: "150px",
+        },
+        {
           type: "link",
           code: "code",
           rendererType: "rapidLinkRenderer",
