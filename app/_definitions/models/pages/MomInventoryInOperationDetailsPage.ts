@@ -278,14 +278,6 @@ const page: RapidPage = {
         },
         {
           type: "auto",
-          code: "contractNum",
-        },
-        {
-          type: "auto",
-          code: "supplier",
-        },
-        {
-          type: "auto",
           code: "productionPlanSn",
           $exps: {
             _hidden: "!($stores.detail?.data?.list[0]?.businessType.name === '领料出库')",

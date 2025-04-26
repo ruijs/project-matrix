@@ -14,6 +14,7 @@ import { decimalSum } from "~/utils/decimal";
 import SaleLotNumSelect from "./saleLotNumSelect";
 import { renderInventoryManagerDisplayLabel } from "~/app-extension/utils/inventory-manager-utility";
 import { FindEntityOptions } from "@ruiapp/rapid-core";
+import { MomInventory, MomInventoryApplication } from "~/_definitions/meta/entity-types";
 
 const LotSelect = memo<{
   isSalesOut: boolean;
@@ -110,7 +111,7 @@ export default {
     const [refreshKey, setRefreshKey] = useState<string | number>();
     const [isSalesOut, setIsSalesOut] = useState<boolean>(false);
     const [operationType, setOperationType] = useState<string>();
-    const [businessType, setBusinessType] = useState<string>();
+    const [businessType, setBusinessType] = useState<string>("");
     const [materialItems, setMaterialItems] = useState<any[]>([]);
     const [enabledBinNum, setEnabledBinNum] = useState<boolean>(false);
     const [warehouseId, setWarehouseId] = useState<string>();
@@ -274,15 +275,20 @@ export default {
               };
             }
 
+            let applicationState: MomInventoryApplication["state"] = "approved";
+            if (["盘亏出库"].includes(businessType)) {
+              applicationState = "approving";
+            }
+
             saveApplication({
               operationState: "pending",
               operationType: "in",
-              state: "approved",
+              state: applicationState,
               source: "manual",
               ...restValues,
               ...warehouseInfo,
               items: applicationItems,
-            });
+            } satisfies Partial<MomInventoryApplication>);
           }}
           onValuesChange={(values) => {
             setRefreshKey(dayjs().unix());

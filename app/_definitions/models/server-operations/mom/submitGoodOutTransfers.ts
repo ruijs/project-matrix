@@ -35,7 +35,7 @@ export default {
   },
 } satisfies ServerOperation;
 
-async function submitGoodOutTransfers(server: IRpdServer, routeContext: RouteContext, input: CreateGoodOutTransferInput) {
+export async function submitGoodOutTransfers(server: IRpdServer, routeContext: RouteContext, input: CreateGoodOutTransferInput) {
   const inventory = await findInventoryOperation(server, routeContext, input.operationId);
 
   if (!inventory) throw new Error("未找到对应的库存操作");
