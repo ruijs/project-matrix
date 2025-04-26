@@ -134,7 +134,7 @@ const page: RapidPage = {
           rendererType: "rapidLinkRenderer",
           rendererProps: {
             text: "{{code}}",
-            url: "/pages/mom_inventory_application_details?id={{id}}",
+            url: "/pages/mom_inventory_adjust_application_details?id={{id}}",
           },
         },
         // {

@@ -119,17 +119,6 @@ const page: RapidPage = {
         },
         {
           type: "auto",
-          code: "contractNum",
-        },
-        {
-          type: "auto",
-          code: "supplier",
-          rendererProps: {
-            format: "{{name}}",
-          },
-        },
-        {
-          type: "auto",
           code: "approvalState",
         },
       ],

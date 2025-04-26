@@ -1,5 +1,5 @@
 import { cloneDeep, omit } from "lodash";
-import type { RapidPage, RapidEntityFormConfig, RapidEntityFormRockConfig } from "@ruiapp/rapid-extension";
+import type { RapidPage, RapidEntityFormConfig, RapidEntityFormRockConfig, RapidEntityTableSelectConfig } from "@ruiapp/rapid-extension";
 
 const materialFormItemConfig: RapidEntityFormConfig["items"][0] = {
   type: "auto",
@@ -280,10 +280,8 @@ function getFormConfig(formType: "newForm" | "editForm") {
           dropdownMatchSelectWidth: 500,
           labelRendererType: "materialLabelRenderer",
           listFilterFields: ["name", "code", "specification"],
-          requestParams: {
-            properties: ["id", "code", "name", "specification", "defaultUnit", "category"],
-            keepNonPropertyFields: true,
-          },
+          queryProperties: ["id", "code", "name", "specification", "defaultUnit", "category"],
+          keepNonPropertyFields: true,
           columns: [
             {
               title: "名称",
@@ -319,7 +317,7 @@ function getFormConfig(formType: "newForm" | "editForm") {
               `,
             },
           ],
-        },
+        } satisfies RapidEntityTableSelectConfig,
       },
       {
         type: "auto",

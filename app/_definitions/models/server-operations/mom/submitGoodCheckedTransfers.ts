@@ -65,6 +65,31 @@ async function findGoods(server: IRpdServer, routeContext: RouteContext, input: 
 async function createGoodCheckRecord(server: IRpdServer, routeContext: RouteContext, operationId: number, good: MomGood) {
   const goodCheckManager = server.getEntityManager<MomInventoryCheckRecord>("mom_inventory_check_record");
 
+  const checkRecordCount = await goodCheckManager.count({
+    routeContext,
+    filters: [
+      {
+        operator: "eq",
+        field: "operation",
+        value: operationId,
+      },
+      {
+        operator: "eq",
+        field: "material",
+        value: good.material?.id,
+      },
+      {
+        operator: "eq",
+        field: "binNum",
+        value: good.binNum,
+      },
+    ],
+  });
+
+  if (checkRecordCount > 0) {
+    return;
+  }
+
   let savedGoodCheckRecord = {
     operation: { id: operationId },
     material: { id: good.material?.id },

@@ -1,5 +1,11 @@
 import { cloneDeep, omit } from "lodash";
-import type { RapidPage, RapidEntityFormConfig, SonicEntityListRockConfig } from "@ruiapp/rapid-extension";
+import type {
+  RapidPage,
+  RapidEntityFormConfig,
+  SonicEntityListRockConfig,
+  RapidEntityTableSelectConfig,
+  RapidToolbarButtonRockConfig,
+} from "@ruiapp/rapid-extension";
 
 const materialFormItemConfig: RapidEntityFormConfig["items"][0] = {
   type: "auto",
@@ -260,22 +266,20 @@ function getFormConfig(formType: "newForm" | "editForm") {
           dropdownMatchSelectWidth: 500,
           labelRendererType: "materialLabelRenderer",
           listFilterFields: ["name", "code", "specification"],
-          requestParams: {
-            properties: ["id", "code", "name", "specification", "defaultUnit", "category"],
-            fixedFilters: [
-              {
-                operator: "eq",
-                field: "state",
-                value: "enabled",
-              },
-            ],
-            orderBy: [
-              {
-                field: "code",
-              },
-            ],
-            keepNonPropertyFields: true,
-          },
+          queryProperties: ["id", "code", "name", "specification", "defaultUnit", "category"],
+          fixedFilters: [
+            {
+              operator: "eq",
+              field: "state",
+              value: "enabled",
+            },
+          ],
+          orderBy: [
+            {
+              field: "code",
+            },
+          ],
+          keepNonPropertyFields: true,
           columns: [
             {
               title: "名称",
@@ -311,7 +315,7 @@ function getFormConfig(formType: "newForm" | "editForm") {
               `,
             },
           ],
-        },
+        } satisfies RapidEntityTableSelectConfig,
       },
       // 下拉选择 （只有出库,生产退料入库）
       {
@@ -414,19 +418,19 @@ const page: RapidPage = {
   // permissionCheck: {any: []},
   view: [
     {
-      $type: "rapidEntityForm",
+      $type: "sonicEntityDetails",
       entityCode: "MomInventoryApplication",
-      mode: "view",
       column: 3,
-      extraProperties: ["from", "to", "operationState"],
+      extraProperties: ["from", "to", "operationState", "operationType"],
+      titlePropertyCode: "code",
+      statePropertyCode: "operationState",
       items: [
         {
           type: "auto",
-          code: "code",
-        },
-        {
-          type: "auto",
-          code: "operationType",
+          code: "state",
+          $exps: {
+            _hidden: `!(['盘亏出库'].includes($self.form.getFieldValue('businessType')?.name))`,
+          },
         },
         {
           type: "auto",
@@ -559,52 +563,126 @@ const page: RapidPage = {
           },
         },
       },
+      actions: [
+        {
+          $type: "pagePrint",
+          slots: [],
+          orderBy: [{ field: "orderNum" }],
+          relations: {
+            lot: true,
+            good: {
+              properties: ["id", "location"],
+              relations: {
+                location: true,
+              },
+            },
+          },
+          properties: ["id", "material", "lotNum", "quantity", "unit", "quantity", "binNum", "lot", "good", "remark"],
+          filters: [
+            {
+              operator: "and",
+              filters: [{ field: "application", operator: "exists", filters: [{ field: "id", operator: "eq", value: "$rui.parseQuery().id" }] }],
+            },
+          ],
+          columns: [
+            { code: "material", name: "物品", isObject: true, value: "code", jointValue: "name", joinAnOtherValue: "specification" },
+            { code: "lotNum", name: "批号" },
+            {
+              code: "binNum",
+              name: "托盘号",
+              columnRenderAdapter: `
+              const binNumItems = _.filter(_.get(record, 'binNumItems'),function(item) { return !!_.get(item, "binNum") });
+              return _.map(binNumItems,function(item){
+                const binNum = _.get(item, "binNum") || '-';
+                const quantity = _.get(item, "quantity") || 0;
+                const location = _.get(item, "good.location.name") || '-';
+                return _.join([binNum, quantity, location], ' | ');
+              });
+            `,
+            },
+            { code: "quantity", name: "数量" },
+            { code: "unit", name: "单位", isObject: true, value: "code" },
+            { code: "remark", name: "备注" },
+          ],
+          $exps: {
+            apiUrl: `'mom/mom_inventory_application_items/operations/find'`,
+            "filters[0].filters[0].filters[0].value": "$rui.parseQuery().id",
+          },
+        },
+        {
+          $type: "rapidToolbarButton",
+          text: "拒绝",
+          actionStyle: "default",
+          icon: "StopOutlined",
+          danger: true,
+          $permissionCheck: "inventoryApplication.checkAmountAdjustmentApprove",
+          onAction: [
+            {
+              $action: "sendHttpRequest",
+              method: "PATCH",
+              data: { state: "rejected" },
+              $exps: {
+                url: `"/api/mom/mom_inventory_applications/" + $rui.parseQuery().id`,
+              },
+            },
+            {
+              $action: "antdMessage",
+              title: "申请已拒绝。",
+              onClose: [
+                {
+                  $action: "reloadPage",
+                },
+              ],
+              $exps: {
+                title: "_.get(_.first(_.get($stores.detail, 'data.list')), 'businessType.name') + '已拒绝。'",
+              },
+            },
+          ],
+          $exps: {
+            _hidden:
+              "_.get(_.first(_.get($stores.detail, 'data.list')), 'state') !== 'approving' || !['盘亏出库'].includes(_.get(_.first(_.get($stores.detail, 'data.list')), 'businessType.name'))",
+          },
+        } satisfies RapidToolbarButtonRockConfig,
+        {
+          $type: "rapidToolbarButton",
+          text: "批准",
+          actionStyle: "primary",
+          icon: "CheckOutlined",
+          $permissionCheck: "inventoryApplication.checkAmountAdjustmentApprove",
+          onAction: [
+            {
+              $action: "sendHttpRequest",
+              method: "POST",
+              url: "/api/app/inventory/approveInventoryCheckAmountAdjustment",
+              data: { state: "approved" },
+              $exps: {
+                "data.applicationId": "parseInt($rui.parseQuery().id, 10)",
+              },
+            },
+            {
+              $action: "antdMessage",
+              title: "申请已批准。",
+              onClose: [
+                {
+                  $action: "reloadPage",
+                },
+              ],
+              $exps: {
+                title: "_.get(_.first(_.get($stores.detail, 'data.list')), 'businessType.name') + '已批准。'",
+              },
+            },
+          ],
+          $exps: {
+            _hidden:
+              "_.get(_.first(_.get($stores.detail, 'data.list')), 'state') !== 'approving' || !['盘亏出库'].includes(_.get(_.first(_.get($stores.detail, 'data.list')), 'businessType.name'))",
+          },
+        } satisfies RapidToolbarButtonRockConfig,
+      ],
       $exps: {
         entityId: "$rui.parseQuery().id",
       },
     },
-    {
-      $type: "pagePrint",
-      slots: [],
-      orderBy: [{ field: "orderNum" }],
-      relations: {
-        lot: true,
-        good: {
-          properties: ["id", "location"],
-          relations: {
-            location: true,
-          },
-        },
-      },
-      properties: ["id", "material", "lotNum", "quantity", "unit", "quantity", "binNum", "lot", "good", "remark"],
-      filters: [
-        { operator: "and", filters: [{ field: "application", operator: "exists", filters: [{ field: "id", operator: "eq", value: "$rui.parseQuery().id" }] }] },
-      ],
-      columns: [
-        { code: "material", name: "物品", isObject: true, value: "code", jointValue: "name", joinAnOtherValue: "specification" },
-        { code: "lotNum", name: "批号" },
-        {
-          code: "binNum",
-          name: "托盘号",
-          columnRenderAdapter: `
-            const binNumItems = _.filter(_.get(record, 'binNumItems'),function(item) { return !!_.get(item, "binNum") });
-            return _.map(binNumItems,function(item){
-              const binNum = _.get(item, "binNum") || '-';
-              const quantity = _.get(item, "quantity") || 0;
-              const location = _.get(item, "good.location.name") || '-';
-              return _.join([binNum, quantity, location], ' | ');
-            });
-          `,
-        },
-        { code: "quantity", name: "数量" },
-        { code: "unit", name: "单位", isObject: true, value: "code" },
-        { code: "remark", name: "备注" },
-      ],
-      $exps: {
-        apiUrl: `'mom/mom_inventory_application_items/operations/find'`,
-        "filters[0].filters[0].filters[0].value": "$rui.parseQuery().id",
-      },
-    },
+
     {
       $type: "antdTabs",
       items: [
@@ -694,7 +772,7 @@ const page: RapidPage = {
                   title: "托盘号",
                   width: "180px",
                   $exps: {
-                    _hidden: "_.get(_.first(_.get($stores.detail, 'data.list')), 'businessType.name') !== '领料出库'",
+                    _hidden: "!['领料出库', '盘亏出库'].includes(_.get(_.first(_.get($stores.detail, 'data.list')), 'businessType.name'))",
                   },
                 },
                 // {
@@ -757,6 +835,9 @@ const page: RapidPage = {
                   type: "auto",
                   title: "金蝶传输",
                   code: "application.kisResponse",
+                  $exps: {
+                    _hidden: "['盘亏出库', '盘盈入库'].includes(_.get(_.first(_.get($stores.detail, 'data.list')), 'businessType.name'))",
+                  },
                 },
                 {
                   type: "auto",

@@ -1,5 +1,5 @@
 import type { Rock, RockConfig } from "@ruiapp/move-style";
-import { FindEntityOptions } from "@ruiapp/rapid-extension";
+import { FindEntityOptions, RapidEntityTableSelectConfig, RapidEntityTableSelectRockConfig } from "@ruiapp/rapid-extension";
 import { renderRock } from "@ruiapp/react-renderer";
 import { Tag } from "antd";
 import { find, get, isPlainObject } from "lodash";
@@ -191,14 +191,12 @@ export default {
         },
       ],
       entityCode: warehouseId ? "MomMaterialLotWarehouseInventoryBalance" : "MomMaterialLotInventoryBalance",
-      requestParams: {
-        fixedFilters,
-        orderBy,
-        properties: ["id", "lotNum", "material", "createdAt", "lot", "onHandQuantity"],
-      },
+      fixedFilters,
+      orderBy,
+      queryProperties: ["id", "lotNum", "material", "createdAt", "lot", "onHandQuantity"],
       value: props.value,
       onChange: props.onChange,
-    };
+    } satisfies RapidEntityTableSelectRockConfig;
 
     return renderRock({ context, rockConfig });
   },

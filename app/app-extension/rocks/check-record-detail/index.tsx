@@ -55,7 +55,7 @@ export default {
       {
         $type: "antdModal",
         $id: `${props.$id}_modal`,
-        title: "组托明细",
+        title: "差异明细",
         open: visible,
         width: 500,
         footer: false,
