@@ -1,5 +1,5 @@
 import { cloneDeep } from "lodash";
-import type { RapidPage, RapidEntityFormConfig } from "@ruiapp/rapid-extension";
+import type { RapidPage, RapidEntityFormConfig, SonicEntityDetailsRockConfig } from "@ruiapp/rapid-extension";
 
 const materialFormItemConfig: RapidEntityFormConfig["items"][0] = {
   type: "auto",
@@ -101,80 +101,52 @@ const page: RapidPage = {
   // permissionCheck: {any: []},
   view: [
     {
-      $type: "rapidEntityForm",
+      $type: "sonicEntityDetails",
       entityCode: "MomInventoryOperation",
-      mode: "view",
       column: 3,
+      titlePropertyCode: "code",
+      statePropertyCode: "state",
       extraProperties: ["application"],
       items: [
         {
-          type: "auto",
-          code: "code",
-        },
-        {
-          type: "auto",
-          code: "operationType",
-        },
-        {
-          type: "auto",
           code: "businessType",
-          rendererProps: {
-            format: "{{name}}",
-          },
         },
         {
-          type: "auto",
-          code: "createdAt",
+          code: "warehouse",
+          label: "仓库",
         },
         {
-          type: "auto",
-          code: "state",
-        },
-        {
-          type: "auto",
-          code: "approvalState",
-        },
-        {
-          type: "auto",
           code: "productionPlanSn",
           $exps: {
             _hidden: "!($stores.detail?.data?.list[0]?.businessType.name === '领料出库')",
           },
         },
         {
-          type: "auto",
-          code: "warehouse",
-          label: "仓库",
-          // $exps: {
-          //   _hidden: "!($stores.detail?.data?.list[0]?.businessType.name === '生产入库')",
-          // },
-        },
-        {
-          type: "auto",
           code: "department",
           $exps: {
             _hidden: "!($stores.detail?.data?.list[0]?.businessType.name === '领料出库' || $stores.detail?.data?.list[0]?.businessType.name === '生产入库')",
           },
         },
         {
-          type: "auto",
           code: "shop",
           $exps: {
             _hidden: "!($stores.detail?.data?.list[0]?.businessType.name === '领料出库' || $stores.detail?.data?.list[0]?.businessType.name === '生产入库')",
           },
         },
         {
-          type: "auto",
           code: "finishedMaterial",
           $exps: {
             _hidden: "!($stores.detail?.data?.list[0]?.businessType.name === '领料出库')",
           },
         },
+        {
+          code: "createdAt",
+        },
       ],
       $exps: {
         entityId: "$rui.parseQuery().id",
       },
-    },
+    } satisfies SonicEntityDetailsRockConfig,
     {
       $type: "box",
       children: [

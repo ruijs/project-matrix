@@ -1,5 +1,5 @@
 import { cloneDeep, omit } from "lodash";
-import type { RapidPage, RapidEntityFormConfig } from "@ruiapp/rapid-extension";
+import type { RapidPage, RapidEntityFormConfig, SonicEntityDetailsRockConfig } from "@ruiapp/rapid-extension";
 
 const formConfig: Partial<RapidEntityFormConfig> = {
   items: [
@@ -115,10 +115,12 @@ const page: RapidPage = {
   // permissionCheck: {any: []},
   view: [
     {
-      $type: "rapidEntityForm",
+      $type: "sonicEntityDetails",
       entityCode: "MomInventoryApplication",
-      mode: "view",
       column: 3,
+      extraProperties: ["from", "to", "operationState", "operationType"],
+      titlePropertyCode: "code",
+      statePropertyCode: "operationState",
       relations: {
         businessType: {
           relations: {
@@ -132,89 +134,70 @@ const page: RapidPage = {
       },
       items: [
         {
-          type: "auto",
           code: "code",
         },
         {
-          type: "auto",
           code: "operationType",
         },
         {
-          type: "auto",
           code: "businessType",
-          rendererProps: {
-            format: "{{name}}",
-          },
         },
-        // {
-        //   type: "auto",
-        //   code: "from",
-        //   rendererProps: {
-        //     format: "{{name}}",
-        //   },
-        // },
-        // {
-        //   type: "auto",
-        //   code: "to",
-        //   rendererProps: {
-        //     format: "{{name}}",
-        //   },
-        // },
-        // {
-        //   type: "auto",
-        //   code: "state",
-        // },
         {
-          type: "auto",
           code: "createdAt",
+        },
+      ],
+      actions: [
+        {
+          $type: "pagePrint",
+          slots: [],
+          orderBy: [{ field: "orderNum" }],
+          relations: {
+            lot: true,
+            good: {
+              properties: ["id", "location"],
+              relations: {
+                location: true,
+              },
+            },
+          },
+          properties: ["id", "material", "lotNum", "quantity", "unit", "quantity", "binNum", "lot", "good"],
+          filters: [
+            {
+              operator: "and",
+              filters: [{ field: "application", operator: "exists", filters: [{ field: "id", operator: "eq", value: "$rui.parseQuery().id" }] }],
+            },
+          ],
+          columns: [
+            { code: "material", name: "物品", isObject: true, value: "code", jointValue: "name", joinAnOtherValue: "specification" },
+            { code: "lotNum", name: "批号" },
+            {
+              code: "binNum",
+              name: "托盘号",
+              columnRenderAdapter: `
+                const binNumItems = _.filter(_.get(record, 'binNumItems'),function(item) { return !!_.get(item, "binNum") });
+                return _.map(binNumItems,function(item){  
+                  const binNum = _.get(item, "binNum") || '-';
+                  const quantity = _.get(item, "quantity") || 0;
+                  const location = _.get(item, "good.location.name") || '-';
+                  return _.join([binNum, quantity, location], ' | ');
+                });
+              `,
+            },
+            { code: "quantity", name: "数量" },
+            { code: "unit", name: "单位", isObject: true, value: "code" },
+            { code: "remark", name: "备注" },
+          ],
+          $exps: {
+            apiUrl: `'mom/mom_inventory_application_items/operations/find'`,
+            "filters[0].filters[0].filters[0].value": "$rui.parseQuery().id",
+          },
         },
       ],
       $exps: {
         entityId: "$rui.parseQuery().id",
       },
-    },
-    {
-      $type: "pagePrint",
-      slots: [],
-      orderBy: [{ field: "orderNum" }],
-      relations: {
-        lot: true,
-        good: {
-          properties: ["id", "location"],
-          relations: {
-            location: true,
-          },
-        },
-      },
-      properties: ["id", "material", "lotNum", "quantity", "unit", "quantity", "binNum", "lot", "good"],
-      filters: [
-        { operator: "and", filters: [{ field: "application", operator: "exists", filters: [{ field: "id", operator: "eq", value: "$rui.parseQuery().id" }] }] },
-      ],
-      columns: [
-        { code: "material", name: "物品", isObject: true, value: "code", jointValue: "name", joinAnOtherValue: "specification" },
-        { code: "lotNum", name: "批号" },
-        {
-          code: "binNum",
-          name: "托盘号",
-          columnRenderAdapter: `
-            const binNumItems = _.filter(_.get(record, 'binNumItems'),function(item) { return !!_.get(item, "binNum") });
-            return _.map(binNumItems,function(item){  
-              const binNum = _.get(item, "binNum") || '-';
-              const quantity = _.get(item, "quantity") || 0;
-              const location = _.get(item, "good.location.name") || '-';
-              return _.join([binNum, quantity, location], ' | ');
-            });
-          `,
-        },
-        { code: "quantity", name: "数量" },
-        { code: "unit", name: "单位", isObject: true, value: "code" },
-        { code: "remark", name: "备注" },
-      ],
-      $exps: {
-        apiUrl: `'mom/mom_inventory_application_items/operations/find'`,
-        "filters[0].filters[0].filters[0].value": "$rui.parseQuery().id",
-      },
-    },
+    } satisfies SonicEntityDetailsRockConfig,
+
     {
       $type: "antdTabs",
       items: [

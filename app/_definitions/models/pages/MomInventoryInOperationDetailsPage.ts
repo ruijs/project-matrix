@@ -253,14 +253,6 @@ const page: RapidPage = {
       items: [
         {
           type: "auto",
-          code: "warehouse",
-        },
-        {
-          type: "auto",
-          code: "operationType",
-        },
-        {
-          type: "auto",
           code: "businessType",
         },
         {
@@ -274,7 +266,7 @@ const page: RapidPage = {
         },
         {
           type: "auto",
-          code: "createdAt",
+          code: "warehouse",
         },
         {
           type: "auto",
@@ -303,6 +295,10 @@ const page: RapidPage = {
           $exps: {
             _hidden: "!($stores.detail?.data?.list[0]?.businessType.name === '领料出库')",
           },
+        },
+        {
+          type: "auto",
+          code: "createdAt",
         },
       ],
       $exps: {
