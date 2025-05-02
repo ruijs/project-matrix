@@ -524,7 +524,7 @@ const page: RapidPage = {
                 //   icon: "ReloadOutlined",
                 // },
               ],
-              pageSize: -1,
+              pageSize: 100,
               orderBy: [
                 {
                   field: "orderNum",
@@ -783,7 +783,7 @@ const page: RapidPage = {
                     ],
                   },
                 ],
-                pageSize: -1,
+                pageSize: 100,
                 orderBy: [
                   {
                     field: "createdAt",
