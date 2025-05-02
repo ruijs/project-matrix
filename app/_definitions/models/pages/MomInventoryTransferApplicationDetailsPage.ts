@@ -238,7 +238,7 @@ const page: RapidPage = {
                 //   icon: "ReloadOutlined",
                 // },
               ],
-              pageSize: -1,
+              pageSize: 100,
               orderBy: [
                 {
                   field: "orderNum",
