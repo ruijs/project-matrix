@@ -47,6 +47,7 @@ import filterMaterialLotNumSelector from "./filter-material-lotnum-selector/Filt
 import ExtraCount from "./extra-count/ExtraCount";
 import SaleInventoryLotNum from "./sale-inventory-lot-num/SaleInventoryLotNum";
 import ProductInspectionSheetImport from "./product-inspection-sheet-import/ProductInspectionSheetImport";
+import InventoryWithInspectionResultSection from "./inventory-with-inspection-result-section/InventoryWithInspectionResultSection";
 
 export default [
   Link,
@@ -79,6 +80,7 @@ export default [
   InventoryApplicationForm,
   InventoryModifyOperationForm,
   InventoryApplicationReceivingAction,
+  InventoryWithInspectionResultSection,
   PagePrint,
 
   // inspection
