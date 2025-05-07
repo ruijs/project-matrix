@@ -560,6 +560,7 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
                     FSManagerID: inventoryApplication?.fSManager?.externalCode || inventoryApplication?.createdBy?.externalCode,
                     FBillerID: inventoryApplication?.biller?.externalUserCode,
                     FEmpID: inventoryApplication?.applicant?.externalCode,
+                    FOrgBillInterID: parseInt(inventoryApplication.externalCode!, 10),
                     FTranType: 21,
                     FDeptID: departmentId || "781",
                     FROB: 1,
