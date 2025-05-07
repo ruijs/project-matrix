@@ -120,7 +120,7 @@ const page: RapidPage = {
       columns: [
         {
           type: "auto",
-          code: "operationState",
+          code: "state",
           width: "150px",
         },
         {
@@ -150,7 +150,6 @@ const page: RapidPage = {
         {
           type: "auto",
           code: "businessType",
-          width: "150px",
           rendererProps: {
             format: "{{name}}",
           },
