@@ -58,11 +58,18 @@ WHERE mio.id=$1;
 
   // 查询应出库物料清单
   sql = `
-SELECT miai.id,
-       miai.material_id,
-       miai.lot_num,
-       miai.bin_num,
-       miai.quantity AS total_amount,
+WITH application_items AS (SELECT miai.material_id,
+                                  miai.lot_num,
+                                  jsonb_agg(miai.bin_num) as bin_nums,
+                                  sum(miai.quantity) as total_amount
+                           FROM mom_inventory_application_items miai
+                           WHERE miai.operation_id = $1
+                           GROUP BY miai.material_id, miai.lot_num)
+
+SELECT ai.material_id,
+       ai.lot_num,
+       ai.bin_nums,
+       ai.total_amount,
        jsonb_build_object('id', bm.id,
                           'code', bm.code,
                           'name', bm.name,
@@ -70,11 +77,10 @@ SELECT miai.id,
                           'qualityGuaranteePeriod', bm.quality_guarantee_period,
                           'defaultUnit',
                           to_jsonb(bu.*)) AS material
-FROM mom_inventory_application_items miai
-         INNER JOIN base_materials bm ON miai.material_id = bm.id
+FROM application_items ai
+         INNER JOIN base_materials bm ON ai.material_id = bm.id
          INNER JOIN base_units bu ON bm.default_unit_id = bu.id
-WHERE miai.operation_id = $1
-ORDER BY bm.code, miai.lot_num NULLS LAST, miai.bin_num NULLS LAST;
+ORDER BY bm.code, ai.lot_num NULLS LAST;
   `;
   const itemsShouldOperate = await server.queryDatabaseObject(sql, [inventoryOperation.application_id], routeContext.getDbTransactionClient());
 
@@ -188,7 +194,7 @@ ORDER BY bl.code;
       operationId,
       material: item.material,
       lotNum: item.lot_num,
-      binNum: item.bin_num,
+      binNums: item.bin_nums,
       totalAmount: item.total_amount,
       completedAmount: item.completed_amount,
       waitingAmount: item.waiting_amount,
