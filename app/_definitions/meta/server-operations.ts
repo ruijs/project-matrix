@@ -2,6 +2,7 @@ import type { ServerOperation as TServerOperation } from '@ruiapp/rapid-core';
 import inspection$importProductInspectionSheet from '../models/server-operations/inspection/importProductInspectionSheet';
 import inspection$uploadProductInspectionSheetImportFile from '../models/server-operations/inspection/uploadProductInspectionSheetImportFile';
 import inventory$approveInventoryCheckAmountAdjustment from '../models/server-operations/inventory/approveInventoryCheckAmountAdjustment';
+import inventory$moveGoods from '../models/server-operations/inventory/moveGoods';
 import inventory$queryInventoryWithInspectionResult from '../models/server-operations/inventory/queryInventoryWithInspectionResult';
 import kis$getKisAccountAppList from '../models/server-operations/kis/getKisAccountAppList';
 import kis$getKisServiceGateway from '../models/server-operations/kis/getKisServiceGateway';
@@ -40,6 +41,7 @@ export default [
   inspection$importProductInspectionSheet,
   inspection$uploadProductInspectionSheetImportFile,
   inventory$approveInventoryCheckAmountAdjustment,
+  inventory$moveGoods,
   inventory$queryInventoryWithInspectionResult,
   kis$getKisAccountAppList,
   kis$getKisServiceGateway,

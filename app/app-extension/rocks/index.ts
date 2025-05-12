@@ -48,6 +48,7 @@ import ExtraCount from "./extra-count/ExtraCount";
 import SaleInventoryLotNum from "./sale-inventory-lot-num/SaleInventoryLotNum";
 import ProductInspectionSheetImport from "./product-inspection-sheet-import/ProductInspectionSheetImport";
 import InventoryWithInspectionResultSection from "./inventory-with-inspection-result-section/InventoryWithInspectionResultSection";
+import MoveGoodsAction from "./move-goods-action/MoveGoodsAction";
 
 export default [
   Link,
@@ -82,6 +83,7 @@ export default [
   InventoryApplicationReceivingAction,
   InventoryWithInspectionResultSection,
   PagePrint,
+  MoveGoodsAction,
 
   // inspection
   ViewInspectionRecordAction,
