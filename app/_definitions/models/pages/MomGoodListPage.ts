@@ -98,6 +98,17 @@ const page: RapidPage = {
           $permissionCheck: "inventoryTag.manage",
         },
         {
+          $type: "moveGoodsAction",
+          $permissionCheck: "inventoryTag.manage",
+          onSuccess: [
+            {
+              $action: "loadStoreData",
+              scopeId: "goodEntityList-scope",
+              storeName: "list",
+            },
+          ],
+        },
+        {
           $type: "antdButton",
           href: `/api/app/exportExcel?type=goods`,
           $exps: {
