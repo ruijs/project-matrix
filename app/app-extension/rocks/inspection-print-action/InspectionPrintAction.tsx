@@ -199,7 +199,7 @@ export default {
               <td colSpan={2}>异常描述：{inspectionSheet.remark || "-"}</td>
             </tr>
             <tr>
-              <td colSpan={1}>检测员：{inspectionSheet.sender?.name || "-"}</td>
+              <td colSpan={1}>检测员：{inspectionSheet.inspector?.name || "-"}</td>
               <td colSpan={1}>审核员：{inspectionSheet.reviewer?.name || "-"}</td>
               <td colSpan={2}>确认（不合格时）：</td>
             </tr>
