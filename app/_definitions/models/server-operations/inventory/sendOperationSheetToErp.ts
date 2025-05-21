@@ -6,7 +6,7 @@ export type SendOperationSheetToErpInput = {
   applicationId: number;
 };
 
-// 标识卡拆分操作接口
+// 传输库存操作单到ERP
 export default {
   code: "inventory/sendOperationSheetToErp",
   method: "POST",

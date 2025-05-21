@@ -31,13 +31,17 @@ export default {
       },
     ];
 
+    const actionLink = (
+      <a className="rui-table-action-link" onClick={(e) => e.preventDefault()}>
+        <span style={{ marginRight: 4 }}>不良处理</span>
+        <DownOutlined onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />
+      </a>
+    );
+
     if (updating) {
       return (
         <Spin wrapperClassName="insecption-bad-action--spin" size="small" spinning>
-          <a style={{ display: "inline-flex", alignItems: "center", marginLeft: 6 }} onClick={(e) => e.preventDefault()}>
-            <span style={{ marginRight: 4 }}>不良处理</span>
-            <DownOutlined onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />
-          </a>
+          {actionLink}
         </Spin>
       );
     }
@@ -55,10 +59,7 @@ export default {
           },
         }}
       >
-        <a style={{ display: "inline-flex", alignItems: "center", marginLeft: 6 }} onClick={(e) => e.preventDefault()}>
-          <span style={{ marginRight: 4 }}>不良处理</span>
-          <DownOutlined onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />
-        </a>
+        {actionLink}
       </Dropdown>
     );
   },

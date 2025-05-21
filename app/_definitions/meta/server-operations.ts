@@ -1,5 +1,6 @@
 import type { ServerOperation as TServerOperation } from '@ruiapp/rapid-core';
 import inspection$importProductInspectionSheet from '../models/server-operations/inspection/importProductInspectionSheet';
+import inspection$reinspect from '../models/server-operations/inspection/reinspect';
 import inspection$uploadProductInspectionSheetImportFile from '../models/server-operations/inspection/uploadProductInspectionSheetImportFile';
 import inventory$approveInventoryCheckAmountAdjustment from '../models/server-operations/inventory/approveInventoryCheckAmountAdjustment';
 import inventory$moveGoods from '../models/server-operations/inventory/moveGoods';
@@ -40,6 +41,7 @@ import sys$listMyAllowedSysActions from '../models/server-operations/sys/listMyA
 
 export default [
   inspection$importProductInspectionSheet,
+  inspection$reinspect,
   inspection$uploadProductInspectionSheetImportFile,
   inventory$approveInventoryCheckAmountAdjustment,
   inventory$moveGoods,
