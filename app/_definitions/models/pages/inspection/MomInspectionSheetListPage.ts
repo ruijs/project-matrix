@@ -1,6 +1,7 @@
 import { cloneDeep } from "lodash";
-import type { RapidPage, RapidEntityFormConfig, RapidEntityTableSelectConfig } from "@ruiapp/rapid-extension";
+import type { RapidPage, RapidEntityFormConfig, RapidEntityTableSelectConfig, RapidTableActionRockConfig } from "@ruiapp/rapid-extension";
 import { SonicEntityListRockConfig } from "@ruiapp/rapid-extension/src/mod";
+import { RockEventHandlerSendHttpRequest } from "@ruiapp/move-style";
 
 const formConfig: Partial<RapidEntityFormConfig> = {
   items: [
@@ -459,6 +460,43 @@ const page: RapidPage = {
             _hidden: "$slot.record.result !== 'unqualified'",
           },
         },
+        {
+          $type: "rapidTableAction",
+          actionText: "重新检验",
+          confirmTitle: "您确定要重新检验吗？",
+          confirmText: "重新检验后，当前录入的数据将被清空。",
+          onAction: [
+            {
+              $action: "sendHttpRequest",
+              method: "POST",
+              url: "/api/app/inspection/reinspect",
+              data: {},
+              onSuccess: [
+                {
+                  $action: "antdToast",
+                  content: "操作成功。",
+                },
+                {
+                  $action: "loadStoreData",
+                  storeName: "list",
+                },
+              ],
+              onError: [
+                {
+                  $action: "antdToast",
+                  content: "操作失败。",
+                  type: "error",
+                },
+              ],
+              $exps: {
+                "data.inspectionSheetId": "$event.args[0].recordId",
+              },
+            } as RockEventHandlerSendHttpRequest,
+          ],
+          $exps: {
+            _hidden: "!($slot.record.state === 'inspected')",
+          },
+        } satisfies RapidTableActionRockConfig,
         {
           $type: "inspectionPrintAction",
         },
