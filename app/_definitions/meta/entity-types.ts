@@ -4723,6 +4723,10 @@ export interface MomInventoryApplication {
    */
   kisResponse?: string;
   /**
+   * ERP报错信息
+   */
+  kisError?: string;
+  /**
    * 检验状态
    */
   inspectState?: MomInspectionSheetState;

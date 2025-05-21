@@ -4,6 +4,7 @@ import inspection$uploadProductInspectionSheetImportFile from '../models/server-
 import inventory$approveInventoryCheckAmountAdjustment from '../models/server-operations/inventory/approveInventoryCheckAmountAdjustment';
 import inventory$moveGoods from '../models/server-operations/inventory/moveGoods';
 import inventory$queryInventoryWithInspectionResult from '../models/server-operations/inventory/queryInventoryWithInspectionResult';
+import inventory$sendOperationSheetToErp from '../models/server-operations/inventory/sendOperationSheetToErp';
 import kis$getKisAccountAppList from '../models/server-operations/kis/getKisAccountAppList';
 import kis$getKisServiceGateway from '../models/server-operations/kis/getKisServiceGateway';
 import kis$getKisUserLoginStatus from '../models/server-operations/kis/getKisUserLoginStatus';
@@ -43,6 +44,7 @@ export default [
   inventory$approveInventoryCheckAmountAdjustment,
   inventory$moveGoods,
   inventory$queryInventoryWithInspectionResult,
+  inventory$sendOperationSheetToErp,
   kis$getKisAccountAppList,
   kis$getKisServiceGateway,
   kis$getKisUserLoginStatus,

@@ -815,12 +815,14 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
             });
           }
 
+          let inventoryApplicationChanges: Partial<MomInventoryApplication> = {};
+          inventoryApplicationChanges.kisResponse = kisResponse.data?.FBillNo ? kisResponse.data.FBillNo : kisResponse.description;
+          inventoryApplicationChanges.kisError = kisResponse.errcode ? kisResponse.description : undefined;
+
           await inventoryApplicationManager.updateEntityById({
             routeContext,
             id: inventoryOperation?.application?.id,
-            entityToSave: {
-              kisResponse: kisResponse.data?.FBillNo ? kisResponse.data.FBillNo : kisResponse.description,
-            },
+            entityToSave: inventoryApplicationChanges,
           });
         }
       }
