@@ -19,9 +19,7 @@ import KisInventoryOperationAPI from "~/sdk/kis/inventory";
 import rapidApi from "~/rapidApi";
 import dayjs from "dayjs";
 import { isPlainObject } from "lodash";
-import { handleKisOperation } from "~/_definitions/models/server-operations/mom/handleKisOperation";
-import { CreateEventLogInput } from "rapid-plugins/eventLog/EventLogPluginTypes";
-import EventLogService from "rapid-plugins/eventLog/services/EventLogService";
+import { sendInventoryOperationSheetToErp } from "~/services/InventoryOperationService";
 
 export default [
   {
@@ -307,22 +305,7 @@ export default [
           }
 
           // 上报金蝶KIS云
-          try {
-            await handleKisOperation(server, routeContext, { operationId: after.id });
-          } catch (ex: any) {
-            const eventLog: CreateEventLogInput = {
-              sourceType: "app",
-              level: "error",
-              eventTypeCode: "kis.syncInternalToExternal",
-              targetTypeCode: "mom_inventory_operation",
-              targetCode: after.code,
-              message: `KIS单据写入失败。WMS单号：${after.code}。${ex.message}`,
-              details: ex.stack,
-            };
-
-            await server.getService<EventLogService>("eventLogService").createLog(eventLog);
-            console.log(ex);
-          }
+          await sendInventoryOperationSheetToErp(server, routeContext, after);
         }
 
         if (changes) {

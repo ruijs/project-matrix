@@ -7,6 +7,7 @@ import type {
   RapidToolbarButtonRockConfig,
   SonicEntityDetailsRockConfig,
 } from "@ruiapp/rapid-extension";
+import { RockEventHandlerSendHttpRequest } from "@ruiapp/move-style";
 
 const materialFormItemConfig: RapidEntityFormConfig["items"][0] = {
   type: "auto",
@@ -422,7 +423,7 @@ const page: RapidPage = {
       $type: "sonicEntityDetails",
       entityCode: "MomInventoryApplication",
       column: 3,
-      extraProperties: ["from", "to", "operationState", "operationType"],
+      extraProperties: ["from", "to", "operationState", "operationType", "kisError"],
       titlePropertyCode: "code",
       statePropertyCode: "operationState",
       items: [
@@ -537,6 +538,51 @@ const page: RapidPage = {
         },
       },
       actions: [
+        {
+          $type: "rapidToolbarButton",
+          text: "重传单据至ERP",
+          actionStyle: "default",
+          icon: "SendOutlined",
+          confirmText: "您确定要重新传输单据至ERP吗？",
+          $permissionCheck: "inventoryApplication.sendOperationSheetToErp",
+          onAction: [
+            {
+              $action: "sendHttpRequest",
+              method: "POST",
+              url: "/api/app/inventory/sendOperationSheetToErp",
+              data: {},
+              onSuccess: [
+                {
+                  $action: "antdMessage",
+                  title: "单据传输成功。",
+                  onClose: [
+                    {
+                      $action: "reloadPage",
+                    },
+                  ],
+                },
+              ],
+              onError: [
+                {
+                  $action: "antdMessage",
+                  title: "单据传输失败。",
+                  type: "error",
+                  onClose: [
+                    {
+                      $action: "reloadPage",
+                    },
+                  ],
+                },
+              ],
+              $exps: {
+                "data.applicationId": `parseInt($rui.parseQuery().id, 10)`,
+              },
+            } as RockEventHandlerSendHttpRequest,
+          ],
+          $exps: {
+            _hidden: "!_.get(_.first(_.get($stores.detail, 'data.list')), 'kisError')",
+          },
+        } satisfies RapidToolbarButtonRockConfig,
         {
           $type: "pagePrint",
           slots: [],

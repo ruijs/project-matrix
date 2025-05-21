@@ -95,7 +95,7 @@ async function moveGoods(server: IRpdServer, routeContext: RouteContext, input: 
   };
 
   const inventoryOperationManager = server.getEntityManager<MomInventoryOperation>("mom_inventory_operation");
-  inventoryOperationManager.createEntity({
+  await inventoryOperationManager.createEntity({
     routeContext,
     entity: inventoryOperation,
   });

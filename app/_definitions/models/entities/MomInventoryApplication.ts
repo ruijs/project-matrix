@@ -218,6 +218,11 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
       type: "text",
     },
     {
+      code: "kisError",
+      name: "ERP报错信息",
+      type: "text",
+    },
+    {
       code: "inspectState",
       name: "检验状态",
       type: "option",
