@@ -1,5 +1,5 @@
 import type { ActionHandlerContext, IRpdServer, RouteContext, ServerOperation } from "@ruiapp/rapid-core";
-import { find } from "lodash";
+import { every, find } from "lodash";
 import type { BaseLot, BaseMaterial } from "~/_definitions/meta/entity-types";
 
 export type QueryGoodOutTransferInput = {
@@ -169,6 +169,19 @@ WHERE mg.material_id = $1
   AND mg.state = 'normal';
             `;
       item.goods = await server.queryDatabaseObject(sql, [item.material_id, item.lot_num, item.bin_num], routeContext.getDbTransactionClient());
+    } else if (item.lot_num && item.bin_nums && item.bin_nums.length > 0 && !every(item.bin_nums, (binNum) => !binNum)) {
+      sql = `
+SELECT mg.id as good_id,
+       mg.quantity,
+       jsonb_build_object('id', bl.id, 'name', bl.name, 'code', bl.code) AS location
+FROM mom_goods mg
+    INNER JOIN base_locations bl ON mg.location_id = bl.id
+WHERE mg.material_id = $1
+  AND mg.lot_num = $2
+  AND mg.bin_num = ANY($3::text[])
+  AND mg.state = 'normal';
+            `;
+      item.goods = await server.queryDatabaseObject(sql, [item.material_id, item.lot_num, item.bin_nums], routeContext.getDbTransactionClient());
     } else {
       sql = `
 WITH good_quantity_cte AS (SELECT mg.location_id,
