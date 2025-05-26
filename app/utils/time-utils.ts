@@ -43,3 +43,19 @@ export function formatMomentDateTime(m: any) {
 
   return m.format("YYYY-MM-DD HH:mm:ss.SSS");
 }
+
+export function formatDate(value: any) {
+  if (!value) {
+    return "";
+  }
+
+  return dayjs(value).format("YYYY-MM-DD");
+}
+
+export function formatDateTime(value: any) {
+  if (!value) {
+    return "";
+  }
+
+  return dayjs(value).format("YYYY-MM-DD HH:mm:ss");
+}

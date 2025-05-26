@@ -161,6 +161,13 @@ const formConfig: Partial<RapidEntityFormConfig> = {
         _hidden: "$self.form.getFieldValue('operationType') !== 'in'",
       },
     },
+    {
+      type: "auto",
+      code: "depositDate",
+      $exps: {
+        _hidden: "$self.form.getFieldValue('businessType')?.name !== '出库调整单'",
+      },
+    },
     // {
     //   type: "auto",
     //   code: "operationState",
@@ -577,10 +584,10 @@ const page: RapidPage = {
           actionType: "edit",
           actionText: "修改",
           $permissionCheck: "inventoryApplication.manage",
-          $exps: {
-            _hidden:
-              "!$slot.record?.businessType?.businessTypeRoles?.find((item) => item.name === '修改')?.businessTypeRoles.map((item) => item.id).some(id => me?.profile?.roles?.map(r => r.id).includes(id))",
-          },
+          // $exps: {
+          //   _hidden:
+          //     "!$slot.record?.businessType?.businessTypeRoles?.find((item) => item.name === '修改')?.businessTypeRoles.map((item) => item.id).some(id => me?.profile?.roles?.map(r => r.id).includes(id))",
+          // },
         },
         {
           $type: "sonicRecordActionDeleteEntity",
