@@ -340,6 +340,20 @@ export default {
               },
             })}
           </Form.Item>
+
+          {businessType === "出库调整单" && (
+            <Form.Item label="出库日期" name="depositDate">
+              {renderRock({
+                context,
+                rockConfig: {
+                  $type: "rapidDatePicker",
+                  $id: `${props.$id}_depositDate`,
+                  placeholder: "请选择",
+                },
+              })}
+            </Form.Item>
+          )}
+
           <Form.Item
             label="物品明细"
             name="items"

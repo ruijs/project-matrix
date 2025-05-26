@@ -7,8 +7,8 @@ import { find, forEach, get, isEmpty, trim } from "lodash";
 import { parseRockExpressionFunc } from "@ruiapp/rapid-extension";
 import { decimalSum } from "~/utils/decimal";
 import rapidAppDefinition from "~/rapidAppDefinition";
-import dayjs from "dayjs";
 import { renderInventoryManagerDisplayLabel } from "~/app-extension/utils/inventory-manager-utility";
+import { formatDate, formatDateTime } from "~/utils/time-utils";
 
 const PrintTemplate = lazy(() => import("./PrintOrderTemplate"));
 export default {
@@ -148,9 +148,12 @@ export default {
                 <Descriptions.Item label="客户">{get(detail, "customer.name")}</Descriptions.Item>
               )}
               <Descriptions.Item label="仓库">{get(detail, "operationType") === "in" ? get(detail, "to.name") : get(detail, "from.name")}</Descriptions.Item>
+              {["出库调整单"].includes(get(detail, "businessType.name")) && (
+                <Descriptions.Item label="出库日期">{formatDate(get(detail, "depositDate"))}</Descriptions.Item>
+              )}
             </>
           )}
-          <Descriptions.Item label="创建时间">{get(detail, "createdAt") && dayjs(get(detail, "createdAt")).format("YYYY-MM-DD HH:mm:ss")}</Descriptions.Item>
+          <Descriptions.Item label="创建时间">{formatDateTime(get(detail, "createdAt"))}</Descriptions.Item>
         </Descriptions>
         <Table className="antd-style" bordered columns={formateCol() || []} dataSource={dataSourceGroupBy} pagination={false} />
       </div>
