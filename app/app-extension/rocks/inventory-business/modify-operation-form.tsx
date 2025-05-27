@@ -341,8 +341,8 @@ export default {
             })}
           </Form.Item>
 
-          {businessType === "出库调整单" && (
-            <Form.Item label="出库日期" name="depositDate">
+          {businessType && (
+            <Form.Item label={businessType === "出库调整单" ? "出库日期" : "入库日期"} name="depositDate">
               {renderRock({
                 context,
                 rockConfig: {

@@ -428,7 +428,7 @@ const page: RapidPage = {
         {
           code: "depositDate",
           $exps: {
-            _hidden: "!['出库调整单'].includes($self.form.getFieldValue('businessType')?.name)",
+            label: "$self.form.getFieldValue('businessType')?.name === '出库调整单' ? '出库日期' : '入库日期'",
           },
         },
         {
