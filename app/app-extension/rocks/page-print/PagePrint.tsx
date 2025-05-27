@@ -148,8 +148,10 @@ export default {
                 <Descriptions.Item label="客户">{get(detail, "customer.name")}</Descriptions.Item>
               )}
               <Descriptions.Item label="仓库">{get(detail, "operationType") === "in" ? get(detail, "to.name") : get(detail, "from.name")}</Descriptions.Item>
-              {["出库调整单"].includes(get(detail, "businessType.name")) && (
-                <Descriptions.Item label="出库日期">{formatDate(get(detail, "depositDate"))}</Descriptions.Item>
+              {["出库调整单", "入库调整单"].includes(get(detail, "businessType.name")) && (
+                <Descriptions.Item label={get(detail, "operationType") === "out" ? "出库日期" : "入库日期"}>
+                  {formatDate(get(detail, "depositDate"))}
+                </Descriptions.Item>
               )}
             </>
           )}

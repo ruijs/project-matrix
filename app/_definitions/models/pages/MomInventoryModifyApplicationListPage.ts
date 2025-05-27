@@ -165,7 +165,8 @@ const formConfig: Partial<RapidEntityFormConfig> = {
       type: "auto",
       code: "depositDate",
       $exps: {
-        _hidden: "$self.form.getFieldValue('businessType')?.name !== '出库调整单'",
+        label: "$self.form.getFieldValue('businessType')?.name === '出库调整单' ? '出库日期' : '入库日期'",
+        _hidden: "!$self.form.getFieldValue('businessType')",
       },
     },
     // {
