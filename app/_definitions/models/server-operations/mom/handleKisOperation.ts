@@ -543,6 +543,8 @@ group by mai.material_id, mai.lot_num, bm.code, bm.external_code, bu.external_co
                   Fnote: transfer.remark,
                   // 财务要求：使用出库日期作为生产日期
                   FEntrySelfB0170: dayjs(inventoryApplication.depositDate).format("YYYY-MM-DDT00:00:00"),
+                  // fix: 公式计算异常：不能除以 0 。Calculate->FEntrySelfB0168->FEntrySelfB0168=Fauxqty/FEntrySelfB0169
+                  FEntrySelfB0169: 1,
                 };
 
                 if (locationCode !== 0) {
