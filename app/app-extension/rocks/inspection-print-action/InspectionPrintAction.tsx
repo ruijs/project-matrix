@@ -307,6 +307,11 @@ function useInspectionSheet(): {
         const listInventoryApplicationItemsResponse = await rapidApi.post(`/mom/mom_inventory_application_items/operations/find`, {
           filters: [
             {
+              field: "operation_id",
+              operator: "eq",
+              value: inspectionSheet.inventoryOperation?.application?.id,
+            },
+            {
               field: "material_id",
               operator: "eq",
               value: material.id,
