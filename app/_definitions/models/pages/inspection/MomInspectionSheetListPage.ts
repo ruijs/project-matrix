@@ -503,6 +503,7 @@ const page: RapidPage = {
         } satisfies RapidTableActionRockConfig,
         {
           $type: "inspectionPrintAction",
+          $description: "打印检验单",
         },
       ],
       newForm: cloneDeep(formConfig),
