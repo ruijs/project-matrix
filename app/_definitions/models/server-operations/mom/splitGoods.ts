@@ -6,6 +6,7 @@ export type SplitGoodsInput = {
   originGoodId: number;
   shelves: {
     weight: number;
+    binNum?: string;
   }[];
 };
 
@@ -48,9 +49,10 @@ async function splitGoods(server: IRpdServer, routeContext: RouteContext, input:
     throw new Error("原标识卡不存在或已拆分");
   }
 
+  const originGoodQuantity = originGood.quantity || 0;
   const totalWeight = input.shelves.reduce((acc, curr) => acc + curr.weight, 0);
-  if (originGood.quantity! <= 0 || originGood.quantity! < totalWeight) {
-    throw new Error("拆分数量大于原标识卡数量");
+  if (originGoodQuantity <= 0 || originGoodQuantity !== totalWeight) {
+    throw new Error("拆分项重量总和需要与原标识卡重量一致");
   }
 
   const saveGoodInputBase: SaveMomGoodInput = {
@@ -88,17 +90,19 @@ async function splitGoods(server: IRpdServer, routeContext: RouteContext, input:
     },
   } as GenerateSequenceNumbersInput);
 
-  await Promise.all(
-    input.shelves.map(async (shelve, index) => {
-      const saveGoodInput = {
-        ...saveGoodInputBase,
-        binNum: binNums[index],
-        quantity: shelve.weight,
-      };
+  input.shelves.forEach((shelve, index) => {
+    shelve.binNum = binNums[index];
+  });
 
-      await goodManager.createEntity({ routeContext, entity: saveGoodInput });
-    }),
-  );
+  for (const shelve of input.shelves) {
+    const saveGoodInput = {
+      ...saveGoodInputBase,
+      binNum: shelve.binNum,
+      quantity: shelve.weight,
+    };
+
+    await goodManager.createEntity({ routeContext, entity: saveGoodInput });
+  }
 
   await goodManager.updateEntityById({
     routeContext,
