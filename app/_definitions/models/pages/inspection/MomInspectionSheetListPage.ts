@@ -1,7 +1,7 @@
 import { cloneDeep } from "lodash";
 import type { RapidPage, RapidEntityFormConfig, RapidEntityTableSelectConfig, RapidTableActionRockConfig } from "@ruiapp/rapid-extension";
-import { SonicEntityListRockConfig } from "@ruiapp/rapid-extension/src/mod";
-import { RockEventHandlerSendHttpRequest } from "@ruiapp/move-style";
+import type { SonicEntityListRockConfig } from "@ruiapp/rapid-extension/src/mod";
+import type { RockEventHandlerSendHttpRequest } from "@ruiapp/move-style";
 
 const formConfig: Partial<RapidEntityFormConfig> = {
   items: [
@@ -33,6 +33,9 @@ const formConfig: Partial<RapidEntityFormConfig> = {
       type: "auto",
       code: "sampleCount",
       required: true,
+      formControlProps: {
+        disabled: "$scope.vars.state === 'inspected'",
+      },
     },
     // {
     //   type: "auto",
