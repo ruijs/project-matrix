@@ -1,6 +1,7 @@
 /* eslint-disable no-empty */
 /* eslint-disable array-callback-return */
-import { RockInstanceContext, type Rock } from "@ruiapp/move-style";
+import type { RockInstanceContext } from "@ruiapp/move-style";
+import { type Rock } from "@ruiapp/move-style";
 import type { TableProps } from "antd";
 import { Alert, Button, Form, Input, InputNumber, message, Modal, Select, Space, Spin, Table, Tag } from "antd";
 import { useDebounceFn, useSetState } from "ahooks";
@@ -674,46 +675,44 @@ function useInspectionMeasurement(props: { ruleId: string; round: number; sheetI
       for (let i = 1; i <= round; i++) {
         roundArr.push(i);
       }
-
+      const listInspectionCharactersResponse = await rapidApi.post("/mom/mom_inspection_characteristics/operations/find", {
+        filters: [
+          {
+            field: "rule",
+            operator: "eq",
+            value: ruleId,
+          },
+        ],
+        orderBy: [
+          {
+            field: "orderNum",
+          },
+          {
+            field: "id",
+          },
+        ],
+        properties: [
+          "id",
+          "rule",
+          "name",
+          "skippable",
+          "category",
+          "method",
+          "instrumentCategory",
+          "instrument",
+          "kind",
+          "determineType",
+          "qualitativeDetermineType",
+          "norminal",
+          "upperTol",
+          "lowerTol",
+          "upperLimit",
+          "lowerLimit",
+          "config",
+          "envConditions",
+        ],
+      });
       if (measurementIsNull) {
-        const listInspectionCharactersResponse = await rapidApi.post("/mom/mom_inspection_characteristics/operations/find", {
-          filters: [
-            {
-              field: "rule",
-              operator: "eq",
-              value: ruleId,
-            },
-          ],
-          orderBy: [
-            {
-              field: "orderNum",
-            },
-            {
-              field: "id",
-            },
-          ],
-          properties: [
-            "id",
-            "rule",
-            "name",
-            "skippable",
-            "category",
-            "method",
-            "instrumentCategory",
-            "instrument",
-            "kind",
-            "determineType",
-            "qualitativeDetermineType",
-            "norminal",
-            "upperTol",
-            "lowerTol",
-            "upperLimit",
-            "lowerLimit",
-            "config",
-            "envConditions",
-          ],
-        });
-
         const inspectionCharacters = listInspectionCharactersResponse.data.list;
 
         const formateArr = sampleArr.map((item: any) => {
@@ -740,49 +739,76 @@ function useInspectionMeasurement(props: { ruleId: string; round: number; sheetI
           false,
         );
       } else {
-        const res = groupBy(measurements, "round");
-
-        const result = roundArr.map((item) => {
-          return {
-            round: item,
-            data: res[item],
-          };
-        });
-
-        const formateArr = result.map((item: any) => {
-          return {
-            round: item.round,
-            data:
-              item?.data?.map((it: any, index: any) => {
+        if (measurements.length < sampleCount) {
+          const inspectionCharacters = listInspectionCharactersResponse.data.list;
+          const fitlreSampleArr = sampleArr.filter((item: any) => !measurements.some((i: any) => i.code == item));
+          const formateArr = fitlreSampleArr.map((item: any) => {
+            return {
+              code: item,
+              sheetId: sheetId,
+              round: item.round,
+              items: inspectionCharacters.map((i: any) => {
                 return {
-                  code: it.code,
-                  id: it.id,
-                  sheetId: sheetId,
-                  isfirst: index === 0 ? true : false,
-                  round: it.round,
-                  items: orderBy(
-                    it.measurements.map((i: any) => {
-                      return {
-                        ...i.characteristic,
-                        measurementsId: i.id,
-                        instrument: i.instrument,
-                        uuid: uuidv4(),
-                        locked: i.locked,
-                        quantitativeValue: i.quantitativeValue,
-                        qualitativeValue: i.qualitativeValue,
-                        measuredValue: i.characteristic?.kind === "qualitative" ? i.qualitativeValue : i.quantitativeValue,
-                      };
-                    }),
-                    "orderNum",
-                  ),
+                  ...i,
+                  uuid: uuidv4(),
                 };
-              }) || [],
-          };
-        });
+              }),
+            };
+          });
+          submitInspectionMeasurement(
+            [
+              {
+                round,
+                data: formateArr ? formateArr : [],
+              },
+            ],
+            false,
+          );
+        } else {
+          const res = groupBy(measurements, "round");
 
-        setState({
-          inspection: formateArr ? formateArr : [],
-        });
+          const result = roundArr.map((item) => {
+            return {
+              round: item,
+              data: res[item],
+            };
+          });
+
+          const formateArr = result.map((item: any) => {
+            return {
+              round: item.round,
+              data:
+                item?.data?.map((it: any, index: any) => {
+                  return {
+                    code: it.code,
+                    id: it.id,
+                    sheetId: sheetId,
+                    isfirst: index === 0 ? true : false,
+                    round: it.round,
+                    items: orderBy(
+                      it.measurements.map((i: any) => {
+                        return {
+                          ...i.characteristic,
+                          measurementsId: i.id,
+                          instrument: i.instrument,
+                          uuid: uuidv4(),
+                          locked: i.locked,
+                          quantitativeValue: i.quantitativeValue,
+                          qualitativeValue: i.qualitativeValue,
+                          measuredValue: i.characteristic?.kind === "qualitative" ? i.qualitativeValue : i.quantitativeValue,
+                        };
+                      }),
+                      "orderNum",
+                    ),
+                  };
+                }) || [],
+            };
+          });
+
+          setState({
+            inspection: formateArr ? formateArr : [],
+          });
+        }
       }
     } finally {
       setState({ loading: false });
