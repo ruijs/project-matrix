@@ -1,5 +1,5 @@
 import { getEntityRelationTargetId, type EntityWatcher, type EntityWatchHandlerContext } from "@ruiapp/rapid-core";
-import type { MomInspectionSheet } from "~/_definitions/meta/entity-types";
+import type { MomInspectionSheet, SaveSysAuditLogInput } from "~/_definitions/meta/entity-types";
 import {
   lockMeasurementsOfInspectionSheet,
   trySendInspectionSheetNotification,
@@ -114,9 +114,10 @@ export default [
           targetSingularCode: "mom_inspection_sheet",
           targetSingularName: `检验单 - ${inspectionSheet?.code}`,
           method: "update",
-          changes: changes,
-          before: before,
-        },
+          changes,
+          before,
+          after,
+        } satisfies SaveSysAuditLogInput,
       });
     },
   },

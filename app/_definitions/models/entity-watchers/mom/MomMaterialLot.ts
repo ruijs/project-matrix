@@ -1,6 +1,7 @@
 import type { EntityWatcher, EntityWatchHandlerContext } from "@ruiapp/rapid-core";
-import { BaseMaterial } from "~/_definitions/meta/entity-types";
+import { BaseMaterial, SaveSysAuditLogInput } from "~/_definitions/meta/entity-types";
 import dayjs from "dayjs";
+import { trace } from "console";
 
 export default [
   {
@@ -37,6 +38,28 @@ export default [
           .add(parseInt(material?.qualityGuaranteePeriod || "0", 10), "day")
           .format("YYYY-MM-DD");
       }
+    },
+  },
+  {
+    eventName: "entity.update",
+    modelSingularCode: "base_lot",
+    handler: async (ctx: EntityWatchHandlerContext<"entity.update">) => {
+      const { server, routerContext: routeContext, payload } = ctx;
+
+      const { before, after, changes } = payload;
+
+      await server.getEntityManager("sys_audit_log").createEntity({
+        routeContext,
+        entity: {
+          user: { id: routeContext?.state.userId },
+          targetSingularCode: "base_lot",
+          targetId: after.id,
+          method: "update",
+          before,
+          after,
+          changes,
+        } satisfies SaveSysAuditLogInput,
+      });
     },
   },
 ] satisfies EntityWatcher<any>[];
