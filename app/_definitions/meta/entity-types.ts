@@ -60,7 +60,6 @@ import type {
   RouteType,
   SettingItemType,
   SysAuditLogMethod,
-  SysAuditLogTarget,
   SysCronJobRunningResult,
   SysEventLogLevel,
   SysEventSourceType,
@@ -10639,11 +10638,15 @@ export interface SysAuditLog {
   /**
    * 操作对象
    */
-  targetSingularCode?: SysAuditLogTarget;
+  targetSingularCode?: string;
   /**
    * 操作对象名称
    */
   targetSingularName?: string;
+  /**
+   * 操作对象Id
+   */
+  targetId?: number;
   /**
    * 操作方法
    */
@@ -10656,6 +10659,10 @@ export interface SysAuditLog {
    * 变更记录
    */
   changes?: Record<string, any>;
+  /**
+   * 变更后记录
+   */
+  after?: Record<string, any>;
   /**
    * 创建时间
    */
