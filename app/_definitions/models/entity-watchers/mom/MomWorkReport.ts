@@ -14,7 +14,8 @@ import type {
   SvcPrinter
 } from "~/_definitions/meta/entity-types";
 import dayjs from "dayjs";
-import IotDBHelper, { ParseLastDeviceData } from "~/sdk/iotdb/helper";
+import IotDBHelper, { ParseLastDeviceData, ParseTDEngineData } from "~/sdk/iotdb/helper";
+import TimeSeriesDataService from "rapid-plugins/iot/services/TimeSeriesDataService";
 import { replaceTemplatePlaceholder } from "~/app-extension/rocks/print-trigger/PrintTrigger";
 import type PrinterService from "../../../../../rapid-plugins/printerService/PrinterService";
 import { CreatePrintTasksInput } from "../../../../../rapid-plugins/printerService/PrinterPluginTypes";
@@ -239,6 +240,20 @@ export default [
 
         if (workReport.equipment?.machine) {
           try {
+
+     
+            if ( workReport.process?.code === "32" || workReport.process?.code === "33" || workReport.process?.code === "34") {
+              const timeSeriesDataService = server.getService<TimeSeriesDataService>("timeSeriesDataService");
+
+                if (workReport.equipment?.machine?.code && workReport?.actualStartTime && workReport?.actualFinishTime) {
+                  const tsResponse = await timeSeriesDataService.getDeviceData(workReport.equipment.machine.code, workReport.actualStartTime, workReport.actualFinishTime);
+                  console.log("tsResponse", tsResponse)
+                  const data = ParseTDEngineData(tsResponse, workReport.equipment.machine.code);
+                }
+
+
+
+            }
 
             const iotDBSDK = await new IotDBHelper(server).NewAPIClient();
 

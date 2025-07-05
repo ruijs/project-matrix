@@ -27,6 +27,17 @@ export default class TimeSeriesDataService {
     this.#tDEngineAccessor = tDEngineAccessor;
   }
 
+  async getDeviceData(deviceCode: string, startTime: string, endTime: string) {
+    const tableName = `thing_${deviceCode}`;
+    
+    const sql = `select last_row(*)
+                  from ${tableName}
+                  where ts >= ${(dayjs(startTime).unix()) * 1000}
+                    and ts <= ${(dayjs(endTime).unix()) * 1000}`;
+    const result = await this.#tDEngineAccessor.exec(sql);
+    return result;
+  }
+
   async createTableOfTypeWithFirstMeasurement(type: IotType, firstMeasurement: IotProperty) {
     const sql = `
 CREATE STABLE type_${type.id} (
