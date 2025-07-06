@@ -90,60 +90,86 @@ export function ParseDeviceData(payload: TimeSeriesQueryOutput): DevicesData {
 
 export function ParseTDEngineData(payload: any, deviceCode: string): DevicesData {
   const devicesData: DevicesData = {};
-  
-  // TDEngine的last_row(*)查询返回的数据格式
-  if (!payload || !payload.getData) {
+
+  // TDEngine的TaosResult数据格式
+  if (!payload || !payload._data || !payload._meta) {
     return devicesData;
   }
-  
-  const data = payload.getData();
-  if (!data || !Array.isArray(data) || data.length === 0) {
+
+  const data = payload._data;
+  const meta = payload._meta;
+
+  if (!Array.isArray(data) || data.length === 0 || !Array.isArray(meta)) {
     return devicesData;
   }
-  
-  // 获取列信息 - TDEngine返回的列信息通常在getColumns()方法中
-  const columns = payload.getColumns ? payload.getColumns() : [];
-  
+
   // 处理数据行 - TDEngine的last_row(*)查询通常返回一行数据
   for (const row of data) {
     if (!Array.isArray(row) || row.length === 0) {
       continue;
     }
-    
-    // 第一列通常是时间戳
-    const timestamp = Number(row[0]);
-    
-    // 从第二列开始是设备数据
-    for (let i = 1; i < row.length; i++) {
+
+    // 遍历每一列
+    for (let i = 0; i < row.length && i < meta.length; i++) {
       const value = row[i];
-      
-      // 如果有列信息，使用列名来解析指标代码
-      if (columns && columns[i]) {
-        const columnName = columns[i];
-        
-        // 根据TDEngine的表结构，列名通常就是指标代码
-        // 跳过时间戳列（通常是'ts'）
-        if (columnName === 'ts') {
-          continue;
-        }
-        
-        const metricCode = columnName;
-        
-        if (!devicesData[deviceCode]) {
-          devicesData[deviceCode] = {};
-        }
-        if (!devicesData[deviceCode][metricCode]) {
-          devicesData[deviceCode][metricCode] = [];
-        }
-        
-        devicesData[deviceCode][metricCode].push({
-          timestamp: timestamp,
-          value: value === "NULL" ? null : value,
-        });
+      const columnMeta = meta[i];
+
+      if (!columnMeta || !columnMeta.name) {
+        continue;
       }
+
+      const columnName = columnMeta.name;
+
+      // 处理时间戳列
+      if (columnName.includes('ts') || columnName.includes('time')) {
+        // 时间戳列，跳过或者可以用作基准时间
+        continue;
+      }
+
+      // 提取指标代码 - 从 last_row(column_name) 格式中提取 column_name
+      let metricCode = columnName;
+      const lastRowMatch = columnName.match(/last_row\((.+)\)/);
+      if (lastRowMatch) {
+        metricCode = lastRowMatch[1];
+      }
+
+      // 跳过时间戳相关的列
+      if (metricCode === 'ts' || metricCode === 'time') {
+        continue;
+      }
+
+      if (!devicesData[deviceCode]) {
+        devicesData[deviceCode] = {};
+      }
+      if (!devicesData[deviceCode][metricCode]) {
+        devicesData[deviceCode][metricCode] = [];
+      }
+
+      // 处理时间戳 - 如果第一列是时间戳，使用它；否则使用当前时间
+      let timestamp: number;
+      if (i === 0 && (typeof row[0] === 'bigint' || typeof row[0] === 'number')) {
+        timestamp = Number(row[0]);
+      } else if (row[0] && (typeof row[0] === 'bigint' || typeof row[0] === 'number')) {
+        timestamp = Number(row[0]);
+      } else {
+        timestamp = Date.now();
+      }
+
+      // 处理值 - 将BigInt转换为Number，处理NULL值
+      let processedValue: any = value;
+      if (value === "NULL" || value === null) {
+        processedValue = null;
+      } else if (typeof value === 'bigint') {
+        processedValue = Number(value);
+      }
+
+      devicesData[deviceCode][metricCode].push({
+        timestamp: timestamp,
+        value: processedValue,
+      });
     }
   }
-  
+
   return devicesData;
 }
 

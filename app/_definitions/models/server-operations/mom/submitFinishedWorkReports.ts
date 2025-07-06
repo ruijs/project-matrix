@@ -101,6 +101,7 @@ export default {
     for (const workReport of workReports) {
       switch (workReport.process?.code) {
         case "22": // 通风工序
+        case "33": // 通风工序
         case "13": // 通风工序
           // 判断workReport.actualStartTime是否满足72H
           if (!workReport.actualStartTime) {
@@ -122,6 +123,7 @@ export default {
           }
           break;
         case "23": // 烘烤工序
+        case "34": // 烘烤工序
         case "14": // 烘烤工序
           if (!workReport.actualStartTime) {
             ctx.output = {

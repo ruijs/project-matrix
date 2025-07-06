@@ -26,6 +26,7 @@ import mom$submitGoodInTransfers from '../models/server-operations/mom/submitGoo
 import mom$submitGoodOutTransfers from '../models/server-operations/mom/submitGoodOutTransfers';
 import mom$submitMrpResult from '../models/server-operations/mom/submitMrpResult';
 import mom$submitWorkOrderMrpResult from '../models/server-operations/mom/submitWorkOrderMrpResult';
+import mom$test from '../models/server-operations/mom/test';
 import notification$readAllNotifications from '../models/server-operations/notification/readAllNotifications';
 import shopfloor$bootstrap from '../models/server-operations/shopfloor/bootstrap';
 import sys$listMyAllowedSysActions from '../models/server-operations/sys/listMyAllowedSysActions';
@@ -58,6 +59,7 @@ export default [
   mom$submitGoodOutTransfers,
   mom$submitMrpResult,
   mom$submitWorkOrderMrpResult,
+  mom$test,
   notification$readAllNotifications,
   shopfloor$bootstrap,
   sys$listMyAllowedSysActions,

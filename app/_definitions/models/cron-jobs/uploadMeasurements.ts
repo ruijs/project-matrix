@@ -85,7 +85,7 @@ export default {
               isReported: true,
             },
           });
-          await waitSeconds(200);
+          await waitSeconds(400);
 
           // if (measurement.process?.config?.notifyEnabled) {
           //   notifyEnabled = true;

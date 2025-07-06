@@ -30,6 +30,62 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 dayjs.extend(duration);
 
+// 统一的设备数据获取函数
+async function getDeviceData(server: IRpdServer, workReport: MomWorkReport) {
+  let data: any = {};
+
+  if (!workReport.equipment?.machine?.code || !workReport.actualStartTime || !workReport.actualFinishTime) {
+    return data;
+  }
+
+  // 长春设备 - 使用TDEngine
+  if (workReport.process?.code === "32" || workReport.process?.code === "33" || workReport.process?.code === "34") {
+    const timeSeriesDataService = server.getService<TimeSeriesDataService>("timeSeriesDataService");
+
+    let startTime: number;
+    let endTime: number;
+
+    if (workReport.process?.code === "32") {
+      // 工序32需要减去2分钟
+      startTime = (dayjs(workReport.actualStartTime).unix()) * 1000;
+      endTime = (dayjs(workReport.actualFinishTime).add(-2, "minutes").unix()) * 1000;
+    } else {
+      // 工序33、34使用标准时间
+      startTime = dayjs(workReport.actualStartTime).unix() * 1000;
+      endTime = dayjs(workReport.actualFinishTime).unix() * 1000;
+    }
+
+    const tsResponse = await timeSeriesDataService.getDeviceData(workReport.equipment.machine.code, startTime, endTime);
+    console.log("TDEngine tsResponse", tsResponse);
+    data = ParseTDEngineData(tsResponse, workReport.equipment.machine.code);
+
+  } else {
+    // 其他设备 - 使用IotDB
+    const iotDBSDK = await new IotDBHelper(server).NewAPIClient();
+    let input = {
+      sql: `select last *
+            from root.huate.devices.reports.${workReport.equipment?.machine?.code}
+            where time >= ${(dayjs(workReport.actualStartTime).unix()) * 1000}
+              and time <= ${(dayjs(workReport.actualFinishTime).unix()) * 1000}`,
+    }
+
+    // 发泡工序需要减去2分钟
+    if (workReport.process?.code === "12" || workReport.process?.code === "21") {
+      input = {
+        sql: `select last *
+              from root.huate.devices.reports.${workReport.equipment?.machine?.code}
+              where time >= ${(dayjs(workReport.actualStartTime).unix()) * 1000}
+                and time <= ${(dayjs(workReport.actualFinishTime).add(-2, "minutes").unix()) * 1000}`,
+      }
+    }
+
+    const tsResponse = await iotDBSDK.PostResourceRequest("http://10.0.0.3:6670/rest/v2/query", input, true)
+    data = ParseLastDeviceData(tsResponse.data);
+  }
+
+  return data;
+}
+
 export default [
   {
     eventName: "entity.beforeCreate",
@@ -240,48 +296,20 @@ export default [
 
         if (workReport.equipment?.machine) {
           try {
+            // 使用统一的设备数据获取函数
+            const data = await getDeviceData(server, workReport);
 
-     
-            if ( workReport.process?.code === "32" || workReport.process?.code === "33" || workReport.process?.code === "34") {
-              const timeSeriesDataService = server.getService<TimeSeriesDataService>("timeSeriesDataService");
-
-                if (workReport.equipment?.machine?.code && workReport?.actualStartTime && workReport?.actualFinishTime) {
-                  const tsResponse = await timeSeriesDataService.getDeviceData(workReport.equipment.machine.code, workReport.actualStartTime, workReport.actualFinishTime);
-                  console.log("tsResponse", tsResponse)
-                  const data = ParseTDEngineData(tsResponse, workReport.equipment.machine.code);
-                }
-
-
-
-            }
-
-            const iotDBSDK = await new IotDBHelper(server).NewAPIClient();
-
-            let input = {
-              sql: `select last *
-                    from root.huate.devices.reports.${workReport.equipment?.machine?.code}
-                    where time >= ${(dayjs(workReport.actualStartTime).unix()) * 1000}
-                      and time <= ${(dayjs(workReport.actualFinishTime).unix()) * 1000}`,
-            }
-
-            // 发泡工序
-            if (workReport.process?.code === "12" || workReport.process?.code === "21") {
-              input = {
-                sql: `select last *
-                      from root.huate.devices.reports.${workReport.equipment?.machine?.code}
-                      where time >= ${(dayjs(workReport.actualStartTime).unix()) * 1000}
-                        and time <= ${(dayjs(workReport.actualFinishTime).add(-2, "minutes").unix()) * 1000}`,
-              }
-            }
-
-            const tsResponse = await iotDBSDK.PostResourceRequest("http://10.0.0.3:6670/rest/v2/query", input, true)
-            const data = ParseLastDeviceData(tsResponse.data);
+            console.log("data", data)
 
             for (let deviceCode in data) {
               const deviceMetricData = data[deviceCode];
               // append work duration to device metric
 
-              if (workReport.process?.code === "14" || workReport.process?.code === "23") {
+              if (workReport.process?.code === "14" || workReport.process?.code === "23" || workReport.process?.code === "34") {
+                console.log("workReport.equipment?.machine?.code", workReport.equipment?.machine?.code)
+                console.log("deviceCode", deviceCode)
+                console.log("workReport?.actualFinishTime", workReport?.actualFinishTime)
+                console.log("workReport?.actualStartTime", workReport?.actualStartTime)
                 if (workReport.equipment?.machine?.code === deviceCode && workReport?.actualFinishTime && workReport?.actualStartTime) {
                   deviceMetricData["work_duration"] = [{
                     timestamp: dayjs().unix(),
@@ -296,6 +324,8 @@ export default [
                   }]
                 }
               }
+
+              console.log("deviceMetricData", deviceMetricData)
 
               for (let metricCode in deviceMetricData) {
                 const metricData = deviceMetricData[metricCode];
@@ -316,6 +346,9 @@ export default [
                     ],
                     properties: ["id", "upperLimit", "lowerLimit", "nominal", "dimension", "fawCode"],
                   })
+                  console.log("metricCode", metricCode)
+                  console.log("process", workReport.process?.id)
+                  console.log("equipment", workReport.equipment?.id)
 
 
                   if (!metricParameter) {
@@ -380,7 +413,7 @@ export default [
           }
 
           let latestValue = dayjs.duration(dayjs(workReport.actualFinishTime).diff(dayjs(workReport.actualStartTime))).asSeconds();
-          if (workReport.process?.code === "13" || workReport.process?.code === "22") { // 通风工序
+          if (workReport.process?.code === "13" || workReport.process?.code === "22" || workReport.process?.code === "33") { // 通风工序
             latestValue = dayjs.duration(dayjs(workReport.actualFinishTime).diff(dayjs(workReport.actualStartTime))).asHours();
           }
 
@@ -445,7 +478,7 @@ export default [
         return;
       }
 
-      if (workReport.process?.code === "13" || workReport.process?.code === "22") { // 通风工序
+      if (workReport.process?.code === "13" || workReport.process?.code === "22" || workReport.process?.code === "33") { // 通风工序
         const inventory = await server.getEntityManager<MomMaterialInventoryBalance>("mom_material_inventory_balance").findEntity({
           filters: [
             { operator: "eq", field: "material_id", value: workReport.workOrder?.material?.id },
@@ -540,28 +573,8 @@ export default [
 
       if (workReport && workReport.executionState === "completed") {
         try {
-
-          const iotDBSDK = await new IotDBHelper(server).NewAPIClient();
-
-          let input = {
-            sql: `select last *
-                  from root.huate.devices.reports.${workReport.equipment?.machine?.code}
-                  where time >= ${(dayjs(workReport.actualStartTime).unix()) * 1000}
-                    and time <= ${(dayjs(workReport.actualFinishTime).unix()) * 1000}`,
-          }
-
-          // 发泡工序
-          if (workReport.process?.code === "12" || workReport.process?.code === "21") {
-            input = {
-              sql: `select last *
-                    from root.huate.devices.reports.${workReport.equipment?.machine?.code}
-                    where time >= ${(dayjs(workReport.actualStartTime).unix()) * 1000}
-                      and time <= ${(dayjs(workReport.actualFinishTime).add(-2, "minutes").unix()) * 1000}`,
-            }
-          }
-
-          const tsResponse = await iotDBSDK.PostResourceRequest("http://10.0.0.3:6670/rest/v2/query", input, true)
-          const data = ParseLastDeviceData(tsResponse.data);
+          // 使用统一的设备数据获取函数
+          const data = await getDeviceData(server, workReport);
 
           for (let deviceCode in data) {
             const deviceMetricData = data[deviceCode];
