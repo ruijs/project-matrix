@@ -1,6 +1,7 @@
 import type { ActionHandlerContext, IRpdServer, RouteContext, ServerOperation } from "@ruiapp/rapid-core";
 import type { MomGood, SaveMomGoodInput } from "~/_definitions/meta/entity-types";
 import SequenceService, { GenerateSequenceNumbersInput } from "@ruiapp/rapid-core/src/plugins/sequence/SequenceService";
+import { areNotEqualWithPrecision } from "~/utils/number-utils";
 
 export type SplitGoodsInput = {
   originGoodId: number;
@@ -51,8 +52,8 @@ async function splitGoods(server: IRpdServer, routeContext: RouteContext, input:
 
   const originGoodQuantity = originGood.quantity || 0;
   const totalWeight = input.shelves.reduce((acc, curr) => acc + curr.weight, 0);
-  if (originGoodQuantity <= 0 || originGoodQuantity !== totalWeight) {
-    throw new Error("拆分项重量总和需要与原标识卡重量一致");
+  if (originGoodQuantity <= 0 || areNotEqualWithPrecision(originGoodQuantity, totalWeight, 4)) {
+    throw new Error("拆分项重量总和需要与原标识卡重量一致。");
   }
 
   const saveGoodInputBase: SaveMomGoodInput = {
