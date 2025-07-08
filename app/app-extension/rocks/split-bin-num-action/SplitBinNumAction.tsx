@@ -5,7 +5,7 @@ import type { SplitBinNumActionRockConfig } from "./split-bin-num-action-types";
 import { useSetState } from "ahooks";
 import { useRef, useState } from "react";
 import { get, sumBy } from "lodash";
-import rapidApi from "~/rapidApi";
+import rapidApi, { rapidApiRequest } from "~/rapidApi";
 import { decimalSum } from "~/utils/decimal";
 import { message } from "antd";
 
@@ -132,16 +132,19 @@ function useSplitBinNum(onSuccess: () => void) {
     }
 
     setSpliting(true);
-    await rapidApi
-      .post(`/app/splitGoods`, params)
-      .then((res) => {
-        if (res.status === 200) {
-          onSuccess();
-        }
-      })
-      .finally(() => {
-        setSpliting(false);
-      });
+    const { error } = await rapidApiRequest({
+      method: "post",
+      url: `/app/splitGoods`,
+      data: params,
+    });
+
+    if (error) {
+      message.error(error.message);
+    } else {
+      onSuccess();
+    }
+
+    setSpliting(false);
   };
 
   return { splitBinNum, spliting };
