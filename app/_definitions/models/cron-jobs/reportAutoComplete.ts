@@ -12,6 +12,7 @@ export default {
     const { server, logger } = ctx;
     logger.info("Executing reportAutoComplete job...");
 
+    // 发泡工序
     const workReports = await server.getEntityManager<MomWorkReport>("mom_work_report").findEntities({
       filters: [
         {
@@ -21,8 +22,9 @@ export default {
             {
               operator: "or",
               filters: [
-                { operator: "eq", field: "code", value: "12" },
+                { operator: "eq", field: "code", value: "12" }, 
                 { operator: "eq", field: "code", value: "21" },
+                { operator: "eq", field: "code", value: "32" },
               ],
             },
           ]

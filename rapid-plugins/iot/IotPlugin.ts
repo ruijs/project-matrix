@@ -83,6 +83,10 @@ class IotPlugin implements RapidPlugin {
     return this.#iotService;
   }
 
+  get tDEngineAccessor() {
+    return this.#tDEngineAccessor;
+  }
+
   get timeSeriesDataService() {
     return this.#timeSeriesDataService;
   }
