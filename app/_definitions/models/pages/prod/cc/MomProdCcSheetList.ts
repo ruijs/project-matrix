@@ -401,22 +401,22 @@ const page: RapidPage = {
           {
             type: "auto",
             code: "factory",
-            filterMode: "in"
+            filterMode: "contains"
           },
           {
             type: "auto",
             code: "material",
-            filterMode: "in"
+            filterMode: "contains"
           },
           {
             type: "auto",
             code: "processes",
-            filterMode: "in"
+            filterMode: "contains"
           },
           {
             type: "auto",
             code: "executionState",
-            filterMode: "in"
+            filterMode: "contains"
           },
           // {
           //   type: "auto",

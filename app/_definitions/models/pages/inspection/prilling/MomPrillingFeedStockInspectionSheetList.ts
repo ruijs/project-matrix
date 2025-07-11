@@ -127,11 +127,7 @@ const formConfig: Partial<RapidEntityFormConfig> = {
       code: "invoiceReportFile",
       label: "月度发票",
       required: false,
-      type: "fileList",
-      multipleValues:true,
-      formControlProps: {
-        multiple: true
-      },
+      type: "auto",
       $exps: {
         _hidden: "!$scope.vars.active_hidden",
       },

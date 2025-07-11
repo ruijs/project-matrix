@@ -395,7 +395,7 @@ const page: RapidPage = {
           {
             type: "auto",
             code: "material",
-            filterMode: "text",
+            filterMode: "contains",
           },
           {
             type: "auto",
