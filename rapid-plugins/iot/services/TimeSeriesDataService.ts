@@ -30,7 +30,7 @@ export default class TimeSeriesDataService {
   async getDeviceData(deviceCode: string, startTime: number, endTime: number) {
     const tableName = `thing_${deviceCode}`;
     
-    const sql = `select last_row(*)
+    const sql = `select last(*)
                   from ${tableName}
                   where ts >= ${startTime}
                     and ts <= ${endTime}`;
