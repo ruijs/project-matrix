@@ -109,6 +109,7 @@ const formConfig: Partial<RapidEntityFormConfig> = {
       code: "gcmsReportFile",
       label: "GCMS报告",
       type: "auto",
+      
       $exps: {
         // _hidden:"$scope.vars.active_rule_id "
         _hidden: "!$scope.vars.active_hidden",
@@ -125,8 +126,12 @@ const formConfig: Partial<RapidEntityFormConfig> = {
     {
       code: "invoiceReportFile",
       label: "月度发票",
-      required: true,
-      type: "auto",
+      required: false,
+      type: "fileList",
+      multipleValues:true,
+      formControlProps: {
+        multiple: true
+      },
       $exps: {
         _hidden: "!$scope.vars.active_hidden",
       },

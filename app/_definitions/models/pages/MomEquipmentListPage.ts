@@ -79,8 +79,7 @@ const page: RapidPage = {
       ],
       orderBy: [
         {
-          field: "createdAt",
-          desc: true,
+          field: "factory"
         },
       ],
       pageSize: 20,

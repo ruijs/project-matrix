@@ -82,10 +82,10 @@ const formConfig: Partial<RapidEntityFormConfig> = {
         ],
       },
     },
-    {
-      type: "auto",
-      code: "lotNum",
-    },
+    // {
+    //   type: "auto",
+    //   code: "lotNum",
+    // },
     // {
     //   type: "auto",
     //   code: "tags",
@@ -261,7 +261,7 @@ const page: RapidPage = {
           placeholder: "搜索工单号",
           actionEventName: "onSearch",
           filterMode: "contains",
-          filterFields: ["code"],
+          filterFields: ["code"]
         },
       ],
       columns: [
@@ -297,10 +297,10 @@ const page: RapidPage = {
             },
           },
         },
-        {
-          type: "auto",
-          code: "lotNum",
-        },
+        // {
+        //   type: "auto",
+        //   code: "lotNum",
+        // },
         // {
         //   type: "auto",
         //   code: "route",
@@ -398,6 +398,31 @@ const page: RapidPage = {
             code: "code",
             filterMode: "contains",
           },
+          {
+            type: "auto",
+            code: "factory",
+            filterMode: "in"
+          },
+          {
+            type: "auto",
+            code: "material",
+            filterMode: "in"
+          },
+          {
+            type: "auto",
+            code: "processes",
+            filterMode: "in"
+          },
+          {
+            type: "auto",
+            code: "executionState",
+            filterMode: "in"
+          },
+          // {
+          //   type: "auto",
+          //   code: "createdAt",
+          //   filterMode: "in"
+          // }
         ],
       },
       $exps: {

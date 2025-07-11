@@ -84,6 +84,16 @@ const page: RapidPage = {
             },
             required: true,
           },
+          {
+            type: "auto",
+            code: "qualificationState",
+            filterModel:"in"
+          },
+          // {
+          //   type: "auto",
+          //   code: "createdAt",
+          //   filterModel:"in"
+          // }
         ],
       },
       orderBy: [

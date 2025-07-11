@@ -35,7 +35,7 @@ const page: RapidPage = {
       selectionMode: "none",
       orderBy: [
         {
-          field: "code",
+          field: "orderNum",
         },
       ],
       listActions: [

@@ -490,11 +490,11 @@ const page: RapidPage = {
                   code: "lotNum",
                   width: "100px",
                 },
-                {
-                  type: "auto",
-                  code: "serialNum",
-                  width: "100px",
-                },
+                // {
+                //   type: "auto",
+                //   code: "serialNum",
+                //   width: "100px",
+                // },
                 {
                   type: "auto",
                   code: "process",

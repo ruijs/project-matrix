@@ -82,10 +82,10 @@ const formConfig: Partial<RapidEntityFormConfig> = {
         ],
       },
     },
-    {
-      type: "auto",
-      code: "lotNum",
-    },
+    // {
+    //   type: "auto",
+    //   code: "lotNum",
+    // },
     // {
     //   type: "auto",
     //   code: "tags",
@@ -297,10 +297,10 @@ const page: RapidPage = {
             },
           },
         },
-        {
-          type: "auto",
-          code: "lotNum",
-        },
+        // {
+        //   type: "auto",
+        //   code: "lotNum",
+        // },
         // {
         //   type: "auto",
         //   code: "route",
@@ -395,9 +395,29 @@ const page: RapidPage = {
         items: [
           {
             type: "auto",
-            code: "code",
+            code: "factory",
             filterMode: "contains",
           },
+          {
+            type: "auto",
+            code: "material",
+            filterMode: "text",
+          },
+          {
+            type: "auto",
+            code: "processes",
+            filterMode: "contains",
+          },
+          {
+            type: "auto",
+            code: "executionState",
+            filterMode: "contains",
+          },
+          // {
+          //   type: "auto",
+          //   code: "createdAt",
+          //   filterMode: "contains",
+          // }
         ],
       },
       $exps: {
