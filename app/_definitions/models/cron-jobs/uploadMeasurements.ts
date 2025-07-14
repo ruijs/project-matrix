@@ -14,6 +14,7 @@ export default {
   },
 
   async handler(ctx: ActionHandlerContext) {
+    return;
     const { server, logger } = ctx;
     logger.info("Executing uploadHuateMeasurements job...");
 
