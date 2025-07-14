@@ -132,10 +132,10 @@ const formConfig: Partial<RapidEntityFormConfig> = {
     //   type: "auto",
     //   code: "unit",
     // },
-    {
-      type: "auto",
-      code: "lotNum",
-    },
+    // {
+    //   type: "auto",
+    //   code: "lotNum",
+    // },
     {
       code: "oilMixtureRatio1",
       type: "auto",
@@ -376,10 +376,10 @@ const page: RapidPage = {
         //   code: "assignmentState",
         //   width: "100px",
         // },
-        {
-          type: "auto",
-          code: "lotNum",
-        },
+        // {
+        //   type: "auto",
+        //   code: "lotNum",
+        // },
         {
           code: "oilMixtureRatio1",
           type: "auto",
@@ -454,8 +454,53 @@ const page: RapidPage = {
         items: [
           {
             type: "auto",
-            code: "code",
+            code: "factory",
             filterMode: "contains",
+          },
+          {
+            type: "auto",
+            code: "material",
+            filterMode: "text",
+          },
+          {
+            type: "auto",
+            code: "oilMixtureRatio1",
+            filterMode: "contains",
+          },
+          {
+            type: "auto",
+            code: "oilMixtureRatio2",
+            filterMode: "contains",
+          },
+          {
+            type: "auto",
+            code: "paraffinQuantity",
+            filterMode: "contains",
+          },
+          {
+            type: "auto",
+            code: "stirringTime",
+            filterMode: "contains",
+          },
+          {
+            type: "auto",
+            code: "stirringPressure",
+            filterMode: "contains",
+          },
+          {
+            type: "auto",
+            code: "tankNumber",
+            filterMode: "contains",
+          },
+          {
+            type: "auto",
+            code: "executionState",
+            filterMode: "contains",
+          },
+          {
+            type: "auto",
+            code: "createdAt",
+            filterMode: "range",
           },
         ],
       },

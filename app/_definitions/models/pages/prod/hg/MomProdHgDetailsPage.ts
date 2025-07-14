@@ -492,11 +492,6 @@ const page: RapidPage = {
                 },
                 {
                   type: "auto",
-                  code: "serialNum",
-                  width: "100px",
-                },
-                {
-                  type: "auto",
                   code: "process",
                   width: "150px",
                   rendererProps: {

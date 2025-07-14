@@ -225,12 +225,12 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
     {
       code: "reportFile",
       name: "报告文件",
-      type: "file",
+      type: "file[]",
     },
     {
       code: "gcmsReportFile",
       name: "GCMS报告文件",
-      type: "file",
+      type: "file[]",
     },
     {
       code: "gcmsPassed",
@@ -241,17 +241,17 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
     {
       code: "invoiceReportFile",
       name: "月度发票",
-      type: "file",
+      type: "file[]",
     },
     {
       code: "normalReportFile",
       name: "常规检测",
-      type: "file",
+      type: "file[]",
     },
     {
       code: "qualityReportFile",
       name: "质保书",
-      type: "file",
+      type: "file[]",
     },
     {
       code: "factory",

@@ -4,10 +4,6 @@ import { materialFormatStrTemplate } from "~/utils/fmt";
 
 const formConfig: Partial<RapidEntityFormConfig> = {
   items: [
-    // {
-    //   type: "auto",
-    //   code: "code",
-    // },
     {
       type: "auto",
       code: "factory",
@@ -81,10 +77,6 @@ const formConfig: Partial<RapidEntityFormConfig> = {
           { code: "specification", title: "规格", width: 120 },
         ],
       },
-    },
-    {
-      type: "auto",
-      code: "lotNum",
     },
     // {
     //   type: "auto",
@@ -297,10 +289,7 @@ const page: RapidPage = {
             },
           },
         },
-        {
-          type: "auto",
-          code: "lotNum",
-        },
+
         // {
         //   type: "auto",
         //   code: "route",
@@ -397,6 +386,31 @@ const page: RapidPage = {
             type: "auto",
             code: "code",
             filterMode: "contains",
+          },
+          {
+            type: "auto",
+            code: "factory",
+            filterMode: "contains",
+          },
+          {
+            type: "auto",
+            code: "material",
+            filterMode: "contains",
+          },
+          {
+            type: "auto",
+            code: "processes",
+            filterMode: "contains",
+          },
+          {
+            type: "auto",
+            code: "executionState",
+            filterMode: "contains",
+          },
+          {
+            type: "auto",
+            code: "createdAt",
+            filterMode: "range",
           },
         ],
       },

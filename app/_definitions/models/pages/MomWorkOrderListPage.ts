@@ -182,7 +182,7 @@ const page: RapidPage = {
           actionEventName: "onSearch",
           filterMode: "contains",
           filterFields: ["code"],
-        },
+        }
       ],
       columns: [
         {

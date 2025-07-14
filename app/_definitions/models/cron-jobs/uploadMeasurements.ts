@@ -27,7 +27,10 @@ export default {
     while (true) {
       try {
         const measurements = await server.getEntityManager<MomRouteProcessParameterMeasurement>("mom_route_process_parameter_measurement").findEntities({
-          filters: [{ operator: "eq", field: "isReported", value: false }, { operator: "lt", field: "retryTimes", value: 3 }],
+          filters: [
+            { operator: "eq", field: "isReported", value: false },
+            { operator: "lt", field: "retryTimes", value: 3 },
+          ],
           properties: [
             "id",
             "process",
@@ -96,7 +99,7 @@ export default {
           // }
         }
 
-        await waitSeconds(1000*10);
+        await waitSeconds(1000 * 10);
 
         // if (isOutSpecification && notifyEnabled) {
         //   await yidaAPI.uploadProductionMeasurementsAudit(measurements);
