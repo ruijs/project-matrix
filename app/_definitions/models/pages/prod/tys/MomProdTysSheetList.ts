@@ -471,7 +471,8 @@ const page: RapidPage = {
             type: "auto",
             code: "oilMixtureRatio2",
             filterMode: "contains",
-          },{
+          },
+          {
             type: "auto",
             code: "paraffinQuantity",
             filterMode: "contains",
@@ -480,7 +481,8 @@ const page: RapidPage = {
             type: "auto",
             code: "stirringTime",
             filterMode: "contains",
-          },{
+          },
+          {
             type: "auto",
             code: "stirringPressure",
             filterMode: "contains",
@@ -490,26 +492,16 @@ const page: RapidPage = {
             code: "tankNumber",
             filterMode: "contains",
           },
-          // {
-          //   type: "auto",
-          //   code: "unloadingVideo",
-          //   filterMode: "contains",
-          // },
-          // {
-          //   type: "auto",
-          //   code: "dcsPicture",
-          //   filterMode: "contains",
-          // },
           {
             type: "auto",
             code: "executionState",
             filterMode: "contains",
           },
-          // {
-          //   type: "auto",
-          //   code: "createdAt",
-          //   filterMode: "contains",
-          // },
+          {
+            type: "auto",
+            code: "createdAt",
+            filterMode: "range",
+          },
         ],
       },
       $exps: {

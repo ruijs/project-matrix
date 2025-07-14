@@ -84,10 +84,6 @@ const formConfig: Partial<RapidEntityFormConfig> = {
     },
     // {
     //   type: "auto",
-    //   code: "lotNum",
-    // },
-    // {
-    //   type: "auto",
     //   code: "tags",
     // },
     // {
@@ -297,10 +293,6 @@ const page: RapidPage = {
             },
           },
         },
-        // {
-        //   type: "auto",
-        //   code: "lotNum",
-        // },
         // {
         //   type: "auto",
         //   code: "route",

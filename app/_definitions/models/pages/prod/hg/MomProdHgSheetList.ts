@@ -297,10 +297,7 @@ const page: RapidPage = {
             },
           },
         },
-        // {
-        //   type: "auto",
-        //   code: "lotNum",
-        // },
+
         // {
         //   type: "auto",
         //   code: "route",
@@ -393,11 +390,6 @@ const page: RapidPage = {
       searchForm: {
         entityCode: "OcUser",
         items: [
-          // {
-          //   type: "auto",
-          //   code: "code",
-          //   filterMode: "contains",
-          // },
           {
             type: "auto",
             code: "factory",

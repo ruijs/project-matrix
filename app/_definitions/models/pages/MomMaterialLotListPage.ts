@@ -87,13 +87,13 @@ const page: RapidPage = {
           {
             type: "auto",
             code: "qualificationState",
-            filterModel:"in"
+            filterModel: "in",
           },
-          // {
-          //   type: "auto",
-          //   code: "createdAt",
-          //   filterModel:"in"
-          // }
+          {
+            type: "auto",
+            code: "createdAt",
+            filterModel: "range",
+          },
         ],
       },
       orderBy: [
