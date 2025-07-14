@@ -399,6 +399,11 @@ const page: RapidPage = {
             code: "executionState",
             filterMode: "contains",
           },
+          {
+            type: "auto",
+            code: "createdAt",
+            filterMode: "range",
+          },
         ],
       },
       $exps: {

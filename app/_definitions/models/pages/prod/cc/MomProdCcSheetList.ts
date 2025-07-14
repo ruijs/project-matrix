@@ -4,10 +4,6 @@ import { materialFormatStrTemplate } from "~/utils/fmt";
 
 const formConfig: Partial<RapidEntityFormConfig> = {
   items: [
-    // {
-    //   type: "auto",
-    //   code: "code",
-    // },
     {
       type: "auto",
       code: "factory",
@@ -411,11 +407,11 @@ const page: RapidPage = {
             code: "executionState",
             filterMode: "contains",
           },
-          // {
-          //   type: "auto",
-          //   code: "createdAt",
-          //   filterMode: "in"
-          // }
+          {
+            type: "auto",
+            code: "createdAt",
+            filterMode: "range",
+          },
         ],
       },
       $exps: {
