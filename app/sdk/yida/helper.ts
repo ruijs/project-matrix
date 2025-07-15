@@ -1,5 +1,5 @@
-import {IRpdServer} from "@ruiapp/rapid-core";
-import {YidaConfig} from "~/_definitions/meta/entity-types";
+import { IRpdServer } from "@ruiapp/rapid-core";
+import { YidaConfig } from "~/_definitions/meta/entity-types";
 import YidaSDK from "~/sdk/yida/sdk";
 
 class YidaHelper {
@@ -25,7 +25,6 @@ class YidaHelper {
       accessTokenExpireIn: yc.access_token_expire_in,
     });
   }
-
 }
 
 export default YidaHelper;
