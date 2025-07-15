@@ -118,7 +118,7 @@ export function ParseTDEngineData(payload: any, deviceCode: string): DevicesData
         continue;
       }
 
-      const columnName = columnMeta.name;
+      let columnName = columnMeta.name;
 
       // 处理时间戳列
       if (columnName.includes('ts') || columnName.includes('time')) {
@@ -128,7 +128,12 @@ export function ParseTDEngineData(payload: any, deviceCode: string): DevicesData
 
       // 提取指标代码 - 从 last_row(column_name) 格式中提取 column_name
       let metricCode = columnName;
-      const lastRowMatch = columnName.match(/last_row\((.+)\)/);
+      let lastRowMatch = null;
+      if (columnName.includes('last(')) {
+        lastRowMatch = columnName.match(/last\((.+)\)/);
+      } else if (columnName.includes('last_row(')) {
+        lastRowMatch = columnName.match(/last_row\((.+)\)/);
+      }
       if (lastRowMatch) {
         metricCode = lastRowMatch[1];
       }
