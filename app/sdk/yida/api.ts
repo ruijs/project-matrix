@@ -670,9 +670,9 @@ class YidaApi {
         userId: dingtalkUserId,
         departmentId: "1",
       };
-      const resp = await this.api.PostResourceRequest("/v2.0/yida/processes/instances/start", payload);
-      console.log("uploadFAWProcessMeasurement response:");
-      console.log(resp.data);
+      const resp = await this.api.PostResourceRequest("/v2.0/yida/processes/instances/start", payload, true);
+      console.log("uploadFAWProcessMeasurement response:", resp);
+      return resp;
     }
   }
 
