@@ -1,8 +1,0 @@
-onlyBuiltDependencies:
-  - bcrypt
-  - bufferutil
-  - deasync
-  - es5-ext
-  - esbuild
-  - utf-8-validate
-  - windows-build-tools
