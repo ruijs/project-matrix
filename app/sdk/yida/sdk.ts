@@ -71,7 +71,7 @@ class YidaSDK {
     this.accessTokenExpireIn = Date.now() / 1000 + data.expireIn;
   }
 
-  public async PostDingtalkResourceRequest(resourceUrl: string, payload: object, debug: boolean = false): Promise<AxiosResponse<any>> {
+  public async PostDingtalkResourceRequest(resourceUrl: string, payload: object, debug: boolean = true): Promise<AxiosResponse<any>> {
     await this.ensureTokensAreValid();
 
     const config: AxiosRequestConfig = {
@@ -99,7 +99,7 @@ class YidaSDK {
     return this.request<any>(config);
   }
 
-  public async PostResourceRequest(resourceUrl: string, payload: object, debug: boolean = false): Promise<AxiosResponse<any>> {
+  public async PostResourceRequest(resourceUrl: string, payload: object, debug: boolean = true): Promise<AxiosResponse<any>> {
     await this.ensureTokensAreValid();
 
     const config: AxiosRequestConfig = {
