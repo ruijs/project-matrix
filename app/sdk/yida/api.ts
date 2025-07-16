@@ -292,78 +292,54 @@ class YidaApi {
 
     // Conditionally add each attachment field only if the file exists
     if (inspectionSheet?.reportFile) {
+      const files = Array.isArray(inspectionSheet.reportFile) ? inspectionSheet.reportFile : [inspectionSheet.reportFile];
+
       // 报告文件
-      formDataJson.attachmentField_lmoh0yyt = [
-        {
-          downloadUrl: `http://121.237.179.45:3005/api/download/file?fileKey=${encodeURIComponent(
-            inspectionSheet.reportFile.key,
-          )}&fileName=${encodeURIComponent(inspectionSheet.reportFile.name)}`,
-          name: inspectionSheet.reportFile.name,
-          url: `http://121.237.179.45:3005/api/download/file?fileKey=${encodeURIComponent(inspectionSheet.reportFile.key)}&fileName=${encodeURIComponent(
-            inspectionSheet.reportFile.name,
-          )}`,
-        },
-      ];
+      formDataJson.attachmentField_lmoh0yyt = files.map((files) => ({
+        downloadUrl: `http://121.237.179.45:3005/api/download/file?fileKey=${encodeURIComponent(files.key)}&fileName=${encodeURIComponent(files.name)}`,
+        name: files.name,
+        url: `http://121.237.179.45:3005/api/download/file?fileKey=${encodeURIComponent(files.key)}&fileName=${encodeURIComponent(files.name)}`,
+      }));
     }
 
     if (inspectionSheet?.invoiceReportFile) {
+      const files = Array.isArray(inspectionSheet.invoiceReportFile) ? inspectionSheet.invoiceReportFile : [inspectionSheet.invoiceReportFile];
       // 月度发票
-      formDataJson.attachmentField_m2sx5i6k = [
-        {
-          downloadUrl: `http://121.237.179.45:3005/api/download/file?fileKey=${encodeURIComponent(
-            inspectionSheet.invoiceReportFile.key,
-          )}&fileName=${encodeURIComponent(inspectionSheet.invoiceReportFile.name)}`,
-          name: inspectionSheet.invoiceReportFile.name,
-          url: `http://121.237.179.45:3005/api/download/file?fileKey=${encodeURIComponent(inspectionSheet.invoiceReportFile.key)}&fileName=${encodeURIComponent(
-            inspectionSheet.invoiceReportFile.name,
-          )}`,
-        },
-      ];
+      formDataJson.attachmentField_m2sx5i6k = files.map((files) => ({
+        downloadUrl: `http://121.237.179.45:3005/api/download/file?fileKey=${encodeURIComponent(files.key)}&fileName=${encodeURIComponent(files.name)}`,
+        name: files.name,
+        url: `http://121.237.179.45:3005/api/download/file?fileKey=${encodeURIComponent(files.key)}&fileName=${encodeURIComponent(files.name)}`,
+      }));
     }
 
     if (inspectionSheet?.normalReportFile) {
+      const files = Array.isArray(inspectionSheet.normalReportFile) ? inspectionSheet.normalReportFile : [inspectionSheet.normalReportFile];
       // 常规检测
-      formDataJson.attachmentField_m2sx5i6l = [
-        {
-          downloadUrl: `http://121.237.179.45:3005/api/download/file?fileKey=${encodeURIComponent(
-            inspectionSheet.normalReportFile.key,
-          )}&fileName=${encodeURIComponent(inspectionSheet.normalReportFile.name)}`,
-          name: inspectionSheet.normalReportFile.name,
-          url: `http://121.237.179.45:3005/api/download/file?fileKey=${encodeURIComponent(inspectionSheet.normalReportFile.key)}&fileName=${encodeURIComponent(
-            inspectionSheet.normalReportFile.name,
-          )}`,
-        },
-      ];
+      formDataJson.attachmentField_m2sx5i6l = files.map((files) => ({
+        downloadUrl: `http://121.237.179.45:3005/api/download/file?fileKey=${encodeURIComponent(files.key)}&fileName=${encodeURIComponent(files.name)}`,
+        name: files.name,
+        url: `http://121.237.179.45:3005/api/download/file?fileKey=${encodeURIComponent(files.key)}&fileName=${encodeURIComponent(files.name)}`,
+      }));
     }
 
     if (inspectionSheet?.qualityReportFile) {
+      const files = Array.isArray(inspectionSheet.qualityReportFile) ? inspectionSheet.qualityReportFile : [inspectionSheet.qualityReportFile];
       // 质保书
-      formDataJson.attachmentField_m2sx5i6m = [
-        {
-          downloadUrl: `http://121.237.179.45:3005/api/download/file?fileKey=${encodeURIComponent(
-            inspectionSheet.qualityReportFile.key,
-          )}&fileName=${encodeURIComponent(inspectionSheet.qualityReportFile.name)}`,
-          name: inspectionSheet.qualityReportFile.name,
-          url: `http://121.237.179.45:3005/api/download/file?fileKey=${encodeURIComponent(inspectionSheet.qualityReportFile.key)}&fileName=${encodeURIComponent(
-            inspectionSheet.qualityReportFile.name,
-          )}`,
-        },
-      ];
+      formDataJson.attachmentField_m2sx5i6m = files.map((files) => ({
+        downloadUrl: `http://121.237.179.45:3005/api/download/file?fileKey=${encodeURIComponent(files.key)}&fileName=${encodeURIComponent(files.name)}`,
+        name: files.name,
+        url: `http://121.237.179.45:3005/api/download/file?fileKey=${encodeURIComponent(files.key)}&fileName=${encodeURIComponent(files.name)}`,
+      }));
     }
 
     if (inspectionSheet?.gcmsReportFile) {
+      const files = Array.isArray(inspectionSheet.gcmsReportFile) ? inspectionSheet.gcmsReportFile : [inspectionSheet.gcmsReportFile];
       // GCMS报告文件
-      formDataJson.attachmentField_m2sx5i6j = [
-        {
-          downloadUrl: `http://121.237.179.45:3005/api/download/file?fileKey=${encodeURIComponent(
-            inspectionSheet.gcmsReportFile.key,
-          )}&fileName=${encodeURIComponent(inspectionSheet.gcmsReportFile.name)}`,
-          name: inspectionSheet.gcmsReportFile.name,
-          url: `http://121.237.179.45:3005/api/download/file?fileKey=${encodeURIComponent(inspectionSheet.gcmsReportFile.key)}&fileName=${encodeURIComponent(
-            inspectionSheet.gcmsReportFile.name,
-          )}`,
-        },
-      ];
+      formDataJson.attachmentField_m2sx5i6j = files.map((files) => ({
+        downloadUrl: `http://121.237.179.45:3005/api/download/file?fileKey=${encodeURIComponent(files.key)}&fileName=${encodeURIComponent(files.name)}`,
+        name: files.name,
+        url: `http://121.237.179.45:3005/api/download/file?fileKey=${encodeURIComponent(files.key)}&fileName=${encodeURIComponent(files.name)}`,
+      }));
     }
 
     // convert json to string
