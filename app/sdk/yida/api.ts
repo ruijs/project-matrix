@@ -290,57 +290,32 @@ class YidaApi {
       textField_m24g649a: inspectionSheet?.lotNum, // 批次
     };
 
+    function processAttachmentField(inspectionSheet: any, sourceField: string, targetField: string, formDataJson: any) {
+      // 检查源字段是否存在
+      if (inspectionSheet?.[sourceField]) {
+        // 确保文件数据为数组格式
+        const files = Array.isArray(inspectionSheet[sourceField]) ? inspectionSheet[sourceField] : [inspectionSheet[sourceField]];
+
+        // 映射文件数据到表单字段
+        formDataJson[targetField] = files.map((file: any) => ({
+          downloadUrl: `http://121.237.179.45:3005/api/download/file?fileKey=${encodeURIComponent(file.key)}&fileName=${encodeURIComponent(file.name)}`,
+          name: file.name,
+          url: `http://121.237.179.45:3005/api/download/file?fileKey=${encodeURIComponent(file.key)}&fileName=${encodeURIComponent(file.name)}`,
+        }));
+      }
+    }
+
     // Conditionally add each attachment field only if the file exists
-    if (inspectionSheet?.reportFile) {
-      const files = Array.isArray(inspectionSheet.reportFile) ? inspectionSheet.reportFile : [inspectionSheet.reportFile];
-
-      // 报告文件
-      formDataJson.attachmentField_lmoh0yyt = files.map((files) => ({
-        downloadUrl: `http://121.237.179.45:3005/api/download/file?fileKey=${encodeURIComponent(files.key)}&fileName=${encodeURIComponent(files.name)}`,
-        name: files.name,
-        url: `http://121.237.179.45:3005/api/download/file?fileKey=${encodeURIComponent(files.key)}&fileName=${encodeURIComponent(files.name)}`,
-      }));
-    }
-
-    if (inspectionSheet?.invoiceReportFile) {
-      const files = Array.isArray(inspectionSheet.invoiceReportFile) ? inspectionSheet.invoiceReportFile : [inspectionSheet.invoiceReportFile];
-      // 月度发票
-      formDataJson.attachmentField_m2sx5i6k = files.map((files) => ({
-        downloadUrl: `http://121.237.179.45:3005/api/download/file?fileKey=${encodeURIComponent(files.key)}&fileName=${encodeURIComponent(files.name)}`,
-        name: files.name,
-        url: `http://121.237.179.45:3005/api/download/file?fileKey=${encodeURIComponent(files.key)}&fileName=${encodeURIComponent(files.name)}`,
-      }));
-    }
-
-    if (inspectionSheet?.normalReportFile) {
-      const files = Array.isArray(inspectionSheet.normalReportFile) ? inspectionSheet.normalReportFile : [inspectionSheet.normalReportFile];
-      // 常规检测
-      formDataJson.attachmentField_m2sx5i6l = files.map((files) => ({
-        downloadUrl: `http://121.237.179.45:3005/api/download/file?fileKey=${encodeURIComponent(files.key)}&fileName=${encodeURIComponent(files.name)}`,
-        name: files.name,
-        url: `http://121.237.179.45:3005/api/download/file?fileKey=${encodeURIComponent(files.key)}&fileName=${encodeURIComponent(files.name)}`,
-      }));
-    }
-
-    if (inspectionSheet?.qualityReportFile) {
-      const files = Array.isArray(inspectionSheet.qualityReportFile) ? inspectionSheet.qualityReportFile : [inspectionSheet.qualityReportFile];
-      // 质保书
-      formDataJson.attachmentField_m2sx5i6m = files.map((files) => ({
-        downloadUrl: `http://121.237.179.45:3005/api/download/file?fileKey=${encodeURIComponent(files.key)}&fileName=${encodeURIComponent(files.name)}`,
-        name: files.name,
-        url: `http://121.237.179.45:3005/api/download/file?fileKey=${encodeURIComponent(files.key)}&fileName=${encodeURIComponent(files.name)}`,
-      }));
-    }
-
-    if (inspectionSheet?.gcmsReportFile) {
-      const files = Array.isArray(inspectionSheet.gcmsReportFile) ? inspectionSheet.gcmsReportFile : [inspectionSheet.gcmsReportFile];
-      // GCMS报告文件
-      formDataJson.attachmentField_m2sx5i6j = files.map((files) => ({
-        downloadUrl: `http://121.237.179.45:3005/api/download/file?fileKey=${encodeURIComponent(files.key)}&fileName=${encodeURIComponent(files.name)}`,
-        name: files.name,
-        url: `http://121.237.179.45:3005/api/download/file?fileKey=${encodeURIComponent(files.key)}&fileName=${encodeURIComponent(files.name)}`,
-      }));
-    }
+    // 报告文件
+    processAttachmentField(inspectionSheet, "reportFile", "attachmentField_lmoh0yyt", formDataJson);
+    // 月度发票
+    processAttachmentField(inspectionSheet, "invoiceReportFile", "attachmentField_m2sx5i6k", formDataJson);
+    // 常规检测
+    processAttachmentField(inspectionSheet, "normalReportFile", "attachmentField_m2sx5i6l", formDataJson);
+    // 质保书
+    processAttachmentField(inspectionSheet, "qualityReportFile", "attachmentField_m2sx5i6m", formDataJson);
+    // GCMS报告文件
+    processAttachmentField(inspectionSheet, "gcmsReportFile", "attachmentField_m2sx5i6j", formDataJson);
 
     // convert json to string
     let formDataJsonStr = JSON.stringify(formDataJson);
