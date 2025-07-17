@@ -312,13 +312,13 @@ class YidaApi {
     // 报告文件
     processAttachmentField(inspectionSheet, "reportFile", "attachmentField_lmoh0yyt", formDataJson);
     // 月度发票
-    processAttachmentField(inspectionSheet, "invoiceReportFile", "attachmentField_m2sx5i6k", formDataJson);
+    processAttachmentField(inspectionSheet, "invoiceReportFile", "attachmentField_md6uim55", formDataJson);
     // 常规检测
-    processAttachmentField(inspectionSheet, "normalReportFile", "attachmentField_m2sx5i6l", formDataJson);
+    processAttachmentField(inspectionSheet, "normalReportFile", "attachmentField_md6uim54", formDataJson);
     // 质保书
-    processAttachmentField(inspectionSheet, "qualityReportFile", "attachmentField_m2sx5i6m", formDataJson);
+    processAttachmentField(inspectionSheet, "qualityReportFile", "attachmentField_md6uim56", formDataJson);
     // GCMS报告文件
-    processAttachmentField(inspectionSheet, "gcmsReportFile", "attachmentField_m2sx5i6j", formDataJson);
+    processAttachmentField(inspectionSheet, "gcmsReportFile", "attachmentField_md6uim57", formDataJson);
 
     // convert json to string
     let formDataJsonStr = JSON.stringify(formDataJson);
