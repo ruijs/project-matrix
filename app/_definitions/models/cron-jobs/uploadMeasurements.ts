@@ -25,7 +25,7 @@ export default {
     const yidaSDK = await new YidaHelper(server).NewAPIClient();
     const yidaAPI = new YidaApi(logger, yidaSDK);
 
-    const yidaSetting = await server.getEntityManager<SystemSettingItem>("system_setting_items").findEntity({
+    const yidaSetting = await server.getEntityManager<SystemSettingItem>("system_setting_item").findEntity({
       filters: [
         { operator: "eq", field: "groupCode", value: "yida" },
         { operator: "eq", field: "itemCode", value: "apiThrottlingDelay" },

@@ -426,8 +426,7 @@ class YidaApi {
     };
 
     const resp = await this.api.PostResourceRequest("/v1.0/yida/forms/instances", payload);
-    console.log("uploadProductionMeasurement response:");
-    console.log(resp.data);
+    logAxiosResponse(this.logger, "info", resp, "uploadProductionMeasurement response");
   }
 
   public async getAuditDetail(id: string, uid: string, kind: string) {
@@ -453,8 +452,7 @@ class YidaApi {
     }
 
     const resp = await this.api.GetResourceRequest(`/v2.0/yida/processes/instancesInfos/${id}`, payload, true);
-    console.log("getAuditDetail response:");
-    console.log(resp.data);
+    logAxiosResponse(this.logger, "info", resp, "getAuditDetail response");
 
     return resp.data;
   }
@@ -523,8 +521,7 @@ class YidaApi {
       };
 
       const resp = await this.api.PostResourceRequest("/v1.0/yida/forms/instances", payload);
-      console.log("uploadTYSProductionRecords response:");
-      console.log(resp.data);
+      logAxiosResponse(this.logger, "info", resp, "uploadTYSProductionRecords response");
     }
   }
 
@@ -549,8 +546,7 @@ class YidaApi {
     };
 
     const resp = await this.api.PostResourceRequest("/v1.0/yida/forms/instances", payload);
-    console.log("uploadWarehouseInventory response:");
-    console.log(resp.data);
+    logAxiosResponse(this.logger, "info", resp, "uploadWarehouseInventory response");
   }
 
   public async uploadFAWProductionRecord(input: MomWorkReport, feeds: MomWorkFeed[]) {
@@ -580,8 +576,7 @@ class YidaApi {
       };
 
       const resp = await this.api.PostResourceRequest("/v1.0/yida/forms/instances", payload);
-      console.log("uploadFAWProductionRecord response:");
-      console.log(resp.data);
+      logAxiosResponse(this.logger, "info", resp, "uploadFAWProductionRecord response");
     }
   }
 
@@ -719,8 +714,7 @@ class YidaApi {
         departmentId: "1",
       };
       const resp = await this.api.PostResourceRequest("/v2.0/yida/processes/instances/start", payload);
-      console.log("uploadFAWInspectionMeasurements response:");
-      console.log(resp.data);
+      logAxiosResponse(this.logger, "info", resp, "uploadFAWInspectionMeasurements response");
     }
 
     if (inputs.length > 0) {
@@ -764,8 +758,7 @@ class YidaApi {
           departmentId: "1",
         };
         const resp = await this.api.PostResourceRequest("/v2.0/yida/processes/instances/start", payload);
-        console.log("uploadFAWInspectionMeasurements response:");
-        console.log(resp.data);
+        logAxiosResponse(this.logger, "info", resp, "uploadFAWInspectionMeasurements response");
       }
     }
   }
@@ -813,8 +806,7 @@ class YidaApi {
         departmentId: "1",
       };
       const resp = await this.api.PostResourceRequest("/v2.0/yida/processes/instances/start", payload);
-      console.log("uploadFAWTYSProductionMeasurement response:");
-      console.log(resp.data);
+      logAxiosResponse(this.logger, "info", resp, "uploadFAWTYSProductionMeasurement response");
     }
 
     if (input?.tankNumber) {
@@ -856,8 +848,7 @@ class YidaApi {
         departmentId: "1",
       };
       const resp = await this.api.PostResourceRequest("/v2.0/yida/processes/instances/start", payload);
-      console.log("uploadFAWTYSProductionMeasurement response:");
-      console.log(resp.data);
+      logAxiosResponse(this.logger, "info", resp, "uploadFAWTYSProductionMeasurement response");
     }
 
     if (input?.stirringTime) {
@@ -899,8 +890,7 @@ class YidaApi {
         departmentId: "1",
       };
       const resp = await this.api.PostResourceRequest("/v2.0/yida/processes/instances/start", payload);
-      console.log("uploadFAWTYSProductionMeasurement response:");
-      console.log(resp.data);
+      logAxiosResponse(this.logger, "info", resp, "uploadFAWTYSProductionMeasurement response");
     }
 
     if (input?.stirringPressure) {
@@ -942,8 +932,7 @@ class YidaApi {
         departmentId: "1",
       };
       const resp = await this.api.PostResourceRequest("/v2.0/yida/processes/instances/start", payload);
-      console.log("uploadFAWTYSProductionMeasurement response:");
-      console.log(resp.data);
+      logAxiosResponse(this.logger, "info", resp, "uploadFAWTYSProductionMeasurement response");
     }
 
     for (const feed of feeds) {
@@ -986,8 +975,7 @@ class YidaApi {
           departmentId: "1",
         };
         const resp = await this.api.PostResourceRequest("/v2.0/yida/processes/instances/start", payload);
-        console.log("uploadFAWTYSProductionMeasurement response:");
-        console.log(resp.data);
+        logAxiosResponse(this.logger, "info", resp, "uploadFAWTYSProductionMeasurement response");
       }
     }
   }
@@ -1033,8 +1021,7 @@ class YidaApi {
         departmentId: "1",
       };
       let resp = await this.api.PostResourceRequest("/v2.0/yida/processes/instances/start", payload);
-      console.log("uploadFAWTYSTransportMeasurement response:");
-      console.log(resp.data);
+      logAxiosResponse(this.logger, "info", resp, "uploadFAWTYSTransportMeasurement response");
 
       formDataJson = {
         textField_l3plle21: "5RD", // 供应商代码
@@ -1074,8 +1061,7 @@ class YidaApi {
         departmentId: "1",
       };
       resp = await this.api.PostResourceRequest("/v2.0/yida/processes/instances/start", payload);
-      console.log("uploadFAWTYSTransportMeasurement response:");
-      console.log(resp.data);
+      logAxiosResponse(this.logger, "info", resp, "uploadFAWTYSTransportMeasurement response");
 
       formDataJson = {
         textField_l3plle21: "5RD", // 供应商代码
@@ -1115,8 +1101,7 @@ class YidaApi {
         departmentId: "1",
       };
       resp = await this.api.PostResourceRequest("/v2.0/yida/processes/instances/start", payload);
-      console.log("uploadFAWTYSTransportMeasurement response:");
-      console.log(resp.data);
+      logAxiosResponse(this.logger, "info", resp, "uploadFAWTYSTransportMeasurement response");
     }
   }
 
@@ -1159,8 +1144,7 @@ class YidaApi {
       departmentId: "1",
     };
     const resp = await this.api.PostResourceRequest("/v2.0/yida/processes/instances/start", payload);
-    console.log("uploadFAWStock response:");
-    console.log(resp.data);
+    logAxiosResponse(this.logger, "info", resp, "uploadFAWStock response");
   }
 }
 
