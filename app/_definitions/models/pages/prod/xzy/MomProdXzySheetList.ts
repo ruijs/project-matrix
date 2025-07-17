@@ -377,7 +377,7 @@ const page: RapidPage = {
       newForm: cloneDeep(formConfig),
       editForm: cloneDeep(formConfig),
       searchForm: {
-        entityCode: "OcUser",
+        entityCode: "MomWorkOrder",
         items: [
           {
             type: "auto",
