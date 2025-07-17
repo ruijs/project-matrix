@@ -1,16 +1,9 @@
-import type {EntityWatcher, EntityWatchHandlerContext, IRpdServer} from "@ruiapp/rapid-core";
-import {
-  BaseLot,
-  HuateGCMS,
-  MomInspectionMeasurement,
-  MomInspectionSheet,
-  type SaveBaseLotInput,
-  SaveHuateGCMSInput
-} from "~/_definitions/meta/entity-types";
+import type { EntityWatcher, EntityWatchHandlerContext, IRpdServer } from "@ruiapp/rapid-core";
+import { BaseLot, HuateGCMS, MomInspectionMeasurement, MomInspectionSheet, type SaveBaseLotInput, SaveHuateGCMSInput } from "~/_definitions/meta/entity-types";
 import YidaHelper from "~/sdk/yida/helper";
 import YidaApi from "~/sdk/yida/api";
 import path from "path";
-import * as XLSX from 'xlsx';
+import * as XLSX from "xlsx";
 import fs from "fs";
 
 export default [
@@ -20,13 +13,13 @@ export default [
     handler: async (ctx: EntityWatchHandlerContext<"entity.beforeUpdate">) => {
       const { server, payload, routerContext } = ctx;
 
-      const before = payload.before
-      let changes = payload.changes
+      const before = payload.before;
+      let changes = payload.changes;
 
-      if (changes.hasOwnProperty('lotNum')) {
+      if (changes.hasOwnProperty("lotNum")) {
         const lot = await saveMaterialLotInfo(server, {
           lotNum: before.lotNum,
-          material: { "id": before.material?.id || before.material || before.material_id },
+          material: { id: before.material?.id || before.material || before.material_id },
           sourceType: "selfMade",
           qualificationState: "uninspected",
           isAOD: false,
@@ -37,11 +30,11 @@ export default [
         }
       }
 
-      if (changes.hasOwnProperty('approvalState') && changes.approvalState !== before.approvalState) {
+      if (changes.hasOwnProperty("approvalState") && changes.approvalState !== before.approvalState) {
         changes.reviewer = routerContext?.state.userId;
       }
 
-      if (changes.hasOwnProperty('state') && changes.state === 'inspected') {
+      if (changes.hasOwnProperty("state") && changes.state === "inspected") {
         changes.inspector = routerContext?.state.userId;
       }
     },
@@ -52,12 +45,12 @@ export default [
     handler: async (ctx: EntityWatchHandlerContext<"entity.beforeCreate">) => {
       const { server, payload } = ctx;
 
-      let before = payload.before
+      let before = payload.before;
 
-      if (before.hasOwnProperty('lotNum')) {
+      if (before.hasOwnProperty("lotNum")) {
         const lot = await saveMaterialLotInfo(server, {
           lotNum: before.lotNum,
-          material: { "id": before.material?.id || before.material || before.material_id },
+          material: { id: before.material?.id || before.material || before.material_id },
           sourceType: "selfMade",
           qualificationState: "uninspected",
           isAOD: false,
@@ -124,6 +117,7 @@ export default [
     modelSingularCode: "mom_inspection_sheet",
     handler: async (ctx: EntityWatchHandlerContext<"entity.update">) => {
       const { server, payload } = ctx;
+      const logger = server.getLogger();
 
       const after = payload.after;
       const changes = payload.changes;
@@ -145,11 +139,11 @@ export default [
             entity: {
               user: { id: ctx?.routerContext?.state.userId },
               targetSingularCode: "mom_inspection_sheet",
-              targetSingularName: `检验单 - ${ operationTarget?.code }`,
+              targetSingularName: `检验单 - ${operationTarget?.code}`,
               method: "update",
               changes: changes,
-            }
-          })
+            },
+          });
         }
       }
 
@@ -180,60 +174,81 @@ export default [
       //   }
       // }
 
-      if (changes.hasOwnProperty('approvalState') && changes.approvalState === 'approved') {
-        const measurements = await server.getEntityManager<MomInspectionMeasurement>("mom_inspection_measurement").findEntities(
-          {
-            filters: [
-              { operator: "eq", field: "sheet_id", value: after.id },
-            ],
-            properties: ["id", "sheet", "characteristic", "qualitativeValue", "quantitativeValue", "isQualified"],
-            relations: {
-              characteristic: {
-                relations: {
-                  method: true,
+      if (changes.hasOwnProperty("approvalState") && changes.approvalState === "approved") {
+        const measurements = await server.getEntityManager<MomInspectionMeasurement>("mom_inspection_measurement").findEntities({
+          filters: [{ operator: "eq", field: "sheet_id", value: after.id }],
+          properties: ["id", "sheet", "characteristic", "qualitativeValue", "quantitativeValue", "isQualified"],
+          relations: {
+            characteristic: {
+              relations: {
+                method: true,
+              },
+            },
+            sheet: {
+              properties: [
+                "id",
+                "code",
+                "lotNum",
+                "material",
+                "rule",
+                "result",
+                "reportFile",
+                "gcmsReportFile",
+                "invoiceReportFile",
+                "normalReportFile",
+                "qualityReportFile",
+                "createdBy",
+                "gcmsPassed",
+              ],
+              relations: {
+                rule: {
+                  properties: ["id", "name", "category", "carModel", "partNumber", "partName", "conf", "partManager"],
                 },
               },
-              sheet: {
-                properties: ["id", "code", "lotNum", "material", "rule", "result", "reportFile", "gcmsReportFile", "invoiceReportFile", "normalReportFile", "qualityReportFile", "createdBy", "gcmsPassed"],
-                relations: {
-                  rule: {
-                    properties: ["id", "name", "category", "carModel", "partNumber", "partName", "conf", "partManager"],
-                  },
-                },
-              },
-            }
-          }
-        );
+            },
+          },
+        });
         const yidaSDK = await new YidaHelper(server).NewAPIClient();
-        const yidaAPI = new YidaApi(yidaSDK);
+        const yidaAPI = new YidaApi(logger, yidaSDK);
 
-        await yidaAPI.uploadFAWInspectionMeasurements(measurements)
+        await yidaAPI.uploadFAWInspectionMeasurements(measurements);
       }
 
-      if (changes.hasOwnProperty('state') && changes.state === 'inspected') {
-        const measurements = await server.getEntityManager<MomInspectionMeasurement>("mom_inspection_measurement").findEntities(
-          {
-            filters: [
-              { operator: "eq", field: "sheet_id", value: after.id },
-            ],
-            properties: ["id", "sheet", "characteristic", "qualitativeValue", "quantitativeValue", "isQualified", "createdAt"],
-            relations: {
-              characteristic: {
-                relations: {
-                  method: true,
+      if (changes.hasOwnProperty("state") && changes.state === "inspected") {
+        const measurements = await server.getEntityManager<MomInspectionMeasurement>("mom_inspection_measurement").findEntities({
+          filters: [{ operator: "eq", field: "sheet_id", value: after.id }],
+          properties: ["id", "sheet", "characteristic", "qualitativeValue", "quantitativeValue", "isQualified", "createdAt"],
+          relations: {
+            characteristic: {
+              relations: {
+                method: true,
+              },
+            },
+            sheet: {
+              properties: [
+                "id",
+                "code",
+                "lotNum",
+                "material",
+                "rule",
+                "result",
+                "reportFile",
+                "gcmsReportFile",
+                "invoiceReportFile",
+                "normalReportFile",
+                "qualityReportFile",
+                "createdBy",
+                "gcmsPassed",
+                "createdAt",
+              ],
+              relations: {
+                rule: {
+                  properties: ["id", "name", "category"],
                 },
               },
-              sheet: {
-                properties: ["id", "code", "lotNum", "material", "rule", "result", "reportFile", "gcmsReportFile", "invoiceReportFile", "normalReportFile", "qualityReportFile", "createdBy", "gcmsPassed", "createdAt"],
-                relations: {
-                  rule: {
-                    properties: ["id", "name", "category"],
-                  },
-                },
-              },
-            }
-          }
-        );
+            },
+          },
+        });
 
         for (const measurement of measurements) {
           await server.getEntityManager<MomInspectionMeasurement>("mom_inspection_measurement").updateEntityById({
@@ -241,27 +256,26 @@ export default [
             id: measurement.id,
             entityToSave: {
               locked: true,
-            }
+            },
           });
         }
 
         const yidaSDK = await new YidaHelper(server).NewAPIClient();
-        const yidaAPI = new YidaApi(yidaSDK);
+        const yidaAPI = new YidaApi(logger, yidaSDK);
 
-        await yidaAPI.uploadInspectionMeasurements(measurements)
+        await yidaAPI.uploadInspectionMeasurements(measurements);
 
-        const yidaResp = await yidaAPI.uploadInspectionSheetAudit(measurements)
+        const yidaResp = await yidaAPI.uploadInspectionSheetAudit(measurements);
 
         if (yidaResp && yidaResp.result) {
           await server.getEntityManager<MomInspectionSheet>("mom_inspection_sheet").updateEntityById({
             routeContext: ctx.routerContext,
             id: after.id,
             entityToSave: {
-              yidaId: yidaResp.result
-            }
+              yidaId: yidaResp.result,
+            },
           });
         }
-
       }
 
       if (after.lotNum && after.material_id) {
@@ -272,8 +286,9 @@ export default [
             {
               operator: "eq",
               field: "material_id",
-              value: after.material_id
-            }],
+              value: after.material_id,
+            },
+          ],
           properties: ["id"],
         });
         if (lot && after.result) {
@@ -287,18 +302,18 @@ export default [
         }
       }
 
-      if (changes.hasOwnProperty('treatment')) {
+      if (changes.hasOwnProperty("treatment")) {
         if (after.lot_id) {
-          const isAOD = changes.treatment === 'special';
-          const qualified = after.result === 'qualified' ? 'true' : changes.treatment === 'forced';
+          const isAOD = changes.treatment === "special";
+          const qualified = after.result === "qualified" ? "true" : changes.treatment === "forced";
           await server.getEntityManager<BaseLot>("base_lot").updateEntityById({
             routeContext: ctx.routerContext,
             id: after.lot_id,
             entityToSave: {
               treatment: changes.treatment,
               isAOD: isAOD,
-              qualificationState: qualified ? 'qualified' : 'unqualified',
-            }
+              qualificationState: qualified ? "qualified" : "unqualified",
+            },
           });
         }
       }
@@ -325,9 +340,7 @@ export default [
       // } catch (error) {
       //   console.error(error)
       // }
-
-
-    }
+    },
   },
   {
     eventName: "entity.beforeDelete",
@@ -335,7 +348,7 @@ export default [
     handler: async (ctx: EntityWatchHandlerContext<"entity.beforeDelete">) => {
       const { server, payload, routerContext } = ctx;
 
-      const before = payload.before
+      const before = payload.before;
 
       const operationTarget = await server.getEntityManager<MomInspectionSheet>("mom_inspection_sheet").findEntity({
         filters: [
@@ -352,15 +365,14 @@ export default [
           entity: {
             user: { id: ctx?.routerContext?.state.userId },
             targetSingularCode: "mom_inspection_sheet",
-            targetSingularName: `检验单 - ${ operationTarget?.code }`,
+            targetSingularName: `检验单 - ${operationTarget?.code}`,
             method: "delete",
-          }
-        })
+          },
+        });
       }
     },
   },
 ] satisfies EntityWatcher<any>[];
-
 
 async function saveMaterialLotInfo(server: IRpdServer, lot: SaveBaseLotInput) {
   if (!lot.lotNum || !lot.material || !lot.material.id) {
@@ -378,15 +390,14 @@ async function saveMaterialLotInfo(server: IRpdServer, lot: SaveBaseLotInput) {
   return lotInDb || (await baseLotManager.createEntity({ entity: lot }));
 }
 
-
 async function readGCMSFile(server: IRpdServer, fileKey: string) {
   // TODO: 处理上报GCMS报告
   const filePathName = path.join(server.config.localFileStoragePath, fileKey);
   const fileBuffer = fs.readFileSync(filePathName);
-  const workbook = XLSX.read(fileBuffer, { type: 'buffer' })
+  const workbook = XLSX.read(fileBuffer, { type: "buffer" });
 
   // Get the "LibRes" sheet
-  const sheetName = 'LibRes';
+  const sheetName = "LibRes";
   const worksheet = workbook.Sheets[sheetName];
 
   if (worksheet) {
@@ -401,10 +412,10 @@ async function readGCMSFile(server: IRpdServer, fileKey: string) {
       const row = data[i];
 
       if (Array.isArray(row)) {
-        const columnIndex = row.indexOf('匹配项名称');
+        const columnIndex = row.indexOf("匹配项名称");
         if (columnIndex !== -1) {
           targetColumnIndex = columnIndex;
-          dataStartIndex = i + 1;  // Start reading data from the next row
+          dataStartIndex = i + 1; // Start reading data from the next row
           break;
         }
       }
@@ -412,21 +423,15 @@ async function readGCMSFile(server: IRpdServer, fileKey: string) {
 
     if (targetColumnIndex !== -1 && dataStartIndex !== -1) {
       // Extract data from the target column starting from the correct row
-      const matchingItems = data.slice(dataStartIndex).map(row => row[targetColumnIndex]);
+      const matchingItems = data.slice(dataStartIndex).map((row) => row[targetColumnIndex]);
 
-      console.log('匹配项名称列长度:', matchingItems.length);
+      console.log("匹配项名称列长度:", matchingItems.length);
 
-      return matchingItems
+      return matchingItems;
     } else {
       console.log('未找到"匹配项名称"列');
     }
   } else {
-    console.log(`未找到表格: ${ sheetName }`);
+    console.log(`未找到表格: ${sheetName}`);
   }
-
 }
-
-
-
-
-

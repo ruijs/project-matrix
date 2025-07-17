@@ -13,7 +13,7 @@ export default {
     logger.info("Executing syncHuateUsers job...");
 
     const yidaSDK = await new YidaHelper(server).NewAPIClient();
-    const yidaAPI = new YidaApi(yidaSDK);
+    const yidaAPI = new YidaApi(logger, yidaSDK);
 
     const users = await yidaAPI.getUsers();
 

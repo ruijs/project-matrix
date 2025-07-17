@@ -1,13 +1,13 @@
-import type {ActionHandlerContext, ServerOperation} from "@ruiapp/rapid-core";
-import {MomInspectionSheet, MomTransportOperation} from "~/_definitions/meta/entity-types";
+import type { ActionHandlerContext, ServerOperation } from "@ruiapp/rapid-core";
+import { MomInspectionSheet, MomTransportOperation } from "~/_definitions/meta/entity-types";
 import YidaHelper from "~/sdk/yida/helper";
 import YidaApi from "~/sdk/yida/api";
 
 export type CallbackInput = {
-  code: string,
-  sign: string,
-  kind: string,
-  id: string,
+  code: string;
+  sign: string;
+  kind: string;
+  id: string;
 };
 
 export default {
@@ -15,11 +15,12 @@ export default {
   method: "POST",
   async handler(ctx: ActionHandlerContext) {
     const { server } = ctx;
+    const logger = server.getLogger();
     const input: CallbackInput = ctx.input;
 
     try {
       const yidaSDK = await new YidaHelper(server).NewAPIClient();
-      const yidaAPI = new YidaApi(yidaSDK);
+      const yidaAPI = new YidaApi(logger, yidaSDK);
 
       switch (input.kind) {
         case "transport":
@@ -35,15 +36,15 @@ export default {
           });
 
           if (transportOperation && transportOperation.yidaId) {
-            const dingtalkUserId = transportOperation?.createdBy?.dingtalkUserId || "036025480920111923"
-            const yidaResp = await yidaAPI.getAuditDetail(transportOperation.yidaId, dingtalkUserId, input.kind)
+            const dingtalkUserId = transportOperation?.createdBy?.dingtalkUserId || "036025480920111923";
+            const yidaResp = await yidaAPI.getAuditDetail(transportOperation.yidaId, dingtalkUserId, input.kind);
 
             await server.getEntityManager<MomTransportOperation>("mom_transport_operation").updateEntityById({
               routeContext: ctx.routerContext,
               id: transportOperation.id,
               entityToSave: {
-                approvalState: yidaResp?.approvedResult === 'agree' ? 'approved' : 'rejected',
-              }
+                approvalState: yidaResp?.approvedResult === "agree" ? "approved" : "rejected",
+              },
             });
           }
 
@@ -61,27 +62,26 @@ export default {
           });
 
           if (inspectSheet && inspectSheet.yidaId) {
-            const dingtalkUserId = inspectSheet?.createdBy?.dingtalkUserId || "036025480920111923"
-            const yidaResp = await yidaAPI.getAuditDetail(inspectSheet.yidaId, dingtalkUserId, input.kind)
+            const dingtalkUserId = inspectSheet?.createdBy?.dingtalkUserId || "036025480920111923";
+            const yidaResp = await yidaAPI.getAuditDetail(inspectSheet.yidaId, dingtalkUserId, input.kind);
 
             await server.getEntityManager<MomInspectionSheet>("mom_inspection_sheet").updateEntityById({
               routeContext: ctx.routerContext,
               id: inspectSheet.id,
               entityToSave: {
-                approvalState: yidaResp?.approvedResult === 'agree' ? 'approved' : 'rejected',
-              }
+                approvalState: yidaResp?.approvedResult === "agree" ? "approved" : "rejected",
+              },
             });
           }
 
           break;
         case "metric":
-          console.log(input)
+          console.log(input);
           break;
       }
     } catch (e) {
-      console.log(e)
+      console.log(e);
     }
-
 
     ctx.output = {
       result: ctx.input,

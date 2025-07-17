@@ -36,7 +36,7 @@ export default {
     }
 
     const yidaSDK = await new YidaHelper(server).NewAPIClient();
-    const yidaAPI = new YidaApi(yidaSDK);
+    const yidaAPI = new YidaApi(logger, yidaSDK);
 
     // 循环查询直到没有数据（与定时任务逻辑一致）
     // while (true) {
