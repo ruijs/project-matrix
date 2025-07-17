@@ -1,5 +1,5 @@
 import { tryValidateLicense, type ActionHandlerContext, type CronJobConfiguration } from "@ruiapp/rapid-core";
-import type { MomMaterialInventoryBalance, MomRouteProcessParameterMeasurement, MomWorkReport } from "~/_definitions/meta/entity-types";
+import type { MomMaterialInventoryBalance, MomRouteProcessParameterMeasurement, SystemSettingItem, MomWorkReport } from "~/_definitions/meta/entity-types";
 import YidaHelper from "~/sdk/yida/helper";
 import YidaApi from "~/sdk/yida/api";
 import { waitSeconds } from "~/utils/promise-utility";
@@ -24,6 +24,14 @@ export default {
 
     const yidaSDK = await new YidaHelper(server).NewAPIClient();
     const yidaAPI = new YidaApi(yidaSDK);
+
+    const yidaSetting = await server.getEntityManager<SystemSettingItem>("system_setting_items").findEntity({
+      filters: [
+        { operator: "eq", field: "groupCode", value: "yida" },
+        { operator: "eq", field: "itemCode", value: "apiThrottlingDelay" },
+      ],
+      properties: ["value"],
+    });
 
     while (true) {
       try {
@@ -89,8 +97,9 @@ export default {
               isReported: true,
             },
           });
-          await waitSeconds(1000);
 
+          const waitTime = yidaSetting?.value ? Number(yidaSetting.value) : 1000;
+          await waitSeconds(waitTime);
           // if (measurement.process?.config?.notifyEnabled) {
           //   notifyEnabled = true;
           // }
