@@ -6,7 +6,7 @@ import YidaApi from "~/sdk/yida/api";
 export default {
   code: "uploadHuateInventory",
 
-  cronTime: "30 * * * *",
+  cronTime: "0 0 0/4 * * *",
 
   async handler(ctx: ActionHandlerContext) {
     const { server, logger } = ctx;
