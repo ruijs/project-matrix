@@ -14,7 +14,7 @@ export default {
   },
 
   async handler(ctx: ActionHandlerContext) {
-    return;
+    // return;
     const { server, logger } = ctx;
     logger.info("Executing uploadHuateMeasurements job...");
 
@@ -89,7 +89,7 @@ export default {
               isReported: true,
             },
           });
-          await waitSeconds(5000);
+          await waitSeconds(1000);
 
           // if (measurement.process?.config?.notifyEnabled) {
           //   notifyEnabled = true;
