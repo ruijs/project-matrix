@@ -11,7 +11,7 @@ import type {
   MomWorkTask,
   SaveBaseLotInput,
   SaveMomRouteProcessParameterMeasurementInput,
-  SvcPrinter
+  SvcPrinter,
 } from "~/_definitions/meta/entity-types";
 import dayjs from "dayjs";
 import IotDBHelper, { ParseLastDeviceData, ParseTDEngineData } from "~/sdk/iotdb/helper";
@@ -20,8 +20,8 @@ import { replaceTemplatePlaceholder } from "~/app-extension/rocks/print-trigger/
 import type PrinterService from "../../../../../rapid-plugins/printerService/PrinterService";
 import { CreatePrintTasksInput } from "../../../../../rapid-plugins/printerService/PrinterPluginTypes";
 import duration from "dayjs/plugin/duration";
-import utc from "dayjs/plugin/utc"
-import timezone from "dayjs/plugin/timezone"
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
 import SequenceService, { GenerateSequenceNumbersInput } from "@ruiapp/rapid-core/src/plugins/sequence/SequenceService";
 import YidaHelper from "~/sdk/yida/helper";
 import YidaApi from "~/sdk/yida/api";
@@ -47,8 +47,8 @@ async function getDeviceData(server: IRpdServer, workReport: MomWorkReport) {
 
     if (workReport.process?.code === "32") {
       // 工序32需要减去2分钟
-      startTime = (dayjs(workReport.actualStartTime).unix()) * 1000;
-      endTime = (dayjs(workReport.actualFinishTime).add(-2, "minutes").unix()) * 1000;
+      startTime = dayjs(workReport.actualStartTime).unix() * 1000;
+      endTime = dayjs(workReport.actualFinishTime).add(-2, "minutes").unix() * 1000;
     } else {
       // 工序33、34使用标准时间
       startTime = dayjs(workReport.actualStartTime).unix() * 1000;
@@ -58,28 +58,27 @@ async function getDeviceData(server: IRpdServer, workReport: MomWorkReport) {
     const tsResponse = await timeSeriesDataService.getDeviceData(workReport.equipment.machine.code, startTime, endTime);
     console.log("TDEngine tsResponse", tsResponse);
     data = ParseTDEngineData(tsResponse, workReport.equipment.machine.code);
-
   } else {
     // 其他设备 - 使用IotDB
     const iotDBSDK = await new IotDBHelper(server).NewAPIClient();
     let input = {
       sql: `select last *
             from root.huate.devices.reports.${workReport.equipment?.machine?.code}
-            where time >= ${(dayjs(workReport.actualStartTime).unix()) * 1000}
-              and time <= ${(dayjs(workReport.actualFinishTime).unix()) * 1000}`,
-    }
+            where time >= ${dayjs(workReport.actualStartTime).unix() * 1000}
+              and time <= ${dayjs(workReport.actualFinishTime).unix() * 1000}`,
+    };
 
     // 发泡工序需要减去2分钟
     if (workReport.process?.code === "12" || workReport.process?.code === "21") {
       input = {
         sql: `select last *
               from root.huate.devices.reports.${workReport.equipment?.machine?.code}
-              where time >= ${(dayjs(workReport.actualStartTime).unix()) * 1000}
-                and time <= ${(dayjs(workReport.actualFinishTime).add(-2, "minutes").unix()) * 1000}`,
-      }
+              where time >= ${dayjs(workReport.actualStartTime).unix() * 1000}
+                and time <= ${dayjs(workReport.actualFinishTime).add(-2, "minutes").unix() * 1000}`,
+      };
     }
 
-    const tsResponse = await iotDBSDK.PostResourceRequest("http://10.0.0.3:6670/rest/v2/query", input, true)
+    const tsResponse = await iotDBSDK.PostResourceRequest("http://10.0.0.3:6670/rest/v2/query", input, true);
     data = ParseLastDeviceData(tsResponse.data);
   }
 
@@ -104,7 +103,6 @@ export default [
         before.executionState = "completed";
       }
 
-
       if (before.hasOwnProperty("workOrder")) {
         const workTask = await server.getEntityManager<MomWorkTask>("mom_work_task").findEntity({
           filters: [
@@ -112,28 +110,25 @@ export default [
             {
               operator: "eq",
               field: "equipment_id",
-              value: before.equipment.id || before.equipment || before.equipment_id
+              value: before.equipment.id || before.equipment || before.equipment_id,
             },
             {
               operator: "eq",
               field: "work_order_id",
-              value: before.workOrder.id || before.workOrder || before.work_order_id
+              value: before.workOrder.id || before.workOrder || before.work_order_id,
             },
             {
               operator: "eq",
               field: "executionState",
-              value: "processing"
+              value: "processing",
             },
-
           ],
           properties: ["id", "material", "process", "equipment", "workOrder", "factory"],
           relations: {
             process: {
-              properties: [
-                "id", "config"
-              ],
+              properties: ["id", "config"],
             },
-          }
+          },
         });
 
         if (workTask && workTask.process) {
@@ -145,8 +140,8 @@ export default [
               amount: 1,
               parameters: {
                 plantCode: workTask?.factory?.code,
-              }
-            } as GenerateSequenceNumbersInput)
+              },
+            } as GenerateSequenceNumbersInput);
 
             const lot = await saveMaterialLotInfo(server, {
               material: { id: workTask?.material?.id },
@@ -167,8 +162,8 @@ export default [
             amount: 1,
             parameters: {
               plantCode: workTask?.factory?.code,
-            }
-          } as GenerateSequenceNumbersInput)
+            },
+          } as GenerateSequenceNumbersInput);
 
           if (serialNums && serialNums.length > 0) {
             before.serialNum = serialNums[0];
@@ -177,22 +172,20 @@ export default [
 
         if (workTask) {
           before.work_task_id = workTask.id;
-          before.factory = workTask.factory
+          before.factory = workTask.factory;
         }
       }
 
       if (before.hasOwnProperty("lotNum") && !before.hasOwnProperty("lot")) {
         const lot = await server.getEntityManager("base_lot").findEntity({
-          filters: [
-            { operator: "eq", field: "lot_num", value: before.lotNum },
-          ],
+          filters: [{ operator: "eq", field: "lot_num", value: before.lotNum }],
           properties: ["id", "material", "lotNum"],
         });
         if (lot) {
           before.lot = lot;
         }
       }
-    }
+    },
   },
   {
     eventName: "entity.beforeUpdate",
@@ -202,43 +195,51 @@ export default [
       let changes = payload.changes;
 
       if (changes.hasOwnProperty("actualFinishTime")) {
-        changes.executionState = 'completed';
+        changes.executionState = "completed";
       }
 
       if (!changes.hasOwnProperty("actualFinishTime") && changes.hasOwnProperty("executionState")) {
         changes.actualFinishTime = dayjs().format("YYYY-MM-DDTHH:mm:ss[Z]");
       }
-    }
+    },
   },
   {
     eventName: "entity.update",
     modelSingularCode: "mom_work_report",
     handler: async (ctx: EntityWatchHandlerContext<"entity.update">) => {
       const { server, payload } = ctx;
+      const logger = server.getLogger();
       let after = payload.after;
       let changes = payload.changes;
 
-
       if (changes.hasOwnProperty("executionState") && changes.executionState === "completed") {
         const workReport = await server.getEntityManager<MomWorkReport>("mom_work_report").findEntity({
-          filters: [
-            { operator: "eq", field: "id", value: after?.id },
+          filters: [{ operator: "eq", field: "id", value: after?.id }],
+          properties: [
+            "id",
+            "factory",
+            "lotNum",
+            "serialNum",
+            "process",
+            "workOrder",
+            "equipment",
+            "actualStartTime",
+            "actualFinishTime",
+            "executionState",
+            "duration",
           ],
-          properties: ["id", "factory", "lotNum", "serialNum", "process", "workOrder", "equipment", "actualStartTime", "actualFinishTime", "executionState", "duration"],
           relations: {
             workOrder: {
-              properties: ["id", "code", "material", "executionState"]
+              properties: ["id", "code", "material", "executionState"],
             },
             process: {
-              properties: ["id", "code", "name", "config"]
+              properties: ["id", "code", "name", "config"],
             },
             equipment: {
-              properties: [
-                "id", "code", "name", "machine"
-              ]
+              properties: ["id", "code", "name", "machine"],
             },
-          }
-        })
+          },
+        });
 
         if (!workReport) {
           console.log("workReport not found");
@@ -252,35 +253,29 @@ export default [
 
           if (workReport.process?.code === "10" || workReport.process?.code === "20") {
             workFeeds = await workFeedManager.findEntities({
-              filters: [
-                { operator: "eq", field: "work_order_id", value: workReport.workOrder?.id },
-              ],
+              filters: [{ operator: "eq", field: "work_order_id", value: workReport.workOrder?.id }],
               properties: ["id", "rawMaterial", "lotNum", "createdAt"],
               orderBy: [{ field: "createdAt", desc: true }],
               pagination: {
                 offset: 0,
                 limit: 1,
-              }
+              },
             });
 
             if (workFeeds.length === 0) {
               workFeeds = await workFeedManager.findEntities({
-                filters: [
-                  { operator: "eq", field: "process_id", value: workReport.process?.id },
-                ],
+                filters: [{ operator: "eq", field: "process_id", value: workReport.process?.id }],
                 properties: ["id", "rawMaterial", "lotNum", "createdAt"],
                 orderBy: [{ field: "createdAt", desc: true }],
                 pagination: {
                   offset: 0,
                   limit: 1,
-                }
+                },
               });
             }
           } else {
             workFeeds = await workFeedManager.findEntities({
-              filters: [
-                { operator: "eq", field: "work_order_id", value: workReport.workOrder?.id },
-              ],
+              filters: [{ operator: "eq", field: "work_order_id", value: workReport.workOrder?.id }],
               properties: ["id", "rawMaterial", "lotNum", "createdAt"],
               orderBy: [{ field: "createdAt", desc: true }],
             });
@@ -289,7 +284,7 @@ export default [
           if (workFeeds.length > 0) {
             // 上报宜搭投料记录
             const yidaSDK = await new YidaHelper(server).NewAPIClient();
-            const yidaAPI = new YidaApi(yidaSDK);
+            const yidaAPI = new YidaApi(logger, yidaSDK);
             await yidaAPI.uploadFAWProductionRecord(workReport, workFeeds);
           }
         }
@@ -299,33 +294,37 @@ export default [
             // 使用统一的设备数据获取函数
             const data = await getDeviceData(server, workReport);
 
-            console.log("data", data)
+            console.log("data", data);
 
             for (let deviceCode in data) {
               const deviceMetricData = data[deviceCode];
               // append work duration to device metric
 
               if (workReport.process?.code === "14" || workReport.process?.code === "23" || workReport.process?.code === "34") {
-                console.log("workReport.equipment?.machine?.code", workReport.equipment?.machine?.code)
-                console.log("deviceCode", deviceCode)
-                console.log("workReport?.actualFinishTime", workReport?.actualFinishTime)
-                console.log("workReport?.actualStartTime", workReport?.actualStartTime)
+                console.log("workReport.equipment?.machine?.code", workReport.equipment?.machine?.code);
+                console.log("deviceCode", deviceCode);
+                console.log("workReport?.actualFinishTime", workReport?.actualFinishTime);
+                console.log("workReport?.actualStartTime", workReport?.actualStartTime);
                 if (workReport.equipment?.machine?.code === deviceCode && workReport?.actualFinishTime && workReport?.actualStartTime) {
-                  deviceMetricData["work_duration"] = [{
-                    timestamp: dayjs().unix(),
-                    value: dayjs.duration(dayjs(workReport.actualFinishTime).diff(dayjs(workReport.actualStartTime))).asHours(),
-                  }]
+                  deviceMetricData["work_duration"] = [
+                    {
+                      timestamp: dayjs().unix(),
+                      value: dayjs.duration(dayjs(workReport.actualFinishTime).diff(dayjs(workReport.actualStartTime))).asHours(),
+                    },
+                  ];
                 }
               } else {
                 if (workReport.equipment?.machine?.code === deviceCode && workReport?.duration) {
-                  deviceMetricData["work_duration"] = [{
-                    timestamp: dayjs().unix(),
-                    value: workReport.duration,
-                  }]
+                  deviceMetricData["work_duration"] = [
+                    {
+                      timestamp: dayjs().unix(),
+                      value: workReport.duration,
+                    },
+                  ];
                 }
               }
 
-              console.log("deviceMetricData", deviceMetricData)
+              console.log("deviceMetricData", deviceMetricData);
 
               for (let metricCode in deviceMetricData) {
                 const metricData = deviceMetricData[metricCode];
@@ -339,35 +338,34 @@ export default [
                       {
                         operator: "exists",
                         field: "dimension",
-                        filters: [{ operator: "eq", field: "code", value: metricCode }]
+                        filters: [{ operator: "eq", field: "code", value: metricCode }],
                       },
                       { operator: "eq", field: "process", value: workReport.process?.id },
                       { operator: "eq", field: "equipment", value: workReport.equipment?.id },
                     ],
                     properties: ["id", "upperLimit", "lowerLimit", "nominal", "dimension", "fawCode"],
-                  })
-                  console.log("metricCode", metricCode)
-                  console.log("process", workReport.process?.id)
-                  console.log("equipment", workReport.equipment?.id)
-
+                  });
+                  console.log("metricCode", metricCode);
+                  console.log("process", workReport.process?.id);
+                  console.log("equipment", workReport.equipment?.id);
 
                   if (!metricParameter) {
                     console.log("metricParameter not found");
-                    continue
+                    continue;
                   }
 
                   if (!latestValue) {
                     console.log("latestValue not found");
-                    continue
+                    continue;
                   }
 
                   let isOutSpecification = false;
                   const numericValue = Number(latestValue);
-                  if (metricParameter?.lowerLimit && (numericValue < (metricParameter?.lowerLimit || 0) + (metricParameter.nominal || 0))) {
-                    isOutSpecification = true
+                  if (metricParameter?.lowerLimit && numericValue < (metricParameter?.lowerLimit || 0) + (metricParameter.nominal || 0)) {
+                    isOutSpecification = true;
                   }
                   if (metricParameter?.upperLimit && numericValue > (metricParameter?.upperLimit || 0) - (metricParameter.nominal || 0)) {
-                    isOutSpecification = true
+                    isOutSpecification = true;
                   }
 
                   await server.getEntityManager<MomRouteProcessParameterMeasurement>("mom_route_process_parameter_measurement").createEntity({
@@ -385,13 +383,13 @@ export default [
                       fawCode: metricParameter?.fawCode,
                       isOutSpecification: isOutSpecification,
                       createdAt: latestTimestamp,
-                    } as SaveMomRouteProcessParameterMeasurementInput
-                  })
+                    } as SaveMomRouteProcessParameterMeasurementInput,
+                  });
                 }
               }
             }
           } catch (e) {
-            console.log(e)
+            console.log(e);
           }
         } else {
           const metricParameter = await server.getEntityManager<MomRouteProcessParameter>("mom_route_process_parameter").findEntity({
@@ -399,31 +397,32 @@ export default [
               {
                 operator: "exists",
                 field: "dimension",
-                filters: [{ operator: "eq", field: "code", value: "work_duration" }]
+                filters: [{ operator: "eq", field: "code", value: "work_duration" }],
               },
               { operator: "eq", field: "process", value: workReport.process?.id },
               { operator: "eq", field: "equipment", value: workReport.equipment?.id },
             ],
             properties: ["id", "upperLimit", "lowerLimit", "nominal", "dimension", "fawCode"],
-          })
+          });
 
           if (!metricParameter) {
             console.log("metricParameter not found");
-            return
+            return;
           }
 
           let latestValue = dayjs.duration(dayjs(workReport.actualFinishTime).diff(dayjs(workReport.actualStartTime))).asSeconds();
-          if (workReport.process?.code === "13" || workReport.process?.code === "22" || workReport.process?.code === "33") { // 通风工序
+          if (workReport.process?.code === "13" || workReport.process?.code === "22" || workReport.process?.code === "33") {
+            // 通风工序
             latestValue = dayjs.duration(dayjs(workReport.actualFinishTime).diff(dayjs(workReport.actualStartTime))).asHours();
           }
 
           let isOutSpecification = false;
           const numericValue = Number(latestValue);
-          if (metricParameter?.lowerLimit && (numericValue < (metricParameter?.lowerLimit || 0) + (metricParameter.nominal || 0))) {
-            isOutSpecification = true
+          if (metricParameter?.lowerLimit && numericValue < (metricParameter?.lowerLimit || 0) + (metricParameter.nominal || 0)) {
+            isOutSpecification = true;
           }
           if (metricParameter?.upperLimit && numericValue > (metricParameter?.upperLimit || 0) - (metricParameter.nominal || 0)) {
-            isOutSpecification = true
+            isOutSpecification = true;
           }
 
           await server.getEntityManager<MomRouteProcessParameterMeasurement>("mom_route_process_parameter_measurement").createEntity({
@@ -441,65 +440,73 @@ export default [
               fawCode: metricParameter?.fawCode,
               isOutSpecification: isOutSpecification,
               createdAt: dayjs(),
-            } as SaveMomRouteProcessParameterMeasurementInput
-          })
+            } as SaveMomRouteProcessParameterMeasurementInput,
+          });
         }
       }
-    }
+    },
   },
   {
     eventName: "entity.create",
     modelSingularCode: "mom_work_report",
     handler: async (ctx: EntityWatchHandlerContext<"entity.create">) => {
       const { server, payload } = ctx;
+      const logger = server.getLogger();
       const after = payload.after;
 
       const workReport = await server.getEntityManager<MomWorkReport>("mom_work_report").findEntity({
-        filters: [
-          { operator: "eq", field: "id", value: after?.id },
+        filters: [{ operator: "eq", field: "id", value: after?.id }],
+        properties: [
+          "id",
+          "factory",
+          "lotNum",
+          "serialNum",
+          "process",
+          "workOrder",
+          "equipment",
+          "actualStartTime",
+          "actualFinishTime",
+          "executionState",
+          "duration",
         ],
-        properties: ["id", "factory", "lotNum", "serialNum", "process", "workOrder", "equipment", "actualStartTime", "actualFinishTime", "executionState", "duration"],
         relations: {
           workOrder: {
-            properties: ["id", "code", "material", "executionState"]
+            properties: ["id", "code", "material", "executionState"],
           },
           process: {
-            properties: ["id", "code", "name", "config"]
+            properties: ["id", "code", "name", "config"],
           },
           equipment: {
-            properties: [
-              "id", "code", "name", "machine"
-            ]
+            properties: ["id", "code", "name", "machine"],
           },
-        }
-      })
+        },
+      });
 
       if (!workReport) {
         return;
       }
 
-      if (workReport.process?.code === "13" || workReport.process?.code === "22" || workReport.process?.code === "33") { // 通风工序
+      if (workReport.process?.code === "13" || workReport.process?.code === "22" || workReport.process?.code === "33") {
+        // 通风工序
         const inventory = await server.getEntityManager<MomMaterialInventoryBalance>("mom_material_inventory_balance").findEntity({
-          filters: [
-            { operator: "eq", field: "material_id", value: workReport.workOrder?.material?.id },
-          ],
+          filters: [{ operator: "eq", field: "material_id", value: workReport.workOrder?.material?.id }],
           properties: ["id", "onHandQuantity"],
-        })
+        });
 
         if (inventory) {
           await server.getEntityManager<MomMaterialInventoryBalance>("mom_material_inventory_balance").updateEntityById({
             id: inventory?.id,
             entityToSave: {
               onHandQuantity: (inventory?.onHandQuantity || 0) + 1,
-            }
-          })
+            },
+          });
         } else {
           await server.getEntityManager<MomMaterialInventoryBalance>("mom_material_inventory_balance").createEntity({
             entity: {
               material: { id: workReport.workOrder?.material?.id },
               onHandQuantity: 1,
-            }
-          })
+            },
+          });
         }
       }
 
@@ -508,60 +515,52 @@ export default [
         await workOrderEntityManager.updateEntityById({
           id: workReport?.workOrder?.id,
           entityToSave: {
-            executionState: 'processing',
+            executionState: "processing",
           },
         });
       }
 
       if (workReport && workReport.executionState === "completed") {
-
         // 获取投料记录
         const workFeedManager = server.getEntityManager<MomWorkFeed>("mom_work_feed");
         let workFeeds: MomWorkFeed[] = [];
 
         if (workReport.process?.code === "10" || workReport.process?.code === "20") {
           workFeeds = await workFeedManager.findEntities({
-            filters: [
-              { operator: "eq", field: "work_order_id", value: workReport.workOrder?.id },
-            ],
+            filters: [{ operator: "eq", field: "work_order_id", value: workReport.workOrder?.id }],
             properties: ["id", "rawMaterial", "lotNum", "createdAt"],
             orderBy: [{ field: "createdAt", desc: true }],
             pagination: {
               offset: 0,
               limit: 1,
-            }
+            },
           });
 
           if (workFeeds.length === 0) {
             workFeeds = await workFeedManager.findEntities({
-              filters: [
-                { operator: "eq", field: "process_id", value: workReport.process?.id },
-              ],
+              filters: [{ operator: "eq", field: "process_id", value: workReport.process?.id }],
               properties: ["id", "rawMaterial", "lotNum", "createdAt"],
               orderBy: [{ field: "createdAt", desc: true }],
               pagination: {
                 offset: 0,
                 limit: 1,
-              }
+              },
             });
           }
-
         } else {
           workFeeds = await workFeedManager.findEntities({
-            filters: [
-              { operator: "eq", field: "work_order_id", value: workReport.workOrder?.id },
-            ],
+            filters: [{ operator: "eq", field: "work_order_id", value: workReport.workOrder?.id }],
             orderBy: [{ field: "createdAt", desc: true }],
             properties: ["id", "rawMaterial", "lotNum", "createdAt"],
           });
         }
 
-        console.log("uploadFAWProductionRecord", workFeeds.length)
+        console.log("uploadFAWProductionRecord", workFeeds.length);
 
         if (workFeeds.length > 0) {
           // 上报宜搭投料记录
           const yidaSDK = await new YidaHelper(server).NewAPIClient();
-          const yidaAPI = new YidaApi(yidaSDK);
+          const yidaAPI = new YidaApi(logger, yidaSDK);
           await yidaAPI.uploadFAWProductionRecord(workReport, workFeeds);
         }
       }
@@ -569,7 +568,6 @@ export default [
       if (!workReport.equipment?.machine) {
         return;
       }
-
 
       if (workReport && workReport.executionState === "completed") {
         try {
@@ -581,12 +579,13 @@ export default [
             // append work duration to device metric
 
             if (workReport.equipment?.machine?.code === deviceCode && workReport?.duration) {
-              deviceMetricData["work_duration"] = [{
-                timestamp: dayjs().unix(),
-                value: workReport.duration,
-              }]
+              deviceMetricData["work_duration"] = [
+                {
+                  timestamp: dayjs().unix(),
+                  value: workReport.duration,
+                },
+              ];
             }
-
 
             for (let metricCode in deviceMetricData) {
               const metricData = deviceMetricData[metricCode];
@@ -600,30 +599,29 @@ export default [
                     {
                       operator: "exists",
                       field: "dimension",
-                      filters: [{ operator: "eq", field: "code", value: metricCode }]
+                      filters: [{ operator: "eq", field: "code", value: metricCode }],
                     },
                     { operator: "eq", field: "process", value: workReport.process?.id },
                     { operator: "eq", field: "equipment", value: workReport.equipment?.id },
                   ],
                   properties: ["id", "upperLimit", "lowerLimit", "nominal", "dimension", "fawCode"],
-                })
-
+                });
 
                 if (!metricParameter) {
-                  continue
+                  continue;
                 }
 
                 if (!latestValue) {
-                  continue
+                  continue;
                 }
 
                 let isOutSpecification = false;
                 const numericValue = Number(latestValue);
-                if (metricParameter?.lowerLimit && (numericValue < (metricParameter?.lowerLimit || 0) + (metricParameter.nominal || 0))) {
-                  isOutSpecification = true
+                if (metricParameter?.lowerLimit && numericValue < (metricParameter?.lowerLimit || 0) + (metricParameter.nominal || 0)) {
+                  isOutSpecification = true;
                 }
                 if (metricParameter?.upperLimit && numericValue > (metricParameter?.upperLimit || 0) - (metricParameter.nominal || 0)) {
-                  isOutSpecification = true
+                  isOutSpecification = true;
                 }
 
                 await server.getEntityManager<MomRouteProcessParameterMeasurement>("mom_route_process_parameter_measurement").createEntity({
@@ -641,25 +639,26 @@ export default [
                     fawCode: metricParameter?.fawCode,
                     isOutSpecification: isOutSpecification,
                     createdAt: latestTimestamp,
-                  } as SaveMomRouteProcessParameterMeasurementInput
-                })
+                  } as SaveMomRouteProcessParameterMeasurementInput,
+                });
               }
             }
           }
         } catch (e) {
-          console.log(e)
+          console.log(e);
         }
       }
 
-
-      if (workReport && workReport.executionState === "completed" && workReport?.process?.config?.printTemplateCode && workReport?.process?.config?.printerCode) {
-
+      if (
+        workReport &&
+        workReport.executionState === "completed" &&
+        workReport?.process?.config?.printTemplateCode &&
+        workReport?.process?.config?.printerCode
+      ) {
         const printTemplate = await server.getEntityManager<MomPrintTemplate>("mom_print_template").findEntity({
-          filters: [
-            { operator: "eq", field: "code", value: workReport?.process?.config?.printTemplateCode },
-          ],
+          filters: [{ operator: "eq", field: "code", value: workReport?.process?.config?.printTemplateCode }],
           properties: ["id", "content"],
-        })
+        });
 
         let dataSource = [
           {
@@ -672,23 +671,20 @@ export default [
               serialNum: workReport?.serialNum,
               workOrderCode: workReport?.workOrder?.code,
               printTime: dayjs().tz("Asia/Shanghai").format("YYYY-MM-DD HH:mm:ss"),
-              KT: workReport.workOrder?.material?.name === "B9" ? "KT" : ""
+              KT: workReport.workOrder?.material?.name === "B9" ? "KT" : "",
             },
-          }
-        ]
+          },
+        ];
 
         if (printTemplate && printTemplate?.content) {
           const printer = await server.getEntityManager<SvcPrinter>("svc_printer").findEntity({
-            filters: [
-              { operator: "eq", field: "code", value: workReport?.process?.config?.printerCode },
-            ],
+            filters: [{ operator: "eq", field: "code", value: workReport?.process?.config?.printerCode }],
             properties: ["id", "networkState"],
-          })
-
+          });
 
           //   TODO: 注塑工序自动打印
           if (printer && printer.networkState === "1") {
-            console.log(`print work report: Template ${workReport?.process?.config?.printTemplateCode} -- Printer ${workReport?.process?.config?.printerCode}`)
+            console.log(`print work report: Template ${workReport?.process?.config?.printTemplateCode} -- Printer ${workReport?.process?.config?.printerCode}`);
 
             const printerService = server.getService<PrinterService>("printerService");
             await printerService.createPrintTasks({
@@ -701,17 +697,14 @@ export default [
                     data: replaceTemplatePlaceholder(printTemplate.content!, record?.taskData),
                   };
                 })
-                .filter((item) => !!item.data)
-            } as CreatePrintTasksInput)
+                .filter((item) => !!item.data),
+            } as CreatePrintTasksInput);
           }
-
         }
       }
-
-    }
+    },
   },
 ] satisfies EntityWatcher<any>[];
-
 
 async function saveMaterialLotInfo(server: IRpdServer, lot: SaveBaseLotInput) {
   if (!lot.material || !lot.material.id) {
@@ -719,5 +712,5 @@ async function saveMaterialLotInfo(server: IRpdServer, lot: SaveBaseLotInput) {
   }
 
   const baseLotManager = server.getEntityManager<BaseLot>("base_lot");
-  return await baseLotManager.createEntity({ entity: lot })
+  return await baseLotManager.createEntity({ entity: lot });
 }

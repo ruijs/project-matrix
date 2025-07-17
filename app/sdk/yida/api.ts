@@ -13,12 +13,15 @@ import {
 import { fmtCharacteristicNorminal } from "~/utils/fmt";
 import { isNumeric } from "~/utils/isNumeric";
 import dayjs from "dayjs";
-import { waitSeconds } from "~/utils/promise-utility";
+import { logAxiosResponse } from "~/utils/axios-utility";
+import { Logger } from "@ruiapp/rapid-core";
 
 class YidaApi {
+  private logger!: Logger;
   private api!: YidaSDK;
 
-  constructor(api: YidaSDK) {
+  constructor(logger: Logger, api: YidaSDK) {
+    this.logger = logger;
     this.api = api;
   }
 
@@ -622,7 +625,7 @@ class YidaApi {
         departmentId: "1",
       };
       const resp = await this.api.PostResourceRequest("/v2.0/yida/processes/instances/start", payload, true);
-      console.log("uploadFAWProcessMeasurement response:", resp);
+      logAxiosResponse(this.logger, "info", resp, "uploadFAWProcessMeasurement response");
       return resp;
     }
   }

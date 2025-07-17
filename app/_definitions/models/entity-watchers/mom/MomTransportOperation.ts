@@ -9,6 +9,7 @@ export default [
     modelSingularCode: "mom_transport_operation",
     handler: async (ctx: EntityWatchHandlerContext<"entity.update">) => {
       const { server, payload } = ctx;
+      const logger = server.getLogger();
       const after = payload.after;
       const changes = payload.changes;
 
@@ -16,20 +17,38 @@ export default [
         if (changes.hasOwnProperty("state") && changes.state === "finished") {
           const transportItems = await server.getEntityManager<MomTransportOperationItem>("mom_transport_operation_item").findEntities({
             filters: [{ operator: "eq", field: "operation_id", value: after.id }],
-            properties: ["id", "operation", "material", "binNum", "manufacturer", "lotNum", "quantity", "unit", "sealNum", "remark", "deliveryOrderFile", "qualityInspectionReportFile", "sealNumPicture", "sealNumMatch", "binNumMatch", "manufacturerMatch", "createdAt"],
+            properties: [
+              "id",
+              "operation",
+              "material",
+              "binNum",
+              "manufacturer",
+              "lotNum",
+              "quantity",
+              "unit",
+              "sealNum",
+              "remark",
+              "deliveryOrderFile",
+              "qualityInspectionReportFile",
+              "sealNumPicture",
+              "sealNumMatch",
+              "binNumMatch",
+              "manufacturerMatch",
+              "createdAt",
+            ],
             relations: {
               operation: {
-                properties: ["id", "code", "orderNumb", "supplier", "createdBy", "createdAt"]
-              }
-            }
+                properties: ["id", "code", "orderNumb", "supplier", "createdBy", "createdAt"],
+              },
+            },
           });
 
           if (transportItems) {
             const yidaSDK = await new YidaHelper(server).NewAPIClient();
-            const yidaAPI = new YidaApi(yidaSDK);
+            const yidaAPI = new YidaApi(logger, yidaSDK);
 
             const yidaResp = await yidaAPI.uploadTransmitAudit(transportItems);
-            await yidaAPI.uploadFAWTYSTransportMeasurement(transportItems)
+            await yidaAPI.uploadFAWTYSTransportMeasurement(transportItems);
 
             if (yidaResp && yidaResp.result) {
               await server.getEntityManager<MomTransportOperation>("mom_transport_operation").updateEntityById({

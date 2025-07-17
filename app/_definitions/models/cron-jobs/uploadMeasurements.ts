@@ -23,7 +23,7 @@ export default {
     }
 
     const yidaSDK = await new YidaHelper(server).NewAPIClient();
-    const yidaAPI = new YidaApi(yidaSDK);
+    const yidaAPI = new YidaApi(logger, yidaSDK);
 
     const yidaSetting = await server.getEntityManager<SystemSettingItem>("system_setting_items").findEntity({
       filters: [
