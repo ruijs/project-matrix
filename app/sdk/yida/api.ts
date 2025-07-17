@@ -148,7 +148,7 @@ class YidaApi {
       departmentId: "1",
     };
     const resp = await this.api.PostResourceRequest("/v2.0/yida/processes/instances/start", payload);
-    console.log(resp.data);
+    logAxiosResponse(this.logger, "info", resp, "uploadTransmitAudit response");
 
     return resp.data;
   }
@@ -222,7 +222,7 @@ class YidaApi {
       };
 
       const resp = await this.api.PostResourceRequest("/v1.0/yida/forms/instances", payload);
-      console.log(resp.data);
+      logAxiosResponse(this.logger, "info", resp, "uploadInspectionMeasurements response");
     }
 
     if (inputs.length > 0) {
@@ -254,7 +254,7 @@ class YidaApi {
         };
 
         const resp = await this.api.PostResourceRequest("/v1.0/yida/forms/instances", payload);
-        console.log(resp.data);
+        logAxiosResponse(this.logger, "info", resp, "uploadInspectionSheetAudit response");
       }
     }
   }
@@ -312,13 +312,13 @@ class YidaApi {
     // 报告文件
     processAttachmentField(inspectionSheet, "reportFile", "attachmentField_lmoh0yyt", formDataJson);
     // 月度发票
-    processAttachmentField(inspectionSheet, "invoiceReportFile", "attachmentField_m2sx5i6k", formDataJson);
+    processAttachmentField(inspectionSheet, "invoiceReportFile", "attachmentField_md6uim55", formDataJson);
     // 常规检测
-    processAttachmentField(inspectionSheet, "normalReportFile", "attachmentField_m2sx5i6l", formDataJson);
+    processAttachmentField(inspectionSheet, "normalReportFile", "attachmentField_md6uim54", formDataJson);
     // 质保书
-    processAttachmentField(inspectionSheet, "qualityReportFile", "attachmentField_m2sx5i6m", formDataJson);
+    processAttachmentField(inspectionSheet, "qualityReportFile", "attachmentField_md6uim56", formDataJson);
     // GCMS报告文件
-    processAttachmentField(inspectionSheet, "gcmsReportFile", "attachmentField_m2sx5i6j", formDataJson);
+    processAttachmentField(inspectionSheet, "gcmsReportFile", "attachmentField_md6uim57", formDataJson);
 
     // convert json to string
     let formDataJsonStr = JSON.stringify(formDataJson);
@@ -338,7 +338,7 @@ class YidaApi {
       departmentId: "1",
     };
     const resp = await this.api.PostResourceRequest("/v2.0/yida/processes/instances/start", payload);
-    console.log(resp.data);
+    logAxiosResponse(this.logger, "info", resp, "uploadInspectionSheetAudit response");
 
     return resp.data;
   }
@@ -391,7 +391,7 @@ class YidaApi {
       departmentId: "1",
     };
     const resp = await this.api.PostResourceRequest("/v2.0/yida/processes/instances/start", payload);
-    console.log(resp.data);
+    logAxiosResponse(this.logger, "info", resp, "uploadProductionMeasurementsAudit response");
 
     return resp.data;
   }
