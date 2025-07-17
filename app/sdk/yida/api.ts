@@ -148,7 +148,7 @@ class YidaApi {
       departmentId: "1",
     };
     const resp = await this.api.PostResourceRequest("/v2.0/yida/processes/instances/start", payload);
-    console.log(resp.data);
+    logAxiosResponse(this.logger, "info", resp, "uploadTransmitAudit response");
 
     return resp.data;
   }
@@ -222,7 +222,7 @@ class YidaApi {
       };
 
       const resp = await this.api.PostResourceRequest("/v1.0/yida/forms/instances", payload);
-      console.log(resp.data);
+      logAxiosResponse(this.logger, "info", resp, "uploadInspectionMeasurements response");
     }
 
     if (inputs.length > 0) {
@@ -254,7 +254,7 @@ class YidaApi {
         };
 
         const resp = await this.api.PostResourceRequest("/v1.0/yida/forms/instances", payload);
-        console.log(resp.data);
+        logAxiosResponse(this.logger, "info", resp, "uploadInspectionSheetAudit response");
       }
     }
   }
@@ -338,7 +338,7 @@ class YidaApi {
       departmentId: "1",
     };
     const resp = await this.api.PostResourceRequest("/v2.0/yida/processes/instances/start", payload);
-    console.log(resp.data);
+    logAxiosResponse(this.logger, "info", resp, "uploadInspectionSheetAudit response");
 
     return resp.data;
   }
@@ -391,7 +391,7 @@ class YidaApi {
       departmentId: "1",
     };
     const resp = await this.api.PostResourceRequest("/v2.0/yida/processes/instances/start", payload);
-    console.log(resp.data);
+    logAxiosResponse(this.logger, "info", resp, "uploadProductionMeasurementsAudit response");
 
     return resp.data;
   }
