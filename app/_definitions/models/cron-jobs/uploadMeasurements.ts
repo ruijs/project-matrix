@@ -33,9 +33,8 @@ export default {
       properties: ["value"],
     });
 
-    // while (true) {
-    try {
-      const measurements = await server.getEntityManager<MomRouteProcessParameterMeasurement>("mom_route_process_parameter_measurement").findEntities({
+    async function getMeasurements(limit: number): Promise<MomRouteProcessParameterMeasurement[]> {
+      return await server.getEntityManager<MomRouteProcessParameterMeasurement>("mom_route_process_parameter_measurement").findEntities({
         filters: [
           { operator: "eq", field: "isReported", value: false },
           { operator: "lt", field: "retryTimes", value: 3 },
@@ -69,9 +68,24 @@ export default {
         ],
         pagination: {
           offset: 0,
-          limit: 100,
+          limit: limit,
         },
       });
+    }
+
+    async function uploadMeasurement(measurement: MomRouteProcessParameterMeasurement) {
+      await server.getEntityManager<MomRouteProcessParameterMeasurement>("mom_route_process_parameter_measurement").updateEntityById({
+        id: measurement.id,
+        entityToSave: {
+          retryTimes: (measurement.retryTimes || 0) + 1,
+          isReported: true,
+        },
+      });
+    }
+
+    // while (true) {
+    try {
+      const measurements = await getMeasurements(100);
 
       if (!measurements.length) {
         // break;
@@ -82,22 +96,9 @@ export default {
       // let isOutSpecification = false;
 
       for (const measurement of measurements) {
-        await server.getEntityManager<MomRouteProcessParameterMeasurement>("mom_route_process_parameter_measurement").updateEntityById({
-          id: measurement.id,
-          entityToSave: {
-            retryTimes: (measurement.retryTimes || 0) + 1,
-          },
-        });
-
         // await yidaAPI.uploadProductionMeasurement(measurement);
         await yidaAPI.uploadFAWProcessMeasurement(measurement);
-
-        await server.getEntityManager<MomRouteProcessParameterMeasurement>("mom_route_process_parameter_measurement").updateEntityById({
-          id: measurement.id,
-          entityToSave: {
-            isReported: true,
-          },
-        });
+        await uploadMeasurement(measurement);
 
         const waitTime = yidaSetting?.value ? Number(yidaSetting.value) : 1000;
         await waitSeconds(waitTime);
@@ -109,7 +110,6 @@ export default {
         //   isOutSpecification = true;
         // }
       }
-
       await waitSeconds(1000 * 10);
 
       // if (isOutSpecification && notifyEnabled) {
