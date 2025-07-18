@@ -7,7 +7,7 @@ import { waitSeconds } from "~/utils/promise-utility";
 export default {
   code: "uploadHuateMeasurements",
 
-  cronTime: "*/2 * * * *",
+  cronTime: "0 0/2 * * * *",
 
   jobOptions: {
     waitForCompletion: true,
@@ -33,93 +33,94 @@ export default {
       properties: ["value"],
     });
 
-    while (true) {
-      try {
-        const measurements = await server.getEntityManager<MomRouteProcessParameterMeasurement>("mom_route_process_parameter_measurement").findEntities({
-          filters: [
-            { operator: "eq", field: "isReported", value: false },
-            { operator: "lt", field: "retryTimes", value: 3 },
-          ],
-          properties: [
-            "id",
-            "process",
-            "equipment",
-            "workOrder",
-            "upperLimit",
-            "lowerLimit",
-            "nominal",
-            "value",
-            "isOutSpecification",
-            "dimension",
-            "workReport",
-            "fawCode",
-            "createdAt",
-            "retryTimes",
-          ],
-          relations: {
-            workOrder: {
-              properties: ["id", "factory", "material", "process", "code", "process", "equipment", "createdBy"],
-            },
+    // while (true) {
+    try {
+      const measurements = await server.getEntityManager<MomRouteProcessParameterMeasurement>("mom_route_process_parameter_measurement").findEntities({
+        filters: [
+          { operator: "eq", field: "isReported", value: false },
+          { operator: "lt", field: "retryTimes", value: 3 },
+        ],
+        properties: [
+          "id",
+          "process",
+          "equipment",
+          "workOrder",
+          "upperLimit",
+          "lowerLimit",
+          "nominal",
+          "value",
+          "isOutSpecification",
+          "dimension",
+          "workReport",
+          "fawCode",
+          "createdAt",
+          "retryTimes",
+        ],
+        relations: {
+          workOrder: {
+            properties: ["id", "factory", "material", "process", "code", "process", "equipment", "createdBy"],
           },
-          orderBy: [
-            {
-              field: "id",
-              desc: true,
-            },
-          ],
-          pagination: {
-            offset: 0,
-            limit: 50,
+        },
+        orderBy: [
+          {
+            field: "id",
+            desc: true,
+          },
+        ],
+        pagination: {
+          offset: 0,
+          limit: 100,
+        },
+      });
+
+      if (!measurements.length) {
+        // break;
+        return;
+      }
+
+      // let notifyEnabled = false;
+      // let isOutSpecification = false;
+
+      for (const measurement of measurements) {
+        await server.getEntityManager<MomRouteProcessParameterMeasurement>("mom_route_process_parameter_measurement").updateEntityById({
+          id: measurement.id,
+          entityToSave: {
+            retryTimes: (measurement.retryTimes || 0) + 1,
           },
         });
 
-        if (!measurements.length) {
-          break;
-        }
+        // await yidaAPI.uploadProductionMeasurement(measurement);
+        await yidaAPI.uploadFAWProcessMeasurement(measurement);
 
-        // let notifyEnabled = false;
-        // let isOutSpecification = false;
+        await server.getEntityManager<MomRouteProcessParameterMeasurement>("mom_route_process_parameter_measurement").updateEntityById({
+          id: measurement.id,
+          entityToSave: {
+            isReported: true,
+          },
+        });
 
-        for (const measurement of measurements) {
-          await server.getEntityManager<MomRouteProcessParameterMeasurement>("mom_route_process_parameter_measurement").updateEntityById({
-            id: measurement.id,
-            entityToSave: {
-              retryTimes: (measurement.retryTimes || 0) + 1,
-            },
-          });
-
-          // await yidaAPI.uploadProductionMeasurement(measurement);
-          await yidaAPI.uploadFAWProcessMeasurement(measurement);
-
-          await server.getEntityManager<MomRouteProcessParameterMeasurement>("mom_route_process_parameter_measurement").updateEntityById({
-            id: measurement.id,
-            entityToSave: {
-              isReported: true,
-            },
-          });
-
-          const waitTime = yidaSetting?.value ? Number(yidaSetting.value) : 1000;
-          await waitSeconds(waitTime);
-          // if (measurement.process?.config?.notifyEnabled) {
-          //   notifyEnabled = true;
-          // }
-
-          // if (measurement.isOutSpecification) {
-          //   isOutSpecification = true;
-          // }
-        }
-
-        await waitSeconds(1000 * 10);
-
-        // if (isOutSpecification && notifyEnabled) {
-        //   await yidaAPI.uploadProductionMeasurementsAudit(measurements);
+        const waitTime = yidaSetting?.value ? Number(yidaSetting.value) : 1000;
+        await waitSeconds(waitTime);
+        // if (measurement.process?.config?.notifyEnabled) {
+        //   notifyEnabled = true;
         // }
-      } catch (e: any) {
-        logger.error("uploadHuateMeasurements failed." + e.message);
-        console.log(e);
+
+        // if (measurement.isOutSpecification) {
+        //   isOutSpecification = true;
+        // }
       }
+
+      await waitSeconds(1000 * 10);
+
+      // if (isOutSpecification && notifyEnabled) {
+      //   await yidaAPI.uploadProductionMeasurementsAudit(measurements);
+      // }
+    } catch (e: any) {
+      logger.error("uploadHuateMeasurements failed." + e.message);
+      console.log(e);
     }
 
     logger.info("Finished uploadHuateMeasurements job...");
   },
+  // },
 } satisfies CronJobConfiguration;
