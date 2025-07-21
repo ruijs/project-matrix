@@ -601,6 +601,7 @@ class YidaApi {
         textField_l3plle2q: input.lowerLimit, // 下公差
         textField_l3plle2s: input.upperLimit, // 上公差
         textField_l3plle2u: input.workReport.lotNum, // intime
+        textField_mcpmgb5k: input.equipment?.code, // 设备
       };
 
       let formDataJsonStr = JSON.stringify(formDataJson);
