@@ -4,6 +4,7 @@ import YidaHelper from "~/sdk/yida/helper";
 import YidaApi from "~/sdk/yida/api";
 import { waitSeconds } from "~/utils/promise-utility";
 import type { IRpdServer, Logger } from "@ruiapp/rapid-core";
+import { pick } from "lodash";
 
 export default {
   code: "uploadHuateMeasurements",
@@ -33,7 +34,9 @@ export default {
       properties: ["value"],
     });
 
+    logger.info(`Fetching measurements...`);
     const measurements = await getMeasurements(server, 100);
+    logger.info(`${measurements.length} measurements fetched.`);
 
     if (!measurements.length) {
       return;
@@ -45,7 +48,7 @@ export default {
     for (const measurement of measurements) {
       await uploadMeasurement(server, logger, yidaAPI, measurement);
 
-      const waitTime = yidaSetting?.value ? Number(yidaSetting.value) : 1000;
+      const waitTime = Number(yidaSetting?.value) || 1000;
       await waitSeconds(waitTime);
       // if (measurement.process?.config?.notifyEnabled) {
       //   notifyEnabled = true;
@@ -107,27 +110,22 @@ async function getMeasurements(server: IRpdServer, limit: number): Promise<MomRo
 }
 
 async function uploadMeasurement(server: IRpdServer, logger: Logger, yidaAPI: YidaApi, measurement: MomRouteProcessParameterMeasurement) {
-  var flag = false;
+  logger.info("Reporting measurement. %o", pick(measurement, ["id", "retryTimes", "createdAt"]));
+  let uploadSucceeded = false;
   try {
     await yidaAPI.uploadFAWProcessMeasurement(measurement);
-    flag = true;
+    uploadSucceeded = true;
   } catch (e: any) {
     logger.error("uploadHuateMeasurements failed." + e.message);
-    console.log(e);
-  } finally {
-    flag
-      ? await server.getEntityManager("mom_route_process_parameter_measurement").updateEntityById({
-          id: measurement.id,
-          entityToSave: {
-            isReported: true,
-            retryTimes: (measurement.retryTimes || 0) + 1,
-          },
-        })
-      : await server.getEntityManager("mom_route_process_parameter_measurement").updateEntityById({
-          id: measurement.id,
-          entityToSave: {
-            retryTimes: (measurement.retryTimes || 0) + 1,
-          },
-        });
   }
+
+  let entityToSave: Partial<MomRouteProcessParameterMeasurement> = {
+    isReported: uploadSucceeded,
+    retryTimes: (measurement.retryTimes || 0) + 1,
+  };
+
+  await server.getEntityManager("mom_route_process_parameter_measurement").updateEntityById({
+    id: measurement.id,
+    entityToSave,
+  });
 }

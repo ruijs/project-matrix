@@ -1,4 +1,5 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
+import { pick } from "lodash";
 
 interface YidaSDKConfig {
   baseURL: string;
@@ -29,18 +30,15 @@ class YidaSDK {
     this.accessTokenExpireIn = config.accessTokenExpireIn;
   }
 
-  private async request<T>(config: AxiosRequestConfig): Promise<AxiosResponse<T>> {
-    try {
-      await this.ensureTokensAreValid();
-      return await this.axiosInstance.request<T>(config);
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        console.error("Axios error:", error.response?.data);
-      } else {
-        console.error("Unexpected error:", error);
-      }
-      throw error;
+  private async request<T>(config: AxiosRequestConfig, debug: boolean = false): Promise<AxiosResponse<T>> {
+    if (debug) {
+      console.log("Starting Request with config: ", config);
     }
+    const response = await this.axiosInstance.request<T>(config);
+    if (debug) {
+      console.log("Response: ", pick(response, ["status", "headers", "data"]));
+    }
+    return response;
   }
 
   public async ensureTokensAreValid(): Promise<void> {
@@ -62,7 +60,7 @@ class YidaSDK {
       },
     };
 
-    const response = await this.axiosInstance.request<any>(config);
+    const response = await this.request<any>(config);
     const data = response.data;
 
     console.log("refreshAccessToken: " + JSON.stringify(data));
@@ -83,19 +81,6 @@ class YidaSDK {
       },
       data: payload,
     };
-
-    if (debug) {
-      // 打印请求和响应日志
-      this.axiosInstance.interceptors.request.use((request) => {
-        console.log("Starting Request", JSON.stringify(request, null, 2));
-        return request;
-      });
-
-      this.axiosInstance.interceptors.response.use((response) => {
-        console.log("Response:", JSON.stringify(response.data, null, 2));
-        return response;
-      });
-    }
     return this.request<any>(config);
   }
 
@@ -110,20 +95,7 @@ class YidaSDK {
       },
       data: payload,
     };
-
-    if (debug) {
-      // 打印请求和响应日志
-      this.axiosInstance.interceptors.request.use((request) => {
-        console.log("Starting Request", JSON.stringify(request, null, 2));
-        return request;
-      });
-
-      this.axiosInstance.interceptors.response.use((response) => {
-        console.log("Response:", JSON.stringify(response.data, null, 2));
-        return response;
-      });
-    }
-    return this.request<any>(config);
+    return await this.request<any>(config, debug);
   }
 
   public async GetResourceRequest(resourceUrl: string, payload: object, debug: boolean = false): Promise<AxiosResponse<any>> {
@@ -139,19 +111,7 @@ class YidaSDK {
         "x-acs-dingtalk-access-token": this.accessToken,
       },
     };
-    if (debug) {
-      // 打印请求和响应日志
-      this.axiosInstance.interceptors.request.use((request) => {
-        console.log("Starting Request", JSON.stringify(request, null, 2));
-        return request;
-      });
-
-      this.axiosInstance.interceptors.response.use((response) => {
-        console.log("Response:", JSON.stringify(response.data, null, 2));
-        return response;
-      });
-    }
-    return this.request<any>(config);
+    return await this.request<any>(config, debug);
   }
 }
 
