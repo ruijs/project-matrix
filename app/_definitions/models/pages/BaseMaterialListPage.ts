@@ -67,6 +67,10 @@ const formConfig: Partial<RapidEntityFormConfig> = {
       type: "auto",
       code: "safetyStockQuantity",
     },
+    {
+      type: "auto",
+      code: "stockUpperLimit",
+    },
   ],
 };
 

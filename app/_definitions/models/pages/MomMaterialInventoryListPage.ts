@@ -46,6 +46,14 @@ const formConfig: Partial<RapidEntityFormConfig> = {
       type: "auto",
       code: "onHandQuantity",
     },
+    {
+      type: "auto",
+      code: "config",
+    },
+    {
+      type: "auto",
+      code: "partManager",
+    },
     // {
     //   type: "auto",
     //   code: "reservedQuantity",

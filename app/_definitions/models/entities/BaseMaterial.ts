@@ -116,6 +116,11 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
       name: "安全库存数量",
       type: "float",
     },
+    {
+      code: "stockUpperLimit",
+      name: "库存上限",
+      type: "float",
+    },
   ],
 };
 

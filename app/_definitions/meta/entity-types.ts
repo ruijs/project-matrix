@@ -693,6 +693,10 @@ export interface BaseMaterial {
    */
   safetyStockQuantity?: number;
   /**
+   * 库存上限
+   */
+  stockUpperLimit?: number;
+  /**
    * 创建时间
    */
   createdAt?: string;
@@ -5880,6 +5884,14 @@ export interface MomMaterialInventoryBalance {
    * 销售在途数量
    */
   shippingQuantity?: number;
+  /**
+   * 配置
+   */
+  config?: string;
+  /**
+   * 零件负责人
+   */
+  partManager?: string;
   /**
    * 创建时间
    */
