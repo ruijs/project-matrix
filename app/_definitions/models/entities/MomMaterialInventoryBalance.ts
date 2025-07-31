@@ -77,6 +77,16 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
       description: "正在发往客户途中的数量。一旦运达，应该扣减相应的已发货数量，增加相应的已交付数量。",
       type: "double",
     },
+    {
+      code: "config",
+      name: "配置",
+      type: "text",
+    },
+    {
+      code: "partManager",
+      name: "零件负责人",
+      type: "text",
+    },
   ],
 };
 
