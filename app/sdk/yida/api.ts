@@ -1114,18 +1114,18 @@ class YidaApi {
       textField_l3plle23: "AudiA4L", // 车型
       textField_l3plle24: "8WD863947A", // 零件号
       textField_l3plle25: "前围隔音垫", // 零件名
-      textField_l3plle26: "/", // 配置
+      textField_l3plle26: input.config, // 配置
       textField_l3plle27: input.material?.name, // 工位
       textField_l3plle29: "计件库存", // 参数名
       numberField_l3plle2x: input?.onHandQuantity || 0, // 参数值
       numberField_l3plle2y: input.material?.safetyStockQuantity || 0, // 下公差
-      // numberField_l3plle2z: input.upperLimit,// 上公差
+      numberField_l3plle2z: input.material?.stockUpperLimit || 0, // 上公差
       dateField_l3plle30: dayjs().unix() * 1000,
       textField_l3plle2h: (input.onHandQuantity || 0) > (input.material?.safetyStockQuantity || 0) ? "合格" : "不合格",
-      textField_l3plle2m: "/", // 零件负责人
+      textField_l3plle2m: input.partManager, // 零件负责人
       textField_l3plle2o: input?.onHandQuantity, // 参数值
       textField_l3plle2q: input.material?.safetyStockQuantity, // 下公差
-      // textField_l3plle2s: input.upperLimit,// 上公差
+      textField_l3plle2s: input.material?.stockUpperLimit, // 上公差
       textField_l3plle2u: "/", // intime
     };
 
