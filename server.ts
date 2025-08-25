@@ -133,7 +133,7 @@ export async function createRapidServer(logger: Logger, envs: any) {
       new EventLogPlugin(),
       new SequencePlugin(),
       new WebhooksPlugin(),
-      new AuthPlugin(),
+      new AuthPlugin({}),
       new FileManagePlugin(),
       new ServerOperationPlugin({
         operations: serverOperations,
