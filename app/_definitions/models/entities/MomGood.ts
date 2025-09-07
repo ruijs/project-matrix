@@ -136,6 +136,12 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
       targetIdColumnName: "lot_id",
     },
   ],
+  indexes: [
+    {
+      name: "idx_mom_goods_state",
+      properties: ["state"],
+    },
+  ],
 };
 
 export default entity;

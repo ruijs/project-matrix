@@ -1,7 +1,7 @@
 import type { TDictionaryCodes } from "../../meta/data-dictionary-codes";
 import type { TEntitySingularCodes } from "../../meta/model-codes";
 import type { RapidEntity } from "@ruiapp/rapid-extension";
-import {PropertySequenceConfig} from "@ruiapp/rapid-core";
+import { PropertySequenceConfig } from "@ruiapp/rapid-core";
 
 const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
   namespace: "mom",
@@ -58,7 +58,7 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
             segments: [
               {
                 type: "literal",
-                content: "BN-"
+                content: "BN-",
               },
               {
                 type: "year",
@@ -157,10 +157,15 @@ const entity: RapidEntity<TEntitySingularCodes, TDictionaryCodes> = {
     {
       code: "isTankerTransportation",
       name: "罐车运输",
-      type: "boolean"
+      type: "boolean",
+    },
+  ],
+  indexes: [
+    {
+      name: "idx_mom_good_transfers_good_id",
+      properties: ["good"],
     },
   ],
 };
-
 
 export default entity;
