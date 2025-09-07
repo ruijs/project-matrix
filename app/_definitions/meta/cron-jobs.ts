@@ -6,6 +6,7 @@ import kisSyncInventoryApplicationsJob from '../models/cron-jobs/kisSyncInventor
 import kis_sync_audit_status from '../models/cron-jobs/kis_sync_audit_status';
 import kis_sync_base_data_job from '../models/cron-jobs/kis_sync_base_data_job';
 import kis_sync_inventory_data_job from '../models/cron-jobs/kis_sync_inventory_data_job';
+import refreshGoodLocation from '../models/cron-jobs/refreshGoodLocation';
 import update_inventory_balance from '../models/cron-jobs/update_inventory_balance';
 
 export default [
@@ -16,5 +17,6 @@ export default [
   kis_sync_audit_status,
   kis_sync_base_data_job,
   kis_sync_inventory_data_job,
+  refreshGoodLocation,
   update_inventory_balance,
 ] as TCronJobConfiguration[];
