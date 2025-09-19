@@ -1,6 +1,7 @@
 import type { ActionHandlerContext, IRpdServer, RouteContext, ServerOperation } from "@ruiapp/rapid-core";
 import { every, find } from "lodash";
 import type { BaseLot, BaseMaterial } from "~/_definitions/meta/entity-types";
+import { roundWithPrecision } from "~/utils/number-utils";
 
 export type QueryGoodOutTransferInput = {
   operationId: number;
@@ -151,7 +152,7 @@ WHERE operation_id = $1;
 
   // 统计待出库物料数量，并查询待出库物料所在库位信息
   for (const item of itemsShouldOperate) {
-    item.waiting_amount = Math.max(item.total_amount - item.completed_amount, 0);
+    item.waiting_amount = roundWithPrecision(Math.max(item.total_amount - item.completed_amount, 0), 4);
 
     if (item.waiting_amount === 0) {
       continue;
@@ -208,9 +209,9 @@ ORDER BY bl.code;
       material: item.material,
       lotNum: item.lot_num,
       binNums: item.bin_nums,
-      totalAmount: item.total_amount,
-      completedAmount: item.completed_amount,
-      waitingAmount: item.waiting_amount,
+      totalAmount: roundWithPrecision(item.total_amount, 4),
+      completedAmount: roundWithPrecision(item.completed_amount, 4),
+      waitingAmount: roundWithPrecision(item.waiting_amount, 4),
       lot: item.lot,
       goods: item.goods,
       transfers: item.transfers,
