@@ -15,7 +15,7 @@ export default {
 
   Renderer(context, props) {
     const { createOperationRecord, creating } = useApplicationOperationRecords(async () => {
-      await context.scope.getStore("operationList").loadData();
+      await context.page.getStore("operationList").loadData();
 
       context.page.sendComponentMessage("operationInfoBlock", {
         name: "rerenderRock",
@@ -155,7 +155,7 @@ export default {
       });
     };
 
-    const operationDetail = first(get(context.scope.getStore("operationList"), "data.list"));
+    const operationDetail = first(get(context.page.getStore("operationList"), "data.list"));
 
     if (operationDetail) {
       return (
