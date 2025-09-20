@@ -383,7 +383,7 @@ function getFormConfig(formType: "newForm" | "editForm") {
   return formConfig;
 }
 
-const operationDataExp = `_.first(_.get($page.getScope('applicationItemList-scope')?.getStore('operationList'), 'data.list'))`;
+const operationDataExp = `_.first(_.get($page.getStore('operationList'), 'data.list'))`;
 const page: RapidPage = {
   code: "mom_inventory_modify_application_details",
   parentCode: "mom_inventory_modify_application_list",
@@ -649,39 +649,9 @@ const page: RapidPage = {
               ],
               newForm: cloneDeep(omit(getFormConfig("newForm"), ["relations", "formDataAdapter"])),
               editForm: cloneDeep(omit(getFormConfig("editForm"), "customRequest")),
-              stores: [
-                {
-                  type: "entityStore",
-                  name: "operationList",
-                  entityCode: "MomInventoryOperation",
-                  properties: ["id", "application", "code", "createdAt", "state", "operationType", "businessType"],
-                  filters: [
-                    {
-                      field: "application_id",
-                      operator: "eq",
-                      value: "",
-                    },
-                    {
-                      field: "operationType",
-                      operator: "eq",
-                      value: "in",
-                    },
-                  ],
-                  pagination: {
-                    limit: 1,
-                  },
-                  orderBy: [
-                    {
-                      field: "createdAt",
-                      desc: true,
-                    },
-                  ],
-                },
-              ],
+
               $exps: {
                 hideActionsColumn: "_.get(_.first(_.get($stores.detail, 'data.list')), 'operationState') === 'done'",
-                "stores[0].filters[0].value": "$rui.parseQuery().id",
-                "stores[0].filters[1].value": "$rui.parseQuery().operationType",
                 "fixedFilters[0].filters[0].value": "$rui.parseQuery().id",
                 "newForm.fixedFields.application": "$rui.parseQuery().id",
               },
@@ -1150,6 +1120,39 @@ const page: RapidPage = {
         // $exps: {
         //   _hidden: `$rui.parseQuery().operationType !== 'in'`,
         // },
+      },
+    },
+  ],
+  stores: [
+    {
+      type: "entityStore",
+      name: "operationList",
+      entityCode: "MomInventoryOperation",
+      properties: ["id", "application", "code", "createdAt", "state", "operationType", "businessType"],
+      filters: [
+        {
+          field: "application_id",
+          operator: "eq",
+          value: "",
+        },
+        {
+          field: "operationType",
+          operator: "eq",
+          value: "in",
+        },
+      ],
+      pagination: {
+        limit: 1,
+      },
+      orderBy: [
+        {
+          field: "createdAt",
+          desc: true,
+        },
+      ],
+      $exps: {
+        "filters[0].value": "$rui.parseQuery().id",
+        "filters[1].value": "$rui.parseQuery().operationType",
       },
     },
   ],
