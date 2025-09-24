@@ -270,6 +270,17 @@ const page: RapidPage = {
         items: [
           {
             type: "auto",
+            code: "code",
+            filterMode: "contains",
+          },
+          {
+            type: "auto",
+            code: "application",
+            filterMode: "eq",
+            filterFields: ["application_id"],
+          },
+          {
+            type: "auto",
             code: "businessType",
             filterMode: "in",
             filterFields: ["business_id"],

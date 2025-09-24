@@ -402,12 +402,157 @@ const page: RapidPage = {
           return data;
         `,
         items: [
-          // {
-          //   type: "auto",
-          //   code: "businessType",
-          //   filterMode: "in",
-          //   filterFields: ["business_id"],
-          // },
+          {
+            type: "auto",
+            code: "code",
+            filterMode: "contains",
+          },
+          {
+            type: "auto",
+            label: "仓库",
+            code: "to",
+            formControlType: "rapidTableSelect",
+            formControlProps: {
+              allowClear: true,
+              dropdownMatchSelectWidth: 500,
+              multiply: false,
+              listTextFormat: "{{name}}",
+              listValueFieldName: "id",
+              listFilterFields: ["name"],
+              searchPlaceholder: "搜索仓库",
+              columns: [
+                {
+                  title: "仓库",
+                  code: "name",
+                  format: "{{name}}",
+                  width: 260,
+                },
+              ],
+              requestConfig: {
+                url: `/app/base_locations/operations/find`,
+                params: {
+                  fixedFilters: [
+                    {
+                      operator: "and",
+                      filters: [
+                        {
+                          field: "type",
+                          operator: "eq",
+                          value: "warehouse",
+                        },
+                      ],
+                    },
+                  ],
+                  orderBy: [
+                    {
+                      field: "orderNum",
+                    },
+                  ],
+                  properties: ["id", "code", "name", "orderNum"],
+                  pagination: {
+                    limit: 20,
+                    offset: 0,
+                  },
+                },
+              },
+              onSelectedRecord: [
+                {
+                  $action: "script",
+                  script: `
+                  const info = event.args || {};
+                  event.page.sendComponentMessage(event.sender.$id, {
+                    name: "setFieldsValue",
+                    payload: {
+                       to: info[0]?.id,
+                    }
+                  });
+                `,
+                },
+              ],
+            },
+            filterFields: [
+              {
+                operator: "or",
+                filters: [
+                  {
+                    field: "from_warehouse_id",
+                    operator: "eq",
+                  },
+                  {
+                    field: "to_warehouse_id",
+                    operator: "eq",
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            type: "auto",
+            label: "物品",
+            code: "material",
+            formControlType: "rapidTableSelect",
+            formControlProps: {
+              allowClear: true,
+              dropdownMatchSelectWidth: 500,
+              multiply: false,
+              labelRendererType: "materialLabelRenderer",
+              listValueFieldName: "id",
+              listFilterFields: ["name", "code", "specification"],
+              searchPlaceholder: "搜索物料编码、 名称、 规格",
+              columns: [
+                {
+                  title: "物品",
+                  code: "material",
+                  rendererType: "materialLabelRenderer",
+                  rendererProps: {
+                    $exps: {
+                      value: "$slot.record",
+                    },
+                  },
+                  width: 260,
+                },
+              ],
+              requestConfig: {
+                url: `/app/base_materials/operations/find`,
+                params: {
+                  properties: ["id", "name", "code", "specification"],
+                  orderBy: [{ field: "code" }],
+                },
+              },
+              onSelectedRecord: [
+                {
+                  $action: "script",
+                  script: `
+                  const info = event.args || {};
+                  event.page.sendComponentMessage(event.sender.$id, {
+                    name: "setFieldsValue",
+                    payload: {
+                       material: info[0]?.id,
+                    }
+                  });
+                `,
+                },
+              ],
+            },
+            filterFields: [
+              {
+                field: "items",
+                operator: "exists",
+                filters: [
+                  {
+                    field: "material",
+                    operator: "exists",
+                    filters: [
+                      {
+                        field: "id",
+                        operator: "eq",
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
           {
             type: "auto",
             code: "applicant",
@@ -439,6 +584,13 @@ const page: RapidPage = {
                   applicant: changedValues?.applicant,
                 }, true);
               }
+
+               if(changedValues.hasOwnProperty('to')){
+                event.scope.setVars({
+                  warehouse: changedValues?.to,
+                }, true);
+              }
+
               if(changedValues.hasOwnProperty('createdAt')){
                 event.scope.setVars({
                   createdAt: changedValues?.createdAt[0],
