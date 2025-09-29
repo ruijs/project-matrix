@@ -34,7 +34,9 @@ const formConfig: Partial<RapidEntityFormConfig> = {
       code: "sampleCount",
       required: true,
       formControlProps: {
-        disabled: "$scope.vars.state === 'inspected'",
+        $exps: {
+          disabled: "$self.form.getFieldValue('state') === 'inspected'",
+        },
       },
     },
     // {
@@ -100,10 +102,14 @@ const formConfig: Partial<RapidEntityFormConfig> = {
     //   type: "auto",
     //   code: "result",
     // },
-    // {
-    //   type: "auto",
-    //   code: "state",
-    // },
+    {
+      type: "auto",
+      code: "state",
+      hidden: true,
+      formControlProps: {
+        disabled: true,
+      },
+    },
     // {
     //   type: "auto",
     //   code: "approvalState",
