@@ -44,7 +44,12 @@ export default {
 
       const getManfactureDate = async () => {
         if (applicationDetail?.businessType?.name == "生产入库") {
-          return get(props.record, "lotNum")?.split("-")[0];
+          const dateText = get(props.record, "lotNum")?.split("-")[0];
+          const date = dayjs(dateText);
+          if (date.isValid()) {
+            return dateText;
+          }
+          return null;
         }
 
         if (applicationDetail?.businessType?.name === "生产退料入库") {
